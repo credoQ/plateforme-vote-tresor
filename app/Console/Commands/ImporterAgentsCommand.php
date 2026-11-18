@@ -9,8 +9,8 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
 
-#[Signature('agents:importer {fichier : Chemin du fichier CSV des agents} {--date= : Date de début des affectations sans date (AAAA-MM-JJ, aujourd\'hui par défaut)}')]
-#[Description('Importe les agents et leurs affectations depuis un fichier CSV (R11 à R13)')]
+#[Signature('agents:importer {fichier : Chemin du fichier Excel (.xlsx) ou CSV des agents} {--date= : Date de début des affectations sans date (AAAA-MM-JJ, aujourd\'hui par défaut)}')]
+#[Description('Importe les agents et leurs affectations depuis un fichier Excel ou CSV (R11 à R13)')]
 class ImporterAgentsCommand extends Command
 {
     public function handle(ImporterAgents $importer): int

@@ -10,13 +10,16 @@
     <meta charset="utf-8">
     <title>Procès-verbal {{ $pv->numero }}</title>
     <style>
-        body { font-family: Montserrat, Arial, sans-serif; font-size: 12pt; margin: 2cm; }
+        body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 11pt; margin: 1.5cm; }
+        @page { margin: 1cm; }
         h1 { font-size: 16pt; text-transform: uppercase; text-align: center; margin-bottom: 0.2cm; }
         p.sous-titre { text-align: center; margin-top: 0; }
         table { width: 100%; border-collapse: collapse; margin: 0.5cm 0; }
         th, td { border: 1px solid; padding: 6px 8px; text-align: left; }
         td.nombre, th.nombre { text-align: right; font-variant-numeric: tabular-nums; }
-        .signatures { margin-top: 2cm; display: flex; justify-content: space-between; }
+        .signatures { margin-top: 2cm; width: 100%; }
+        .signatures td { border: 0; width: 50%; padding: 0; }
+        .signatures td + td { text-align: right; }
         .empreinte { font-family: monospace; font-size: 9pt; word-break: break-all; }
     </style>
 </head>
@@ -62,9 +65,6 @@
 
     <p>Empreinte du dernier bulletin de l’urne :<br><span class="empreinte">{{ $pv->empreinte_chaine ?? 'Aucun bulletin' }}</span></p>
 
-    <div class="signatures">
-        <span>Pour le comité d’organisation</span>
-        <span>Le président</span>
-    </div>
+    <table class="signatures"><tr><td>Pour le comité d’organisation</td><td>Le président</td></tr></table>
 </body>
 </html>

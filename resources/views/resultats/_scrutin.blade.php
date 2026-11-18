@@ -111,6 +111,7 @@
         @if ($pv->fichier)
             <div class="carte__corps formulaire__actions">
                 <a href="{{ route('resultats.proces-verbal', $scrutin) }}" class="btn btn-secondaire" target="_blank" rel="noopener"><i data-lucide="file-text"></i>Ouvrir le procès-verbal</a>
+                <a href="{{ route('resultats.proces-verbal', [$scrutin, 'format' => 'pdf']) }}" class="btn btn-tertiaire"><i data-lucide="file-down"></i>Télécharger le PDF</a>
                 @if ($scrutin->statut === StatutScrutin::ResultatsPublies)
                     <a href="{{ route('exports.resultats', $scrutin) }}" class="btn btn-tertiaire"><i data-lucide="download"></i>Exporter les résultats</a>
                 @endif

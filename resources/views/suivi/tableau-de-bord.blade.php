@@ -50,7 +50,7 @@
                     <tbody>
                         @forelse ($scrutins as $ligne)
                             <tr>
-                                <td>{{ $ligne['scrutin']->libelle }}<div class="aide">{{ $ligne['scrutin']->code }} · {{ $ligne['scrutin']->candidates_actives }} candidate(s)</div></td>
+                                <td><a class="lien" href="{{ route('scrutins.show', $ligne['scrutin']) }}">{{ $ligne['scrutin']->libelle }}</a><div class="aide">{{ $ligne['scrutin']->code }} · {{ $ligne['scrutin']->candidates_actives }} candidate(s)</div></td>
                                 <td>{{ $ligne['scrutin']->poleElectoral?->code->libelle() ?? 'Toute la DGTCP' }}</td>
                                 <td class="nombre">{{ number_format($ligne['inscrits'], 0, ',', ' ') }}</td>
                                 <td class="nombre">{{ number_format($ligne['votants'], 0, ',', ' ') }}</td>

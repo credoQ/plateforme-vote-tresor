@@ -4,6 +4,7 @@ use App\Http\Controllers\Acces\ConnexionController;
 use App\Http\Controllers\Acces\MotDePasseController;
 use App\Http\Controllers\Acces\ReinitialisationMotDePasseController;
 use App\Http\Controllers\Acces\UtilisateurController;
+use App\Http\Controllers\Agents\AgentController;
 use App\Http\Controllers\Editions\EditionController;
 use App\Http\Controllers\Editions\PhaseController;
 use App\Http\Controllers\EspaceController;
@@ -29,6 +30,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/mot-de-passe', [MotDePasseController::class, 'update'])->name('mot-de-passe.update');
 
     Route::get('/espace', EspaceController::class)->name('espace');
+
+    Route::resource('agents', AgentController::class)->except(['destroy']);
+    Route::post('/agents/{agent}/affecter', [AgentController::class, 'affecter'])->name('agents.affecter');
+    Route::post('/agents/{agent}/terminer', [AgentController::class, 'terminer'])->name('agents.terminer');
 
     Route::middleware('can:voter')->group(function () {
         Route::get('/vote', [VoteController::class, 'show'])->name('vote');

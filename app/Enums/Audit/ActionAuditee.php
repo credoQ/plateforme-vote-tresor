@@ -14,6 +14,9 @@ enum ActionAuditee: string
     case MotDePasseReinitialise = 'MOT_DE_PASSE_REINITIALISE';
     case ComptesGeneres = 'COMPTES_GENERES';
     case ImportAgents = 'IMPORT_AGENTS';
+    case AgentEnregistre = 'AGENT_ENREGISTRE';
+    case AgentAffecte = 'AGENT_AFFECTE';
+    case AffectationTerminee = 'AFFECTATION_TERMINEE';
     case EditionLancee = 'EDITION_LANCEE';
     case PhaseOuverte = 'PHASE_OUVERTE';
     case PhaseCloturee = 'PHASE_CLOTUREE';
@@ -40,6 +43,9 @@ enum ActionAuditee: string
             self::MotDePasseReinitialise => 'Mot de passe réinitialisé',
             self::ComptesGeneres => 'Comptes électeurs générés',
             self::ImportAgents => 'Import des agents',
+            self::AgentEnregistre => 'Fiche agent enregistrée',
+            self::AgentAffecte => 'Agent affecté',
+            self::AffectationTerminee => 'Affectation terminée',
             self::EditionLancee => 'Édition lancée',
             self::PhaseOuverte => 'Phase ouverte',
             self::PhaseCloturee => 'Phase clôturée',

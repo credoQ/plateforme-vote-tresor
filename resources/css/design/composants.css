@@ -236,6 +236,28 @@
   .connexion__panneau::before { content: ""; position: absolute; right: -120px; top: 30%; width: 420px; height: 420px; border-radius: 50%; border: 48px solid rgba(255,255,255,.05); }
   .connexion__formulaire { display: grid; place-items: center; padding: 48px 24px; background: var(--tr-surface); }
   .connexion__boite { width: min(400px, 100%); }
+  .connexion__marque { position: relative; display: flex; align-items: center; gap: 14px; }
+  .connexion__marque strong { display: block; font-size: 15px; }
+  .connexion__marque small { font-size: 12px; opacity: .8; }
+  .connexion__embleme { width: 56px; height: 56px; padding: 3px; border-radius: 50%; background: var(--tr-bleu-50); }
+  .connexion__accroche { position: relative; max-width: 440px; }
+  .connexion__accroche h1 { font-size: 32px; line-height: 40px; font-weight: 700; margin: 8px 0 12px; }
+  .connexion__accroche .surtitre { color: var(--tr-accent-sur-primaire); }
+  .connexion__mention { position: relative; font-size: 12px; opacity: .7; }
+  .connexion__boite h2 { font-size: 24px; line-height: 32px; font-weight: 700; }
+  .connexion__boite > p { color: var(--tr-texte-2); margin: 4px 0 28px; }
+  .connexion__options { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 24px; font-size: 13px; }
+  .case { display: flex; gap: 8px; align-items: center; }
+  .case input { width: 16px; height: 16px; accent-color: var(--tr-primaire); }
+
+  /* ---------------------------------------------------------------- formulaires */
+  .formulaire { display: grid; gap: 16px; max-width: 640px; }
+  .formulaire__groupe { display: grid; gap: 6px; }
+  .formulaire__cases { display: flex; flex-wrap: wrap; gap: 12px 20px; }
+  .formulaire__actions { display: flex; gap: 12px; margin-top: 8px; }
+  .erreur-champ { font-size: 13px; color: var(--tr-erreur-700); }
+  .espace-bloc { margin-bottom: 20px; }
+  .secret { font-family: ui-monospace, monospace; font-size: 18px; letter-spacing: .08em; }
 
   /* ---------------------------------------------------------------- responsive (pas de version mobile dédiée) */
   @media (max-width: 1100px) { .grille-tuiles { grid-template-columns: repeat(2, 1fr); } }
@@ -271,4 +293,5 @@
   [data-theme="sombre"] .badge--attente { background: color-mix(in srgb, var(--tr-attente-500) 18%, transparent); color: var(--tr-attente-100); }
   [data-theme="sombre"] .badge--erreur { background: color-mix(in srgb, var(--tr-erreur-500) 18%, transparent); color: var(--tr-erreur-100); }
   [data-theme="sombre"] .badge--accent { background: color-mix(in srgb, var(--tr-or-500) 18%, transparent); color: var(--tr-or-300); box-shadow: none; }
+  [data-theme="sombre"] .erreur-champ { color: var(--tr-erreur-100); }
 }

@@ -4,17 +4,12 @@ namespace Tests\Feature\Models;
 
 use App\Enums\Referentiel\CodePoleElectoral;
 use App\Models\Structure;
-use Database\Seeders\ReferentielSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
 class StructureTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected bool $seed = true;
-
-    protected string $seeder = ReferentielSeeder::class;
 
     /**
      * R10 : seules les structures actives de niveau 1 sont des structures électorales.

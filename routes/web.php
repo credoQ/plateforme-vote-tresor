@@ -1,8 +1,34 @@
 <?php
 
+use App\Http\Controllers\Acces\ConnexionController;
+use App\Http\Controllers\Acces\MotDePasseController;
+use App\Http\Controllers\Acces\ReinitialisationMotDePasseController;
+use App\Http\Controllers\Acces\UtilisateurController;
+use App\Http\Controllers\EspaceController;
 use Illuminate\Support\Facades\Route;
 
-Route::redirect('/', '/maquettes');
+Route::redirect('/', '/espace');
+
+Route::middleware('guest')->group(function () {
+    Route::get('/connexion', [ConnexionController::class, 'create'])->name('connexion');
+    Route::post('/connexion', [ConnexionController::class, 'store'])->name('connexion.store');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('/deconnexion', [ConnexionController::class, 'destroy'])->name('deconnexion');
+    Route::get('/mot-de-passe', [MotDePasseController::class, 'edit'])->name('mot-de-passe.edit');
+    Route::put('/mot-de-passe', [MotDePasseController::class, 'update'])->name('mot-de-passe.update');
+
+    Route::get('/espace', EspaceController::class)->name('espace');
+
+    Route::middleware('can:administrer')->group(function () {
+        Route::resource('utilisateurs', UtilisateurController::class)
+            ->only(['index', 'create', 'store', 'edit', 'update'])
+            ->parameters(['utilisateurs' => 'utilisateur']);
+        Route::post('/utilisateurs/{utilisateur}/reinitialiser', ReinitialisationMotDePasseController::class)
+            ->name('utilisateurs.reinitialiser');
+    });
+});
 
 // Maquettes statiques de la charte (Kadoo 2.0, primaire bleu Trésor) : à retirer avant la mise en production.
 Route::prefix('maquettes')->name('maquettes.')->group(function () {

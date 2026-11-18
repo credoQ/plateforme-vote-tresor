@@ -5,7 +5,6 @@ namespace Tests\Feature\Models;
 use App\Models\Affectation;
 use App\Models\Agent;
 use App\Models\Structure;
-use Database\Seeders\ReferentielSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Tests\TestCase;
@@ -13,10 +12,6 @@ use Tests\TestCase;
 class AgentTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected bool $seed = true;
-
-    protected string $seeder = ReferentielSeeder::class;
 
     /**
      * R13 : en service = une affectation en cours dans une structure active à la date donnée.

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Agent de la DGTCP (R11). La date de prise de service, le téléphone, l'e-mail, la fonction
@@ -43,6 +44,16 @@ class Agent extends Model
     public function affectationLe(?CarbonInterface $date = null): ?Affectation
     {
         return $this->affectations()->enCoursLe($date)->with('structure')->first();
+    }
+
+    /**
+     * Compte utilisateur de l'agent, au plus un (R3).
+     *
+     * @return HasOne<User, $this>
+     */
+    public function compte(): HasOne
+    {
+        return $this->hasOne(User::class);
     }
 
     public function estUneFemme(): bool

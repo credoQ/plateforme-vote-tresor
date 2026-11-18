@@ -16,7 +16,6 @@ use App\Models\Phase;
 use App\Models\Scrutin;
 use App\Models\Structure;
 use App\Models\User;
-use Database\Seeders\ReferentielSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
@@ -25,10 +24,6 @@ use Tests\TestCase;
 class ListesEtCandidatesTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected bool $seed = true;
-
-    protected string $seeder = ReferentielSeeder::class;
 
     private Scrutin $scrutin;
 

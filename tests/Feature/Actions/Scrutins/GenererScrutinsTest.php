@@ -18,7 +18,6 @@ use App\Models\Inscription;
 use App\Models\Phase;
 use App\Models\Scrutin;
 use App\Models\Structure;
-use Database\Seeders\ReferentielSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
@@ -26,10 +25,6 @@ use Tests\TestCase;
 class GenererScrutinsTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected bool $seed = true;
-
-    protected string $seeder = ReferentielSeeder::class;
 
     private Edition $edition;
 

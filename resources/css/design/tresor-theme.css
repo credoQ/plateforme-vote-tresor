@@ -1,0 +1,109 @@
+/* Femme modèle du Trésor · Thème Tailwind CSS 4 (dérivé de Kadoo 2.0, primaire bleu Trésor)
+   À importer après @import "tailwindcss" et après tresor-tokens.css.
+   Classes générées : bg-tresor-600, text-gris-900, text-libelle, rounded-carte, shadow-niveau-1, w-sidebar, max-w-contenu... */
+
+@custom-variant dark (&:where([data-theme=sombre], [data-theme=sombre] *));
+
+@theme {
+  --font-sans: "Montserrat", sans-serif;
+
+  --color-tresor-25: #F8FAFC;
+  --color-tresor-50: #EFF5F9;
+  --color-tresor-100: #E0EAF4;
+  --color-tresor-200: #C2D6E8;
+  --color-tresor-300: #99BBD9;
+  --color-tresor-400: #6698C6;
+  --color-tresor-500: #3376B3;
+  --color-tresor-600: #0054A0;
+  --color-tresor-700: #004788;
+  --color-tresor-800: #003B71;
+  --color-tresor-900: #002E59;
+  --color-tresor-950: #002444;
+
+  --color-gris-25: #FBFCFC;
+  --color-gris-50: #F6F7F8;
+  --color-gris-100: #EEF0F2;
+  --color-gris-200: #E1E4E7;
+  --color-gris-300: #CBD0D4;
+  --color-gris-400: #989EA3;
+  --color-gris-500: #6B7177;
+  --color-gris-600: #4D5359;
+  --color-gris-700: #373D42;
+  --color-gris-800: #24292D;
+  --color-gris-900: #14181B;
+  --color-gris-950: #0A0D0F;
+
+  --color-jaune-50: #FEFDEE;
+  --color-jaune-100: #FDFACD;
+  --color-jaune-300: #F8F166;
+  --color-jaune-500: #F4E800;
+  --color-jaune-600: #B1A800;
+  --color-jaune-700: #6C6700;
+
+  --color-succes-50: #EDFAF1;
+  --color-succes-100: #D3F3DE;
+  --color-succes-500: #1FA35B;
+  --color-succes-700: #11683A;
+
+  --color-attente-50: #FFF6E5;
+  --color-attente-100: #FEE8BF;
+  --color-attente-500: #E8860C;
+  --color-attente-700: #94500A;
+
+  --color-erreur-50: #FDF0EF;
+  --color-erreur-100: #FADBD8;
+  --color-erreur-500: #DC3B2F;
+  --color-erreur-700: #A3241B;
+
+  --color-info-50: #EEF5FC;
+  --color-info-100: #D5E6F7;
+  --color-info-500: #2F7BC4;
+  --color-info-700: #1D4F86;
+
+  --color-drapeau-vert: #008751;
+  --color-drapeau-jaune: #FCD116;
+  --color-drapeau-rouge: #E8112D;
+  --color-graph-1: #0054A0;
+  --color-graph-2: #2E5A21;
+  --color-graph-3: #B98300;
+  --color-graph-4: #8E4FA8;
+  --color-graph-5: #0F9AA3;
+  --color-graph-6: #D0522E;
+  --color-graph-autres: #989EA3;
+
+  /* Styles de texte (charte Kadoo, section 3) */
+  --text-display: 32px; --text-display--line-height: 40px; --text-display--font-weight: 700;
+  --text-h1: 24px; --text-h1--line-height: 32px; --text-h1--font-weight: 700;
+  --text-h2: 18px; --text-h2--line-height: 26px; --text-h2--font-weight: 600;
+  --text-h3: 15px; --text-h3--line-height: 22px; --text-h3--font-weight: 600;
+  --text-corps: 14px; --text-corps--line-height: 22px;
+  --text-libelle: 13px; --text-libelle--line-height: 18px; --text-libelle--font-weight: 500;
+  --text-petit: 12px; --text-petit--line-height: 18px;
+  --text-surtitre: 11px; --text-surtitre--line-height: 16px; --text-surtitre--font-weight: 700; --text-surtitre--letter-spacing: 0.08em;
+
+  /* Rayons, ombres, structure */
+  --radius-etiquette: 6px; --radius-controle: 8px; --radius-carte: 12px; --radius-modale: 14px;
+  --shadow-niveau-1: 0 1px 2px rgba(10, 13, 18, .06);
+  --shadow-niveau-3: 0 12px 32px -6px rgba(10, 13, 18, .18), 0 4px 8px -4px rgba(10, 13, 18, .08);
+  --shadow-lisere: inset 3px 0 0 #F4E800;
+  --spacing-sidebar: 264px; --spacing-sidebar-repliee: 80px; --spacing-entete: 64px;
+  --container-contenu: 1440px;
+}
+
+/* Rôles : suivent le thème clair ou sombre défini dans tresor-tokens.css */
+@theme inline {
+  --color-fond: var(--tr-fond);
+  --color-surface: var(--tr-surface);
+  --color-surface-2: var(--tr-surface-2);
+  --color-bordure: var(--tr-bordure);
+  --color-bordure-legere: var(--tr-bordure-legere);
+  --color-texte: var(--tr-texte);
+  --color-texte-2: var(--tr-texte-2);
+  --color-texte-3: var(--tr-texte-3);
+  --color-primaire: var(--tr-primaire);
+  --color-primaire-survol: var(--tr-primaire-survol);
+  --color-primaire-doux: var(--tr-primaire-doux);
+  --color-primaire-texte: var(--tr-primaire-texte);
+  --color-sur-primaire: var(--tr-sur-primaire);
+  --color-accent: var(--tr-accent);
+}

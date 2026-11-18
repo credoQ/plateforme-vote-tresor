@@ -1,0 +1,138 @@
+{
+ "source": "Kadoo 2.0",
+ "primaire": {
+  "nom": "Bleu Trésor (Pantone 3015 C)",
+  "base": "#0054A0",
+  "remplace": "#046C4E"
+ },
+ "accent": {
+  "nom": "Jaune Trésor (Pantone 803 C)",
+  "base": "#F4E800",
+  "remplace": "#F2BE1A"
+ },
+ "vert_institutionnel": {
+  "nom": "Vert Trésor (Pantone 364 C)",
+  "base": "#2E5A21"
+ },
+ "couleurs": {
+  "bleu": {
+   "25": "#F8FAFC",
+   "50": "#EFF5F9",
+   "100": "#E0EAF4",
+   "200": "#C2D6E8",
+   "300": "#99BBD9",
+   "400": "#6698C6",
+   "500": "#3376B3",
+   "600": "#0054A0",
+   "700": "#004788",
+   "800": "#003B71",
+   "900": "#002E59",
+   "950": "#002444"
+  },
+  "gris": {
+   "25": "#FBFCFC",
+   "50": "#F6F7F8",
+   "100": "#EEF0F2",
+   "200": "#E1E4E7",
+   "300": "#CBD0D4",
+   "400": "#989EA3",
+   "500": "#6B7177",
+   "600": "#4D5359",
+   "700": "#373D42",
+   "800": "#24292D",
+   "900": "#14181B",
+   "950": "#0A0D0F"
+  },
+  "jaune": {
+   "50": "#FEFDEE",
+   "100": "#FDFACD",
+   "300": "#F8F166",
+   "500": "#F4E800",
+   "600": "#B1A800",
+   "700": "#6C6700"
+  },
+  "succes": {
+   "50": "#EDFAF1",
+   "100": "#D3F3DE",
+   "500": "#1FA35B",
+   "700": "#11683A"
+  },
+  "attente": {
+   "50": "#FFF6E5",
+   "100": "#FEE8BF",
+   "500": "#E8860C",
+   "700": "#94500A"
+  },
+  "erreur": {
+   "50": "#FDF0EF",
+   "100": "#FADBD8",
+   "500": "#DC3B2F",
+   "700": "#A3241B"
+  },
+  "info": {
+   "50": "#EEF5FC",
+   "100": "#D5E6F7",
+   "500": "#2F7BC4",
+   "700": "#1D4F86"
+  },
+  "drapeau": {
+   "vert": "#008751",
+   "jaune": "#FCD116",
+   "rouge": "#E8112D"
+  },
+  "graphiques": [
+   [
+    "Bleu Trésor",
+    "#0054A0"
+   ],
+   [
+    "Vert DGTCP",
+    "#2E5A21"
+   ],
+   [
+    "Or",
+    "#B98300"
+   ],
+   [
+    "Prune",
+    "#8E4FA8"
+   ],
+   [
+    "Lagune",
+    "#0F9AA3"
+   ],
+   [
+    "Latérite",
+    "#D0522E"
+   ]
+  ]
+ },
+ "theme_sombre": {
+  "fond": "#0B0F14",
+  "surface": "#121820",
+  "surface-2": "#161E28",
+  "bordure": "#26303C",
+  "bordure-legere": "#1C2530",
+  "texte": "#EEF0F2",
+  "texte-2": "#A9B3BE",
+  "texte-3": "#8A95A1",
+  "primaire": "#4A86BC",
+  "primaire_survol": "#699AC7",
+  "primaire_texte": "#96B9D8"
+ },
+ "police": "Montserrat",
+ "icones": "Lucide",
+ "rayons": {
+  "sm": 6,
+  "defaut": 8,
+  "carte": 12,
+  "modale": 14
+ },
+ "espacement_base": 4,
+ "structure": {
+  "sidebar": 264,
+  "sidebar_repliee": 80,
+  "entete": 64,
+  "contenu_max": 1440
+ }
+}

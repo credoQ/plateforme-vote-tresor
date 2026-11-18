@@ -1,0 +1,81 @@
+@php
+    $t = json_decode(file_get_contents(base_path('design/tokens/tresor-tokens.json')), true);
+    $c = $t['couleurs'];
+@endphp
+<x-layouts.maquette titre="Tokens" :ariane="['Charte', 'Tokens et composants']" profil="comite" actif="">
+    <div class="titre-page">
+        <div>
+            <div class="surtitre">Charte Kadoo 2.0 · bleu et jaune Trésor (charte DGTCP)</div>
+            <h1>Tokens et composants</h1>
+            <p>Couleur de base {{ $t['primaire']['base'] }} (remplace le vert Kadoo {{ $t['primaire']['remplace'] }}). Source : design/tokens/tresor-tokens.json.</p>
+        </div>
+        <div class="titre-page__actions"><button class="btn btn-secondaire" data-basculer-theme><i data-lucide="moon"></i>Thème sombre</button></div>
+    </div>
+
+    <div style="display:grid;gap:20px">
+        <section class="carte">
+            <div class="carte__entete"><h2>Échelle du bleu Trésor</h2><span class="etiquette" style="margin-left:auto">600 = couleur de base</span></div>
+            <div class="carte__corps" style="display:grid;grid-template-columns:repeat(12,1fr);gap:8px">
+                @foreach ($c['bleu'] as $niveau => $hex)
+                    <div>
+                        <div style="height:64px;border-radius:8px;background:{{ $hex }};{{ $niveau === '600' ? 'box-shadow:0 0 0 3px var(--tr-accent)' : 'border:1px solid var(--tr-bordure-legere)' }}"></div>
+                        <div style="font-size:12px;font-weight:700;margin-top:6px">{{ $niveau }}</div><div class="chiffres" style="font-size:11px;color:var(--tr-texte-3)">{{ $hex }}</div>
+                    </div>
+                @endforeach
+            </div>
+        </section>
+
+        <section class="carte">
+            <div class="carte__entete"><h2>Neutres teintés, accent jaune et couleurs d'état</h2></div>
+            <div class="carte__corps" style="display:grid;gap:16px">
+                <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:8px">
+                    @foreach ($c['gris'] as $niveau => $hex)
+                        <div><div style="height:40px;border-radius:8px;background:{{ $hex }};border:1px solid var(--tr-bordure-legere)"></div><div style="font-size:11px;margin-top:4px"><b>{{ $niveau }}</b> <span class="chiffres" style="color:var(--tr-texte-3)">{{ $hex }}</span></div></div>
+                    @endforeach
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px">
+                    @foreach (['jaune' => 'Accent jaune', 'succes' => 'Succès', 'attente' => 'Attente', 'erreur' => 'Erreur', 'info' => 'Info'] as $fam => $nom)
+                        <div><div class="surtitre" style="margin-bottom:6px">{{ $nom }}</div><div style="display:flex;gap:4px">@foreach ($c[$fam] as $n => $hex)<div title="{{ $fam }}-{{ $n }} {{ $hex }}" style="flex:1;height:36px;border-radius:6px;background:{{ $hex }}"></div>@endforeach</div></div>
+                    @endforeach
+                </div>
+                <div><div class="surtitre" style="margin-bottom:6px">Graphiques (ordre fixe)</div><div class="legende">@foreach ($c['graphiques'] as [$nom, $hex])<span><i style="background:{{ $hex }}"></i>{{ $nom }} {{ $hex }}</span>@endforeach</div></div>
+            </div>
+        </section>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+            <section class="carte">
+                <div class="carte__entete"><h2>Typographie · Montserrat</h2></div>
+                <div class="carte__corps" style="display:grid;gap:10px">
+                    <div style="font-size:32px;line-height:40px;font-weight:700">Display 32/40</div>
+                    <div style="font-size:24px;line-height:32px;font-weight:700">Titre H1 24/32</div>
+                    <div style="font-size:18px;line-height:26px;font-weight:600">Titre H2 18/26</div>
+                    <div style="font-size:15px;line-height:22px;font-weight:600">Titre H3 15/22</div>
+                    <div>Corps 14/22 · texte courant de l'interface.</div>
+                    <div style="font-size:13px;font-weight:500">Libellé 13/18</div>
+                    <div class="surtitre">Surtitre 11/16</div>
+                </div>
+            </section>
+            <section class="carte">
+                <div class="carte__entete"><h2>Boutons, badges, champs</h2></div>
+                <div class="carte__corps" style="display:grid;gap:16px">
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <button class="btn btn-primaire"><i data-lucide="vote"></i>Primaire</button>
+                        <button class="btn btn-secondaire">Secondaire</button>
+                        <button class="btn btn-tertiaire">Tertiaire</button>
+                        <button class="btn btn-danger">Danger</button>
+                        <button class="btn btn-discret"><i data-lucide="rotate-ccw"></i>Discret</button>
+                        <button class="btn btn-primaire" disabled>Désactivé</button>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap">
+                        <span class="badge badge--primaire">Ouvert</span><span class="badge badge--succes">Clôturé</span><span class="badge badge--attente">À départager</span>
+                        <span class="badge badge--erreur">Annulé</span><span class="badge badge--info">Programmé</span><span class="badge badge--jaune">Lauréate</span><span class="badge">Désactivée</span>
+                    </div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+                        <div><label class="libelle">Champ</label><input class="champ" placeholder="Saisie"></div>
+                        <div><label class="libelle">Lecture seule</label><input class="champ" readonly value="Calculé par le système"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</x-layouts.maquette>

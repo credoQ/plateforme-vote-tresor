@@ -1,0 +1,109 @@
+/* Kadoo 2.0 · Thème Tailwind CSS 4 (charte graphique 2026)
+   À importer après @import "tailwindcss" et après kadoo-tokens.css.
+   Génère les classes bg-kadoo-600, text-gris-900, text-libelle, rounded-carte, shadow-niveau-1, w-sidebar, max-w-contenu... */
+
+/* Thème sombre : attribut data-theme="sombre" sur <html>, relié à la variante dark: */
+@custom-variant dark (&:where([data-theme=sombre], [data-theme=sombre] *));
+
+@theme {
+  --font-sans: "Montserrat", sans-serif;
+
+  --color-kadoo-25: #F7FBFA;
+  --color-kadoo-50: #F0F6F4;
+  --color-kadoo-100: #E1EDEA;
+  --color-kadoo-200: #C3DCD5;
+  --color-kadoo-300: #9BC4B8;
+  --color-kadoo-400: #68A795;
+  --color-kadoo-500: #368971;
+  --color-kadoo-600: #046C4E;
+  --color-kadoo-700: #045C42;
+  --color-kadoo-800: #044C37;
+  --color-kadoo-900: #033C2B;
+  --color-kadoo-950: #032E21;
+
+  --color-gris-25: #FBFCFB;
+  --color-gris-50: #F6F8F7;
+  --color-gris-100: #EEF2F0;
+  --color-gris-200: #E1E7E4;
+  --color-gris-300: #CBD4D0;
+  --color-gris-400: #98A39E;
+  --color-gris-500: #6B7772;
+  --color-gris-600: #4D5954;
+  --color-gris-700: #37423D;
+  --color-gris-800: #242D29;
+  --color-gris-900: #141B18;
+  --color-gris-950: #0A0F0D;
+
+  --color-or-50: #FFF9E5;
+  --color-or-100: #FEF0BF;
+  --color-or-300: #F9D65C;
+  --color-or-500: #F2BE1A;
+  --color-or-600: #D9A30B;
+  --color-or-700: #8C6A05;
+
+  --color-succes-50: #EDFAF1;
+  --color-succes-100: #D3F3DE;
+  --color-succes-500: #1FA35B;
+  --color-succes-700: #11683A;
+
+  --color-attente-50: #FFF6E5;
+  --color-attente-100: #FEE8BF;
+  --color-attente-500: #E8860C;
+  --color-attente-700: #94500A;
+
+  --color-erreur-50: #FDF0EF;
+  --color-erreur-100: #FADBD8;
+  --color-erreur-500: #DC3B2F;
+  --color-erreur-700: #A3241B;
+
+  --color-info-50: #EEF5FC;
+  --color-info-100: #D5E6F7;
+  --color-info-500: #2F7BC4;
+  --color-info-700: #1D4F86;
+
+  --color-drapeau-vert: #008751;
+  --color-drapeau-jaune: #FCD116;
+  --color-drapeau-rouge: #E8112D;
+  --color-graph-1: #046C4E;
+  --color-graph-2: #3469AE;
+  --color-graph-3: #B98300;
+  --color-graph-4: #8E4FA8;
+  --color-graph-5: #0F9AA3;
+  --color-graph-6: #D0522E;
+  --color-graph-autres: #98A39E;
+
+  /* Styles de texte (section 3 de la charte) */
+  --text-display: 32px; --text-display--line-height: 40px; --text-display--font-weight: 700;
+  --text-h1: 24px; --text-h1--line-height: 32px; --text-h1--font-weight: 700;
+  --text-h2: 18px; --text-h2--line-height: 26px; --text-h2--font-weight: 600;
+  --text-h3: 15px; --text-h3--line-height: 22px; --text-h3--font-weight: 600;
+  --text-corps: 14px; --text-corps--line-height: 22px;
+  --text-libelle: 13px; --text-libelle--line-height: 18px; --text-libelle--font-weight: 500;
+  --text-petit: 12px; --text-petit--line-height: 18px;
+  --text-surtitre: 11px; --text-surtitre--line-height: 16px; --text-surtitre--font-weight: 700; --text-surtitre--letter-spacing: 0.08em;
+
+  /* Rayons, ombres, structure */
+  --radius-etiquette: 6px; --radius-controle: 8px; --radius-carte: 12px; --radius-modale: 14px;
+  --shadow-niveau-1: 0 1px 2px rgba(10, 15, 13, .06);
+  --shadow-niveau-3: 0 12px 32px -6px rgba(10, 15, 13, .18), 0 4px 8px -4px rgba(10, 15, 13, .08);
+  --shadow-lisere: inset 3px 0 0 #F2BE1A;
+  --spacing-sidebar: 264px; --spacing-sidebar-repliee: 80px; --spacing-entete: 64px;
+  --container-contenu: 1440px;
+}
+
+/* Rôles : suivent le thème clair ou sombre défini dans kadoo-tokens.css */
+@theme inline {
+  --color-fond: var(--kd-fond);
+  --color-surface: var(--kd-surface);
+  --color-surface-2: var(--kd-surface-2);
+  --color-bordure: var(--kd-bordure);
+  --color-bordure-legere: var(--kd-bordure-legere);
+  --color-texte: var(--kd-texte);
+  --color-texte-2: var(--kd-texte-2);
+  --color-texte-3: var(--kd-texte-3);
+  --color-primaire: var(--kd-primaire);
+  --color-primaire-survol: var(--kd-primaire-survol);
+  --color-primaire-doux: var(--kd-primaire-doux);
+  --color-primaire-texte: var(--kd-primaire-texte);
+  --color-accent: var(--kd-accent);
+}

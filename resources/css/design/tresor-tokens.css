@@ -1,0 +1,101 @@
+/* Femme modèle du Trésor · Variables de conception · thèmes clair et sombre
+   Généré depuis Kadoo 2.0 : primaire bleu Trésor #0054A0, accent jaune #F4E800 (charte DGTCP). */
+:root{
+  --tr-bleu-25:#F8FAFC;
+  --tr-bleu-50:#EFF5F9;
+  --tr-bleu-100:#E0EAF4;
+  --tr-bleu-200:#C2D6E8;
+  --tr-bleu-300:#99BBD9;
+  --tr-bleu-400:#6698C6;
+  --tr-bleu-500:#3376B3;
+  --tr-bleu-600:#0054A0;
+  --tr-bleu-700:#004788;
+  --tr-bleu-800:#003B71;
+  --tr-bleu-900:#002E59;
+  --tr-bleu-950:#002444;
+  --tr-gris-25:#FBFCFC;
+  --tr-gris-50:#F6F7F8;
+  --tr-gris-100:#EEF0F2;
+  --tr-gris-200:#E1E4E7;
+  --tr-gris-300:#CBD0D4;
+  --tr-gris-400:#989EA3;
+  --tr-gris-500:#6B7177;
+  --tr-gris-600:#4D5359;
+  --tr-gris-700:#373D42;
+  --tr-gris-800:#24292D;
+  --tr-gris-900:#14181B;
+  --tr-gris-950:#0A0D0F;
+  --tr-jaune-50:#FEFDEE;
+  --tr-jaune-100:#FDFACD;
+  --tr-jaune-300:#F8F166;
+  --tr-jaune-500:#F4E800;
+  --tr-jaune-600:#B1A800;
+  --tr-jaune-700:#6C6700;
+  --tr-succes-50:#EDFAF1;
+  --tr-succes-100:#D3F3DE;
+  --tr-succes-500:#1FA35B;
+  --tr-succes-700:#11683A;
+  --tr-attente-50:#FFF6E5;
+  --tr-attente-100:#FEE8BF;
+  --tr-attente-500:#E8860C;
+  --tr-attente-700:#94500A;
+  --tr-erreur-50:#FDF0EF;
+  --tr-erreur-100:#FADBD8;
+  --tr-erreur-500:#DC3B2F;
+  --tr-erreur-700:#A3241B;
+  --tr-info-50:#EEF5FC;
+  --tr-info-100:#D5E6F7;
+  --tr-info-500:#2F7BC4;
+  --tr-info-700:#1D4F86;
+  --tr-drapeau-vert:#008751;
+  --tr-drapeau-jaune:#FCD116;
+  --tr-drapeau-rouge:#E8112D;
+  --tr-graph-1:#0054A0; /* Bleu Trésor */
+  --tr-graph-2:#2E5A21; /* Vert DGTCP */
+  --tr-graph-3:#B98300; /* Or */
+  --tr-graph-4:#8E4FA8; /* Prune */
+  --tr-graph-5:#0F9AA3; /* Lagune */
+  --tr-graph-6:#D0522E; /* Latérite */
+  --tr-graph-autres:#989EA3;
+  --tr-fond:var(--tr-gris-50);
+  --tr-surface:#FFFFFF;
+  --tr-surface-2:var(--tr-gris-25);
+  --tr-bordure:var(--tr-gris-200);
+  --tr-bordure-legere:var(--tr-gris-100);
+  --tr-texte:var(--tr-gris-900);
+  --tr-texte-2:var(--tr-gris-600);
+  --tr-texte-3:var(--tr-gris-500);
+  --tr-primaire:var(--tr-bleu-600);
+  --tr-primaire-survol:var(--tr-bleu-700);
+  --tr-primaire-doux:var(--tr-bleu-50);
+  --tr-primaire-texte:var(--tr-bleu-700);
+  --tr-sur-primaire:#FFFFFF;
+  --tr-accent:var(--tr-jaune-500);
+  --tr-rayon-sm:6px;
+  --tr-rayon:8px;
+  --tr-rayon-carte:12px;
+  --tr-rayon-modale:14px;
+  --tr-ombre-1:0 1px 2px rgba(10,13,18,.06);
+  --tr-ombre-3:0 12px 32px -6px rgba(10,13,18,.18),0 4px 8px -4px rgba(10,13,18,.08);
+  --tr-sidebar:264px;
+  --tr-sidebar-repliee:80px;
+  --tr-entete:64px;
+  --tr-police:"Montserrat",sans-serif;
+}
+[data-theme="sombre"]{
+  --tr-fond:#0B0F14;
+  --tr-surface:#121820;
+  --tr-surface-2:#161E28;
+  --tr-bordure:#26303C;
+  --tr-bordure-legere:#1C2530;
+  --tr-texte:#EEF0F2;
+  --tr-texte-2:#A9B3BE;
+  --tr-texte-3:#8A95A1;
+  --tr-primaire:#4A86BC;
+  --tr-primaire-survol:#699AC7;
+  --tr-primaire-doux:rgba(74,134,188,.16);
+  --tr-primaire-texte:#96B9D8;
+  --tr-sur-primaire:#0A0D0F;
+  --tr-accent:#F4E800;
+  --tr-graph-1:#4A86BC;
+}

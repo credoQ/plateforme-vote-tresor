@@ -1,0 +1,97 @@
+/* Kadoo 2.0 · Variables de conception (charte graphique 2026) · thèmes clair et sombre */
+:root{
+  --kd-vert-25:#F7FBFA;
+  --kd-vert-50:#F0F6F4;
+  --kd-vert-100:#E1EDEA;
+  --kd-vert-200:#C3DCD5;
+  --kd-vert-300:#9BC4B8;
+  --kd-vert-400:#68A795;
+  --kd-vert-500:#368971;
+  --kd-vert-600:#046C4E;
+  --kd-vert-700:#045C42;
+  --kd-vert-800:#044C37;
+  --kd-vert-900:#033C2B;
+  --kd-vert-950:#032E21;
+  --kd-gris-25:#FBFCFB;
+  --kd-gris-50:#F6F8F7;
+  --kd-gris-100:#EEF2F0;
+  --kd-gris-200:#E1E7E4;
+  --kd-gris-300:#CBD4D0;
+  --kd-gris-400:#98A39E;
+  --kd-gris-500:#6B7772;
+  --kd-gris-600:#4D5954;
+  --kd-gris-700:#37423D;
+  --kd-gris-800:#242D29;
+  --kd-gris-900:#141B18;
+  --kd-gris-950:#0A0F0D;
+  --kd-or-50:#FFF9E5;
+  --kd-or-100:#FEF0BF;
+  --kd-or-300:#F9D65C;
+  --kd-or-500:#F2BE1A;
+  --kd-or-600:#D9A30B;
+  --kd-or-700:#8C6A05;
+  --kd-succes-50:#EDFAF1;
+  --kd-succes-100:#D3F3DE;
+  --kd-succes-500:#1FA35B;
+  --kd-succes-700:#11683A;
+  --kd-attente-50:#FFF6E5;
+  --kd-attente-100:#FEE8BF;
+  --kd-attente-500:#E8860C;
+  --kd-attente-700:#94500A;
+  --kd-erreur-50:#FDF0EF;
+  --kd-erreur-100:#FADBD8;
+  --kd-erreur-500:#DC3B2F;
+  --kd-erreur-700:#A3241B;
+  --kd-info-50:#EEF5FC;
+  --kd-info-100:#D5E6F7;
+  --kd-info-500:#2F7BC4;
+  --kd-info-700:#1D4F86;
+  --kd-drapeau-vert:#008751;
+  --kd-drapeau-jaune:#FCD116;
+  --kd-drapeau-rouge:#E8112D;
+  --kd-graph-1:#046C4E; /* Vert Kadoo */
+  --kd-graph-2:#3469AE; /* Bleu */
+  --kd-graph-3:#B98300; /* Or */
+  --kd-graph-4:#8E4FA8; /* Prune */
+  --kd-graph-5:#0F9AA3; /* Lagune */
+  --kd-graph-6:#D0522E; /* Latérite */
+  --kd-graph-autres:#98A39E;
+  --kd-fond:var(--kd-gris-50);
+  --kd-surface:#FFFFFF;
+  --kd-surface-2:var(--kd-gris-25);
+  --kd-bordure:var(--kd-gris-200);
+  --kd-bordure-legere:var(--kd-gris-100);
+  --kd-texte:var(--kd-gris-900);
+  --kd-texte-2:var(--kd-gris-600);
+  --kd-texte-3:var(--kd-gris-500);
+  --kd-primaire:var(--kd-vert-600);
+  --kd-primaire-survol:var(--kd-vert-700);
+  --kd-primaire-doux:var(--kd-vert-50);
+  --kd-primaire-texte:var(--kd-vert-700);
+  --kd-accent:var(--kd-or-500);
+  --kd-rayon-sm:6px;
+  --kd-rayon:8px;
+  --kd-rayon-carte:12px;
+  --kd-rayon-modale:14px;
+  --kd-ombre-1:0 1px 2px rgba(10,15,13,.06);
+  --kd-ombre-3:0 12px 32px -6px rgba(10,15,13,.18),0 4px 8px -4px rgba(10,15,13,.08);
+  --kd-sidebar:264px;
+  --kd-sidebar-repliee:80px;
+  --kd-entete:64px;
+  --kd-police:"Montserrat",sans-serif;
+}
+[data-theme="sombre"]{
+  --kd-fond:#0B110E;
+  --kd-surface:#121A16;
+  --kd-surface-2:#16201B;
+  --kd-bordure:#26312C;
+  --kd-bordure-legere:#1C2622;
+  --kd-texte:#EEF2F0;
+  --kd-texte-2:#A9B4AF;
+  --kd-texte-3:#8A9691;
+  --kd-primaire:#2E9A73;
+  --kd-primaire-survol:#3BAE84;
+  --kd-primaire-doux:rgba(46,154,115,.14);
+  --kd-primaire-texte:#8FD3B6;
+  --kd-accent:#F2BE1A;
+}

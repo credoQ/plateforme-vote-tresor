@@ -1,0 +1,12 @@
+/* Femme modèle du Trésor · feuille de styles principale
+   Charte : Kadoo 2.0, recolorée avec la charte DGTCP (bleu #0054A0, jaune #F4E800).
+   Ordre : Tailwind, variables (clair/sombre), thème Tailwind, composants. */
+@import 'tailwindcss';
+@import './design/tresor-tokens.css';
+@import './design/tresor-theme.css';
+@import './design/polices.css';
+@import './design/composants.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../views';

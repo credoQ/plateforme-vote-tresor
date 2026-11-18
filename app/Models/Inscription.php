@@ -14,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
  * Elle n'a aucun lien avec les bulletins (R43).
  */
 #[Table('inscriptions')]
-#[Fillable(['scrutin_id', 'phase_id', 'agent_id', 'structure_id', 'a_vote', 'date_heure_vote', 'canal'])]
+#[Fillable(['scrutin_id', 'phase_id', 'agent_id', 'structure_id', 'a_vote', 'date_heure_vote', 'canal', 'numero_accuse'])]
 class Inscription extends Model
 {
     /** @use HasFactory<InscriptionFactory> */

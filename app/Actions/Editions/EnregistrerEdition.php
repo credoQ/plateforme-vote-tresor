@@ -16,7 +16,7 @@ use Illuminate\Validation\ValidationException;
 class EnregistrerEdition
 {
     /**
-     * @param  array{annee: int, libelle: string, date_debut: string, date_fin: string, date_gel: string, vote_blanc_autorise?: bool, quorum?: float|int|string|null}  $donnees
+     * @param  array{annee: int, libelle: string, date_debut: string, date_fin: string, date_gel: string, vote_blanc_autorise?: bool, vote_pour_soi_autorise?: bool, quorum?: float|int|string|null}  $donnees
      *
      * @throws ValidationException
      */
@@ -33,6 +33,7 @@ class EnregistrerEdition
             'date_fin' => ['required', 'date', 'after_or_equal:date_debut'],
             'date_gel' => ['required', 'date', 'before_or_equal:date_debut'],
             'vote_blanc_autorise' => ['sometimes', 'boolean'],
+            'vote_pour_soi_autorise' => ['sometimes', 'boolean'],
             'quorum' => ['nullable', 'numeric', 'gt:0', 'max:100'],
         ], [
             'annee.unique' => 'Une édition existe déjà pour cette année (R16).',

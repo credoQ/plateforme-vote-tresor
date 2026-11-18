@@ -13,6 +13,18 @@ Ce module permet l’enregistrement des agents et la tenue de leurs affectations
 - [ ] La gestion des affectations (structure, date de début, date de fin) et de leur historique.
 - [ ] Le contrôle des doublons et des données incomplètes (sexe, affectation), le sexe déterminant la qualité de candidate.
 
+## Avancement
+
+- [x] Migrations `agents` (matricule et NPI uniques) et `affectations` (une seule affectation en cours par agent, période cohérente)
+- [x] Enum `Sexe` (F, M), avec lecture des écritures usuelles des fichiers d'import
+- [x] Modèles `Agent` et `Affectation`, avec les portées `enServiceLe()`, `femmes()` et `enCoursLe()`
+- [x] Actions `EnregistrerAgent` (R11), `AffecterAgent` (R12 : mutation et historique) et `TerminerAffectation` (R13)
+- [x] Action `ImporterAgents` et commande `php artisan agents:importer fichier.csv` : création ou mise à jour par matricule, rejet motivé des doublons et des lignes incomplètes
+- [x] Tests des règles R11 à R13
+- [ ] Import des fichiers Excel (.xlsx) : demande l'ajout d'une dépendance, à valider ; en attendant, enregistrer le fichier en CSV
+- [ ] Écrans de gestion des agents et de contrôle par le point focal (avec le module 01)
+- [ ] Format exact de l'export du SI RH, à obtenir
+
 ## Acteurs
 
 Administrateur (import et mise à jour) ; point focal (contrôle des agents de sa structure).

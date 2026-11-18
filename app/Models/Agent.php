@@ -1,0 +1,89 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\Agents\Sexe;
+use Carbon\CarbonInterface;
+use Database\Factories\AgentFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+
+/**
+ * Agent de la DGTCP (R11). La date de prise de service, le téléphone, l'e-mail, la fonction
+ * et le statut sont informatifs : aucune règle ne s'appuie sur eux.
+ */
+#[Table('agents')]
+#[Fillable([
+    'matricule', 'npi', 'nom', 'prenoms', 'sexe', 'date_naissance',
+    'date_prise_service', 'telephone', 'email', 'fonction', 'statut',
+])]
+class Agent extends Model
+{
+    /** @use HasFactory<AgentFactory> */
+    use HasFactory;
+
+    /**
+     * Historique des affectations, de la plus récente à la plus ancienne (R12).
+     *
+     * @return HasMany<Affectation, $this>
+     */
+    public function affectations(): HasMany
+    {
+        return $this->hasMany(Affectation::class)->orderByDesc('date_debut');
+    }
+
+    /**
+     * Affectation en cours à la date donnée (aujourd'hui par défaut), s'il y en a une (R12).
+     */
+    public function affectationLe(?CarbonInterface $date = null): ?Affectation
+    {
+        return $this->affectations()->enCoursLe($date)->with('structure')->first();
+    }
+
+    public function estUneFemme(): bool
+    {
+        return $this->sexe === Sexe::Feminin;
+    }
+
+    public function nomComplet(): string
+    {
+        return trim($this->nom.' '.$this->prenoms);
+    }
+
+    /**
+     * Agents en service à la date donnée : une affectation en cours dans une structure active (R13).
+     */
+    #[Scope]
+    protected function enServiceLe(Builder $query, ?CarbonInterface $date = null): Builder
+    {
+        return $query->whereHas('affectations', fn (Builder $affectations) => $affectations
+            ->enCoursLe($date)
+            ->whereHas('structure', fn (Builder $structure) => $structure->actives()));
+    }
+
+    /**
+     * Agents de sexe féminin, candidates potentielles de la phase 1.
+     */
+    #[Scope]
+    protected function femmes(Builder $query): Builder
+    {
+        return $query->where('sexe', Sexe::Feminin->value);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'sexe' => Sexe::class,
+            'date_naissance' => 'date',
+            'date_prise_service' => 'date',
+        ];
+    }
+}

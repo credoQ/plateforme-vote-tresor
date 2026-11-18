@@ -8,10 +8,10 @@ Ce module permet au comité d’organisation de paramétrer et piloter chaque é
 
 ## Fonctionnalités
 
-- [ ] La création d’une édition (année, libellé, calendrier, date de gel des listes électorales).
-- [ ] Le paramétrage des règles de l’édition (vote blanc autorisé, quorum, nombre de qualifiées par scrutin).
-- [ ] La création automatique des trois phases et la planification de leurs dates.
-- [ ] L’ouverture et la clôture des phases, dans l’ordre, après validation des résultats de la phase précédente.
+- [x] La création d’une édition (année, libellé, calendrier, date de gel des listes électorales).
+- [x] Le paramétrage des règles de l’édition (vote blanc autorisé, quorum, nombre de qualifiées par scrutin).
+- [x] La création automatique des trois phases et la planification de leurs dates.
+- [x] L’ouverture et la clôture des phases, dans l’ordre, après validation des résultats de la phase précédente.
 
 ## Avancement
 
@@ -22,8 +22,8 @@ Ce module permet au comité d’organisation de paramétrer et piloter chaque é
 - [x] Action `ParametrerPhase` : calendrier ordonné, après le gel et dans l'édition, nombre de qualifiées par scrutin (R52)
 - [x] Actions `LancerEdition`, `OuvrirPhase` et `CloturerPhase` : enchaînement des phases selon R16 et R18 ; la clôture de la finale clôture l'édition
 - [x] Tests des règles R16 à R18
-- [ ] Écrans du comité d'organisation (création, paramétrage, ouverture et clôture), avec les profils du module 01
-- [ ] Journalisation des ouvertures et clôtures (R56, module 08)
+- [x] Écrans du comité : liste des éditions, création et paramétrage, planification des phases, lancement, ouverture et clôture des phases avec confirmation
+- [x] Journalisation des ouvertures et clôtures (R56, module 08)
 
 ## Acteurs
 

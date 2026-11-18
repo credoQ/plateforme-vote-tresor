@@ -5,6 +5,7 @@
         'Mon espace' => [
             ['espace', 'house', 'Accueil', route('espace'), true],
             ...($utilisateur->can('voter') ? [['vote', 'vote', 'Voter', route('vote'), true]] : []),
+            ['palmares', 'trophy', 'Résultats', route('palmares'), true],
         ],
         'Pilotage' => array_values(array_filter([
             ['editions', 'calendar-range', 'Éditions', route('editions.index'), $utilisateur->can('piloter')],

@@ -79,6 +79,8 @@
         </section>
     @endif
 
+    @include('resultats._scrutin')
+
     <section class="carte espace-bloc">
         <div class="carte__entete"><h2>Candidates</h2></div>
         <div class="tableau-defilant">

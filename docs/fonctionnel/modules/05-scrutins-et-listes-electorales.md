@@ -16,6 +16,21 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [ ] La désactivation d’une candidate qui ne souhaite pas concourir (désistement), par le point focal ou le comité à sa demande, et sa réactivation éventuelle avant l’ouverture du scrutin.
 - [ ] La publication et l’export des listes électorales et des listes de candidates.
 
+## Avancement
+
+- [x] Migrations `couvertures` (circonscriptions), `inscriptions` (un agent inscrit au plus une fois par phase, R26) et `candidates` (statut, désistement tracé, lien de qualification)
+- [x] Enums `OrigineCandidate` et `StatutCandidate`, modèles `Inscription` et `Candidate`
+- [x] Action `DecouperCirconscriptions` : département pour les structures situées dans un département (TD, TC, antennes, R25), structure électorale sinon ; un pôle par demi-finale ; toute la DGTCP en finale
+- [x] Action `GenererScrutins` : scrutins de chaque phase, circonscriptions sans agent femme écartées et signalées en phase 1 (R20, R37)
+- [x] Action `ConstituerListes` : électeurs à la date de gel (R14, R15, R29), candidates d'office en phase 1 (R28), lauréates de la phase précédente en phases 2 et 3 (R35) ; actualisable jusqu'à l'arrêt
+- [x] Action `ArreterListes` : arrêt à partir de la date de gel, listes figées ensuite (R27, R30)
+- [x] Actions `DesactiverCandidate` et `ReactiverCandidate` : jusqu'à l'ouverture du scrutin, avec date, auteur et motif (R32 à R34)
+- [x] Tests des règles R14, R15, R20 à R30, R32 à R35 et R37
+- [ ] Contrôle des listes par les points focaux et corrections motivées après l'arrêt (droits du module 01, journal du module 08)
+- [ ] Annulation d'un scrutin dont toutes les candidates sont désactivées (R38), à l'ouverture du scrutin (module 06)
+- [ ] Remplacement d'une lauréate qui se désiste (R36), point à confirmer par le métier
+- [ ] Publication et export des listes
+
 ## Acteurs
 
 Comité d'organisation (génération, arrêt des listes, désactivation) ; point focal (contrôle et désactivation pour sa structure).

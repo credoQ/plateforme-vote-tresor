@@ -6,7 +6,6 @@ use App\Actions\Agents\AffecterAgent;
 use App\Actions\Agents\TerminerAffectation;
 use App\Models\Agent;
 use App\Models\Structure;
-use Database\Seeders\ReferentielSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
@@ -15,10 +14,6 @@ use Tests\TestCase;
 class AffecterAgentTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected bool $seed = true;
-
-    protected string $seeder = ReferentielSeeder::class;
 
     /**
      * R12 : une mutation clôt l'affectation en cours la veille et conserve l'historique.

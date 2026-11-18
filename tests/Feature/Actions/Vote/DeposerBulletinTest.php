@@ -19,7 +19,6 @@ use App\Models\Edition;
 use App\Models\Phase;
 use App\Models\Scrutin;
 use App\Models\Structure;
-use Database\Seeders\ReferentielSeeder;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
@@ -31,10 +30,6 @@ use Tests\TestCase;
 class DeposerBulletinTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected bool $seed = true;
-
-    protected string $seeder = ReferentielSeeder::class;
 
     private Edition $edition;
 

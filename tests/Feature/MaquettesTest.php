@@ -14,11 +14,6 @@ class MaquettesTest extends TestCase
         $this->withoutVite();
     }
 
-    public function test_la_racine_redirige_vers_les_maquettes(): void
-    {
-        $this->get('/')->assertRedirect('/maquettes');
-    }
-
     public function test_l_index_des_maquettes_s_affiche(): void
     {
         $this->get(route('maquettes.index'))->assertOk()->assertSee('Maquettes de la plateforme');

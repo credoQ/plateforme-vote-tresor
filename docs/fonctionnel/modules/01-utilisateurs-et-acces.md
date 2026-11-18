@@ -13,6 +13,19 @@ Ce module assure la gestion des comptes, des profils et des niveaux d’accès �
 - [ ] L’authentification par matricule et mot de passe (mot de passe initial remis par le point focal et changé à la première connexion), avec un code à usage unique (OTP) facultatif lorsque le téléphone ou l’e-mail de l’agent est disponible.
 - [ ] La modification et la réinitialisation des mots de passe.
 
+## Avancement
+
+- [x] Comptes : identifiant (matricule pour un agent), statut actif, dernière connexion, lien unique vers un agent (R1, R3), structure du point focal (R4)
+- [x] Rôles en table de référence et attribution multiple (R2), `RolesSeeder`
+- [x] Connexion par matricule et mot de passe, limitée à cinq essais par minute, déconnexion (R42)
+- [x] Mot de passe provisoire à changer à la première connexion (middleware `ExigerNouveauMotDePasse`), changement du mot de passe
+- [x] Droits : gates `administrer`, `piloter`, `controler-listes`, `observer`, `voter` ; policies `CandidatePolicy` (R32), `AgentPolicy` et `InscriptionPolicy` limitées au périmètre du point focal (R4)
+- [x] Écrans : connexion, accueil, changement de mot de passe, administration des comptes (liste, création, modification, réinitialisation du mot de passe)
+- [x] Commandes `acces:creer-administrateur` et `acces:generer-comptes` (comptes électeurs des agents en service, mots de passe provisoires exportés en CSV)
+- [x] Tests des règles R1 à R4, R32 et R42
+- [ ] Code à usage unique (OTP) par SMS ou e-mail : avec la passerelle de notifications du module 08
+- [ ] Réinitialisation du mot de passe par le point focal pour les agents de sa structure (aujourd'hui par l'administrateur)
+
 ## Acteurs
 
 Administrateur (gestion des comptes et des rôles) ; tous les profils (connexion).

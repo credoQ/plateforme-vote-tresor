@@ -7,7 +7,6 @@ use App\Enums\Referentiel\CodeTypeStructure;
 use App\Models\Departement;
 use App\Models\Structure;
 use App\Models\TypeStructure;
-use Database\Seeders\ReferentielSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
@@ -15,10 +14,6 @@ use Tests\TestCase;
 class EnregistrerStructureTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected bool $seed = true;
-
-    protected string $seeder = ReferentielSeeder::class;
 
     public function test_cree_une_direction_centrale_sans_departement(): void
     {

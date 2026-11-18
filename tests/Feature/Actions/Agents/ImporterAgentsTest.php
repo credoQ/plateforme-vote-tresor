@@ -6,7 +6,6 @@ use App\Actions\Agents\ImporterAgents;
 use App\Actions\Agents\RapportImport;
 use App\Models\Agent;
 use App\Models\Structure;
-use Database\Seeders\ReferentielSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
@@ -15,10 +14,6 @@ use Tests\TestCase;
 class ImporterAgentsTest extends TestCase
 {
     use RefreshDatabase;
-
-    protected bool $seed = true;
-
-    protected string $seeder = ReferentielSeeder::class;
 
     private const ENTETE = 'Matricule;NPI;Nom;Prénoms;Sexe;Date naissance;Structure;Date début;Fonction';
 

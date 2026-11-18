@@ -15,6 +15,17 @@ Ce module permet aux électeurs de voter en ligne pendant la période d’ouvert
 - [ ] L’enregistrement séparé de l’émargement (qui a voté) et du bulletin (pour qui), garantissant le secret du vote.
 - [ ] L’accès depuis un ordinateur ou un téléphone mobile (interface adaptative).
 
+## Avancement
+
+- [x] Migration `bulletins` : identifiant aléatoire, aucune colonne vers l'agent ou l'utilisateur, pas de `created_at`, trigger qui interdit toute modification ou suppression (R43, R44)
+- [x] Paramètre `vote_pour_soi_autorise` de l'édition (R45, à confirmer) et numéro d'accusé de vote sur l'inscription
+- [x] Actions `PlanifierScrutin`, `OuvrirScrutin` (annulation si aucune candidate active, R38) et `FermerScrutin` ; commande `scrutins:basculer` lancée chaque minute par le planificateur (R39)
+- [x] Action `DeposerBulletin` : vote unique et définitif dans son scrutin (R40), choix d'une candidate active ou vote blanc paramétré (R33, R41), émargement et bulletin dans une transaction, horodatages tronqués à l'heure (R43), accusé de vote sans le choix
+- [x] Empreinte chaînée HMAC-SHA256 et vérification de la chaîne (R44)
+- [x] Taux de participation, seule donnée visible pendant le vote (R46)
+- [x] Tests des règles R33, R38 à R41 et R43 à R46
+- [ ] Écrans de l'électeur (scrutin, candidates, vote, accusé, désistement en ligne), avec l'authentification du module 01 (R42)
+
 ## Acteurs
 
 Électeur ; candidate (désistement depuis son espace).

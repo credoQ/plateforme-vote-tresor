@@ -82,6 +82,23 @@ class Scrutin extends Model
         return $this->statut === StatutScrutin::EnPreparation;
     }
 
+    /**
+     * Participation, seule donnée visible pendant le vote (R46).
+     *
+     * @return array{inscrits: int, votants: int, taux: float}
+     */
+    public function participation(): array
+    {
+        $inscrits = $this->inscriptions()->count();
+        $votants = $this->inscriptions()->where('a_vote', true)->count();
+
+        return [
+            'inscrits' => $inscrits,
+            'votants' => $votants,
+            'taux' => $inscrits === 0 ? 0.0 : round($votants * 100 / $inscrits, 2),
+        ];
+    }
+
     public function accepteLesDesistements(): bool
     {
         return in_array($this->statut, [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], true);

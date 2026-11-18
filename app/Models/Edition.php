@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\HasManyThrough;
  * en attendant leur validation par le métier.
  */
 #[Table('editions')]
-#[Fillable(['annee', 'libelle', 'date_debut', 'date_fin', 'date_gel', 'statut', 'vote_blanc_autorise', 'quorum'])]
+#[Fillable(['annee', 'libelle', 'date_debut', 'date_fin', 'date_gel', 'statut', 'vote_blanc_autorise', 'vote_pour_soi_autorise', 'quorum'])]
 class Edition extends Model
 {
     /** @use HasFactory<EditionFactory> */
@@ -30,6 +30,7 @@ class Edition extends Model
     protected $attributes = [
         'statut' => 'EN_PREPARATION',
         'vote_blanc_autorise' => false,
+        'vote_pour_soi_autorise' => true,
     ];
 
     /**
@@ -78,6 +79,7 @@ class Edition extends Model
             'date_gel' => 'date',
             'statut' => StatutEdition::class,
             'vote_blanc_autorise' => 'boolean',
+            'vote_pour_soi_autorise' => 'boolean',
             'quorum' => 'decimal:2',
         ];
     }

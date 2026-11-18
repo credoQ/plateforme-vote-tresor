@@ -119,6 +119,11 @@ git merge --no-ff module/06-vote
 - « En service » signifie : figurer dans la liste des agents avec une affectation en cours. Les champs `date_prise_service`, `telephone`, `email`, `fonction` et `statut` de l'agent sont informatifs : aucune règle ne doit s'appuyer dessus.
 - Hors périmètre : la gestion des candidatures (dépôt, validation) et les réclamations. Ne pas les implémenter.
 
+## Notifications
+
+- Les notifications (annonces, OTP, réinitialisations) sont envoyées uniquement par e-mail, via les notifications Laravel et la file d'attente. Pas de SMS ni de passerelle tierce.
+- L'adresse utilisée est celle du compte, sinon celle de la fiche agent ; un agent sans adresse voit les annonces sur la plateforme.
+
 ## Profils
 
 Administrateur, Comité d'organisation, Point focal (limité à sa structure), Électeur, Observateur (lecture seule). Contrôlez les droits avec des Policies et des Gates, jamais seulement dans les vues.

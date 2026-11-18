@@ -10,7 +10,7 @@ Ce module assure la gestion des comptes, des profils et des niveaux d’accès �
 
 - [ ] La création et l’administration des comptes utilisateurs (administrateurs, membres du comité d’organisation, points focaux, agents, observateurs).
 - [ ] La gestion des rôles et des habilitations, avec restriction du périmètre du point focal à sa structure.
-- [ ] L’authentification par matricule et mot de passe (mot de passe initial remis par le point focal et changé à la première connexion), avec un code à usage unique (OTP) facultatif lorsque le téléphone ou l’e-mail de l’agent est disponible.
+- [ ] L’authentification par matricule et mot de passe (mot de passe initial remis par le point focal et changé à la première connexion), avec un code à usage unique (OTP) facultatif, envoyé par e-mail lorsque l’adresse de l’agent est connue.
 - [ ] La modification et la réinitialisation des mots de passe.
 
 ## Avancement
@@ -23,7 +23,7 @@ Ce module assure la gestion des comptes, des profils et des niveaux d’accès �
 - [x] Écrans : connexion, accueil, changement de mot de passe, administration des comptes (liste, création, modification, réinitialisation du mot de passe)
 - [x] Commandes `acces:creer-administrateur` et `acces:generer-comptes` (comptes électeurs des agents en service, mots de passe provisoires exportés en CSV)
 - [x] Tests des règles R1 à R4, R32 et R42
-- [ ] Code à usage unique (OTP) par SMS ou e-mail : avec la passerelle de notifications du module 08
+- [ ] Code à usage unique (OTP) envoyé par e-mail
 - [ ] Réinitialisation du mot de passe par le point focal pour les agents de sa structure (aujourd'hui par l'administrateur)
 
 ## Acteurs

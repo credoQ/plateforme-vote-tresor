@@ -12,6 +12,17 @@ Ce module permet de décrire l’organisation de la DGTCP.
 - [ ] La gestion des structures et de leur rattachement hiérarchique (service → direction, Trésorerie communale → Trésorerie départementale).
 - [ ] La gestion des 12 départements géographiques et le rattachement des postes déconcentrés à leur département.
 
+## Avancement
+
+- [x] Migrations `poles_electoraux`, `types_structure`, `departements`, `structures` (rattachement réflexif)
+- [x] Enums `CodePoleElectoral` et `CodeTypeStructure` (pôle de chaque type)
+- [x] Modèles `PoleElectoral`, `TypeStructure`, `Departement`, `Structure`, avec les portées `electorales()` et `duPole()`
+- [x] Action `EnregistrerStructure` : règles R5, R8 et R9, messages d'erreur en français
+- [x] `ReferentielSeeder` : 2 pôles, 6 types, 12 départements, 12 TD et les 13 structures du pôle structures de l'organisation de 2022
+- [x] Tests des règles R7 à R10
+- [ ] Écrans d'administration du référentiel (liste, création, modification, désactivation)
+- [ ] Import des TMIE et des Trésoreries communales
+
 ## Acteurs
 
 Administrateur.

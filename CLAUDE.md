@@ -124,6 +124,12 @@ git merge --no-ff module/06-vote
 - Les notifications (annonces, OTP, réinitialisations) sont envoyées uniquement par e-mail, via les notifications Laravel et la file d'attente. Pas de SMS ni de passerelle tierce.
 - L'adresse utilisée est celle du compte, sinon celle de la fiche agent ; un agent sans adresse voit les annonces sur la plateforme.
 
+## Authentification
+
+- L'authentification passe par Laravel Fortify (`config/fortify.php`, `app/Providers/FortifyServiceProvider.php`, `app/Actions/Fortify`). N'ajoutez pas de contrôleur de connexion maison.
+- Identifiant : la colonne `login` (matricule pour un agent). Pas d'inscription libre : les comptes sont créés par l'administrateur ou générés pour les agents.
+- Les connexions, échecs et déconnexions sont journalisés par les écouteurs des événements `Login`, `Failed` et `Logout` (`AppServiceProvider`).
+
 ## Profils
 
 Administrateur, Comité d'organisation, Point focal (limité à sa structure), Électeur, Observateur (lecture seule). Contrôlez les droits avec des Policies et des Gates, jamais seulement dans les vues.

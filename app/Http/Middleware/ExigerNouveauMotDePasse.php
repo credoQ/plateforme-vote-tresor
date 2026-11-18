@@ -13,8 +13,8 @@ class ExigerNouveauMotDePasse
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user()?->mot_de_passe_a_changer && ! $request->routeIs('mot-de-passe.*', 'deconnexion')) {
-            return redirect()->route('mot-de-passe.edit');
+        if ($request->user()?->mot_de_passe_a_changer && ! $request->routeIs('securite', 'user-password.update', 'logout')) {
+            return redirect()->route('securite');
         }
 
         return $next($request);

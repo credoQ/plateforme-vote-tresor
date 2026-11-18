@@ -11,16 +11,17 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Fortify\TwoFactorAuthenticatable;
 
 /**
  * Compte utilisateur (R1 à R4). Un agent a au plus un compte ; un compte peut n'être lié à aucun agent.
  */
 #[Fillable(['name', 'login', 'email', 'password', 'actif', 'mot_de_passe_a_changer', 'derniere_connexion', 'agent_id', 'structure_id'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, TwoFactorAuthenticatable;
 
     /**
      * @var array<string, mixed>
@@ -96,6 +97,7 @@ class User extends Authenticatable
             'actif' => 'boolean',
             'mot_de_passe_a_changer' => 'boolean',
             'derniere_connexion' => 'immutable_datetime',
+            'two_factor_confirmed_at' => 'immutable_datetime',
         ];
     }
 }

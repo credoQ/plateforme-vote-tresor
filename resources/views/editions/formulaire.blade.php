@@ -2,9 +2,7 @@
 <x-layouts.app :titre="$estNouvelle ? 'Créer une édition' : 'Édition '.$edition->annee" :ariane="['Pilotage', 'Éditions', $estNouvelle ? 'Créer' : (string) $edition->annee]" actif="editions">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Pilotage</div>
             <h1>{{ $estNouvelle ? 'Créer une édition' : 'Paramétrer l’édition '.$edition->annee }}</h1>
-            <p>Les listes électorales sont arrêtées d’après les affectations à la date de gel, au plus tard au début de l’édition.</p>
         </div>
     </div>
 
@@ -24,7 +22,7 @@
                 @endforeach
 
                 <fieldset class="formulaire__groupe">
-                    <legend class="libelle">Paramètres à valider par le métier</legend>
+                    <legend class="libelle">Paramètres du vote</legend>
                     <label class="case"><input type="checkbox" name="vote_blanc_autorise" value="1" @checked(old('vote_blanc_autorise', $edition->vote_blanc_autorise))> Autoriser le vote blanc</label>
                     <label class="case"><input type="checkbox" name="vote_pour_soi_autorise" value="1" @checked(old('vote_pour_soi_autorise', $edition->exists ? $edition->vote_pour_soi_autorise : true))> Autoriser une candidate à voter pour elle-même</label>
                 </fieldset>
@@ -32,7 +30,6 @@
                 <div class="formulaire__groupe">
                     <label class="libelle" for="quorum">Quorum de participation (%)</label>
                     <input id="quorum" name="quorum" type="number" min="1" max="100" step="0.01" class="champ" value="{{ old('quorum', $edition->quorum) }}" placeholder="Aucun quorum">
-                    <p class="aide">Appliqué à chaque scrutin. S’il n’est pas atteint, le comité peut prolonger le scrutin.</p>
                     @error('quorum')<p class="erreur-champ">{{ $message }}</p>@enderror
                 </div>
 

@@ -244,7 +244,7 @@
   .connexion__accroche h1 { font-size: 32px; line-height: 40px; font-weight: 700; margin: 8px 0 12px; }
   .connexion__accroche .surtitre { color: var(--tr-accent-sur-primaire); }
   .connexion__mention { position: relative; font-size: 12px; opacity: .7; }
-  .connexion__boite h2 { font-size: 24px; line-height: 32px; font-weight: 700; }
+  .connexion__boite h2 { font-size: 24px; line-height: 32px; font-weight: 700; margin-bottom: 24px; }
   .connexion__boite h2 + p { color: var(--tr-texte-2); margin: 4px 0 28px; }
   .connexion__options { display: flex; justify-content: space-between; align-items: center; margin: 20px 0 24px; font-size: 13px; }
   .connexion__bouton { width: 100%; }

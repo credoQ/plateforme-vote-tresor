@@ -1,9 +1,7 @@
 <x-layouts.app titre="Utilisateurs" :ariane="['Administration', 'Utilisateurs']" actif="utilisateurs">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Administration</div>
             <h1>Utilisateurs</h1>
-            <p>Comptes de la plateforme et leurs rôles. Les comptes des électeurs se créent avec la commande <code>acces:generer-comptes</code>.</p>
         </div>
         <div class="titre-page__actions">
             <a href="{{ route('utilisateurs.create') }}" class="btn btn-primaire"><i data-lucide="user-plus"></i>Créer un compte</a>

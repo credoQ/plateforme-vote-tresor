@@ -5,9 +5,7 @@
 <x-layouts.app :titre="$estNouveau ? 'Créer un compte' : 'Compte '.$utilisateur->login" :ariane="['Administration', 'Utilisateurs', $estNouveau ? 'Créer' : $utilisateur->login]" actif="utilisateurs">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Administration</div>
             <h1>{{ $estNouveau ? 'Créer un compte' : $utilisateur->name }}</h1>
-            <p>Un agent dispose d’au plus un compte. Un point focal est rattaché à une structure.</p>
         </div>
         @unless ($estNouveau)
             <div class="titre-page__actions">

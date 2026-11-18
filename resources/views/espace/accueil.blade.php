@@ -1,7 +1,6 @@
 <x-layouts.app titre="Accueil" :ariane="['Mon espace']" actif="espace">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Mon espace</div>
             <h1>Bonjour {{ $utilisateur->name }}</h1>
             <p>
                 {{ $utilisateur->roles->map(fn ($role) => $role->code->libelle())->implode(' · ') }}
@@ -67,9 +66,9 @@
                 <div>
                     <p><strong>{{ $candidature->scrutin->libelle }}</strong> · {{ $candidature->scrutin->phase->libelle }}</p>
                     @if ($candidature->estActive())
-                        <p class="aide">Vous êtes {{ $candidature->origine === \App\Enums\Scrutins\OrigineCandidate::Automatique ? 'candidate d’office' : 'qualifiée' }} pour ce scrutin. Vous pouvez retirer votre candidature jusqu’à son ouverture ; vous resterez électrice.</p>
+                        <p class="aide">{{ $candidature->origine === \App\Enums\Scrutins\OrigineCandidate::Automatique ? 'Candidate d’office' : 'Lauréate qualifiée' }}</p>
                     @else
-                        <p class="aide">Vous avez retiré votre candidature le {{ $candidature->date_desistement->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}. Vous pouvez la réactiver jusqu’à l’ouverture du scrutin.</p>
+                        <p class="aide">Candidature retirée le {{ $candidature->date_desistement->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.</p>
                     @endif
                 </div>
                 @if ($candidature->estActive())

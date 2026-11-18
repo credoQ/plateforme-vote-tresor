@@ -17,9 +17,7 @@
             <div><strong>Direction générale du Trésor</strong><small>et de la Comptabilité publique</small></div>
         </div>
         <div class="connexion__accroche">
-            <div class="surtitre">Plateforme de vote</div>
             <h1>Élisez la Femme modèle du Trésor</h1>
-            <p>Un agent, une voix par phase. Votre vote est secret : la plateforme enregistre que vous avez voté, jamais pour qui.</p>
         </div>
         <div class="connexion__mention">République du Bénin · Ministère de l'Économie et des Finances</div>
     </section>

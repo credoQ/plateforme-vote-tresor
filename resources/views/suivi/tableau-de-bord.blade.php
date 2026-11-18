@@ -16,7 +16,7 @@
         <div>
             <div class="surtitre">{{ $edition?->libelle ?? 'Aucune édition' }}</div>
             <h1>Participation{{ $phase ? ' · '.$phase->libelle : '' }}</h1>
-            <p>Seule la participation est suivie pendant le vote : les voix ne sont connues qu’après la clôture.@if ($restreint) Données limitées à votre structure.@endif</p>
+            @if ($restreint)<p>Données limitées à votre structure.</p>@endif
         </div>
     </div>
 

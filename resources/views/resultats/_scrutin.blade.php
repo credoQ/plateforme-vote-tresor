@@ -14,10 +14,8 @@
         <div class="carte__entete"><h2>Dépouillement</h2></div>
         <div class="carte__corps">
             @if ($fermetureDepassee)
-                <p>L’heure de fermeture est passée ; le planificateur fermera le scrutin à sa prochaine minute.</p>
                 <form method="POST" action="{{ route('scrutins.fermer', $scrutin) }}">@csrf<button type="submit" class="btn btn-secondaire"><i data-lucide="lock"></i>Fermer le scrutin maintenant</button></form>
             @else
-                <p>Le scrutin est clos. Le dépouillement contrôle l’urne (chaîne des empreintes, cohérence avec l’émargement) puis calcule les résultats.</p>
                 <form method="POST" action="{{ route('resultats.depouiller', $scrutin) }}">@csrf<button type="submit" class="btn btn-primaire"><i data-lucide="calculator"></i>Dépouiller le scrutin</button></form>
             @endif
         </div>
@@ -62,7 +60,7 @@
             <div class="carte__corps">
                 @if ($nonValide && $pv->egalite_a_departager)
                     <div class="alerte alerte--attente espace-bloc"><i data-lucide="scale"></i>
-                        <div><strong>Égalité à départager.</strong> Retenez {{ $placesRestantes }} candidate(s) parmi les ex-æquo, selon la modalité arrêtée par le comité, et motivez la décision.</div>
+                        <div><strong>Égalité à départager.</strong> Retenez {{ $placesRestantes }} candidate(s) parmi les ex-æquo.</div>
                     </div>
                     <form method="POST" action="{{ route('resultats.trancher', $scrutin) }}" class="formulaire">
                         @csrf
@@ -101,7 +99,7 @@
                         @if ($pv->fichier)
                             <button type="button" class="btn btn-primaire" data-ouvrir="modale-publier"><i data-lucide="megaphone"></i>Publier les résultats</button>
                         @else
-                            <p class="aide">Le procès-verbal est en cours de génération ; la publication sera possible ensuite. S’il n’apparaît pas, la tâche a peut-être échoué.</p>
+                            <p class="aide">Procès-verbal en cours de génération.</p>
                             <form method="POST" action="{{ route('resultats.regenerer', $scrutin) }}">@csrf<button type="submit" class="btn btn-tertiaire"><i data-lucide="rotate-ccw"></i>Relancer la génération du procès-verbal</button></form>
                         @endif
                     @endif

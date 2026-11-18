@@ -2,9 +2,7 @@
 <x-layouts.app titre="Éditions" :ariane="['Pilotage', 'Éditions']" actif="editions">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Pilotage</div>
             <h1>Éditions</h1>
-            <p>Une édition par année, une seule en cours. Chaque édition comporte trois phases.</p>
         </div>
         <div class="titre-page__actions">
             <a href="{{ route('editions.create') }}" class="btn btn-primaire"><i data-lucide="plus"></i>Créer une édition</a>
@@ -27,7 +25,7 @@
                             <td class="actions"><a href="{{ route('editions.show', $edition) }}" class="btn btn-tertiaire btn--sm"><i data-lucide="eye"></i>Ouvrir</a></td>
                         </tr>
                     @empty
-                        <tr><td colspan="7"><div class="etat-vide"><i data-lucide="calendar-plus"></i><p>Aucune édition. Créez la première pour préparer le concours.</p></div></td></tr>
+                        <tr><td colspan="7"><div class="etat-vide"><i data-lucide="calendar-plus"></i><p>Aucune édition.</p></div></td></tr>
                     @endforelse
                 </tbody>
             </table>

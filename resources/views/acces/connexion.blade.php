@@ -2,7 +2,6 @@
     <form method="POST" action="{{ route('login.store') }}" novalidate>
         @csrf
         <h2>Connexion</h2>
-        <p>Identifiez-vous avec votre matricule d'agent.</p>
 
         <div class="formulaire__groupe">
             <label class="libelle" for="login">Matricule <span class="requis">*</span></label>

@@ -1,15 +1,7 @@
 <x-layouts.app titre="Agents" :ariane="['Administration', 'Agents']" actif="agents">
     <div class="titre-page">
         <div>
-            <div class="surtitre">{{ $restreint ? 'Contrôle de ma structure' : 'Administration' }}</div>
-            <h1>Agents</h1>
-            <p>
-                @if ($restreint)
-                    Agents affectés à votre structure et aux structures qui lui sont rattachées. Signalez toute erreur à l’administrateur avant le gel des listes.
-                @else
-                    Agents de la DGTCP et leurs affectations. L’import en masse se fait avec la commande <code>agents:importer</code> (Excel ou CSV).
-                @endif
-            </p>
+            <h1>{{ $restreint ? 'Agents de ma structure' : 'Agents' }}</h1>
         </div>
         @can('create', \App\Models\Agent::class)
             <div class="titre-page__actions">

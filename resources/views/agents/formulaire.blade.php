@@ -5,9 +5,7 @@
 <x-layouts.app :titre="$estNouveau ? 'Saisir un agent' : 'Agent '.$agent->matricule" :ariane="['Administration', 'Agents', $estNouveau ? 'Saisir' : $agent->matricule]" actif="agents">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Administration</div>
             <h1>{{ $estNouveau ? 'Saisir un agent' : 'Modifier la fiche de '.$agent->nomComplet() }}</h1>
-            <p>Le matricule et le NPI sont uniques. Le sexe détermine la qualité de candidate en phase 1.</p>
         </div>
     </div>
 
@@ -63,7 +61,6 @@
 
                 <fieldset class="formulaire__groupe">
                     <legend class="libelle">Informations complémentaires</legend>
-                    <p class="aide">Informatives : aucune règle de la plateforme ne s’appuie sur elles.</p>
                     @foreach ([['date_prise_service', 'Date de prise de service', 'date'], ['fonction', 'Fonction', 'text'], ['statut', 'Statut', 'text'], ['telephone', 'Téléphone', 'tel'], ['email', 'E-mail', 'email']] as [$champ, $libelle, $type])
                         <div class="formulaire__groupe">
                             <label class="libelle" for="{{ $champ }}">{{ $libelle }}</label>

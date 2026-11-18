@@ -20,6 +20,7 @@ paths:
 - Les textes sont en français.
 - Les boutons d'action sont libellés par le verbe métier (« Désactiver la candidate », « Confirmer mon vote »), jamais « Oui » ou « OK ».
 - Chaque modale de confirmation nomme l'objet concerné et dit ce qui va se passer.
+- Pas de texte superflu à l'écran : ni sous-titre qui répète le titre ou le fil d'Ariane, ni paragraphe d'explication, ni surtitre de rubrique, ni rappel de règle de gestion, ni nom de commande technique. Gardez seulement ce qui informe l'utilisateur sur l'objet affiché (statut, dates, périmètre) ou ce dont il a besoin pour agir (consigne d'un champ, erreur, conséquence d'une action dans sa modale).
 
 ## Après une modification
 

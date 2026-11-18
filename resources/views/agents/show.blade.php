@@ -56,7 +56,7 @@
                             <input id="date_debut" name="date_debut" type="date" class="champ" value="{{ old('date_debut', now()->toDateString()) }}" required>
                             @error('date_debut')<p class="erreur-champ">{{ $message }}</p>@enderror
                         </div>
-                        <p class="aide">L’affectation en cours sera close la veille. Une mutation après la date de gel ne change pas les listes de l’édition en cours (R15).</p>
+                        <p class="aide">L’affectation en cours sera close la veille.</p>
                         <div class="formulaire__actions"><button type="submit" class="btn btn-primaire"><i data-lucide="arrow-right-left"></i>Enregistrer la mutation</button></div>
                     </form>
                     @if ($affectation)

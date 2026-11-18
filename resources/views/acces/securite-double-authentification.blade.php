@@ -5,9 +5,7 @@
 <x-layouts.app titre="Double authentification" :ariane="['Mon espace', 'Sécurité du compte', 'Double authentification']" actif="securite">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Sécurité du compte</div>
             <h1>Double authentification</h1>
-            <p>Un code à 6 chiffres, généré par une application d’authentification sur votre téléphone, est demandé après le mot de passe.</p>
         </div>
         <div class="titre-page__actions"><a href="{{ route('securite') }}" class="btn btn-tertiaire"><i data-lucide="arrow-left"></i>Retour</a></div>
     </div>

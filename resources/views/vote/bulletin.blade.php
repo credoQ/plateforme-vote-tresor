@@ -4,16 +4,11 @@
         <div>
             <div class="surtitre">{{ $scrutin->phase->libelle }}</div>
             <h1>{{ $scrutin->libelle }}</h1>
-            <p>Choisissez une seule candidate, puis confirmez votre choix.</p>
         </div>
         <div class="titre-page__actions">
             <span class="badge badge--succes">Ouvert</span>
             <span class="etiquette"><i data-lucide="clock"></i>Clôture le {{ $scrutin->date_heure_fermeture->timezone($fuseau)->format('d/m/Y à H:i') }}</span>
         </div>
-    </div>
-
-    <div class="alerte alerte--info espace-bloc"><i data-lucide="lock"></i>
-        <div><strong>Vote secret et définitif.</strong> La plateforme enregistre que vous avez voté, jamais pour qui. Une fois confirmé, votre choix ne peut plus être modifié.</div>
     </div>
 
     @error('candidate_id')

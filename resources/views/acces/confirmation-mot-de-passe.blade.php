@@ -2,7 +2,6 @@
     <div class="titre-page">
         <div>
             <h1>Confirmez votre mot de passe</h1>
-            <p>Cette opération touche à la sécurité de votre compte : confirmez d’abord votre mot de passe.</p>
         </div>
     </div>
     <div class="carte">

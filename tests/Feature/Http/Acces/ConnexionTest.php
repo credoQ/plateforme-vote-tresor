@@ -31,7 +31,7 @@ class ConnexionTest extends TestCase
     {
         $this->get('/')->assertRedirect('/espace');
         $this->get('/espace')->assertRedirect(route('login'));
-        $this->get(route('login'))->assertOk()->assertSee('Identifiez-vous avec votre matricule')->assertSee('Mot de passe oublié ?');
+        $this->get(route('login'))->assertOk()->assertSee('Matricule')->assertSee('Mot de passe oublié ?');
     }
 
     /**

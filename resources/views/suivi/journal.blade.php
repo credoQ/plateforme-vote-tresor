@@ -1,9 +1,7 @@
 <x-layouts.app titre="Journal d'audit" :ariane="['Suivi', 'Journal d’audit']" actif="journal">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Suivi</div>
             <h1>Journal d’audit</h1>
-            <p>Opérations sensibles de la plateforme, en ajout seul : aucune entrée ne peut être modifiée ni supprimée. Les votes n’y figurent jamais.</p>
         </div>
     </div>
 

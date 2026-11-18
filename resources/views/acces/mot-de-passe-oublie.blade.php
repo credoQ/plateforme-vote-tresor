@@ -2,7 +2,6 @@
     <form method="POST" action="{{ route('password.email') }}" novalidate>
         @csrf
         <h2>Mot de passe oublié</h2>
-        <p>Saisissez l’adresse e-mail de votre compte : vous recevrez un lien pour choisir un nouveau mot de passe.</p>
 
         <div class="formulaire__groupe espace-bloc">
             <label class="libelle" for="email">Adresse e-mail <span class="requis">*</span></label>

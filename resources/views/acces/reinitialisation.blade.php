@@ -3,7 +3,6 @@
         @csrf
         <input type="hidden" name="token" value="{{ $request->route('token') }}">
         <h2>Nouveau mot de passe</h2>
-        <p>Au moins 10 caractères, avec des lettres et des chiffres.</p>
 
         <div class="formulaire__groupe">
             <label class="libelle" for="email">Adresse e-mail <span class="requis">*</span></label>
@@ -12,6 +11,8 @@
         <div class="formulaire__groupe">
             <label class="libelle" for="password">Nouveau mot de passe <span class="requis">*</span></label>
             <input id="password" name="password" type="password" class="champ" autocomplete="new-password" required autofocus>
+            <p class="aide">Au moins 10 caractères, avec des lettres et des chiffres.</p>
+            <p class="aide">Au moins 10 caractères, avec des lettres et des chiffres.</p>
         </div>
         <div class="formulaire__groupe espace-bloc">
             <label class="libelle" for="password_confirmation">Confirmation <span class="requis">*</span></label>

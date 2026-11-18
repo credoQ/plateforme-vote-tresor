@@ -1,9 +1,7 @@
 <x-layouts.app titre="Tâches en échec" :ariane="['Administration', 'Tâches en échec']" actif="taches-echouees">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Administration</div>
             <h1>Tâches en échec</h1>
-            <p>Traitements de la file d’attente qui n’ont pas abouti : génération des procès-verbaux, envoi des e-mails. Une tâche relancée repasse en file d’attente et sera reprise par le processus <code>queue:work</code>.</p>
         </div>
         @if ($taches->total() > 0)
             <div class="titre-page__actions">
@@ -20,7 +18,6 @@
         <div class="tuile">
             <div class="tuile__haut"><span class="surtitre">En file d’attente</span><span class="tuile__icone"><i data-lucide="list-ordered"></i></span></div>
             <div class="tuile__valeur">{{ $enAttente }}</div>
-            <div class="tuile__detail">{{ $enAttente > 0 ? 'Vérifiez que le processus queue:work tourne.' : 'Aucune tâche en attente.' }}</div>
         </div>
     </div>
 

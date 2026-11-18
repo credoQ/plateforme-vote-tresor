@@ -3,7 +3,6 @@
         <div>
             <div class="surtitre">{{ $edition?->libelle ?? 'Résultats' }}</div>
             <h1>Palmarès</h1>
-            <p>Lauréates des scrutins dont les résultats sont publiés.</p>
         </div>
     </div>
 

@@ -1,9 +1,8 @@
 <x-layouts.app titre="Sécurité du compte" :ariane="['Mon espace', 'Sécurité du compte']" actif="securite">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Mon espace</div>
             <h1>Sécurité du compte</h1>
-            <p>Identifiant : {{ $utilisateur->login }}{{ $utilisateur->email ? ' · e-mail : '.$utilisateur->email : ' · aucune adresse e-mail (le mot de passe oublié se réinitialise auprès du point focal)' }}</p>
+            <p>Identifiant : {{ $utilisateur->login }}{{ $utilisateur->email ? ' · '.$utilisateur->email : ' · aucune adresse e-mail' }}</p>
         </div>
     </div>
 
@@ -49,7 +48,6 @@
                 @endif
             </div>
             <div class="carte__corps">
-                <p>En plus du mot de passe, un code à 6 chiffres généré par une application d’authentification (Google Authenticator, Microsoft Authenticator…) est demandé à chaque connexion. Recommandée pour les comptes du comité, des points focaux et de l’administration.</p>
                 <div class="formulaire__actions">
                     <a href="{{ route('securite.double-authentification') }}" class="btn btn-secondaire"><i data-lucide="shield-check"></i>Gérer la double authentification</a>
                 </div>

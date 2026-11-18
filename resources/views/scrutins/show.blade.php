@@ -32,7 +32,7 @@
         <div class="tuile">
             <div class="tuile__haut"><span class="surtitre">Inscrits</span><span class="tuile__icone"><i data-lucide="users"></i></span></div>
             <div class="tuile__valeur">{{ number_format($participation['inscrits'], 0, ',', ' ') }}</div>
-            <div class="tuile__detail">{{ $enPreparation ? 'Listes actualisables jusqu’à l’arrêt' : 'Listes arrêtées' }}</div>
+            <div class="tuile__detail">{{ $enPreparation ? 'Listes en préparation' : 'Listes arrêtées' }}</div>
         </div>
         <div class="tuile">
             <div class="tuile__haut"><span class="surtitre">Candidates actives</span><span class="tuile__icone"><i data-lucide="users-round"></i></span></div>
@@ -118,7 +118,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5"><div class="etat-vide"><i data-lucide="users-round"></i><p>Aucune candidate pour l’instant. En phases 2 et 3, les lauréates arrivent à la clôture de la phase précédente.</p></div></td></tr>
+                        <tr><td colspan="5"><div class="etat-vide"><i data-lucide="users-round"></i><p>Aucune candidate.</p></div></td></tr>
                     @endforelse
                 </tbody>
             </table>

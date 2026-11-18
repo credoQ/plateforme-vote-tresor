@@ -21,7 +21,7 @@
             </p>
         </div>
         <div class="titre-page__actions">
-            <a href="{{ route('exports.liste-electorale', $scrutin) }}" class="btn btn-secondaire"><i data-lucide="download"></i>Exporter la liste électorale</a>
+            <x-liens-export route="exports.liste-electorale" :parametres="[$scrutin]" libelle="Liste électorale :" />
             @if ($pilote)
                 <a href="{{ route('editions.show', $scrutin->phase->edition_id) }}#phase-{{ $scrutin->phase->numero }}" class="btn btn-tertiaire"><i data-lucide="arrow-left"></i>Retour à l’édition</a>
             @endif

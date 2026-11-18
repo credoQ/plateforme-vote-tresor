@@ -23,6 +23,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+use OpenSpout\Reader\XLSX\Reader;
 use Tests\TestCase;
 
 class SuiviEtAnnoncesTest extends TestCase
@@ -110,6 +111,32 @@ class SuiviEtAnnoncesTest extends TestCase
 
         $this->scrutinAtl->update(['statut' => StatutScrutin::ResultatsPublies]);
         $this->assertStringContainsString($this->electriceAtl->matricule, $this->get(route('exports.resultats', $this->scrutinAtl))->streamedContent());
+    }
+
+    public function test_exporte_en_excel_et_en_pdf(): void
+    {
+        $comite = User::factory()->avecRoles(CodeRole::Comite)->create();
+
+        $excel = $this->actingAs($comite)->get(route('exports.liste-electorale', [$this->scrutinAtl, 'format' => 'xlsx']));
+        $excel->assertOk()->assertDownload('liste-electorale-dep-atl.xlsx');
+        $chemin = tempnam(sys_get_temp_dir(), 'xlsx');
+        file_put_contents($chemin, $excel->streamedContent());
+        $lecteur = new Reader;
+        $lecteur->open($chemin);
+        $lignes = [];
+        foreach ($lecteur->getSheetIterator() as $feuille) {
+            foreach ($feuille->getRowIterator() as $ligne) {
+                $lignes[] = $ligne->toArray();
+            }
+        }
+        $lecteur->close();
+        @unlink($chemin);
+        $this->assertSame(['Matricule', 'Nom', 'Prénoms', 'Sexe', 'Structure'], $lignes[0]);
+        $this->assertContains($this->electriceAtl->matricule, array_column($lignes, 0));
+
+        $pdf = $this->get(route('exports.liste-electorale', [$this->scrutinAtl, 'format' => 'pdf']));
+        $pdf->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        $this->assertStringStartsWith('%PDF', $pdf->getContent());
     }
 
     /**

@@ -43,8 +43,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/scrutins/{scrutin}/proces-verbal', [ResultatController::class, 'procesVerbal'])->name('resultats.proces-verbal');
     Route::get('/palmares/{edition?}', [ResultatController::class, 'palmares'])->name('palmares');
     Route::get('/journal', JournalAuditController::class)->middleware('can:observer')->name('journal');
-    Route::get('/scrutins/{scrutin}/liste-electorale.csv', [ExportController::class, 'listeElectorale'])->name('exports.liste-electorale');
-    Route::get('/scrutins/{scrutin}/resultats.csv', [ExportController::class, 'resultats'])->name('exports.resultats');
+    Route::get('/scrutins/{scrutin}/liste-electorale', [ExportController::class, 'listeElectorale'])->name('exports.liste-electorale');
+    Route::get('/scrutins/{scrutin}/resultats', [ExportController::class, 'resultats'])->name('exports.resultats');
 
     Route::middleware('can:piloter')->group(function () {
         Route::resource('editions', EditionController::class)->except(['destroy']);

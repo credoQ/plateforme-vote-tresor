@@ -16,7 +16,7 @@
                 @if ($annonce->statut === \App\Enums\Scrutins\StatutScrutin::Ouvert)
                     <div class="alerte alerte--info"><i data-lucide="megaphone"></i><div><strong>Vote ouvert</strong> · {{ $annonce->libelle }}, jusqu’au {{ $annonce->date_heure_fermeture?->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.</div></div>
                 @else
-                    <div class="alerte alerte--succes"><i data-lucide="trophy"></i><div><strong>Résultats publiés</strong> · {{ $annonce->libelle }}. <a class="lien" href="{{ route('exports.resultats', $annonce) }}">Télécharger les résultats</a></div></div>
+                    <div class="alerte alerte--succes"><i data-lucide="trophy"></i><div><strong>Résultats publiés</strong> · {{ $annonce->libelle }}. <a class="lien" href="{{ route('exports.resultats', [$annonce, 'format' => 'pdf']) }}">Télécharger les résultats (PDF)</a></div></div>
                 @endif
             @endforeach
         </div>

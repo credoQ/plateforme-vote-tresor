@@ -21,6 +21,7 @@ Ce module assure le pilotage, l’information des agents et la traçabilité.
 - [x] Tableau de bord de participation par scrutin, département et structure, sans aucune voix (R46) ; le point focal ne voit que sa structure (R4)
 - [x] Annonces sur l'accueil (scrutins ouverts, résultats publiés) et e-mails aux inscrits dont l'adresse est connue, à l'ouverture et à la publication (job `EnvoyerAnnonceScrutin`)
 - [x] Exports CSV de la liste électorale (périmètre du point focal) et des résultats publiés
+- [x] Écran « Tâches en échec » pour l'administrateur : erreur et trace, relance d'une tâche ou de toutes, suppression, chaque opération journalisée ; relance de la génération d'un procès-verbal depuis la fiche du scrutin
 - [x] Tests des règles R4, R46, R56 et R57
 - [x] Exports Excel (.xlsx, OpenSpout) et PDF (dompdf) de la liste électorale et des résultats publiés, en plus du CSV
 

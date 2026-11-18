@@ -10,6 +10,7 @@ use App\Actions\Vote\DeposerBulletin;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Jobs\Resultats\GenererFichierProcesVerbal;
 use App\Models\Agent;
 use App\Models\Candidate;
 use App\Models\Edition;
@@ -20,6 +21,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
@@ -124,6 +126,21 @@ class ResultatsTest extends TestCase
         $this->actingAs($pointFocal)->get(route('scrutins.show', $this->scrutin))->assertOk()->assertDontSee('PV n°')->assertDontSee('id="resultats"', false);
         $this->get(route('resultats.proces-verbal', $this->scrutin))->assertForbidden();
         $this->post(route('resultats.publier', $this->scrutin))->assertForbidden();
+    }
+
+    public function test_relance_la_generation_d_un_proces_verbal_absent(): void
+    {
+        Queue::fake();
+        $this->voter([0]);
+        $this->travelTo(Carbon::parse('2026-11-18 11:00:00'));
+        $this->actingAs($this->comite)->post(route('scrutins.fermer', $this->scrutin));
+        $this->post(route('resultats.depouiller', $this->scrutin));
+        $this->post(route('resultats.valider', $this->scrutin));
+
+        $this->get(route('scrutins.show', $this->scrutin))->assertSee('Relancer la génération du procès-verbal');
+        $this->post(route('resultats.regenerer', $this->scrutin))->assertSessionHas('succes');
+
+        Queue::assertPushed(GenererFichierProcesVerbal::class);
     }
 
     /**

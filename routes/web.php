@@ -13,6 +13,7 @@ use App\Http\Controllers\Scrutins\ScrutinController;
 use App\Http\Controllers\Suivi\ExportController;
 use App\Http\Controllers\Suivi\JournalAuditController;
 use App\Http\Controllers\Suivi\TableauDeBordController;
+use App\Http\Controllers\Suivi\TacheEchoueeController;
 use App\Http\Controllers\Vote\CandidatureController;
 use App\Http\Controllers\Vote\VoteController;
 use Illuminate\Support\Facades\Route;
@@ -67,6 +68,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/scrutins/{scrutin}/prolonger', [ResultatController::class, 'prolonger'])->name('resultats.prolonger');
         Route::post('/scrutins/{scrutin}/valider', [ResultatController::class, 'valider'])->name('resultats.valider');
         Route::post('/scrutins/{scrutin}/publier', [ResultatController::class, 'publier'])->name('resultats.publier');
+        Route::post('/scrutins/{scrutin}/proces-verbal', [ResultatController::class, 'regenerer'])->name('resultats.regenerer');
     });
 
     Route::middleware('can:administrer')->group(function () {
@@ -75,6 +77,11 @@ Route::middleware('auth')->group(function () {
             ->parameters(['utilisateurs' => 'utilisateur']);
         Route::post('/utilisateurs/{utilisateur}/reinitialiser', ReinitialisationMotDePasseController::class)
             ->name('utilisateurs.reinitialiser');
+
+        Route::get('/taches-echouees', [TacheEchoueeController::class, 'index'])->name('taches-echouees.index');
+        Route::post('/taches-echouees/relancer', [TacheEchoueeController::class, 'relancerTout'])->name('taches-echouees.relancer-tout');
+        Route::post('/taches-echouees/{uuid}/relancer', [TacheEchoueeController::class, 'relancer'])->whereUuid('uuid')->name('taches-echouees.relancer');
+        Route::post('/taches-echouees/{uuid}/supprimer', [TacheEchoueeController::class, 'supprimer'])->whereUuid('uuid')->name('taches-echouees.supprimer');
     });
 });
 

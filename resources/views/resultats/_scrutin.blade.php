@@ -101,7 +101,8 @@
                         @if ($pv->fichier)
                             <button type="button" class="btn btn-primaire" data-ouvrir="modale-publier"><i data-lucide="megaphone"></i>Publier les résultats</button>
                         @else
-                            <p class="aide">Le procès-verbal est en cours de génération ; la publication sera possible ensuite.</p>
+                            <p class="aide">Le procès-verbal est en cours de génération ; la publication sera possible ensuite. S’il n’apparaît pas, la tâche a peut-être échoué.</p>
+                            <form method="POST" action="{{ route('resultats.regenerer', $scrutin) }}">@csrf<button type="submit" class="btn btn-tertiaire"><i data-lucide="rotate-ccw"></i>Relancer la génération du procès-verbal</button></form>
                         @endif
                     @endif
                 </div>

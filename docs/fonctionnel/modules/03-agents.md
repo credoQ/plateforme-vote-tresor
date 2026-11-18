@@ -8,7 +8,7 @@ Ce module permet l’enregistrement des agents et la tenue de leurs affectations
 
 ## Fonctionnalités
 
-- [x] L’import des agents depuis le système d’information des ressources humaines ou par fichier (Excel/CSV), et la saisie manuelle.
+- [ ] L’import des agents depuis le système d’information des ressources humaines ou par fichier (Excel/CSV), et la saisie manuelle. Fait : import Excel et CSV ; reste : écran de saisie manuelle et format de l’export du SI RH.
 - [ ] L’enregistrement des informations utiles de l’agent (matricule, NPI, nom, prénoms, sexe) ; la date de prise de service, le téléphone, l’e-mail, la fonction et le statut peuvent être importés à titre informatif mais ne sont pas gérés.
 - [ ] La gestion des affectations (structure, date de début, date de fin) et de leur historique.
 - [ ] Le contrôle des doublons et des données incomplètes (sexe, affectation), le sexe déterminant la qualité de candidate.

@@ -2,6 +2,8 @@
 
 namespace App\Actions\Scrutins;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
 use App\Models\Affectation;
@@ -24,6 +26,7 @@ class GenererScrutins
     public function __construct(
         private DecouperCirconscriptions $decouper,
         private ConstituerListes $constituerListes,
+        private Journaliser $journal,
     ) {}
 
     /**
@@ -64,6 +67,8 @@ class GenererScrutins
 
                 $scrutins->push($this->constituerListes->handle($scrutin));
             }
+
+            $this->journal->handle(ActionAuditee::ScrutinsGeneres, $phase, ['phase' => $phase->libelle, 'scrutins' => $scrutins->count(), 'sans_femme' => $sansFemme]);
 
             return new RapportGeneration($scrutins, $sansFemme);
         });

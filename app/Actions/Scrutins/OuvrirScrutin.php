@@ -2,9 +2,13 @@
 
 namespace App\Actions\Scrutins;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Jobs\Suivi\EnvoyerAnnonceScrutin;
 use App\Models\Scrutin;
+use App\Notifications\AnnonceScrutin;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -14,6 +18,8 @@ use Illuminate\Validation\ValidationException;
  */
 class OuvrirScrutin
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @throws ValidationException
      */
@@ -36,6 +42,10 @@ class OuvrirScrutin
 
             $statut = $scrutin->candidates()->actives()->exists() ? StatutScrutin::Ouvert : StatutScrutin::Annule;
             $scrutin->update(['statut' => $statut]);
+            $this->journal->handle($statut === StatutScrutin::Ouvert ? ActionAuditee::ScrutinOuvert : ActionAuditee::ScrutinAnnule, $scrutin, ['scrutin' => $scrutin->code]);
+            if ($statut === StatutScrutin::Ouvert) {
+                EnvoyerAnnonceScrutin::dispatch($scrutin->id, AnnonceScrutin::OUVERTURE)->afterCommit();
+            }
 
             return $scrutin;
         });

@@ -2,6 +2,8 @@
 
 namespace App\Actions\Scrutins;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Scrutin;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +15,7 @@ use Illuminate\Validation\ValidationException;
  */
 class ArreterListes
 {
-    public function __construct(private ConstituerListes $constituerListes) {}
+    public function __construct(private ConstituerListes $constituerListes, private Journaliser $journal) {}
 
     /**
      * @throws ValidationException
@@ -39,6 +41,7 @@ class ArreterListes
             }
 
             $scrutin->update(['statut' => StatutScrutin::ListesArretees]);
+            $this->journal->handle(ActionAuditee::ListesArretees, $scrutin, ['scrutin' => $scrutin->code, 'inscrits' => $scrutin->inscriptions_count, 'candidates' => $scrutin->candidates_count]);
 
             return $scrutin;
         });

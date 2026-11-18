@@ -10,6 +10,18 @@
         </div>
     </div>
 
+    @if ($annonces->isNotEmpty())
+        <div class="annonces" aria-label="Annonces">
+            @foreach ($annonces as $annonce)
+                @if ($annonce->statut === \App\Enums\Scrutins\StatutScrutin::Ouvert)
+                    <div class="alerte alerte--info"><i data-lucide="megaphone"></i><div><strong>Vote ouvert</strong> · {{ $annonce->libelle }}, jusqu’au {{ $annonce->date_heure_fermeture?->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.</div></div>
+                @else
+                    <div class="alerte alerte--succes"><i data-lucide="trophy"></i><div><strong>Résultats publiés</strong> · {{ $annonce->libelle }}. <a class="lien" href="{{ route('exports.resultats', $annonce) }}">Télécharger les résultats</a></div></div>
+                @endif
+            @endforeach
+        </div>
+    @endif
+
     <div class="grille-tuiles espace-bloc">
         <div class="tuile">
             <div class="tuile__haut"><span class="surtitre">Identifiant</span><span class="tuile__icone"><i data-lucide="id-card"></i></span></div>

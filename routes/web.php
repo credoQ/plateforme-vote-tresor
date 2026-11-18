@@ -5,6 +5,9 @@ use App\Http\Controllers\Acces\MotDePasseController;
 use App\Http\Controllers\Acces\ReinitialisationMotDePasseController;
 use App\Http\Controllers\Acces\UtilisateurController;
 use App\Http\Controllers\EspaceController;
+use App\Http\Controllers\Suivi\ExportController;
+use App\Http\Controllers\Suivi\JournalAuditController;
+use App\Http\Controllers\Suivi\TableauDeBordController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/espace');
@@ -20,6 +23,11 @@ Route::middleware('auth')->group(function () {
     Route::put('/mot-de-passe', [MotDePasseController::class, 'update'])->name('mot-de-passe.update');
 
     Route::get('/espace', EspaceController::class)->name('espace');
+
+    Route::get('/tableau-de-bord', TableauDeBordController::class)->name('tableau-de-bord');
+    Route::get('/journal', JournalAuditController::class)->middleware('can:observer')->name('journal');
+    Route::get('/scrutins/{scrutin}/liste-electorale.csv', [ExportController::class, 'listeElectorale'])->name('exports.liste-electorale');
+    Route::get('/scrutins/{scrutin}/resultats.csv', [ExportController::class, 'resultats'])->name('exports.resultats');
 
     Route::middleware('can:administrer')->group(function () {
         Route::resource('utilisateurs', UtilisateurController::class)

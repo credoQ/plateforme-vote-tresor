@@ -2,7 +2,9 @@
 
 namespace App\Actions\Resultats;
 
+use App\Actions\Audit\Journaliser;
 use App\Actions\Vote\EmpreinteBulletin;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Candidate;
 use App\Models\ProcesVerbal;
@@ -24,7 +26,7 @@ use Illuminate\Validation\ValidationException;
  */
 class DepouillerScrutin
 {
-    public function __construct(private EmpreinteBulletin $empreinte) {}
+    public function __construct(private EmpreinteBulletin $empreinte, private Journaliser $journal) {}
 
     /**
      * @throws ValidationException
@@ -57,6 +59,8 @@ class DepouillerScrutin
 
             $egalite = $this->classer($scrutin, $voix, $exprimes);
             $taux = $inscrits === 0 ? 0.0 : round($votants * 100 / $inscrits, 2);
+
+            $this->journal->handle(ActionAuditee::ScrutinDepouille, $scrutin, ['scrutin' => $scrutin->code, 'votants' => $votants, 'egalite' => $egalite]);
 
             return ProcesVerbal::updateOrCreate(['scrutin_id' => $scrutin->id], [
                 'date_etablissement' => now(),

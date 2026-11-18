@@ -2,7 +2,9 @@
 
 namespace App\Actions\Agents;
 
+use App\Actions\Audit\Journaliser;
 use App\Enums\Agents\Sexe;
+use App\Enums\Audit\ActionAuditee;
 use App\Models\Agent;
 use App\Models\Structure;
 use Carbon\CarbonInterface;
@@ -34,6 +36,7 @@ class ImporterAgents
     public function __construct(
         private EnregistrerAgent $enregistrerAgent,
         private AffecterAgent $affecterAgent,
+        private Journaliser $journal,
     ) {}
 
     /**
@@ -113,6 +116,8 @@ class ImporterAgents
                 $rapport->rejeter($numero, array_values(array_merge(...array_values($exception->errors()))));
             }
         }
+
+        $this->journal->handle(ActionAuditee::ImportAgents, null, ['fichier' => basename($chemin), 'crees' => $rapport->agentsCrees, 'mis_a_jour' => $rapport->agentsMisAJour, 'affectations' => $rapport->affectationsCreees, 'rejets' => count($rapport->rejets)]);
 
         return $rapport;
     }

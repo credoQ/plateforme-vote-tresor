@@ -257,6 +257,9 @@
   .formulaire__actions { display: flex; gap: 12px; margin-top: 8px; }
   .erreur-champ { font-size: 13px; color: var(--tr-erreur-700); }
   .espace-bloc { margin-bottom: 20px; }
+  .grille-deux { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; align-items: start; }
+  .annonces { display: grid; gap: 12px; margin-bottom: 20px; }
+  .details-audit { min-width: 240px; font-family: ui-monospace, monospace; font-size: 12px; color: var(--tr-texte-2); word-break: break-word; }
   .secret { font-family: ui-monospace, monospace; font-size: 18px; letter-spacing: .08em; }
 
   /* ---------------------------------------------------------------- responsive (pas de version mobile dédiée) */

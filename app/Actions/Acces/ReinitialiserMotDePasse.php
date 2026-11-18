@@ -2,6 +2,8 @@
 
 namespace App\Actions\Acces;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Models\User;
 
 /**
@@ -10,7 +12,7 @@ use App\Models\User;
  */
 class ReinitialiserMotDePasse
 {
-    public function __construct(private MotDePasseProvisoire $motDePasse) {}
+    public function __construct(private MotDePasseProvisoire $motDePasse, private Journaliser $journal) {}
 
     public function handle(User $utilisateur): string
     {
@@ -21,6 +23,8 @@ class ReinitialiserMotDePasse
             'mot_de_passe_a_changer' => true,
             'remember_token' => null,
         ])->save();
+
+        $this->journal->handle(ActionAuditee::MotDePasseReinitialise, $utilisateur, ['login' => $utilisateur->login]);
 
         return $motDePasse;
     }

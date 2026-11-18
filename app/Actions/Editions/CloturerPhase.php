@@ -2,6 +2,8 @@
 
 namespace App\Actions\Editions;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
 use App\Models\Phase;
@@ -15,6 +17,8 @@ use Illuminate\Validation\ValidationException;
  */
 class CloturerPhase
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @throws ValidationException
      */
@@ -33,6 +37,7 @@ class CloturerPhase
             }
 
             $phase->update(['statut' => StatutPhase::Cloturee, 'date_cloture' => now()]);
+            $this->journal->handle(ActionAuditee::PhaseCloturee, $phase, ['phase' => $phase->libelle]);
 
             if ($phase->estLaFinale()) {
                 $phase->edition->update(['statut' => StatutEdition::Cloturee]);

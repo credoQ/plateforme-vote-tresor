@@ -5,6 +5,10 @@
         'Mon espace' => [
             ['espace', 'house', 'Accueil', route('espace'), true],
         ],
+        'Suivi' => array_values(array_filter([
+            ['tableau-de-bord', 'layout-dashboard', 'Tableau de bord', route('tableau-de-bord'), $utilisateur->can('observer') || $utilisateur->can('controler-listes')],
+            ['journal', 'shield-check', 'Journal d’audit', route('journal'), $utilisateur->can('observer')],
+        ], fn (array $lien): bool => $lien[4])),
         'Administration' => array_values(array_filter([
             ['utilisateurs', 'users', 'Utilisateurs', route('utilisateurs.index'), $utilisateur->can('administrer')],
         ], fn (array $lien): bool => $lien[4])),

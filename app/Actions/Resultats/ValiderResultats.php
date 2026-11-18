@@ -2,6 +2,8 @@
 
 namespace App\Actions\Resultats;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Jobs\Resultats\GenererFichierProcesVerbal;
 use App\Models\Edition;
@@ -17,6 +19,8 @@ use Illuminate\Validation\ValidationException;
  */
 class ValiderResultats
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @throws ValidationException
      */
@@ -45,6 +49,7 @@ class ValiderResultats
                 'valide_par_id' => $auteur?->id,
             ]);
             $scrutin->update(['statut' => StatutScrutin::ResultatsValides]);
+            $this->journal->handle(ActionAuditee::ResultatsValides, $scrutin, ['scrutin' => $scrutin->code, 'proces_verbal' => $pv->numero], $auteur);
 
             return $pv;
         });

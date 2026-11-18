@@ -2,6 +2,8 @@
 
 namespace App\Actions\Resultats;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Scrutin;
 use Carbon\CarbonInterface;
@@ -14,6 +16,8 @@ use Illuminate\Validation\ValidationException;
  */
 class ProlongerScrutin
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @throws ValidationException
      */
@@ -43,6 +47,7 @@ class ProlongerScrutin
             $pv->delete();
             $scrutin->candidates()->update(['nb_voix' => null, 'pourcentage' => null, 'rang' => null, 'est_laureate' => false]);
             $scrutin->update(['statut' => StatutScrutin::Ouvert, 'date_heure_fermeture' => $nouvelleFermeture]);
+            $this->journal->handle(ActionAuditee::ScrutinProlonge, $scrutin, ['scrutin' => $scrutin->code, 'fermeture' => $nouvelleFermeture->toIso8601String()]);
 
             return $scrutin;
         });

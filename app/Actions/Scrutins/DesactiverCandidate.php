@@ -2,6 +2,8 @@
 
 namespace App\Actions\Scrutins;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutCandidate;
 use App\Models\Candidate;
 use App\Models\User;
@@ -15,6 +17,8 @@ use Illuminate\Validation\ValidationException;
  */
 class DesactiverCandidate
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @throws ValidationException
      */
@@ -36,6 +40,7 @@ class DesactiverCandidate
             'motif_desistement' => filled($motif) ? mb_substr(trim($motif), 0, 500) : null,
             'desactivee_par_id' => $auteur?->id,
         ]);
+        $this->journal->handle(ActionAuditee::CandidateDesactivee, $candidate, ['scrutin' => $candidate->scrutin->code, 'matricule' => $candidate->agent?->matricule, 'motif' => $candidate->motif_desistement]);
 
         return $candidate;
     }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests\Acces;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use Illuminate\Auth\Events\Lockout;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
@@ -52,6 +54,7 @@ class ConnexionRequest extends FormRequest
 
         if (! Auth::attempt($identifiants, $this->boolean('se_souvenir'))) {
             RateLimiter::hit($this->cleLimite(), 60);
+            app(Journaliser::class)->handle(ActionAuditee::ConnexionEchouee, null, [], null, mb_substr($identifiants['login'], 0, 60));
 
             throw ValidationException::withMessages(['login' => 'Matricule ou mot de passe incorrect, ou compte désactivé.']);
         }

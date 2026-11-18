@@ -6,6 +6,9 @@
             ['espace', 'house', 'Accueil', route('espace'), true],
             ...($utilisateur->can('voter') ? [['vote', 'vote', 'Voter', route('vote'), true]] : []),
         ],
+        'Pilotage' => array_values(array_filter([
+            ['editions', 'calendar-range', 'Éditions', route('editions.index'), $utilisateur->can('piloter')],
+        ], fn (array $lien): bool => $lien[4])),
         'Suivi' => array_values(array_filter([
             ['tableau-de-bord', 'layout-dashboard', 'Tableau de bord', route('tableau-de-bord'), $utilisateur->can('observer') || $utilisateur->can('controler-listes')],
             ['journal', 'shield-check', 'Journal d’audit', route('journal'), $utilisateur->can('observer')],
@@ -80,6 +83,11 @@
             @if (session('succes'))
                 <div class="alerte alerte--succes espace-bloc" role="status"><i data-lucide="circle-check"></i><div>{{ session('succes') }}</div></div>
             @endif
+            @foreach (['edition', 'phase', 'scrutin', 'candidate'] as $cleErreur)
+                @error($cleErreur)
+                    <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $message }}</div></div>
+                @enderror
+            @endforeach
             {{ $slot }}
         </main>
     </div>

@@ -4,6 +4,8 @@ use App\Http\Controllers\Acces\ConnexionController;
 use App\Http\Controllers\Acces\MotDePasseController;
 use App\Http\Controllers\Acces\ReinitialisationMotDePasseController;
 use App\Http\Controllers\Acces\UtilisateurController;
+use App\Http\Controllers\Editions\EditionController;
+use App\Http\Controllers\Editions\PhaseController;
 use App\Http\Controllers\EspaceController;
 use App\Http\Controllers\Suivi\ExportController;
 use App\Http\Controllers\Suivi\JournalAuditController;
@@ -38,6 +40,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/journal', JournalAuditController::class)->middleware('can:observer')->name('journal');
     Route::get('/scrutins/{scrutin}/liste-electorale.csv', [ExportController::class, 'listeElectorale'])->name('exports.liste-electorale');
     Route::get('/scrutins/{scrutin}/resultats.csv', [ExportController::class, 'resultats'])->name('exports.resultats');
+
+    Route::middleware('can:piloter')->group(function () {
+        Route::resource('editions', EditionController::class)->except(['destroy']);
+        Route::post('/editions/{edition}/lancer', [EditionController::class, 'lancer'])->name('editions.lancer');
+        Route::put('/phases/{phase}', [PhaseController::class, 'update'])->name('phases.update');
+        Route::post('/phases/{phase}/ouvrir', [PhaseController::class, 'ouvrir'])->name('phases.ouvrir');
+        Route::post('/phases/{phase}/cloturer', [PhaseController::class, 'cloturer'])->name('phases.cloturer');
+    });
 
     Route::middleware('can:administrer')->group(function () {
         Route::resource('utilisateurs', UtilisateurController::class)

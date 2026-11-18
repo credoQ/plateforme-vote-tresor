@@ -11,9 +11,9 @@
         </div>
     </div>
 
-    @if ($errors->any())
-        <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $errors->first() }}</div></div>
-    @endif
+    @error('candidate_id')
+        <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $message }}</div></div>
+    @enderror
 
     @if ($inscription === null)
         <div class="carte"><div class="carte__corps"><div class="etat-vide"><i data-lucide="calendar-clock"></i>

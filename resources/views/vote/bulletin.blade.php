@@ -16,9 +16,9 @@
         <div><strong>Vote secret et définitif.</strong> La plateforme enregistre que vous avez voté, jamais pour qui. Une fois confirmé, votre choix ne peut plus être modifié.</div>
     </div>
 
-    @if ($errors->any())
-        <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $errors->first() }}</div></div>
-    @endif
+    @error('candidate_id')
+        <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $message }}</div></div>
+    @enderror
 
     <section class="carte">
         <form method="GET" action="{{ route('vote') }}" class="barre-filtres">

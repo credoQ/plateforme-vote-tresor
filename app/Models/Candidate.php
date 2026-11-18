@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 #[Table('candidates')]
 #[Fillable([
     'scrutin_id', 'agent_id', 'origine', 'statut', 'date_desistement', 'motif_desistement',
-    'desactivee_par_id', 'candidate_source_id', 'nb_voix', 'rang', 'est_laureate',
+    'desactivee_par_id', 'candidate_source_id', 'nb_voix', 'pourcentage', 'rang', 'est_laureate',
 ])]
 class Candidate extends Model
 {
@@ -101,6 +101,7 @@ class Candidate extends Model
             'statut' => StatutCandidate::class,
             'date_desistement' => 'immutable_datetime',
             'nb_voix' => 'integer',
+            'pourcentage' => 'decimal:2',
             'rang' => 'integer',
             'est_laureate' => 'boolean',
         ];

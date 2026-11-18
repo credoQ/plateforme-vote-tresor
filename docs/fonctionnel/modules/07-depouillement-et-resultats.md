@@ -14,6 +14,20 @@ Ce module calcule les résultats à la clôture du scrutin et organise la qualif
 - [ ] La qualification automatique des lauréates vers la phase suivante.
 - [ ] La proclamation de la Femme modèle du Trésor et l’édition du palmarès (lauréates départementales, de structure et de pôle).
 
+## Avancement
+
+- [x] Migration `proces_verbaux` (un par scrutin, trigger qui interdit toute modification ou suppression après publication, R55) et pourcentage des candidates
+- [x] Action `DepouillerScrutin` : contrôle de la chaîne des bulletins (R44) et de sa cohérence avec l'émargement, voix, pourcentage des exprimés, rang partagé en cas d'égalité, lauréates selon le nombre de qualifiées de la phase, quorum (R47, R48, R50, R52)
+- [x] Égalité à la limite des places qualificatives signalée et action `TrancherEgalite` : décision motivée du comité, portée au procès-verbal ; la modalité de départage reste à préciser (R49)
+- [x] Action `ProlongerScrutin` quand le quorum n'est pas atteint (R50)
+- [x] Action `ValiderResultats` : numéro du procès-verbal (`PV-2026-P1-001`) et job `GenererFichierProcesVerbal` (HTML imprimable) (R51)
+- [x] Action `PublierResultats` : après génération du procès-verbal ; les lauréates publiées sont reprises en phase suivante (R52, R54)
+- [x] Femme modèle du Trésor (`Edition::femmeModele()`) et palmarès de l'édition (`EtablirPalmares`) (R53)
+- [x] Tests des règles R44, R47 à R55
+- [ ] Procès-verbal en PDF : demande l'ajout d'une dépendance, à valider
+- [ ] Écrans de résultats et du palmarès, avec les profils du module 01
+- [ ] Journalisation de la validation et de la publication (R56, module 08)
+
 ## Acteurs
 
 Comité d'organisation (dépouillement, validation, publication, qualification) ; électeur et observateur (consultation).

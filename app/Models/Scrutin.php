@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
  * Scrutin d'une phase (R19). Il relève d'au plus un pôle électoral : la finale n'en a pas (R22).
@@ -71,6 +72,32 @@ class Scrutin extends Model
     public function candidates(): HasMany
     {
         return $this->hasMany(Candidate::class);
+    }
+
+    /**
+     * @return HasMany<Bulletin, $this>
+     */
+    public function bulletins(): HasMany
+    {
+        return $this->hasMany(Bulletin::class);
+    }
+
+    /**
+     * @return HasOne<ProcesVerbal, $this>
+     */
+    public function procesVerbal(): HasOne
+    {
+        return $this->hasOne(ProcesVerbal::class);
+    }
+
+    /**
+     * Lauréates qualifiées pour la phase suivante, une fois les résultats publiés (R48, R52).
+     *
+     * @return HasMany<Candidate, $this>
+     */
+    public function laureates(): HasMany
+    {
+        return $this->candidates()->where('est_laureate', true)->orderBy('rang');
     }
 
     /**

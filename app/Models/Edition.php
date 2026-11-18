@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Editions\StatutEdition;
+use App\Enums\Scrutins\StatutScrutin;
 use Database\Factories\EditionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -54,6 +55,21 @@ class Edition extends Model
     public function phase(int $numero): ?Phase
     {
         return $this->phases->firstWhere('numero', $numero);
+    }
+
+    /**
+     * La Femme modèle du Trésor de l'édition : la lauréate de la finale, une fois ses résultats publiés (R53).
+     */
+    public function femmeModele(): ?Candidate
+    {
+        return Candidate::query()
+            ->with('agent')
+            ->where('est_laureate', true)
+            ->whereHas('scrutin', fn (Builder $scrutin) => $scrutin
+                ->where('statut', StatutScrutin::ResultatsPublies->value)
+                ->whereHas('phase', fn (Builder $phase) => $phase->where('edition_id', $this->id)->where('numero', Phase::FINALE)))
+            ->orderBy('rang')
+            ->first();
     }
 
     public function estModifiable(): bool

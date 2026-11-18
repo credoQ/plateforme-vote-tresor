@@ -7,6 +7,7 @@ use App\Http\Controllers\Acces\UtilisateurController;
 use App\Http\Controllers\Editions\EditionController;
 use App\Http\Controllers\Editions\PhaseController;
 use App\Http\Controllers\EspaceController;
+use App\Http\Controllers\Scrutins\ScrutinController;
 use App\Http\Controllers\Suivi\ExportController;
 use App\Http\Controllers\Suivi\JournalAuditController;
 use App\Http\Controllers\Suivi\TableauDeBordController;
@@ -37,6 +38,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/candidatures/{candidate}/reactiver', [CandidatureController::class, 'reactiver'])->name('candidatures.reactiver');
 
     Route::get('/tableau-de-bord', TableauDeBordController::class)->name('tableau-de-bord');
+    Route::get('/scrutins/{scrutin}', [ScrutinController::class, 'show'])->name('scrutins.show');
     Route::get('/journal', JournalAuditController::class)->middleware('can:observer')->name('journal');
     Route::get('/scrutins/{scrutin}/liste-electorale.csv', [ExportController::class, 'listeElectorale'])->name('exports.liste-electorale');
     Route::get('/scrutins/{scrutin}/resultats.csv', [ExportController::class, 'resultats'])->name('exports.resultats');
@@ -47,6 +49,10 @@ Route::middleware('auth')->group(function () {
         Route::put('/phases/{phase}', [PhaseController::class, 'update'])->name('phases.update');
         Route::post('/phases/{phase}/ouvrir', [PhaseController::class, 'ouvrir'])->name('phases.ouvrir');
         Route::post('/phases/{phase}/cloturer', [PhaseController::class, 'cloturer'])->name('phases.cloturer');
+        Route::post('/phases/{phase}/scrutins', [ScrutinController::class, 'generer'])->name('phases.scrutins.generer');
+        Route::post('/scrutins/{scrutin}/planifier', [ScrutinController::class, 'planifier'])->name('scrutins.planifier');
+        Route::post('/scrutins/{scrutin}/actualiser', [ScrutinController::class, 'actualiser'])->name('scrutins.actualiser');
+        Route::post('/scrutins/{scrutin}/arreter', [ScrutinController::class, 'arreter'])->name('scrutins.arreter');
     });
 
     Route::middleware('can:administrer')->group(function () {

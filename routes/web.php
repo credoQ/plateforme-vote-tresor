@@ -8,6 +8,8 @@ use App\Http\Controllers\EspaceController;
 use App\Http\Controllers\Suivi\ExportController;
 use App\Http\Controllers\Suivi\JournalAuditController;
 use App\Http\Controllers\Suivi\TableauDeBordController;
+use App\Http\Controllers\Vote\CandidatureController;
+use App\Http\Controllers\Vote\VoteController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/espace');
@@ -23,6 +25,14 @@ Route::middleware('auth')->group(function () {
     Route::put('/mot-de-passe', [MotDePasseController::class, 'update'])->name('mot-de-passe.update');
 
     Route::get('/espace', EspaceController::class)->name('espace');
+
+    Route::middleware('can:voter')->group(function () {
+        Route::get('/vote', [VoteController::class, 'show'])->name('vote');
+        Route::post('/vote/confirmation', [VoteController::class, 'confirmer'])->name('vote.confirmer');
+        Route::post('/vote', [VoteController::class, 'store'])->middleware('throttle:10,1')->name('vote.store');
+    });
+    Route::post('/candidatures/{candidate}/desister', [CandidatureController::class, 'desister'])->name('candidatures.desister');
+    Route::post('/candidatures/{candidate}/reactiver', [CandidatureController::class, 'reactiver'])->name('candidatures.reactiver');
 
     Route::get('/tableau-de-bord', TableauDeBordController::class)->name('tableau-de-bord');
     Route::get('/journal', JournalAuditController::class)->middleware('can:observer')->name('journal');

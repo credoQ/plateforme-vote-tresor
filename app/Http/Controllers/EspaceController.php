@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Models\Candidate;
 use App\Models\Inscription;
 use App\Models\Scrutin;
 use Illuminate\Http\Request;
@@ -33,11 +34,21 @@ class EspaceController extends Controller
             ->limit(5)
             ->get();
 
+        // Candidatures de l'agent qui acceptent encore un désistement ou une réactivation (R32 à R34).
+        $candidatures = $utilisateur->agent_id === null ? collect() : Candidate::query()
+            ->with('scrutin.phase')
+            ->where('agent_id', $utilisateur->agent_id)
+            ->whereHas('scrutin', fn ($scrutin) => $scrutin
+                ->whereIn('statut', [StatutScrutin::EnPreparation->value, StatutScrutin::ListesArretees->value])
+                ->whereHas('phase.edition', fn ($edition) => $edition->where('statut', StatutEdition::EnCours->value)))
+            ->get();
+
         return view('espace.accueil', [
             'utilisateur' => $utilisateur,
             'affectation' => $utilisateur->agent?->affectationLe(),
             'inscription' => $inscription,
             'annonces' => $annonces,
+            'candidatures' => $candidatures,
         ]);
     }
 }

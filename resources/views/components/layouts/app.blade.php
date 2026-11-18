@@ -4,6 +4,7 @@
     $menus = array_filter([
         'Mon espace' => [
             ['espace', 'house', 'Accueil', route('espace'), true],
+            ...($utilisateur->can('voter') ? [['vote', 'vote', 'Voter', route('vote'), true]] : []),
         ],
         'Suivi' => array_values(array_filter([
             ['tableau-de-bord', 'layout-dashboard', 'Tableau de bord', route('tableau-de-bord'), $utilisateur->can('observer') || $utilisateur->can('controler-listes')],

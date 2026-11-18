@@ -8,12 +8,12 @@ Ce module permet aux électeurs de voter en ligne pendant la période d’ouvert
 
 ## Fonctionnalités
 
-- [ ] L’affichage, pour chaque électeur, du seul scrutin auquel il est inscrit pour la phase en cours.
-- [ ] La consultation de la liste des candidates du scrutin (nom, prénoms, structure), avec recherche par nom et par structure.
-- [ ] Le désistement en ligne d’une candidate depuis son espace personnel, avant l’ouverture du scrutin.
-- [ ] Le vote avec confirmation, puis délivrance d’un accusé de vote sans indication du choix exprimé.
-- [ ] L’enregistrement séparé de l’émargement (qui a voté) et du bulletin (pour qui), garantissant le secret du vote.
-- [ ] L’accès depuis un ordinateur ou un téléphone mobile (interface adaptative).
+- [x] L’affichage, pour chaque électeur, du seul scrutin auquel il est inscrit pour la phase en cours.
+- [x] La consultation de la liste des candidates du scrutin (nom, prénoms, structure), avec recherche par nom et par structure.
+- [x] Le désistement en ligne d’une candidate depuis son espace personnel, avant l’ouverture du scrutin.
+- [x] Le vote avec confirmation, puis délivrance d’un accusé de vote sans indication du choix exprimé.
+- [x] L’enregistrement séparé de l’émargement (qui a voté) et du bulletin (pour qui), garantissant le secret du vote.
+- [x] L’accès depuis un ordinateur ou un téléphone mobile (interface adaptative).
 
 ## Avancement
 
@@ -24,7 +24,7 @@ Ce module permet aux électeurs de voter en ligne pendant la période d’ouvert
 - [x] Empreinte chaînée HMAC-SHA256 et vérification de la chaîne (R44)
 - [x] Taux de participation, seule donnée visible pendant le vote (R46)
 - [x] Tests des règles R33, R38 à R41 et R43 à R46
-- [ ] Écrans de l'électeur (scrutin, candidates, vote, accusé, désistement en ligne), avec l'authentification du module 01 (R42)
+- [x] Écrans de l'électeur : bulletin avec recherche, confirmation en deux étapes sans JavaScript, accusé imprimable sans le choix, retrait et réactivation de candidature depuis l'accueil (R32 à R34, R40, R42)
 
 ## Acteurs
 

@@ -24,3 +24,8 @@ document.addEventListener('click', (e) => {
     const ouvrir = e.target.closest('[data-ouvrir]');
     if (ouvrir) document.getElementById(ouvrir.dataset.ouvrir)?.removeAttribute('hidden');
 });
+
+// Impression (accusé de vote) : data-imprimer
+document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-imprimer]')) window.print();
+});

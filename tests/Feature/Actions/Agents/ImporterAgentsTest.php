@@ -9,6 +9,8 @@ use App\Models\Structure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use InvalidArgumentException;
+use OpenSpout\Common\Entity\Row;
+use OpenSpout\Writer\XLSX\Writer;
 use Tests\TestCase;
 
 class ImporterAgentsTest extends TestCase
@@ -72,6 +74,30 @@ class ImporterAgentsTest extends TestCase
         $this->assertSame(1, $rapport->agentsMisAJour);
         $this->assertSame('AHOUANSOU épouse GBAGUIDI', $agent->nom);
         $this->assertSame(['TD-ATL', 'DIA'], $agent->affectations()->with('structure')->get()->pluck('structure.code')->all());
+    }
+
+    /**
+     * Import depuis un classeur Excel : matricule numérique et dates saisies comme dates.
+     */
+    public function test_importe_un_classeur_excel(): void
+    {
+        $chemin = sys_get_temp_dir().'/agents-'.uniqid().'.xlsx';
+        $classeur = new Writer;
+        $classeur->openToFile($chemin);
+        $classeur->addRow(Row::fromValues(['Matricule', 'Nom', 'Prénoms', 'Sexe', 'Date naissance', 'Structure', 'Date début']));
+        $classeur->addRow(Row::fromValues([100001, 'AHOUANSOU', 'Clarisse', 'F', new \DateTimeImmutable('1985-03-12'), 'DIA', new \DateTimeImmutable('2021-01-04')]));
+        $classeur->addRow(Row::fromValues(['', '', '', '', '', '', '']));
+        $classeur->addRow(Row::fromValues([100002, 'DOSSOU', 'Marc', '', null, 'DIA', null]));
+        $classeur->close();
+        $this->beforeApplicationDestroyed(fn () => @unlink($chemin));
+
+        $rapport = app(ImporterAgents::class)->handle($chemin, Carbon::parse('2026-01-15'));
+
+        $this->assertSame(1, $rapport->agentsCrees);
+        $this->assertSame([4], array_keys($rapport->rejets), 'La ligne vide est ignorée, la ligne 4 sans sexe est rejetée.');
+        $agent = Agent::where('matricule', '100001')->firstOrFail();
+        $this->assertSame('1985-03-12', $agent->date_naissance->toDateString());
+        $this->assertSame('2021-01-04', $agent->affectations()->first()->date_debut->toDateString());
     }
 
     public function test_refuse_un_fichier_sans_colonne_obligatoire(): void

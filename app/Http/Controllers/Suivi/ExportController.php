@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers\Suivi;
 
+use App\Actions\Documents\CodeQr;
+use App\Actions\Documents\LienVerification;
+use App\Actions\Documents\LignesExport;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
@@ -17,11 +20,17 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 /**
  * Exports des listes électorales et des résultats publiés (module 08), en CSV, Excel (.xlsx) ou PDF
- * selon le paramètre « format » (CSV par défaut).
+ * selon le paramètre « format » (CSV par défaut). Le PDF porte un QR code de vérification en ligne.
  */
 class ExportController extends Controller
 {
     public const FORMATS = ['csv', 'xlsx', 'pdf'];
+
+    public function __construct(
+        private LignesExport $lignesExport,
+        private CodeQr $codeQr,
+        private LienVerification $lien,
+    ) {}
 
     /**
      * Liste électorale d'un scrutin : comité, observateur, ou point focal limité à sa structure (R4). Sans l'émargement.
@@ -32,20 +41,9 @@ class ExportController extends Controller
         abort_unless($utilisateur->can('observer') || $utilisateur->can('controler-listes'), 403);
         $perimetre = $utilisateur->aLeRole(CodeRole::Comite, CodeRole::Observateur, CodeRole::Administrateur) ? null : $utilisateur->perimetre();
 
-        $lignes = $scrutin->inscriptions()
-            ->with(['agent', 'structure'])
-            ->when($perimetre !== null, fn ($q) => $q->whereIn('structure_id', $perimetre))
-            ->join('agents', 'agents.id', '=', 'inscriptions.agent_id')
-            ->orderBy('agents.nom')->orderBy('agents.prenoms')
-            ->select('inscriptions.*')
-            ->lazy()
-            ->map(fn ($inscription): array => [
-                $inscription->agent->matricule, $inscription->agent->nom, $inscription->agent->prenoms,
-                $inscription->agent->sexe->value, $inscription->structure->code,
-            ]);
+        ['entete' => $entete, 'lignes' => $lignes] = $this->lignesExport->listeElectorale($scrutin, $perimetre);
 
-        return $this->exporter($request, "liste-electorale-{$scrutin->code}", 'Liste électorale · '.$scrutin->libelle,
-            ['Matricule', 'Nom', 'Prénoms', 'Sexe', 'Structure'], $lignes);
+        return $this->exporter($request, 'liste', $scrutin, "liste-electorale-{$scrutin->code}", 'Liste électorale', $entete, $lignes, $perimetre);
     }
 
     /**
@@ -55,22 +53,18 @@ class ExportController extends Controller
     {
         abort_unless($scrutin->statut === StatutScrutin::ResultatsPublies, 404);
 
-        $lignes = $scrutin->candidates()->with('agent')->orderByRaw('rang nulls last')->get()
-            ->map(fn ($candidate): array => [
-                $candidate->rang ?? '', $candidate->agent->matricule, $candidate->agent->nomComplet(),
-                $candidate->nb_voix ?? '', $candidate->pourcentage === null ? '' : (float) $candidate->pourcentage,
-                $candidate->est_laureate ? 'Lauréate' : '', $candidate->statut->libelle(),
-            ]);
+        ['entete' => $entete, 'lignes' => $lignes] = $this->lignesExport->resultats($scrutin);
 
-        return $this->exporter($request, "resultats-{$scrutin->code}", 'Résultats · '.$scrutin->libelle,
-            ['Rang', 'Matricule', 'Candidate', 'Voix', '%', 'Résultat', 'Statut'], $lignes);
+        return $this->exporter($request, 'resultats', $scrutin, "resultats-{$scrutin->code}", 'Résultats', $entete, $lignes);
     }
 
     /**
+     * @param  'liste'|'resultats'  $type
      * @param  list<string>  $entete
-     * @param  iterable<int, list<string|int|float>>  $lignes
+     * @param  list<list<string|int|float>>  $lignes
+     * @param  list<int>|null  $perimetre
      */
-    private function exporter(Request $request, string $nom, string $titre, array $entete, iterable $lignes): StreamedResponse|Response
+    private function exporter(Request $request, string $type, Scrutin $scrutin, string $nom, string $titre, array $entete, array $lignes, ?array $perimetre = null): StreamedResponse|Response
     {
         $format = in_array($request->query('format'), self::FORMATS, true) ? $request->query('format') : 'csv';
         $fichier = Str::slug($nom).'.'.$format;
@@ -85,14 +79,7 @@ class ExportController extends Controller
                 }
                 $classeur->close();
             }, $fichier, ['Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet']),
-            'pdf' => response(Pdf::loadView('exports.tableau', [
-                'titre' => $titre,
-                'entete' => $entete,
-                'lignes' => collect($lignes)->all(),
-            ])->setPaper('a4')->output(), 200, [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="'.$fichier.'"',
-            ]),
+            'pdf' => $this->pdf($request, $type, $scrutin, $fichier, $titre, $entete, $lignes, $perimetre),
             default => response()->streamDownload(function () use ($entete, $lignes): void {
                 $sortie = fopen('php://output', 'w');
                 fwrite($sortie, "\xEF\xBB\xBF");
@@ -103,5 +90,33 @@ class ExportController extends Controller
                 fclose($sortie);
             }, $fichier, ['Content-Type' => 'text/csv; charset=UTF-8']),
         };
+    }
+
+    /**
+     * @param  'liste'|'resultats'  $type
+     * @param  list<string>  $entete
+     * @param  list<list<string|int|float>>  $lignes
+     * @param  list<int>|null  $perimetre
+     */
+    private function pdf(Request $request, string $type, Scrutin $scrutin, string $fichier, string $titre, array $entete, array $lignes, ?array $perimetre): Response
+    {
+        $edition = now();
+        $verification = $this->lien->export($type, $scrutin, $this->lignesExport->empreinte($lignes), count($lignes), $edition, $perimetre);
+
+        $pdf = Pdf::loadView('exports.tableau', [
+            'titre' => $titre,
+            'sousTitre' => $scrutin->phase->libelle.' · '.$scrutin->libelle,
+            'type' => $titre,
+            'entete' => $entete,
+            'lignes' => $lignes,
+            'qr' => $this->codeQr->dataUri($verification),
+            'editeLe' => $edition,
+            'editePar' => $request->user()->name,
+        ])->setPaper('a4');
+
+        return response($pdf->output(), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$fichier.'"',
+        ]);
     }
 }

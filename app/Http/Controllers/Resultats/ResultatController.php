@@ -97,17 +97,12 @@ class ResultatController extends Controller
         abort_if($pv?->fichier === null, 404);
         abort_unless($scrutin->statut === StatutScrutin::ResultatsPublies || $request->user()->can('piloter') || $request->user()->can('observer'), 403);
 
-        if ($request->query('format') === 'pdf') {
-            return response(Storage::disk('local')->get($pv->fichier), 200, [
-                'Content-Type' => 'application/pdf',
-                'Content-Disposition' => 'attachment; filename="'.$pv->numero.'.pdf"',
-            ]);
-        }
+        $disposition = $request->query('format') === 'pdf' ? 'attachment' : 'inline';
 
-        $html = Storage::disk('local')->get(preg_replace('/\.pdf$/', '.html', $pv->fichier));
-        abort_if($html === null, 404);
-
-        return response($html, 200, ['Content-Type' => 'text/html; charset=UTF-8']);
+        return response(Storage::disk('local')->get($pv->fichier), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => $disposition.'; filename="'.$pv->numero.'.pdf"',
+        ]);
     }
 
     /**

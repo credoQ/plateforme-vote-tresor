@@ -191,7 +191,7 @@ class DepouillementEtResultatsTest extends TestCase
         $this->assertTrue($pv->validePar->is($comite));
         $this->assertSame('proces-verbaux/PV-2026-P1-001.pdf', $pv->fichier);
         $this->assertStringStartsWith('%PDF', Storage::disk('local')->get($pv->fichier));
-        $this->assertStringContainsString('PV-2026-P1-001', Storage::disk('local')->get('proces-verbaux/PV-2026-P1-001.html'));
+        $this->assertFalse(Storage::disk('local')->exists('proces-verbaux/PV-2026-P1-001.html'));
         $this->attendreErreur(fn () => $this->depouiller(), 'clos');
 
         app(PublierResultats::class)->handle($this->scrutin);

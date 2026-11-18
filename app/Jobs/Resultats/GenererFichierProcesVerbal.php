@@ -2,6 +2,8 @@
 
 namespace App\Jobs\Resultats;
 
+use App\Actions\Documents\CodeQr;
+use App\Actions\Documents\LienVerification;
 use App\Models\ProcesVerbal;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -10,7 +12,7 @@ use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Support\Facades\Storage;
 
 /**
- * Génère le procès-verbal d'un scrutin validé (R51) : PDF archivé (fichier du MCD) et copie HTML pour l'affichage.
+ * Génère le procès-verbal PDF d'un scrutin validé (R51), avec le QR code de vérification en ligne.
  * Le procès-verbal publié n'est plus modifiable (R55) : le fichier n'est produit qu'avant la publication.
  */
 class GenererFichierProcesVerbal implements ShouldBeUnique, ShouldQueue
@@ -26,9 +28,10 @@ class GenererFichierProcesVerbal implements ShouldBeUnique, ShouldQueue
         return (string) $this->procesVerbalId;
     }
 
-    public function handle(): void
+    public function handle(CodeQr $codeQr, LienVerification $lien): void
     {
         $pv = ProcesVerbal::with([
+            'validePar',
             'scrutin.phase.edition',
             'scrutin.candidates' => fn ($query) => $query->with('agent')->orderByRaw('rang nulls last')->orderBy('id'),
         ])->findOrFail($this->procesVerbalId);
@@ -37,10 +40,9 @@ class GenererFichierProcesVerbal implements ShouldBeUnique, ShouldQueue
             return;
         }
 
-        $html = view('resultats.proces-verbal', ['pv' => $pv])->render();
+        $html = view('resultats.proces-verbal', ['pv' => $pv, 'qr' => $codeQr->dataUri($lien->procesVerbal($pv))])->render();
         $chemin = "proces-verbaux/{$pv->numero}.pdf";
 
-        Storage::disk('local')->put("proces-verbaux/{$pv->numero}.html", $html);
         Storage::disk('local')->put($chemin, Pdf::loadHTML($html)->setPaper('a4')->output());
 
         $pv->update(['fichier' => $chemin]);

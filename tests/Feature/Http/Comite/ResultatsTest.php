@@ -79,7 +79,8 @@ class ResultatsTest extends TestCase
 
         $this->post(route('resultats.valider', $this->scrutin))->assertSessionHas('succes');
         $this->get(route('scrutins.show', $this->scrutin))->assertSee('PV n° PV-2026-P1-001')->assertSee('Publier les résultats');
-        $this->get(route('resultats.proces-verbal', $this->scrutin))->assertOk()->assertSee('PV-2026-P1-001');
+        $this->get(route('resultats.proces-verbal', $this->scrutin))->assertOk()
+            ->assertHeader('Content-Type', 'application/pdf')->assertHeader('Content-Disposition', 'inline; filename="PV-2026-P1-001.pdf"');
         $pdf = $this->get(route('resultats.proces-verbal', [$this->scrutin, 'format' => 'pdf']));
         $pdf->assertOk()->assertHeader('Content-Type', 'application/pdf');
         $this->assertStringStartsWith('%PDF', $pdf->getContent());

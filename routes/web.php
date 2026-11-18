@@ -1,8 +1,7 @@
 <?php
 
-use App\Http\Controllers\Acces\ConnexionController;
-use App\Http\Controllers\Acces\MotDePasseController;
 use App\Http\Controllers\Acces\ReinitialisationMotDePasseController;
+use App\Http\Controllers\Acces\SecuriteController;
 use App\Http\Controllers\Acces\UtilisateurController;
 use App\Http\Controllers\Agents\AgentController;
 use App\Http\Controllers\Editions\EditionController;
@@ -20,15 +19,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/espace');
 
-Route::middleware('guest')->group(function () {
-    Route::get('/connexion', [ConnexionController::class, 'create'])->name('connexion');
-    Route::post('/connexion', [ConnexionController::class, 'store'])->name('connexion.store');
-});
-
 Route::middleware('auth')->group(function () {
-    Route::post('/deconnexion', [ConnexionController::class, 'destroy'])->name('deconnexion');
-    Route::get('/mot-de-passe', [MotDePasseController::class, 'edit'])->name('mot-de-passe.edit');
-    Route::put('/mot-de-passe', [MotDePasseController::class, 'update'])->name('mot-de-passe.update');
+    // Connexion, déconnexion, mot de passe oublié et double authentification : routes de Laravel Fortify.
+    Route::get('/securite', [SecuriteController::class, 'edit'])->name('securite');
+    Route::get('/securite/double-authentification', [SecuriteController::class, 'doubleAuthentification'])
+        ->middleware('password.confirm')->name('securite.double-authentification');
 
     Route::get('/espace', EspaceController::class)->name('espace');
 

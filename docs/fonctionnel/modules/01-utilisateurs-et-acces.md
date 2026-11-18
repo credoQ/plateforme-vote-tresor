@@ -8,22 +8,24 @@ Ce module assure la gestion des comptes, des profils et des niveaux d’accès �
 
 ## Fonctionnalités
 
-- [ ] La création et l’administration des comptes utilisateurs (administrateurs, membres du comité d’organisation, points focaux, agents, observateurs).
-- [ ] La gestion des rôles et des habilitations, avec restriction du périmètre du point focal à sa structure.
+- [x] La création et l’administration des comptes utilisateurs (administrateurs, membres du comité d’organisation, points focaux, agents, observateurs).
+- [x] La gestion des rôles et des habilitations, avec restriction du périmètre du point focal à sa structure.
 - [ ] L’authentification par matricule et mot de passe (mot de passe initial remis par le point focal et changé à la première connexion), avec un code à usage unique (OTP) facultatif, envoyé par e-mail lorsque l’adresse de l’agent est connue.
-- [ ] La modification et la réinitialisation des mots de passe.
+- [x] La modification et la réinitialisation des mots de passe.
 
 ## Avancement
 
 - [x] Comptes : identifiant (matricule pour un agent), statut actif, dernière connexion, lien unique vers un agent (R1, R3), structure du point focal (R4)
 - [x] Rôles en table de référence et attribution multiple (R2), `RolesSeeder`
-- [x] Connexion par matricule et mot de passe, limitée à cinq essais par minute, déconnexion (R42)
-- [x] Mot de passe provisoire à changer à la première connexion (middleware `ExigerNouveauMotDePasse`), changement du mot de passe
+- [x] Authentification par Laravel Fortify : connexion par matricule et mot de passe des seuls comptes actifs, limitée à cinq essais par minute, déconnexion (R1, R42)
+- [x] Mot de passe provisoire à changer à la première connexion (middleware `ExigerNouveauMotDePasse`), page « Sécurité du compte »
+- [x] Mot de passe oublié : lien de réinitialisation envoyé par e-mail (comptes ayant une adresse), journalisé
+- [x] Double authentification facultative par application TOTP, avec codes de secours, activée après confirmation du mot de passe
 - [x] Droits : gates `administrer`, `piloter`, `controler-listes`, `observer`, `voter` ; policies `CandidatePolicy` (R32), `AgentPolicy` et `InscriptionPolicy` limitées au périmètre du point focal (R4)
-- [x] Écrans : connexion, accueil, changement de mot de passe, administration des comptes (liste, création, modification, réinitialisation du mot de passe)
+- [x] Écrans : connexion, mot de passe oublié, réinitialisation, double authentification, accueil, sécurité du compte, administration des comptes (liste, création, modification, réinitialisation du mot de passe)
 - [x] Commandes `acces:creer-administrateur` et `acces:generer-comptes` (comptes électeurs des agents en service, mots de passe provisoires exportés en CSV)
 - [x] Tests des règles R1 à R4, R32 et R42
-- [ ] Code à usage unique (OTP) envoyé par e-mail
+- [ ] Code à usage unique (OTP) envoyé par e-mail (R42) : Fortify ne propose que l’application TOTP ; l’envoi par e-mail reste à développer si le métier l’exige
 - [ ] Réinitialisation du mot de passe par le point focal pour les agents de sa structure (aujourd'hui par l'administrateur)
 
 ## Acteurs

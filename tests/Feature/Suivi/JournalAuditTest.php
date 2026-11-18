@@ -55,9 +55,9 @@ class JournalAuditTest extends TestCase
     {
         $utilisateur = User::factory()->create(['login' => '102345', 'password' => 'secret-2026']);
 
-        $this->post(route('connexion.store'), ['login' => '102345', 'password' => 'mauvais-mot']);
-        $this->post(route('connexion.store'), ['login' => '102345', 'password' => 'secret-2026']);
-        $this->post(route('deconnexion'));
+        $this->post(route('login.store'), ['login' => '102345', 'password' => 'mauvais-mot']);
+        $this->post(route('login.store'), ['login' => '102345', 'password' => 'secret-2026']);
+        $this->post(route('logout'));
 
         $this->assertSame(['CONNEXION_ECHOUEE', 'CONNEXION', 'DECONNEXION'], JournalAudit::orderBy('id')->pluck('action')->map->value->all());
         $connexion = JournalAudit::where('action', ActionAuditee::Connexion->value)->sole();

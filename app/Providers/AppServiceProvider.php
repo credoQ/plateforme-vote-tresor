@@ -2,8 +2,15 @@
 
 namespace App\Providers;
 
+use App\Actions\Audit\Journaliser;
 use App\Enums\Acces\CodeRole;
+use App\Enums\Audit\ActionAuditee;
 use App\Models\User;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Logout;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,6 +33,36 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('piloter', fn (User $user): bool => $user->aLeRole(CodeRole::Comite));
         Gate::define('controler-listes', fn (User $user): bool => $user->aLeRole(CodeRole::Comite, CodeRole::PointFocal));
         Gate::define('observer', fn (User $user): bool => $user->aLeRole(CodeRole::Observateur, CodeRole::Comite, CodeRole::Administrateur));
+        $this->journaliserLesConnexions();
+
         Gate::define('voter', fn (User $user): bool => $user->agent_id !== null && $user->aLeRole(CodeRole::Electeur));
+    }
+
+    /**
+     * R56 : connexions réussies et échouées, déconnexions. Le mot de passe saisi n'est jamais enregistré.
+     */
+    private function journaliserLesConnexions(): void
+    {
+        Event::listen(Login::class, function (Login $evenement): void {
+            if (! $evenement->user instanceof User) {
+                return;
+            }
+
+            DB::transaction(function () use ($evenement): void {
+                $evenement->user->forceFill(['derniere_connexion' => now()])->saveQuietly();
+                app(Journaliser::class)->handle(ActionAuditee::Connexion, $evenement->user, $evenement->remember ? ['souvenir' => true] : [], $evenement->user);
+            });
+        });
+
+        Event::listen(Failed::class, function (Failed $evenement): void {
+            $login = mb_substr(trim((string) ($evenement->credentials['login'] ?? '')), 0, 60);
+            app(Journaliser::class)->handle(ActionAuditee::ConnexionEchouee, null, [], null, $login === '' ? null : $login);
+        });
+
+        Event::listen(Logout::class, function (Logout $evenement): void {
+            if ($evenement->user instanceof User) {
+                app(Journaliser::class)->handle(ActionAuditee::Deconnexion, $evenement->user, [], $evenement->user);
+            }
+        });
     }
 }

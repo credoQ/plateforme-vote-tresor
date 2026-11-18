@@ -11,7 +11,7 @@ Ce module assure le pilotage, l’information des agents et la traçabilité.
 - [ ] Le suivi en temps réel du taux de participation par scrutin, par structure et par département (sans affichage des voix avant la clôture).
 - [ ] L’affichage d’annonces sur la plateforme (ouverture/clôture des scrutins, publication des résultats) et, le cas échéant, l’envoi de notifications lorsque les contacts sont disponibles.
 - [ ] Le journal d’audit de toutes les opérations sensibles, consultable par les observateurs.
-- [ ] Les exports (listes, résultats, procès-verbaux) aux formats PDF et Excel.
+- [x] Les exports (listes, résultats, procès-verbaux) aux formats PDF et Excel.
 
 ## Avancement
 
@@ -23,7 +23,7 @@ Ce module assure le pilotage, l’information des agents et la traçabilité.
 - [x] Exports CSV de la liste électorale (périmètre du point focal) et des résultats publiés
 - [x] Tests des règles R4, R46, R56 et R57
 - [ ] Envoi par SMS : passerelle à choisir
-- [ ] Exports PDF et Excel (.xlsx) : demandent l'ajout de dépendances, à valider
+- [x] Exports Excel (.xlsx, OpenSpout) et PDF (dompdf) de la liste électorale et des résultats publiés, en plus du CSV
 
 ## Acteurs
 

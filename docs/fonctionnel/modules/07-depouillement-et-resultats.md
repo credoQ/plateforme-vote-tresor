@@ -24,7 +24,7 @@ Ce module calcule les résultats à la clôture du scrutin et organise la qualif
 - [x] Action `PublierResultats` : après génération du procès-verbal ; les lauréates publiées sont reprises en phase suivante (R52, R54)
 - [x] Femme modèle du Trésor (`Edition::femmeModele()`) et palmarès de l'édition (`EtablirPalmares`) (R53)
 - [x] Tests des règles R44, R47 à R55
-- [ ] Procès-verbal en PDF : demande l'ajout d'une dépendance, à valider
+- [x] Procès-verbal en PDF (dompdf), archivé comme fichier du procès-verbal, avec une copie HTML pour l'affichage
 - [x] Écrans : fermeture manuelle si l'heure est passée, dépouillement, résultats provisoires réservés au comité et à l'observateur, départage des ex-æquo, prolongation, validation, publication, procès-verbal, palmarès pour tous
 - [x] Journalisation de la validation et de la publication (R56, module 08)
 

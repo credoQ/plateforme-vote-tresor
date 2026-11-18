@@ -57,8 +57,8 @@
                                 <td><div class="cellule-progression"><div class="progression"><span style="width:{{ $ligne['taux'] }}%"></span></div><b>{{ $pourcent($ligne['taux']) }}</b></div></td>
                                 <td><span class="badge {{ $badges[$ligne['scrutin']->statut->value] }}">{{ $ligne['scrutin']->statut->libelle() }}</span></td>
                                 <td class="actions">
-                                    <a href="{{ route('exports.liste-electorale', $ligne['scrutin']) }}" class="btn btn-discret btn--icone" title="Exporter la liste électorale"><i data-lucide="download"></i></a>
-                                    @if ($ligne['scrutin']->statut === StatutScrutin::ResultatsPublies)<a href="{{ route('exports.resultats', $ligne['scrutin']) }}" class="btn btn-discret btn--icone" title="Exporter les résultats"><i data-lucide="trophy"></i></a>@endif
+                                    <a href="{{ route('exports.liste-electorale', [$ligne['scrutin'], 'format' => 'xlsx']) }}" class="btn btn-discret btn--icone" title="Exporter la liste électorale (Excel)"><i data-lucide="download"></i></a>
+                                    @if ($ligne['scrutin']->statut === StatutScrutin::ResultatsPublies)<a href="{{ route('exports.resultats', [$ligne['scrutin'], 'format' => 'xlsx']) }}" class="btn btn-discret btn--icone" title="Exporter les résultats (Excel)"><i data-lucide="trophy"></i></a>@endif
                                 </td>
                             </tr>
                         @empty

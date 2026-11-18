@@ -1,0 +1,96 @@
+@php
+    use App\Enums\Scrutins\StatutScrutin;
+    $badges = [
+        StatutScrutin::EnPreparation->value => '',
+        StatutScrutin::ListesArretees->value => 'badge--info',
+        StatutScrutin::Ouvert->value => 'badge--succes',
+        StatutScrutin::Clos->value => 'badge--attente',
+        StatutScrutin::ResultatsValides->value => 'badge--primaire',
+        StatutScrutin::ResultatsPublies->value => 'badge--accent',
+        StatutScrutin::Annule->value => 'badge--erreur',
+    ];
+    $pourcent = fn (float $taux): string => number_format($taux, 1, ',', ' ').' %';
+@endphp
+<x-layouts.app titre="Tableau de bord" :ariane="['Suivi', 'Tableau de bord']" actif="tableau-de-bord">
+    <div class="titre-page">
+        <div>
+            <div class="surtitre">{{ $edition?->libelle ?? 'Aucune édition' }}</div>
+            <h1>Participation{{ $phase ? ' · '.$phase->libelle : '' }}</h1>
+            <p>Seule la participation est suivie pendant le vote : les voix ne sont connues qu’après la clôture.@if ($restreint) Données limitées à votre structure.@endif</p>
+        </div>
+    </div>
+
+    @if ($participation === null)
+        <div class="carte"><div class="carte__corps"><div class="etat-vide"><i data-lucide="calendar-x"></i><p>Aucune édition n’est encore créée.</p></div></div></div>
+    @else
+        @php $global = $participation['global']; $scrutins = $participation['scrutins']; @endphp
+        <div class="grille-tuiles espace-bloc">
+            <div class="tuile tuile--heros">
+                <div class="tuile__haut"><span class="surtitre">Taux de participation</span><span class="tuile__icone"><i data-lucide="percent"></i></span></div>
+                <div class="tuile__valeur">{{ $pourcent($global['taux']) }}</div>
+                <div class="tuile__detail">{{ number_format($global['votants'], 0, ',', ' ') }} votants sur {{ number_format($global['inscrits'], 0, ',', ' ') }} inscrits</div>
+            </div>
+            <div class="tuile">
+                <div class="tuile__haut"><span class="surtitre">Scrutins ouverts</span><span class="tuile__icone"><i data-lucide="clipboard-list"></i></span></div>
+                <div class="tuile__valeur">{{ $scrutins->filter(fn ($l) => $l['scrutin']->statut === StatutScrutin::Ouvert)->count() }} <small>/ {{ $scrutins->count() }}</small></div>
+                <div class="tuile__detail">{{ $scrutins->filter(fn ($l) => $l['scrutin']->statut->estTermine())->count() }} terminé(s)</div>
+            </div>
+            <div class="tuile">
+                <div class="tuile__haut"><span class="surtitre">Candidates actives</span><span class="tuile__icone"><i data-lucide="users-round"></i></span></div>
+                <div class="tuile__valeur">{{ number_format($scrutins->sum(fn ($l) => $l['scrutin']->candidates_actives), 0, ',', ' ') }}</div>
+                <div class="tuile__detail">sur {{ $scrutins->count() }} scrutin(s)</div>
+            </div>
+        </div>
+
+        <section class="carte espace-bloc">
+            <div class="carte__entete"><h2>Suivi des scrutins</h2></div>
+            <div class="tableau-defilant">
+                <table class="tableau">
+                    <thead><tr><th>Scrutin</th><th>Pôle</th><th class="nombre">Inscrits</th><th class="nombre">Votants</th><th>Participation</th><th>Statut</th><th class="actions">Exports</th></tr></thead>
+                    <tbody>
+                        @forelse ($scrutins as $ligne)
+                            <tr>
+                                <td>{{ $ligne['scrutin']->libelle }}<div class="aide">{{ $ligne['scrutin']->code }} · {{ $ligne['scrutin']->candidates_actives }} candidate(s)</div></td>
+                                <td>{{ $ligne['scrutin']->poleElectoral?->code->libelle() ?? 'Toute la DGTCP' }}</td>
+                                <td class="nombre">{{ number_format($ligne['inscrits'], 0, ',', ' ') }}</td>
+                                <td class="nombre">{{ number_format($ligne['votants'], 0, ',', ' ') }}</td>
+                                <td><div class="cellule-progression"><div class="progression"><span style="width:{{ $ligne['taux'] }}%"></span></div><b>{{ $pourcent($ligne['taux']) }}</b></div></td>
+                                <td><span class="badge {{ $badges[$ligne['scrutin']->statut->value] }}">{{ $ligne['scrutin']->statut->libelle() }}</span></td>
+                                <td class="actions">
+                                    <a href="{{ route('exports.liste-electorale', $ligne['scrutin']) }}" class="btn btn-discret btn--icone" title="Exporter la liste électorale"><i data-lucide="download"></i></a>
+                                    @if ($ligne['scrutin']->statut === StatutScrutin::ResultatsPublies)<a href="{{ route('exports.resultats', $ligne['scrutin']) }}" class="btn btn-discret btn--icone" title="Exporter les résultats"><i data-lucide="trophy"></i></a>@endif
+                                </td>
+                            </tr>
+                        @empty
+                            <tr><td colspan="7"><div class="etat-vide"><i data-lucide="clipboard-list"></i><p>Les scrutins de cette phase ne sont pas encore générés.</p></div></td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <div class="grille-deux">
+            @foreach ([['Par département', $participation['departements'], 'libelle'], ['Par structure', $participation['structures'], 'code']] as [$titre, $lignes, $cle])
+                <section class="carte">
+                    <div class="carte__entete"><h2>{{ $titre }}</h2></div>
+                    <div class="tableau-defilant">
+                        <table class="tableau">
+                            <thead><tr><th>{{ $cle === 'code' ? 'Structure' : 'Département' }}</th><th class="nombre">Inscrits</th><th>Participation</th></tr></thead>
+                            <tbody>
+                                @forelse ($lignes as $ligne)
+                                    <tr>
+                                        <td>{{ $ligne[$cle] }}@if ($cle === 'code')<div class="aide">{{ $ligne['libelle'] }}</div>@endif</td>
+                                        <td class="nombre">{{ number_format($ligne['inscrits'], 0, ',', ' ') }}</td>
+                                        <td><div class="cellule-progression"><div class="progression"><span style="width:{{ $ligne['taux'] }}%"></span></div><b>{{ $pourcent($ligne['taux']) }}</b></div></td>
+                                    </tr>
+                                @empty
+                                    <tr><td colspan="3"><div class="etat-vide"><p>Aucun inscrit.</p></div></td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            @endforeach
+        </div>
+    @endif
+</x-layouts.app>

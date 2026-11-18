@@ -2,6 +2,8 @@
 
 namespace App\Actions\Scrutins;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Scrutin;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +14,8 @@ use Illuminate\Validation\ValidationException;
  */
 class FermerScrutin
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @throws ValidationException
      */
@@ -29,6 +33,7 @@ class FermerScrutin
             }
 
             $scrutin->update(['statut' => StatutScrutin::Clos]);
+            $this->journal->handle(ActionAuditee::ScrutinFerme, $scrutin, ['scrutin' => $scrutin->code]);
 
             return $scrutin;
         });

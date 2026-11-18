@@ -2,6 +2,8 @@
 
 namespace App\Actions\Scrutins;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutCandidate;
 use App\Models\Candidate;
 use Illuminate\Validation\ValidationException;
@@ -11,6 +13,8 @@ use Illuminate\Validation\ValidationException;
  */
 class ReactiverCandidate
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @throws ValidationException
      */
@@ -32,6 +36,7 @@ class ReactiverCandidate
             'motif_desistement' => null,
             'desactivee_par_id' => null,
         ]);
+        $this->journal->handle(ActionAuditee::CandidateReactivee, $candidate, ['scrutin' => $candidate->scrutin->code, 'matricule' => $candidate->agent?->matricule]);
 
         return $candidate;
     }

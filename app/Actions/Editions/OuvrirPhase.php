@@ -2,6 +2,8 @@
 
 namespace App\Actions\Editions;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
@@ -17,6 +19,8 @@ use Illuminate\Validation\ValidationException;
  */
 class OuvrirPhase
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @throws ValidationException
      */
@@ -44,6 +48,7 @@ class OuvrirPhase
             }
 
             $phase->update(['statut' => StatutPhase::Ouverte, 'date_ouverture' => now()]);
+            $this->journal->handle(ActionAuditee::PhaseOuverte, $phase, ['phase' => $phase->libelle]);
 
             return $phase;
         });

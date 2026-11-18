@@ -2,7 +2,9 @@
 
 namespace App\Actions\Acces;
 
+use App\Actions\Audit\Journaliser;
 use App\Enums\Acces\CodeRole;
+use App\Enums\Audit\ActionAuditee;
 use App\Models\Agent;
 use App\Models\Role;
 use App\Models\User;
@@ -15,7 +17,7 @@ use Illuminate\Support\Facades\DB;
  */
 class GenererComptesAgents
 {
-    public function __construct(private MotDePasseProvisoire $motDePasse) {}
+    public function __construct(private MotDePasseProvisoire $motDePasse, private Journaliser $journal) {}
 
     /**
      * @return list<array{matricule: string, nom: string, structure: string, mot_de_passe: string}>
@@ -51,6 +53,10 @@ class GenererComptesAgents
                     }
                 });
             });
+
+        if ($comptes !== []) {
+            $this->journal->handle(ActionAuditee::ComptesGeneres, null, ['nombre' => count($comptes)]);
+        }
 
         return $comptes;
     }

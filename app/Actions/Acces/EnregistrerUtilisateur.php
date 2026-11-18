@@ -2,7 +2,9 @@
 
 namespace App\Actions\Acces;
 
+use App\Actions\Audit\Journaliser;
 use App\Enums\Acces\CodeRole;
+use App\Enums\Audit\ActionAuditee;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -17,7 +19,7 @@ use Illuminate\Validation\ValidationException;
  */
 class EnregistrerUtilisateur
 {
-    public function __construct(private MotDePasseProvisoire $motDePasse) {}
+    public function __construct(private MotDePasseProvisoire $motDePasse, private Journaliser $journal) {}
 
     /**
      * @param  array{name: string, login: string, email?: string|null, actif?: bool, agent_id?: int|null, structure_id?: int|null, roles: list<string>}  $donnees
@@ -59,6 +61,7 @@ class EnregistrerUtilisateur
 
             $utilisateur->save();
             $utilisateur->roles()->sync(Role::whereIn('code', $roles)->pluck('id'));
+            $this->journal->handle(ActionAuditee::CompteEnregistre, $utilisateur, ['login' => $utilisateur->login, 'creation' => $motDePasse !== null, 'actif' => $utilisateur->actif, 'roles' => $roles, 'structure_id' => $utilisateur->structure_id]);
 
             return ['utilisateur' => $utilisateur->load('roles'), 'mot_de_passe' => $motDePasse];
         });

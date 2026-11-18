@@ -2,8 +2,12 @@
 
 namespace App\Actions\Resultats;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Jobs\Suivi\EnvoyerAnnonceScrutin;
 use App\Models\Scrutin;
+use App\Notifications\AnnonceScrutin;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -15,6 +19,8 @@ use Illuminate\Validation\ValidationException;
  */
 class PublierResultats
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @throws ValidationException
      */
@@ -33,6 +39,8 @@ class PublierResultats
 
             $scrutin->procesVerbal->update(['date_publication' => now()]);
             $scrutin->update(['statut' => StatutScrutin::ResultatsPublies]);
+            $this->journal->handle(ActionAuditee::ResultatsPublies, $scrutin, ['scrutin' => $scrutin->code, 'proces_verbal' => $scrutin->procesVerbal->numero]);
+            EnvoyerAnnonceScrutin::dispatch($scrutin->id, AnnonceScrutin::PUBLICATION)->afterCommit();
 
             return $scrutin;
         });

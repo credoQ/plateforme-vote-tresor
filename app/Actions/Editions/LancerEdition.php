@@ -2,6 +2,8 @@
 
 namespace App\Actions\Editions;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Editions\StatutEdition;
 use App\Models\Edition;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +14,8 @@ use Illuminate\Validation\ValidationException;
  */
 class LancerEdition
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @throws ValidationException
      */
@@ -35,6 +39,7 @@ class LancerEdition
             }
 
             $edition->update(['statut' => StatutEdition::EnCours]);
+            $this->journal->handle(ActionAuditee::EditionLancee, $edition, ['annee' => $edition->annee]);
 
             return $edition;
         });

@@ -13,6 +13,18 @@ Ce module assure le pilotage, l’information des agents et la traçabilité.
 - [ ] Le journal d’audit de toutes les opérations sensibles, consultable par les observateurs.
 - [ ] Les exports (listes, résultats, procès-verbaux) aux formats PDF et Excel.
 
+## Avancement
+
+- [x] Table `journal_audit` en ajout seul : triggers qui refusent toute modification, suppression ou vidage (R56)
+- [x] Action `Journaliser` et enum `ActionAuditee`, appelées dans la transaction de chaque opération sensible : connexions (réussies, échouées), déconnexions, comptes, réinitialisations, import des agents, lancement d'édition, ouverture et clôture des phases, génération des scrutins, arrêt des listes, désactivation et réactivation des candidates, ouverture, annulation, fermeture et prolongation des scrutins, dépouillement, départage, validation et publication (R56). Le vote n'est jamais journalisé (R43, R57)
+- [x] Écran du journal d'audit, filtrable, pour l'observateur, le comité et l'administrateur
+- [x] Tableau de bord de participation par scrutin, département et structure, sans aucune voix (R46) ; le point focal ne voit que sa structure (R4)
+- [x] Annonces sur l'accueil (scrutins ouverts, résultats publiés) et e-mails aux inscrits dont l'adresse est connue, à l'ouverture et à la publication (job `EnvoyerAnnonceScrutin`)
+- [x] Exports CSV de la liste électorale (périmètre du point focal) et des résultats publiés
+- [x] Tests des règles R4, R46, R56 et R57
+- [ ] Envoi par SMS : passerelle à choisir
+- [ ] Exports PDF et Excel (.xlsx) : demandent l'ajout de dépendances, à valider
+
 ## Acteurs
 
 Comité d'organisation et point focal (suivi) ; observateur (lecture des résultats et du journal d'audit).

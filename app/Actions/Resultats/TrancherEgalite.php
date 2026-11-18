@@ -2,6 +2,8 @@
 
 namespace App\Actions\Resultats;
 
+use App\Actions\Audit\Journaliser;
+use App\Enums\Audit\ActionAuditee;
 use App\Models\Candidate;
 use App\Models\Scrutin;
 use Illuminate\Support\Facades\DB;
@@ -15,6 +17,8 @@ use Illuminate\Validation\ValidationException;
  */
 class TrancherEgalite
 {
+    public function __construct(private Journaliser $journal) {}
+
     /**
      * @param  list<Candidate>  $retenues
      *
@@ -46,6 +50,7 @@ class TrancherEgalite
 
             $scrutin->candidates()->whereKey($retenuesIds)->update(['est_laureate' => true]);
             $pv->update(['egalite_a_departager' => false, 'motif_departage' => trim($motif)]);
+            $this->journal->handle(ActionAuditee::EgaliteTranchee, $scrutin, ['scrutin' => $scrutin->code, 'retenues' => $retenuesIds->all(), 'motif' => trim($motif)]);
 
             return $scrutin;
         });

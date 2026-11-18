@@ -67,6 +67,19 @@ class Agent extends Model
     }
 
     /**
+     * Agents dont l'affectation en cours à la date donnée est l'une des structures indiquées (R24, R25).
+     *
+     * @param  iterable<int>  $structureIds
+     */
+    #[Scope]
+    protected function affectesLe(Builder $query, CarbonInterface $date, iterable $structureIds): Builder
+    {
+        return $query->whereHas('affectations', fn (Builder $affectations) => $affectations
+            ->enCoursLe($date)
+            ->whereIn('structure_id', $structureIds));
+    }
+
+    /**
      * Agents de sexe féminin, candidates potentielles de la phase 1.
      */
     #[Scope]

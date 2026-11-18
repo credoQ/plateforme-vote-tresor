@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * Scrutin d'une phase (R19). Il relève d'au plus un pôle électoral : la finale n'en a pas (R22).
@@ -41,6 +43,48 @@ class Scrutin extends Model
     public function poleElectoral(): BelongsTo
     {
         return $this->belongsTo(PoleElectoral::class);
+    }
+
+    /**
+     * Circonscription du scrutin : les structures qu'il couvre (COUVRIR, R24).
+     *
+     * @return BelongsToMany<Structure, $this>
+     */
+    public function structures(): BelongsToMany
+    {
+        return $this->belongsToMany(Structure::class, 'couvertures')->withTimestamps();
+    }
+
+    /**
+     * Liste électorale du scrutin (R24).
+     *
+     * @return HasMany<Inscription, $this>
+     */
+    public function inscriptions(): HasMany
+    {
+        return $this->hasMany(Inscription::class);
+    }
+
+    /**
+     * @return HasMany<Candidate, $this>
+     */
+    public function candidates(): HasMany
+    {
+        return $this->hasMany(Candidate::class);
+    }
+
+    /**
+     * Les listes électorales et les candidates ne changent plus une fois arrêtées (R27, R30) ;
+     * seules la désactivation et la réactivation restent possibles jusqu'à l'ouverture (R33, R34).
+     */
+    public function listesSontModifiables(): bool
+    {
+        return $this->statut === StatutScrutin::EnPreparation;
+    }
+
+    public function accepteLesDesistements(): bool
+    {
+        return in_array($this->statut, [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], true);
     }
 
     /**

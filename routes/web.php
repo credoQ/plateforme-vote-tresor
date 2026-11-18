@@ -13,11 +13,18 @@ use App\Http\Controllers\Suivi\ExportController;
 use App\Http\Controllers\Suivi\JournalAuditController;
 use App\Http\Controllers\Suivi\TableauDeBordController;
 use App\Http\Controllers\Suivi\TacheEchoueeController;
+use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\Vote\CandidatureController;
 use App\Http\Controllers\Vote\VoteController;
 use Illuminate\Support\Facades\Route;
 
 Route::redirect('/', '/espace');
+
+// Vérification publique des documents PDF par leur QR code (liens signés).
+Route::middleware(['signed', 'throttle:30,1'])->prefix('verification')->name('verification.')->group(function () {
+    Route::get('/proces-verbal/{numero}', [VerificationController::class, 'procesVerbal'])->name('proces-verbal');
+    Route::get('/export', [VerificationController::class, 'export'])->name('export');
+});
 
 Route::middleware('auth')->group(function () {
     // Connexion, déconnexion, mot de passe oublié et double authentification : routes de Laravel Fortify.

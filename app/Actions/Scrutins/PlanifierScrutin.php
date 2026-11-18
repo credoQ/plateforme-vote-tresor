@@ -5,6 +5,7 @@ namespace App\Actions\Scrutins;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Scrutin;
 use Carbon\CarbonInterface;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -34,9 +35,17 @@ class PlanifierScrutin
             $this->echouer('date_heure_fermeture', "Le scrutin doit fermer au plus tard à la fin de la phase, le {$phase->date_fin->format('d/m/Y')}.");
         }
 
-        $scrutin->update(['date_heure_ouverture' => $ouverture, 'date_heure_fermeture' => $fermeture]);
+        // Verrou du scrutin : la planification ne peut pas croiser son ouverture automatique.
+        DB::transaction(function () use ($scrutin, $ouverture, $fermeture): void {
+            $verrouille = Scrutin::lockForUpdate()->findOrFail($scrutin->id);
+            if (! in_array($verrouille->statut, [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], true)) {
+                $this->echouer('date_heure_ouverture', 'Un scrutin ouvert, clos ou annulé ne peut plus être replanifié.');
+            }
 
-        return $scrutin;
+            $verrouille->update(['date_heure_ouverture' => $ouverture, 'date_heure_fermeture' => $fermeture]);
+        });
+
+        return $scrutin->refresh();
     }
 
     /**

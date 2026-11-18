@@ -10,6 +10,7 @@
 
 - Monolithe découpé par domaine métier : Référentiel, Agents, Éditions, Scrutins, Vote, Résultats, Audit. Placez la logique métier dans des classes d'action ou de service (`app/Actions/<Domaine>/…`), pas dans les contrôleurs ni dans les vues.
 - Valeurs fermées (statuts, origines, pôles) : enums PHP adossés à des chaînes, avec des clés en TitleCase (`StatutScrutin::Ouvert`).
+- Toute opération qui écrit plusieurs lignes ou tables (y compris l'entrée du journal d'audit) se fait dans `DB::transaction()` : tout est enregistré, ou rien. Une écriture conditionnée par un statut (ouverture, arrêt, désistement, planification) relit la ligne avec `lockForUpdate()` dans la transaction avant d'écrire.
 - Paramètres d'édition encore à valider par le métier (vote blanc, quorum, nombre de qualifiées, départage) : colonnes ou configuration, jamais des constantes dans le code.
 
 ## Base de données

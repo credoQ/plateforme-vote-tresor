@@ -5,6 +5,7 @@ namespace App\Actions\Editions;
 use App\Enums\Editions\StatutPhase;
 use App\Models\Phase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 
@@ -61,7 +62,15 @@ class ParametrerPhase
             $this->echouer('date_fin', "La phase doit se terminer avant le début de la phase {$suivante->numero}.");
         }
 
-        $phase->update($donnees);
+        DB::transaction(function () use ($phase, $donnees): void {
+            $verrouillee = Phase::lockForUpdate()->findOrFail($phase->id);
+            if ($verrouillee->statut !== StatutPhase::Planifiee) {
+                $this->echouer('phase', 'Une phase ouverte ou clôturée ne peut plus être replanifiée.');
+            }
+
+            $verrouillee->update($donnees);
+        });
+        $phase->refresh();
 
         return $phase;
     }

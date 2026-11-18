@@ -6,6 +6,8 @@ use App\Actions\Audit\Journaliser;
 use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutCandidate;
 use App\Models\Candidate;
+use App\Models\Scrutin;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -20,24 +22,27 @@ class ReactiverCandidate
      */
     public function handle(Candidate $candidate): Candidate
     {
-        $candidate->loadMissing('scrutin');
+        return DB::transaction(function () use ($candidate): Candidate {
+            $scrutin = Scrutin::lockForUpdate()->findOrFail($candidate->scrutin_id);
+            $candidate = Candidate::lockForUpdate()->findOrFail($candidate->id)->setRelation('scrutin', $scrutin);
 
-        if (! $candidate->scrutin->accepteLesDesistements()) {
-            throw ValidationException::withMessages(['candidate' => 'Le scrutin est ouvert : la candidate ne peut plus être réactivée (R34).']);
-        }
+            if (! $scrutin->accepteLesDesistements()) {
+                throw ValidationException::withMessages(['candidate' => 'Le scrutin est ouvert : la candidate ne peut plus être réactivée (R34).']);
+            }
 
-        if ($candidate->estActive()) {
-            throw ValidationException::withMessages(['candidate' => 'La candidate est déjà active.']);
-        }
+            if ($candidate->estActive()) {
+                throw ValidationException::withMessages(['candidate' => 'La candidate est déjà active.']);
+            }
 
-        $candidate->update([
-            'statut' => StatutCandidate::Active,
-            'date_desistement' => null,
-            'motif_desistement' => null,
-            'desactivee_par_id' => null,
-        ]);
-        $this->journal->handle(ActionAuditee::CandidateReactivee, $candidate, ['scrutin' => $candidate->scrutin->code, 'matricule' => $candidate->agent?->matricule]);
+            $candidate->update([
+                'statut' => StatutCandidate::Active,
+                'date_desistement' => null,
+                'motif_desistement' => null,
+                'desactivee_par_id' => null,
+            ]);
+            $this->journal->handle(ActionAuditee::CandidateReactivee, $candidate, ['scrutin' => $scrutin->code, 'matricule' => $candidate->agent?->matricule]);
 
-        return $candidate;
+            return $candidate;
+        });
     }
 }

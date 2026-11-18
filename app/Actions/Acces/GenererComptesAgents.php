@@ -32,6 +32,7 @@ class GenererComptesAgents
             ->whereNotIn('matricule', User::select('login'))
             ->chunkById(200, function ($agents) use ($roleElecteur, $date, &$comptes): void {
                 DB::transaction(function () use ($agents, $roleElecteur, $date, &$comptes): void {
+                    $avant = count($comptes);
                     foreach ($agents as $agent) {
                         $motDePasse = $this->motDePasse->generer();
                         $utilisateur = User::create([
@@ -51,12 +52,13 @@ class GenererComptesAgents
                             'mot_de_passe' => $motDePasse,
                         ];
                     }
+
+                    // Journalisé dans la transaction du lot : un lot créé l'est toujours avec sa trace (R56).
+                    if (count($comptes) > $avant) {
+                        $this->journal->handle(ActionAuditee::ComptesGeneres, null, ['nombre' => count($comptes) - $avant]);
+                    }
                 });
             });
-
-        if ($comptes !== []) {
-            $this->journal->handle(ActionAuditee::ComptesGeneres, null, ['nombre' => count($comptes)]);
-        }
 
         return $comptes;
     }

@@ -6,7 +6,9 @@ use App\Actions\Audit\Journaliser;
 use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutCandidate;
 use App\Models\Candidate;
+use App\Models\Scrutin;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
@@ -24,24 +26,28 @@ class DesactiverCandidate
      */
     public function handle(Candidate $candidate, ?User $auteur = null, ?string $motif = null): Candidate
     {
-        $candidate->loadMissing('scrutin');
+        // Le scrutin est verrouillé : sa bascule à l'ouverture attend la fin de la désactivation (R33).
+        return DB::transaction(function () use ($candidate, $auteur, $motif): Candidate {
+            $scrutin = Scrutin::lockForUpdate()->findOrFail($candidate->scrutin_id);
+            $candidate = Candidate::lockForUpdate()->findOrFail($candidate->id)->setRelation('scrutin', $scrutin);
 
-        if (! $candidate->scrutin->accepteLesDesistements()) {
-            throw ValidationException::withMessages(['candidate' => 'Le scrutin est ouvert : la candidate ne peut plus être désactivée (R33).']);
-        }
+            if (! $scrutin->accepteLesDesistements()) {
+                throw ValidationException::withMessages(['candidate' => 'Le scrutin est ouvert : la candidate ne peut plus être désactivée (R33).']);
+            }
 
-        if (! $candidate->estActive()) {
-            throw ValidationException::withMessages(['candidate' => 'La candidate est déjà désactivée.']);
-        }
+            if (! $candidate->estActive()) {
+                throw ValidationException::withMessages(['candidate' => 'La candidate est déjà désactivée.']);
+            }
 
-        $candidate->update([
-            'statut' => StatutCandidate::Desactivee,
-            'date_desistement' => now(),
-            'motif_desistement' => filled($motif) ? mb_substr(trim($motif), 0, 500) : null,
-            'desactivee_par_id' => $auteur?->id,
-        ]);
-        $this->journal->handle(ActionAuditee::CandidateDesactivee, $candidate, ['scrutin' => $candidate->scrutin->code, 'matricule' => $candidate->agent?->matricule, 'motif' => $candidate->motif_desistement]);
+            $candidate->update([
+                'statut' => StatutCandidate::Desactivee,
+                'date_desistement' => now(),
+                'motif_desistement' => filled($motif) ? mb_substr(trim($motif), 0, 500) : null,
+                'desactivee_par_id' => $auteur?->id,
+            ]);
+            $this->journal->handle(ActionAuditee::CandidateDesactivee, $candidate, ['scrutin' => $scrutin->code, 'matricule' => $candidate->agent?->matricule, 'motif' => $candidate->motif_desistement]);
 
-        return $candidate;
+            return $candidate;
+        });
     }
 }

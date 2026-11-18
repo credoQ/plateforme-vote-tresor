@@ -9,6 +9,7 @@ use App\Http\Requests\Acces\ConnexionRequest;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class ConnexionController extends Controller
@@ -22,8 +23,10 @@ class ConnexionController extends Controller
     {
         $request->authentifier();
         $request->session()->regenerate();
-        $request->user()->forceFill(['derniere_connexion' => now()])->saveQuietly();
-        $journal->handle(ActionAuditee::Connexion, $request->user());
+        DB::transaction(function () use ($request, $journal): void {
+            $request->user()->forceFill(['derniere_connexion' => now()])->saveQuietly();
+            $journal->handle(ActionAuditee::Connexion, $request->user());
+        });
 
         return redirect()->intended(route('espace'));
     }

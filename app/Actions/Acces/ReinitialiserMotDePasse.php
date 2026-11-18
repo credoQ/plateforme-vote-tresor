@@ -5,6 +5,7 @@ namespace App\Actions\Acces;
 use App\Actions\Audit\Journaliser;
 use App\Enums\Audit\ActionAuditee;
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Réinitialise le mot de passe d'un utilisateur : un mot de passe provisoire est généré, à remettre
@@ -18,13 +19,15 @@ class ReinitialiserMotDePasse
     {
         $motDePasse = $this->motDePasse->generer();
 
-        $utilisateur->forceFill([
-            'password' => $motDePasse,
-            'mot_de_passe_a_changer' => true,
-            'remember_token' => null,
-        ])->save();
+        DB::transaction(function () use ($utilisateur, $motDePasse): void {
+            $utilisateur->forceFill([
+                'password' => $motDePasse,
+                'mot_de_passe_a_changer' => true,
+                'remember_token' => null,
+            ])->save();
 
-        $this->journal->handle(ActionAuditee::MotDePasseReinitialise, $utilisateur, ['login' => $utilisateur->login]);
+            $this->journal->handle(ActionAuditee::MotDePasseReinitialise, $utilisateur, ['login' => $utilisateur->login]);
+        });
 
         return $motDePasse;
     }

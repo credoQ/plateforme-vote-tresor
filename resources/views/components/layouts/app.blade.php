@@ -17,6 +17,7 @@
         'Administration' => array_values(array_filter([
             ['agents', 'id-card', $utilisateur->aLeRole(\App\Enums\Acces\CodeRole::Administrateur, \App\Enums\Acces\CodeRole::Comite, \App\Enums\Acces\CodeRole::Observateur) ? 'Agents' : 'Agents de ma structure', route('agents.index'), $utilisateur->can('viewAny', \App\Models\Agent::class)],
             ['utilisateurs', 'users', 'Utilisateurs', route('utilisateurs.index'), $utilisateur->can('administrer')],
+            ['taches-echouees', 'rotate-ccw', 'Tâches en échec', route('taches-echouees.index'), $utilisateur->can('administrer')],
         ], fn (array $lien): bool => $lien[4])),
     ]);
     $initiales = collect(preg_split('/\s+/', trim($utilisateur->name)))->take(2)->map(fn ($mot) => mb_substr($mot, 0, 1))->implode('');

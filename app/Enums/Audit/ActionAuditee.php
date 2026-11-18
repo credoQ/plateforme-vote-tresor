@@ -32,6 +32,8 @@ enum ActionAuditee: string
     case EgaliteTranchee = 'EGALITE_TRANCHEE';
     case ResultatsValides = 'RESULTATS_VALIDES';
     case ResultatsPublies = 'RESULTATS_PUBLIES';
+    case TacheRelancee = 'TACHE_RELANCEE';
+    case TacheSupprimee = 'TACHE_SUPPRIMEE';
 
     public function libelle(): string
     {
@@ -61,6 +63,8 @@ enum ActionAuditee: string
             self::EgaliteTranchee => 'Égalité départagée',
             self::ResultatsValides => 'Résultats validés',
             self::ResultatsPublies => 'Résultats publiés',
+            self::TacheRelancee => 'Tâche en échec relancée',
+            self::TacheSupprimee => 'Tâche en échec supprimée',
         };
     }
 }

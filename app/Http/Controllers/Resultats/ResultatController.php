@@ -13,6 +13,7 @@ use App\Enums\Editions\StatutEdition;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Scrutins\ScrutinController;
+use App\Jobs\Resultats\GenererFichierProcesVerbal;
 use App\Models\Candidate;
 use App\Models\Edition;
 use App\Models\Scrutin;
@@ -72,6 +73,19 @@ class ResultatController extends Controller
         $publier->handle($scrutin);
 
         return $this->retour($scrutin, 'Les résultats sont publiés et archivés.');
+    }
+
+    /**
+     * Relance la génération du fichier d'un procès-verbal validé mais non généré (tâche en échec ou supprimée).
+     */
+    public function regenerer(Scrutin $scrutin): RedirectResponse
+    {
+        $pv = $scrutin->procesVerbal;
+        abort_unless($scrutin->statut === StatutScrutin::ResultatsValides && $pv !== null && $pv->fichier === null, 404);
+
+        GenererFichierProcesVerbal::dispatch($pv->id);
+
+        return $this->retour($scrutin, 'La génération du procès-verbal est relancée.');
     }
 
     /**

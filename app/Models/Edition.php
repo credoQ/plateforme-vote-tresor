@@ -1,0 +1,84 @@
+<?php
+
+namespace App\Models;
+
+use App\Enums\Editions\StatutEdition;
+use Database\Factories\EditionFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+
+/**
+ * Édition annuelle du concours (R16). Le vote blanc et le quorum sont des paramètres de l'édition,
+ * en attendant leur validation par le métier.
+ */
+#[Table('editions')]
+#[Fillable(['annee', 'libelle', 'date_debut', 'date_fin', 'date_gel', 'statut', 'vote_blanc_autorise', 'quorum'])]
+class Edition extends Model
+{
+    /** @use HasFactory<EditionFactory> */
+    use HasFactory;
+
+    /**
+     * @var array<string, mixed>
+     */
+    protected $attributes = [
+        'statut' => 'EN_PREPARATION',
+        'vote_blanc_autorise' => false,
+    ];
+
+    /**
+     * Les trois phases, dans l'ordre (R17).
+     *
+     * @return HasMany<Phase, $this>
+     */
+    public function phases(): HasMany
+    {
+        return $this->hasMany(Phase::class)->orderBy('numero');
+    }
+
+    /**
+     * @return HasManyThrough<Scrutin, Phase, $this>
+     */
+    public function scrutins(): HasManyThrough
+    {
+        return $this->hasManyThrough(Scrutin::class, Phase::class);
+    }
+
+    public function phase(int $numero): ?Phase
+    {
+        return $this->phases->firstWhere('numero', $numero);
+    }
+
+    public function estModifiable(): bool
+    {
+        return $this->statut === StatutEdition::EnPreparation;
+    }
+
+    #[Scope]
+    protected function enCours(Builder $query): Builder
+    {
+        return $query->where('statut', StatutEdition::EnCours->value);
+    }
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'annee' => 'integer',
+            'date_debut' => 'date',
+            'date_fin' => 'date',
+            'date_gel' => 'date',
+            'statut' => StatutEdition::class,
+            'vote_blanc_autorise' => 'boolean',
+            'quorum' => 'decimal:2',
+        ];
+    }
+}

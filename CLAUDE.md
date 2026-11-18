@@ -82,7 +82,7 @@ git merge --no-ff module/06-vote
 
 - Une seule ligne courte, en français, à l'impératif ou au présent : « Ajoute le bulletin de vote », « Corrige le contraste du badge ». Pas de corps de message détaillé, pas de liste.
 - N'utilisez jamais de tiret cadratin (—) ni de tiret demi-cadratin (–) dans un message de commit.
-- La ligne de co-auteur demandée par l'outil reste en pied de message.
+- N'ajoutez aucune ligne de co-auteur (`Co-Authored-By`) ni aucune autre mention en pied de message : le message tient sur sa seule ligne.
 
 === .ai/projet rules ===
 

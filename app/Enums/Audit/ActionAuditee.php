@@ -7,6 +7,7 @@ namespace App\Enums\Audit;
  */
 enum ActionAuditee: string
 {
+    case CodeConnexionEnvoye = 'CODE_CONNEXION_ENVOYE';
     case Connexion = 'CONNEXION';
     case ConnexionEchouee = 'CONNEXION_ECHOUEE';
     case Deconnexion = 'DECONNEXION';
@@ -38,6 +39,7 @@ enum ActionAuditee: string
     public function libelle(): string
     {
         return match ($this) {
+            self::CodeConnexionEnvoye => 'Code de connexion envoyé',
             self::Connexion => 'Connexion',
             self::ConnexionEchouee => 'Connexion échouée',
             self::Deconnexion => 'Déconnexion',

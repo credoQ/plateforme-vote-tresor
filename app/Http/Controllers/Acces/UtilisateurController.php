@@ -44,11 +44,9 @@ class UtilisateurController extends Controller
 
     public function store(Request $request, EnregistrerUtilisateur $enregistrer): RedirectResponse
     {
-        ['utilisateur' => $utilisateur, 'mot_de_passe' => $motDePasse] = $enregistrer->handle($this->donnees($request));
+        $utilisateur = $enregistrer->handle($this->donnees($request));
 
-        return redirect()->route('utilisateurs.edit', $utilisateur)
-            ->with('mot_de_passe_provisoire', $motDePasse)
-            ->with('succes', "Le compte {$utilisateur->login} est créé.");
+        return redirect()->route('utilisateurs.edit', $utilisateur)->with('succes', "Le compte {$utilisateur->login} est créé.");
     }
 
     public function edit(User $utilisateur): View

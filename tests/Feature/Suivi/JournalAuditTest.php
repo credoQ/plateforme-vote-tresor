@@ -12,9 +12,11 @@ use App\Models\Candidate;
 use App\Models\Edition;
 use App\Models\JournalAudit;
 use App\Models\User;
+use App\Notifications\CodeDeConnexion;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
 
@@ -49,23 +51,29 @@ class JournalAuditTest extends TestCase
     }
 
     /**
-     * R56 : connexions réussies et échouées, déconnexions ; jamais de mot de passe.
+     * R56 : demande de code, échec, connexion et déconnexion sont journalisés ; le code n'apparaît jamais.
      */
-    public function test_r56_journalise_les_connexions_sans_mot_de_passe(): void
+    public function test_r56_journalise_les_connexions_sans_le_code(): void
     {
-        $utilisateur = User::factory()->create(['login' => '102345', 'password' => 'secret-2026']);
+        Notification::fake();
+        $utilisateur = User::factory()->create(['login' => '102345', 'email' => 'clarisse@example.test']);
 
-        $this->post(route('login.store'), ['login' => '102345', 'password' => 'mauvais-mot']);
-        $this->post(route('login.store'), ['login' => '102345', 'password' => 'secret-2026']);
+        $this->post(route('login.store'), ['login' => '102345']);
+        $code = null;
+        Notification::assertSentOnDemand(CodeDeConnexion::class, function (CodeDeConnexion $notification) use (&$code): bool {
+            $code = $notification->code;
+
+            return true;
+        });
+        $this->post(route('login.verifier'), ['code' => '000000']);
+        $this->post(route('login.verifier'), ['code' => $code]);
         $this->post(route('logout'));
 
-        $this->assertSame(['CONNEXION_ECHOUEE', 'CONNEXION', 'DECONNEXION'], JournalAudit::orderBy('id')->pluck('action')->map->value->all());
+        $this->assertSame(['CODE_CONNEXION_ENVOYE', 'CONNEXION_ECHOUEE', 'CONNEXION', 'DECONNEXION'], JournalAudit::orderBy('id')->pluck('action')->map->value->all());
         $connexion = JournalAudit::where('action', ActionAuditee::Connexion->value)->sole();
         $this->assertSame($utilisateur->id, $connexion->user_id);
         $this->assertSame('127.0.0.1', $connexion->adresse_ip);
-        $this->assertSame('102345', JournalAudit::where('action', ActionAuditee::ConnexionEchouee->value)->sole()->login);
-        $this->assertDatabaseMissing('journal_audit', ['details' => json_encode(['password' => 'mauvais-mot'])]);
-        $this->assertStringNotContainsString('mauvais-mot', JournalAudit::all()->toJson());
+        $this->assertStringNotContainsString($code, JournalAudit::all()->toJson());
     }
 
     /**

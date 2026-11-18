@@ -4,17 +4,18 @@ namespace Tests\Feature\Http\Acces;
 
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
+use App\Models\Agent;
+use App\Models\CodeConnexion;
 use App\Models\JournalAudit;
 use App\Models\User;
-use Illuminate\Auth\Notifications\ResetPassword;
+use App\Notifications\CodeDeConnexion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
-use PragmaRX\Google2FA\Google2FA;
 use Tests\TestCase;
 
 /**
- * Authentification par Laravel Fortify (R1, R42).
+ * Connexion sans mot de passe : matricule, puis code à usage unique reçu par e-mail (R1, R42).
  */
 class ConnexionTest extends TestCase
 {
@@ -25,148 +26,121 @@ class ConnexionTest extends TestCase
         parent::setUp();
 
         $this->withoutVite();
+        Notification::fake();
     }
 
     public function test_un_visiteur_est_redirige_vers_la_connexion(): void
     {
         $this->get('/')->assertRedirect('/espace');
         $this->get('/espace')->assertRedirect(route('login'));
-        $this->get(route('login'))->assertOk()->assertSee('Matricule')->assertSee('Mot de passe oublié ?');
+        $this->get(route('login'))->assertOk()->assertSee('Matricule')->assertSee('Recevoir mon code')->assertDontSee('Mot de passe');
     }
 
     /**
-     * R1, R42 : connexion par matricule et mot de passe ; la date de dernière connexion est enregistrée.
+     * R42 : le code est envoyé à l'adresse du compte, puis permet de se connecter une seule fois.
      */
-    public function test_r42_connecte_un_agent_par_son_matricule(): void
+    public function test_r42_connecte_par_le_code_recu_par_e_mail(): void
     {
-        $utilisateur = User::factory()->avecRoles(CodeRole::Electeur)->create(['login' => '102345', 'password' => 'secret-2026']);
+        $utilisateur = User::factory()->avecRoles(CodeRole::Electeur)->create(['login' => '102345', 'email' => 'clarisse@example.test']);
 
-        $this->post(route('login.store'), ['login' => '102345', 'password' => 'secret-2026'])->assertRedirect('/espace');
+        $this->post(route('login.store'), ['login' => '102345'])->assertRedirect(route('login.code'));
+        $code = $this->codeEnvoyeA('clarisse@example.test');
+        $this->get(route('login.code'))->assertOk()->assertSee('Matricule 102345');
+
+        $this->post(route('login.verifier'), ['code' => $code])->assertRedirect(route('espace'));
 
         $this->assertAuthenticatedAs($utilisateur);
         $this->assertNotNull($utilisateur->fresh()->derniere_connexion);
-        $this->get(route('espace'))->assertOk()->assertSee($utilisateur->name);
-    }
+        $this->assertNotSame($code, CodeConnexion::sole()->empreinte, 'Le code n’est stocké que sous forme d’empreinte.');
 
-    /**
-     * R1 : un compte désactivé ne se connecte pas, même avec le bon mot de passe.
-     */
-    public function test_r1_refuse_un_mauvais_mot_de_passe_et_un_compte_desactive(): void
-    {
-        User::factory()->create(['login' => '102345', 'password' => 'secret-2026']);
-        User::factory()->inactif()->create(['login' => '200000', 'password' => 'secret-2026']);
-
-        $this->post(route('login.store'), ['login' => '102345', 'password' => 'mauvais'])
-            ->assertSessionHasErrors(['login' => 'Matricule ou mot de passe incorrect, ou compte désactivé.']);
-        $this->post(route('login.store'), ['login' => '200000', 'password' => 'secret-2026'])->assertSessionHasErrors('login');
-
+        $this->post(route('logout'))->assertRedirect(route('login'));
+        $this->post(route('login.store'), ['login' => '102345']);
+        $this->post(route('login.verifier'), ['code' => $code])->assertSessionHasErrors('code');
         $this->assertGuest();
     }
 
-    public function test_bloque_la_connexion_apres_cinq_echecs(): void
+    /**
+     * Sans adresse sur le compte, le code part à l'adresse de la fiche agent.
+     */
+    public function test_envoie_le_code_a_l_adresse_de_la_fiche_agent(): void
     {
-        User::factory()->create(['login' => '102345', 'password' => 'secret-2026']);
-        $this->freezeSecond();
+        $agent = Agent::factory()->create(['matricule' => '300001', 'email' => 'agent@example.test']);
+        User::factory()->pourAgent($agent)->create(['email' => null]);
 
-        foreach (range(1, 5) as $essai) {
-            $this->post(route('login.store'), ['login' => '102345', 'password' => 'mauvais']);
+        $this->post(route('login.store'), ['login' => '300001']);
+
+        $this->codeEnvoyeA('agent@example.test');
+    }
+
+    /**
+     * R1 : rien n'est envoyé à un compte inconnu, désactivé ou sans adresse, et l'écran ne le révèle pas.
+     */
+    public function test_r1_n_envoie_rien_a_un_compte_inconnu_desactive_ou_sans_adresse(): void
+    {
+        User::factory()->inactif()->create(['login' => '200000', 'email' => 'inactif@example.test']);
+        User::factory()->create(['login' => '200001', 'email' => null]);
+
+        foreach (['999999', '200000', '200001'] as $login) {
+            $this->post(route('login.store'), ['login' => $login])->assertRedirect(route('login.code'));
         }
 
-        $this->post(route('login.store'), ['login' => '102345', 'password' => 'secret-2026'])->assertStatus(429);
+        Notification::assertNothingSent();
+        $this->assertSame(3, JournalAudit::where('action', ActionAuditee::ConnexionEchouee->value)->count());
+    }
+
+    public function test_refuse_un_code_faux_ou_expire_et_bloque_apres_cinq_essais(): void
+    {
+        User::factory()->create(['login' => '102345', 'email' => 'clarisse@example.test']);
+        $this->post(route('login.store'), ['login' => '102345']);
+        $code = $this->codeEnvoyeA('clarisse@example.test');
+
+        foreach (range(1, 5) as $essai) {
+            $this->post(route('login.verifier'), ['code' => '000000'])->assertSessionHasErrors('code');
+        }
+        $this->post(route('login.verifier'), ['code' => $code])->assertSessionHasErrors('code');
+        $this->assertGuest();
+
+        $this->post(route('login.renvoyer'))->assertSessionHas('status');
+        $nouveau = $this->codeEnvoyeA('clarisse@example.test', 2);
+        $this->travel(11)->minutes();
+        $this->post(route('login.verifier'), ['code' => $nouveau])->assertSessionHasErrors('code');
         $this->assertGuest();
     }
 
-    /**
-     * Le mot de passe provisoire doit être changé avant tout autre écran.
-     */
-    public function test_impose_le_changement_du_mot_de_passe_provisoire(): void
+    public function test_limite_les_demandes_de_code(): void
     {
-        $utilisateur = User::factory()->create(['password' => 'Provisoire1', 'mot_de_passe_a_changer' => true]);
+        User::factory()->create(['login' => '102345', 'email' => 'clarisse@example.test']);
 
-        $this->actingAs($utilisateur)->get(route('espace'))->assertRedirect(route('securite'));
-        $this->get(route('securite'))->assertOk()->assertSee('Première connexion')->assertDontSee('Gérer la double authentification');
+        foreach (range(1, 3) as $demande) {
+            $this->post(route('login.store'), ['login' => '102345'])->assertSessionHasNoErrors();
+        }
 
-        $this->put(route('user-password.update'), [
-            'current_password' => 'mauvais', 'password' => 'Nouveau-2026', 'password_confirmation' => 'Nouveau-2026',
-        ])->assertSessionHasErrors(['current_password' => 'Le mot de passe actuel est incorrect.']);
-        $this->put(route('user-password.update'), [
-            'current_password' => 'Provisoire1', 'password' => 'court1', 'password_confirmation' => 'court1',
-        ])->assertSessionHasErrors('password');
-
-        $this->put(route('user-password.update'), [
-            'current_password' => 'Provisoire1', 'password' => 'Nouveau-2026', 'password_confirmation' => 'Nouveau-2026',
-        ])->assertSessionHasNoErrors()->assertSessionHas('status', 'password-updated');
-
-        $utilisateur->refresh();
-        $this->assertFalse($utilisateur->mot_de_passe_a_changer);
-        $this->assertTrue(Hash::check('Nouveau-2026', $utilisateur->password));
-        $this->get(route('espace'))->assertOk();
+        $this->post(route('login.store'), ['login' => '102345'])->assertSessionHasErrors('login');
+        Notification::assertSentTimes(CodeDeConnexion::class, 3);
     }
 
-    public function test_deconnecte_l_utilisateur(): void
+    public function test_la_page_du_code_exige_d_avoir_saisi_un_matricule(): void
     {
-        $this->actingAs(User::factory()->create())->post(route('logout'))->assertRedirect('/');
-
-        $this->assertGuest();
+        $this->get(route('login.code'))->assertRedirect(route('login'));
+        $this->post(route('login.verifier'), ['code' => '123456'])->assertRedirect(route('login'));
     }
 
     /**
-     * Mot de passe oublié : un lien est envoyé par e-mail, le nouveau mot de passe est définitif et la réinitialisation journalisée.
+     * Récupère le code du dernier e-mail envoyé à l'adresse donnée.
      */
-    public function test_reinitialise_un_mot_de_passe_oublie_par_e_mail(): void
+    private function codeEnvoyeA(string $email, int $nombre = 1): string
     {
-        Notification::fake();
-        $utilisateur = User::factory()->create(['email' => 'clarisse@example.test', 'password' => 'Ancien-2026', 'mot_de_passe_a_changer' => true]);
-
-        $this->get(route('password.request'))->assertOk()->assertSee('Recevoir le lien');
-        $this->post(route('password.email'), ['email' => 'clarisse@example.test'])->assertSessionHas('status');
-
-        $jeton = null;
-        Notification::assertSentTo($utilisateur, ResetPassword::class, function (ResetPassword $notification) use (&$jeton, $utilisateur): bool {
-            $jeton = $notification->token;
-            $this->assertStringContainsString('Choisir un nouveau mot de passe', $notification->toMail($utilisateur)->render());
+        $codes = [];
+        Notification::assertSentTimes(CodeDeConnexion::class, $nombre);
+        Notification::assertSentTo(new AnonymousNotifiable, CodeDeConnexion::class, function (CodeDeConnexion $notification, array $canaux, AnonymousNotifiable $destinataire) use ($email, &$codes): bool {
+            if ($destinataire->routes['mail'] !== $email) {
+                return false;
+            }
+            $codes[] = $notification->code;
 
             return true;
         });
 
-        $this->get(route('password.reset', ['token' => $jeton, 'email' => 'clarisse@example.test']))->assertOk()->assertSee('Nouveau mot de passe');
-        $this->post(route('password.update'), [
-            'token' => $jeton, 'email' => 'clarisse@example.test', 'password' => 'Nouveau-2026', 'password_confirmation' => 'Nouveau-2026',
-        ])->assertRedirect(route('login'));
-
-        $utilisateur->refresh();
-        $this->assertTrue(Hash::check('Nouveau-2026', $utilisateur->password));
-        $this->assertFalse($utilisateur->mot_de_passe_a_changer);
-        $this->assertSame(1, JournalAudit::where('action', ActionAuditee::MotDePasseReinitialise->value)->count());
-    }
-
-    /**
-     * Double authentification facultative : activation confirmée par un code, puis code demandé à la connexion.
-     */
-    public function test_active_la_double_authentification_puis_l_exige_a_la_connexion(): void
-    {
-        $utilisateur = User::factory()->create(['login' => 'comite', 'password' => 'secret-2026']);
-        $totp = new Google2FA;
-
-        $this->actingAs($utilisateur)->get(route('securite.double-authentification'))->assertRedirect(route('password.confirm'));
-        $this->withSession(['auth.password_confirmed_at' => time()]);
-        $this->get(route('securite.double-authentification'))->assertOk()->assertSee('Activer la double authentification');
-
-        $this->post(route('two-factor.enable'))->assertSessionHasNoErrors();
-        $secret = decrypt($utilisateur->fresh()->two_factor_secret);
-        $this->get(route('securite.double-authentification'))->assertSee('Confirmer l’activation');
-        $this->post(route('two-factor.confirm'), ['code' => $totp->getCurrentOtp($secret)])->assertSessionHasNoErrors();
-        $this->assertTrue($utilisateur->fresh()->hasEnabledTwoFactorAuthentication());
-
-        $this->post(route('logout'));
-        $this->post(route('login.store'), ['login' => 'comite', 'password' => 'secret-2026'])->assertRedirect(route('two-factor.login'));
-        $this->assertGuest();
-        $this->get(route('two-factor.login'))->assertOk()->assertSee('Utiliser un code de secours');
-
-        $this->post(route('two-factor.login.store'), ['code' => '000000'])->assertRedirect(route('two-factor.login'));
-        $codeDeSecours = $utilisateur->fresh()->recoveryCodes()[0];
-        $this->post(route('two-factor.login.store'), ['recovery_code' => $codeDeSecours])->assertRedirect('/espace');
-        $this->assertAuthenticatedAs($utilisateur);
-        $this->assertNotContains($codeDeSecours, $utilisateur->fresh()->recoveryCodes(), 'Un code de secours ne sert qu’une fois.');
+        return end($codes);
     }
 }

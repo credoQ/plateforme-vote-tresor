@@ -1,7 +1,6 @@
 <?php
 
-use App\Http\Controllers\Acces\ReinitialisationMotDePasseController;
-use App\Http\Controllers\Acces\SecuriteController;
+use App\Http\Controllers\Acces\ConnexionController;
 use App\Http\Controllers\Acces\UtilisateurController;
 use App\Http\Controllers\Agents\AgentController;
 use App\Http\Controllers\Editions\EditionController;
@@ -26,11 +25,17 @@ Route::middleware(['signed', 'throttle:30,1'])->prefix('verification')->name('ve
     Route::get('/export', [VerificationController::class, 'export'])->name('export');
 });
 
+// Connexion sans mot de passe : matricule, puis code reçu par e-mail (R42).
+Route::middleware('guest')->group(function () {
+    Route::get('/connexion', [ConnexionController::class, 'create'])->name('login');
+    Route::post('/connexion', [ConnexionController::class, 'envoyer'])->name('login.store');
+    Route::get('/connexion/code', [ConnexionController::class, 'code'])->name('login.code');
+    Route::post('/connexion/code', [ConnexionController::class, 'verifier'])->middleware('throttle:10,1')->name('login.verifier');
+    Route::post('/connexion/code/renvoyer', [ConnexionController::class, 'renvoyer'])->name('login.renvoyer');
+});
+
 Route::middleware('auth')->group(function () {
-    // Connexion, déconnexion, mot de passe oublié et double authentification : routes de Laravel Fortify.
-    Route::get('/securite', [SecuriteController::class, 'edit'])->name('securite');
-    Route::get('/securite/double-authentification', [SecuriteController::class, 'doubleAuthentification'])
-        ->middleware('password.confirm')->name('securite.double-authentification');
+    Route::post('/deconnexion', [ConnexionController::class, 'destroy'])->name('logout');
 
     Route::get('/espace', EspaceController::class)->name('espace');
 
@@ -77,8 +82,6 @@ Route::middleware('auth')->group(function () {
         Route::resource('utilisateurs', UtilisateurController::class)
             ->only(['index', 'create', 'store', 'edit', 'update'])
             ->parameters(['utilisateurs' => 'utilisateur']);
-        Route::post('/utilisateurs/{utilisateur}/reinitialiser', ReinitialisationMotDePasseController::class)
-            ->name('utilisateurs.reinitialiser');
 
         Route::get('/taches-echouees', [TacheEchoueeController::class, 'index'])->name('taches-echouees.index');
         Route::post('/taches-echouees/relancer', [TacheEchoueeController::class, 'relancerTout'])->name('taches-echouees.relancer-tout');

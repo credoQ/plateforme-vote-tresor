@@ -11,24 +11,22 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Fortify\TwoFactorAuthenticatable;
 
 /**
  * Compte utilisateur (R1 à R4). Un agent a au plus un compte ; un compte peut n'être lié à aucun agent.
  */
-#[Fillable(['name', 'login', 'email', 'password', 'actif', 'mot_de_passe_a_changer', 'derniere_connexion', 'agent_id', 'structure_id'])]
-#[Hidden(['password', 'remember_token', 'two_factor_secret', 'two_factor_recovery_codes'])]
+#[Fillable(['name', 'login', 'email', 'actif', 'derniere_connexion', 'agent_id', 'structure_id'])]
+#[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable, TwoFactorAuthenticatable;
+    use HasFactory, Notifiable;
 
     /**
      * @var array<string, mixed>
      */
     protected $attributes = [
         'actif' => true,
-        'mot_de_passe_a_changer' => false,
     ];
 
     /**
@@ -55,6 +53,16 @@ class User extends Authenticatable
     public function structure(): BelongsTo
     {
         return $this->belongsTo(Structure::class);
+    }
+
+    /**
+     * Adresse où envoyer le code de connexion : celle du compte, sinon celle de la fiche agent (R42).
+     */
+    public function adresseDeConnexion(): ?string
+    {
+        $email = $this->email ?: $this->agent?->email;
+
+        return filled($email) && filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null;
     }
 
     public function aLeRole(CodeRole ...$roles): bool
@@ -93,11 +101,8 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
             'actif' => 'boolean',
-            'mot_de_passe_a_changer' => 'boolean',
             'derniere_connexion' => 'immutable_datetime',
-            'two_factor_confirmed_at' => 'immutable_datetime',
         ];
     }
 }

@@ -12,7 +12,6 @@ use App\Models\Scrutin;
 use App\Models\Structure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class DroitsTest extends TestCase
@@ -85,26 +84,30 @@ class DroitsTest extends TestCase
      */
     public function test_r3_genere_un_compte_par_agent_en_service(): void
     {
-        Storage::fake('local');
         $enService = Agent::factory()->affecteA($this->structure('DIA'))->create(['matricule' => '300001']);
         Agent::factory()->create(['matricule' => '300002']);
 
-        $comptes = app(GenererComptesAgents::class)->handle();
+        $sansEmail = Agent::factory()->affecteA($this->structure('DIA'))->create(['matricule' => '300003', 'email' => null]);
+        $enService->update(['email' => 'agent@example.test']);
 
-        $this->assertSame(['300001'], array_column($comptes, 'matricule'));
+        $resultat = app(GenererComptesAgents::class)->handle();
+
+        $this->assertSame(2, $resultat['crees']);
+        $this->assertSame(['300003'], array_column($resultat['sans_email'], 'matricule'));
         $compte = $enService->compte()->firstOrFail();
         $this->assertSame('300001', $compte->login);
-        $this->assertTrue($compte->mot_de_passe_a_changer);
+        $this->assertSame('agent@example.test', $compte->adresseDeConnexion());
         $this->assertTrue($compte->can('voter'));
+        $this->assertNotNull($sansEmail->compte);
 
-        $this->assertSame([], app(GenererComptesAgents::class)->handle());
-        $this->artisan('acces:generer-comptes')->expectsOutputToContain('déjà un compte')->assertSuccessful();
+        $this->assertSame(0, app(GenererComptesAgents::class)->handle()['crees']);
+        $this->artisan('acces:generer-comptes')->expectsOutputToContain('déjà un compte')->expectsOutputToContain('sans adresse e-mail')->assertSuccessful();
     }
 
     public function test_cree_un_administrateur_en_ligne_de_commande(): void
     {
-        $this->artisan('acces:creer-administrateur', ['login' => 'admin', 'nom' => 'Administrateur'])
-            ->expectsOutputToContain('Mot de passe provisoire')
+        $this->artisan('acces:creer-administrateur', ['login' => 'admin', 'nom' => 'Administrateur', 'email' => 'admin@example.test'])
+            ->expectsOutputToContain('admin@example.test')
             ->assertSuccessful();
 
         $this->assertTrue(User::where('login', 'admin')->firstOrFail()->can('administrer'));

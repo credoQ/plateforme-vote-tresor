@@ -121,13 +121,13 @@ git merge --no-ff module/06-vote
 
 ## Notifications
 
-- Les notifications (annonces, OTP, réinitialisations) sont envoyées uniquement par e-mail, via les notifications Laravel et la file d'attente. Pas de SMS ni de passerelle tierce.
+- Les notifications (annonces, codes de connexion) sont envoyées uniquement par e-mail, via les notifications Laravel et la file d'attente. Pas de SMS ni de passerelle tierce.
 - L'adresse utilisée est celle du compte, sinon celle de la fiche agent ; un agent sans adresse voit les annonces sur la plateforme.
 
 ## Authentification
 
-- L'authentification passe par Laravel Fortify (`config/fortify.php`, `app/Providers/FortifyServiceProvider.php`, `app/Actions/Fortify`). N'ajoutez pas de contrôleur de connexion maison.
-- Identifiant : la colonne `login` (matricule pour un agent). Pas d'inscription libre : les comptes sont créés par l'administrateur ou générés pour les agents.
+- Connexion sans mot de passe (R42) : matricule, puis code à usage unique envoyé par e-mail (`app/Actions/Acces/DemanderCodeConnexion.php`, `VerifierCodeConnexion.php`, `ConnexionController`). N'ajoutez ni mot de passe, ni paquet d'authentification (Fortify, Breeze…).
+- L'adresse utilisée est `User::adresseDeConnexion()` : celle du compte, sinon celle de la fiche agent. Un compte sans adresse ne peut pas se connecter.
 - Les connexions, échecs et déconnexions sont journalisés par les écouteurs des événements `Login`, `Failed` et `Logout` (`AppServiceProvider`).
 
 ## Profils

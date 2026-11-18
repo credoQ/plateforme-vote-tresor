@@ -5,6 +5,7 @@ namespace App\Actions\Acces;
 use App\Actions\Audit\Journaliser;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
+use App\Models\Agent;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -15,24 +16,26 @@ use Illuminate\Validation\ValidationException;
 /**
  * Crée ou modifie un compte utilisateur et ses rôles (R1 à R4).
  *
- * À la création, un mot de passe provisoire est généré et devra être changé à la première connexion.
+ * Il n'y a pas de mot de passe : la connexion se fait par un code envoyé par e-mail (R42). Un compte doit donc
+ * avoir une adresse, la sienne ou celle de la fiche de l'agent lié.
  */
 class EnregistrerUtilisateur
 {
-    public function __construct(private MotDePasseProvisoire $motDePasse, private Journaliser $journal) {}
+    public function __construct(private Journaliser $journal) {}
 
     /**
      * @param  array{name: string, login: string, email?: string|null, actif?: bool, agent_id?: int|null, structure_id?: int|null, roles: list<string>}  $donnees
-     * @return array{utilisateur: User, mot_de_passe: string|null}
      *
      * @throws ValidationException
      */
-    public function handle(array $donnees, ?User $utilisateur = null): array
+    public function handle(array $donnees, ?User $utilisateur = null): User
     {
+        $emailAgent = isset($donnees['agent_id']) ? Agent::whereKey($donnees['agent_id'])->value('email') : null;
+
         $donnees = Validator::make($donnees, [
             'name' => ['required', 'string', 'max:255'],
             'login' => ['required', 'string', 'max:60', Rule::unique('users', 'login')->ignore($utilisateur?->id)],
-            'email' => ['nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($utilisateur?->id)],
+            'email' => [Rule::requiredIf(fn (): bool => blank($emailAgent)), 'nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($utilisateur?->id)],
             'actif' => ['sometimes', 'boolean'],
             'agent_id' => ['nullable', 'integer', 'exists:agents,id', Rule::unique('users', 'agent_id')->ignore($utilisateur?->id)],
             'structure_id' => ['nullable', 'integer', 'exists:structures,id', Rule::requiredIf(fn (): bool => in_array(CodeRole::PointFocal->value, (array) ($donnees['roles'] ?? []), true))],
@@ -40,6 +43,8 @@ class EnregistrerUtilisateur
             'roles.*' => [Rule::enum(CodeRole::class)],
         ], [
             'login.unique' => 'Cet identifiant est déjà utilisé.',
+            'email.required' => 'Une adresse e-mail est nécessaire pour recevoir le code de connexion.',
+            'email.email' => 'Adresse e-mail invalide.',
             'agent_id.unique' => 'Cet agent dispose déjà d’un compte (R3).',
             'structure_id.required' => 'Un point focal est rattaché à une structure (R4).',
             'roles.required' => 'Un utilisateur possède au moins un rôle (R2).',
@@ -47,23 +52,17 @@ class EnregistrerUtilisateur
             'required' => 'Le champ :attribute est obligatoire.',
         ])->validate();
 
-        return DB::transaction(function () use ($donnees, $utilisateur): array {
-            $motDePasse = null;
+        return DB::transaction(function () use ($donnees, $utilisateur): User {
+            $creation = $utilisateur === null;
             $roles = $donnees['roles'];
             unset($donnees['roles']);
 
-            if ($utilisateur === null) {
-                $motDePasse = $this->motDePasse->generer();
-                $utilisateur = new User([...$donnees, 'password' => $motDePasse, 'mot_de_passe_a_changer' => true]);
-            } else {
-                $utilisateur->fill($donnees);
-            }
-
-            $utilisateur->save();
+            $utilisateur ??= new User;
+            $utilisateur->fill($donnees)->save();
             $utilisateur->roles()->sync(Role::whereIn('code', $roles)->pluck('id'));
-            $this->journal->handle(ActionAuditee::CompteEnregistre, $utilisateur, ['login' => $utilisateur->login, 'creation' => $motDePasse !== null, 'actif' => $utilisateur->actif, 'roles' => $roles, 'structure_id' => $utilisateur->structure_id]);
+            $this->journal->handle(ActionAuditee::CompteEnregistre, $utilisateur, ['login' => $utilisateur->login, 'creation' => $creation, 'actif' => $utilisateur->actif, 'roles' => $roles, 'structure_id' => $utilisateur->structure_id]);
 
-            return ['utilisateur' => $utilisateur->load('roles'), 'mot_de_passe' => $motDePasse];
+            return $utilisateur->load('roles');
         });
     }
 }

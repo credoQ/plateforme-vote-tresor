@@ -1,6 +1,6 @@
 /* Femme modèle du Trésor · composants du tableau de bord
    Reprise des composants Kadoo 2.0 (section 07 de la charte) avec la primaire bleu Trésor.
-   Règles conservées : un seul bouton primaire par zone, liseré jaune de 3 px, rythme de 4 px,
+   Règles conservées : un seul bouton primaire par zone, liseré or de 3 px, rythme de 4 px,
    lignes de tableau de 52 px, badges avec pastille et libellé, tricolore en bande de 3 px seulement. */
 
 @layer base {
@@ -64,7 +64,7 @@
   .btn--sm { height: 32px; padding: 0 12px; font-size: 12px; }
   .btn--lg { height: 48px; padding: 0 22px; font-size: 14px; }
   .btn--icone { width: 32px; height: 32px; padding: 0; }
-  .btn-primaire { background: var(--tr-primaire); color: var(--tr-sur-primaire); box-shadow: inset 3px 0 0 var(--tr-accent); }
+  .btn-primaire { background: var(--tr-primaire); color: var(--tr-sur-primaire); box-shadow: inset 3px 0 0 var(--tr-accent-sur-primaire); }
   .btn-primaire:hover { background: var(--tr-primaire-survol); }
   .btn-primaire:active { background: var(--tr-bleu-800); }
   .btn-secondaire { background: var(--tr-surface); color: var(--tr-texte); border-color: var(--tr-gris-300); }
@@ -118,7 +118,7 @@
   .tuile--heros .surtitre, .tuile--heros .tuile__detail { color: rgba(255,255,255,.78); }
   .tuile--heros .tuile__valeur { font-size: 32px; line-height: 40px; }
   .tuile--heros .tuile__valeur small { color: rgba(255,255,255,.7); }
-  .tuile--heros .tuile__icone { background: rgba(255,255,255,.12); color: var(--tr-accent); }
+  .tuile--heros .tuile__icone { background: rgba(255,255,255,.12); color: var(--tr-accent-sur-primaire); }
   .tendance { white-space: nowrap; flex: none; display: inline-flex; align-items: center; gap: 2px; padding: 1px 6px; border-radius: var(--tr-rayon-sm); font-size: 11px; font-weight: 700; }
   .tendance svg { width: 12px; height: 12px; }
   .tendance--hausse { background: var(--tr-succes-50); color: var(--tr-succes-700); }
@@ -133,7 +133,7 @@
   .badge--erreur { background: var(--tr-erreur-50); color: var(--tr-erreur-700); }
   .badge--info { background: var(--tr-info-50); color: var(--tr-info-700); }
   .badge--primaire { background: var(--tr-primaire-doux); color: var(--tr-primaire-texte); }
-  .badge--jaune { background: var(--tr-jaune-50); color: var(--tr-jaune-700); }
+  .badge--accent { background: var(--tr-or-50); color: var(--tr-or-700); box-shadow: inset 0 0 0 1px var(--tr-or-100); }
   .etiquette { display: inline-flex; align-items: center; gap: 4px; height: 22px; padding: 0 8px; border-radius: var(--tr-rayon-sm); font-size: 11px; font-weight: 600; background: var(--tr-surface-2); border: 1px solid var(--tr-bordure); color: var(--tr-texte-2); }
   .etiquette svg { width: 12px; height: 12px; }
 
@@ -156,7 +156,7 @@
 
   .progression { height: 8px; border-radius: 4px; background: var(--tr-gris-100); overflow: hidden; }
   .progression > span { display: block; height: 100%; border-radius: 4px; background: var(--tr-primaire); }
-  .progression--jaune > span { background: var(--tr-jaune-500); }
+  .progression--accent > span { background: var(--tr-accent); }
   .cellule-progression { display: flex; align-items: center; gap: 10px; min-width: 160px; }
   .cellule-progression .progression { flex: 1; }
   .cellule-progression b { width: 44px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
@@ -270,5 +270,5 @@
   [data-theme="sombre"] .badge--succes { background: color-mix(in srgb, var(--tr-succes-500) 18%, transparent); color: var(--tr-succes-100); }
   [data-theme="sombre"] .badge--attente { background: color-mix(in srgb, var(--tr-attente-500) 18%, transparent); color: var(--tr-attente-100); }
   [data-theme="sombre"] .badge--erreur { background: color-mix(in srgb, var(--tr-erreur-500) 18%, transparent); color: var(--tr-erreur-100); }
-  [data-theme="sombre"] .badge--jaune { background: color-mix(in srgb, var(--tr-jaune-500) 16%, transparent); color: var(--tr-jaune-300); }
+  [data-theme="sombre"] .badge--accent { background: color-mix(in srgb, var(--tr-or-500) 18%, transparent); color: var(--tr-or-300); box-shadow: none; }
 }

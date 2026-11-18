@@ -6,13 +6,15 @@
   "remplace": "#046C4E"
  },
  "accent": {
-  "nom": "Jaune Trésor (Pantone 803 C)",
-  "base": "#F4E800",
-  "remplace": "#F2BE1A"
+  "nom": "Or doré",
+  "base": "#E0A800",
+  "remplace": "#F2BE1A",
+  "sur_primaire": "#E0A800"
  },
  "vert_institutionnel": {
   "nom": "Vert Trésor (Pantone 364 C)",
-  "base": "#2E5A21"
+  "base": "#2E5A21",
+  "usage": "graphiques"
  },
  "couleurs": {
   "bleu": {
@@ -43,13 +45,13 @@
    "900": "#14181B",
    "950": "#0A0D0F"
   },
-  "jaune": {
-   "50": "#FEFDEE",
-   "100": "#FDFACD",
-   "300": "#F8F166",
-   "500": "#F4E800",
-   "600": "#B1A800",
-   "700": "#6C6700"
+  "or": {
+   "50": "#FDF9EE",
+   "100": "#F9EECD",
+   "300": "#ECCB66",
+   "500": "#E0A800",
+   "600": "#A37A00",
+   "700": "#634A00"
   },
   "succes": {
    "50": "#EDFAF1",

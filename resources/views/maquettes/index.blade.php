@@ -5,13 +5,13 @@
         ['vote', 'vote', 'Bulletin de vote', 'Choix d’une candidate, confirmation et accusé de vote anonyme.', 'Électeur'],
         ['candidates', 'users-round', 'Candidates d’office', 'Liste d’une structure, désactivation avec motif et réactivation.', 'Point focal · Comité'],
         ['resultats', 'trophy', 'Résultats d’un scrutin', 'Lauréate, classement, participation, procès-verbal.', 'Comité · Observateur'],
-        ['tokens', 'palette', 'Tokens et composants', 'Échelles du bleu et du jaune Trésor, neutres, états, typographie, boutons.', 'Équipe projet'],
+        ['tokens', 'palette', 'Tokens et composants', 'Échelles du bleu Trésor et de l’or, neutres, états, typographie, boutons.', 'Équipe projet'],
     ];
 @endphp
 <x-layouts.maquette titre="Maquettes" :ariane="['Maquettes']" profil="comite" actif="">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Charte Kadoo 2.0 · bleu et jaune Trésor (charte DGTCP)</div>
+            <div class="surtitre">Charte Kadoo 2.0 · bleu Trésor et or doré</div>
             <h1>Maquettes de la plateforme</h1>
             <p>Écrans de référence du projet « Femme modèle du Trésor ». Données fictives.</p>
         </div>

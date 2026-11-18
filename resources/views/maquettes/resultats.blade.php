@@ -39,9 +39,9 @@
                     <tr>
                         <td><b class="chiffres">{{ $i + 1 }}</b></td>
                         <td><div class="cellule-personne"><span @class(['avatar', 'avatar--sans-anneau' => $i > 0])>{{ collect(explode(' ', $nom))->map(fn ($m) => mb_substr($m, 0, 1))->take(2)->implode('') }}</span><div>{{ $nom }}<small>{{ $structure }}</small></div></div></td>
-                        <td><div class="cellule-progression"><div class="progression {{ $i === 0 ? 'progression--jaune' : '' }}"><span style="width:{{ round($voix / $max * 100) }}%"></span></div><b>{{ $voix }}</b></div></td>
+                        <td><div class="cellule-progression"><div class="progression {{ $i === 0 ? 'progression--accent' : '' }}"><span style="width:{{ round($voix / $max * 100) }}%"></span></div><b>{{ $voix }}</b></div></td>
                         <td class="nombre">{{ number_format($voix / $exprimes * 100, 1, ',', ' ') }}</td>
-                        <td>@if ($i === 0)<span class="badge badge--jaune">Lauréate</span>@else<span class="badge">Classée</span>@endif</td>
+                        <td>@if ($i === 0)<span class="badge badge--accent">Lauréate</span>@else<span class="badge">Classée</span>@endif</td>
                     </tr>
                 @endforeach
                 </tbody>

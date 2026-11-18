@@ -33,12 +33,12 @@
   --color-gris-900: #14181B;
   --color-gris-950: #0A0D0F;
 
-  --color-jaune-50: #FEFDEE;
-  --color-jaune-100: #FDFACD;
-  --color-jaune-300: #F8F166;
-  --color-jaune-500: #F4E800;
-  --color-jaune-600: #B1A800;
-  --color-jaune-700: #6C6700;
+  --color-or-50: #FDF9EE;
+  --color-or-100: #F9EECD;
+  --color-or-300: #ECCB66;
+  --color-or-500: #E0A800;
+  --color-or-600: #A37A00;
+  --color-or-700: #634A00;
 
   --color-succes-50: #EDFAF1;
   --color-succes-100: #D3F3DE;
@@ -85,7 +85,7 @@
   --radius-etiquette: 6px; --radius-controle: 8px; --radius-carte: 12px; --radius-modale: 14px;
   --shadow-niveau-1: 0 1px 2px rgba(10, 13, 18, .06);
   --shadow-niveau-3: 0 12px 32px -6px rgba(10, 13, 18, .18), 0 4px 8px -4px rgba(10, 13, 18, .08);
-  --shadow-lisere: inset 3px 0 0 #F4E800;
+  --shadow-lisere: inset 3px 0 0 #E0A800;
   --spacing-sidebar: 264px; --spacing-sidebar-repliee: 80px; --spacing-entete: 64px;
   --container-contenu: 1440px;
 }
@@ -106,4 +106,5 @@
   --color-primaire-texte: var(--tr-primaire-texte);
   --color-sur-primaire: var(--tr-sur-primaire);
   --color-accent: var(--tr-accent);
+  --color-accent-sur-primaire: var(--tr-accent-sur-primaire);
 }

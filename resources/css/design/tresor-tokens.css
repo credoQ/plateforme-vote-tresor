@@ -1,5 +1,5 @@
 /* Femme modèle du Trésor · Variables de conception · thèmes clair et sombre
-   Généré depuis Kadoo 2.0 : primaire bleu Trésor #0054A0, accent jaune #F4E800 (charte DGTCP). */
+   Généré depuis Kadoo 2.0 : primaire bleu Trésor #0054A0 (charte DGTCP), accent or doré #E0A800. */
 :root{
   --tr-bleu-25:#F8FAFC;
   --tr-bleu-50:#EFF5F9;
@@ -25,12 +25,12 @@
   --tr-gris-800:#24292D;
   --tr-gris-900:#14181B;
   --tr-gris-950:#0A0D0F;
-  --tr-jaune-50:#FEFDEE;
-  --tr-jaune-100:#FDFACD;
-  --tr-jaune-300:#F8F166;
-  --tr-jaune-500:#F4E800;
-  --tr-jaune-600:#B1A800;
-  --tr-jaune-700:#6C6700;
+  --tr-or-50:#FDF9EE;
+  --tr-or-100:#F9EECD;
+  --tr-or-300:#ECCB66;
+  --tr-or-500:#E0A800;
+  --tr-or-600:#A37A00;
+  --tr-or-700:#634A00;
   --tr-succes-50:#EDFAF1;
   --tr-succes-100:#D3F3DE;
   --tr-succes-500:#1FA35B;
@@ -70,7 +70,8 @@
   --tr-primaire-doux:var(--tr-bleu-50);
   --tr-primaire-texte:var(--tr-bleu-700);
   --tr-sur-primaire:#FFFFFF;
-  --tr-accent:var(--tr-jaune-500);
+  --tr-accent:var(--tr-or-500);
+  --tr-accent-sur-primaire:#E0A800;
   --tr-rayon-sm:6px;
   --tr-rayon:8px;
   --tr-rayon-carte:12px;
@@ -96,6 +97,7 @@
   --tr-primaire-doux:rgba(74,134,188,.16);
   --tr-primaire-texte:#96B9D8;
   --tr-sur-primaire:#0A0D0F;
-  --tr-accent:#F4E800;
+  --tr-accent:#E0A800;
+  --tr-accent-sur-primaire:#F9EECD;
   --tr-graph-1:#4A86BC;
 }

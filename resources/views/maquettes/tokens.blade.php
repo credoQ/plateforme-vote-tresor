@@ -5,7 +5,7 @@
 <x-layouts.maquette titre="Tokens" :ariane="['Charte', 'Tokens et composants']" profil="comite" actif="">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Charte Kadoo 2.0 · bleu et jaune Trésor (charte DGTCP)</div>
+            <div class="surtitre">Charte Kadoo 2.0 · bleu Trésor et or doré</div>
             <h1>Tokens et composants</h1>
             <p>Couleur de base {{ $t['primaire']['base'] }} (remplace le vert Kadoo {{ $t['primaire']['remplace'] }}). Source : design/tokens/tresor-tokens.json.</p>
         </div>
@@ -26,7 +26,7 @@
         </section>
 
         <section class="carte">
-            <div class="carte__entete"><h2>Neutres teintés, accent jaune et couleurs d'état</h2></div>
+            <div class="carte__entete"><h2>Neutres teintés, accent or et couleurs d'état</h2></div>
             <div class="carte__corps" style="display:grid;gap:16px">
                 <div style="display:grid;grid-template-columns:repeat(12,1fr);gap:8px">
                     @foreach ($c['gris'] as $niveau => $hex)
@@ -34,7 +34,7 @@
                     @endforeach
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:16px">
-                    @foreach (['jaune' => 'Accent jaune', 'succes' => 'Succès', 'attente' => 'Attente', 'erreur' => 'Erreur', 'info' => 'Info'] as $fam => $nom)
+                    @foreach (['or' => 'Accent or doré', 'succes' => 'Succès', 'attente' => 'Attente', 'erreur' => 'Erreur', 'info' => 'Info'] as $fam => $nom)
                         <div><div class="surtitre" style="margin-bottom:6px">{{ $nom }}</div><div style="display:flex;gap:4px">@foreach ($c[$fam] as $n => $hex)<div title="{{ $fam }}-{{ $n }} {{ $hex }}" style="flex:1;height:36px;border-radius:6px;background:{{ $hex }}"></div>@endforeach</div></div>
                     @endforeach
                 </div>
@@ -68,7 +68,7 @@
                     </div>
                     <div style="display:flex;gap:8px;flex-wrap:wrap">
                         <span class="badge badge--primaire">Ouvert</span><span class="badge badge--succes">Clôturé</span><span class="badge badge--attente">À départager</span>
-                        <span class="badge badge--erreur">Annulé</span><span class="badge badge--info">Programmé</span><span class="badge badge--jaune">Lauréate</span><span class="badge">Désactivée</span>
+                        <span class="badge badge--erreur">Annulé</span><span class="badge badge--info">Programmé</span><span class="badge badge--accent">Lauréate</span><span class="badge">Désactivée</span>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                         <div><label class="libelle">Champ</label><input class="champ" placeholder="Saisie"></div>

@@ -28,6 +28,11 @@ class AgentPolicy
         return $user->aLeRole(CodeRole::PointFocal) && $structureId !== null && in_array($structureId, $user->perimetre(), true);
     }
 
+    public function create(User $user): bool
+    {
+        return $user->aLeRole(CodeRole::Administrateur);
+    }
+
     public function update(User $user, Agent $agent): bool
     {
         return $user->aLeRole(CodeRole::Administrateur);

@@ -8,10 +8,10 @@ Ce module permet l’enregistrement des agents et la tenue de leurs affectations
 
 ## Fonctionnalités
 
-- [ ] L’import des agents depuis le système d’information des ressources humaines ou par fichier (Excel/CSV), et la saisie manuelle. Fait : import Excel et CSV ; reste : écran de saisie manuelle et format de l’export du SI RH.
-- [ ] L’enregistrement des informations utiles de l’agent (matricule, NPI, nom, prénoms, sexe) ; la date de prise de service, le téléphone, l’e-mail, la fonction et le statut peuvent être importés à titre informatif mais ne sont pas gérés.
-- [ ] La gestion des affectations (structure, date de début, date de fin) et de leur historique.
-- [ ] Le contrôle des doublons et des données incomplètes (sexe, affectation), le sexe déterminant la qualité de candidate.
+- [x] L’import des agents depuis le système d’information des ressources humaines ou par fichier (Excel/CSV), et la saisie manuelle.
+- [x] L’enregistrement des informations utiles de l’agent (matricule, NPI, nom, prénoms, sexe) ; la date de prise de service, le téléphone, l’e-mail, la fonction et le statut peuvent être importés à titre informatif mais ne sont pas gérés.
+- [x] La gestion des affectations (structure, date de début, date de fin) et de leur historique.
+- [x] Le contrôle des doublons et des données incomplètes (sexe, affectation), le sexe déterminant la qualité de candidate.
 
 ## Avancement
 
@@ -22,7 +22,7 @@ Ce module permet l’enregistrement des agents et la tenue de leurs affectations
 - [x] Action `ImporterAgents` et commande `php artisan agents:importer fichier.csv` : création ou mise à jour par matricule, rejet motivé des doublons et des lignes incomplètes
 - [x] Tests des règles R11 à R13
 - [x] Import des fichiers Excel (.xlsx, première feuille, OpenSpout) en plus du CSV : dates Excel et matricules numériques reconnus, numéros de ligne du classeur dans le rapport
-- [ ] Écrans de gestion des agents et de contrôle par le point focal (avec le module 01)
+- [x] Écrans de gestion des agents : liste filtrable (structure, sexe, situation), fiche avec historique des affectations, saisie manuelle avec affectation initiale, modification, mutation et fin d'affectation par l'administrateur, tracées au journal ; le point focal contrôle en lecture seule les agents de sa structure et des structures rattachées (R4)
 - [ ] Format exact de l'export du SI RH, à obtenir
 
 ## Acteurs

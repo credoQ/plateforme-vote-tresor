@@ -1,0 +1,125 @@
+<?php
+
+namespace Tests\Feature\Http\Agents;
+
+use App\Enums\Acces\CodeRole;
+use App\Enums\Audit\ActionAuditee;
+use App\Enums\Referentiel\CodeTypeStructure;
+use App\Models\Agent;
+use App\Models\JournalAudit;
+use App\Models\Structure;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Tests\TestCase;
+
+class GestionDesAgentsTest extends TestCase
+{
+    use RefreshDatabase;
+
+    private User $admin;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->withoutVite();
+        $this->travelTo(Carbon::parse('2026-11-18 10:00:00'));
+        $this->admin = User::factory()->avecRoles(CodeRole::Administrateur)->create();
+    }
+
+    /**
+     * R11, R12 : saisie manuelle d'un agent avec son affectation, tracée au journal.
+     */
+    public function test_r11_saisit_un_agent_et_son_affectation(): void
+    {
+        $dia = $this->structure('DIA');
+
+        $this->actingAs($this->admin)->get(route('agents.create'))->assertOk()->assertSee('Enregistrer l’agent');
+        $this->post(route('agents.store'), [
+            'matricule' => '300100', 'npi' => '1234567890', 'nom' => 'ahouansou', 'prenoms' => 'Clarisse', 'sexe' => 'F',
+            'date_naissance' => '1985-03-12', 'structure_id' => $dia->id, 'date_debut' => '2024-01-02', 'fonction' => '',
+        ])->assertSessionHasNoErrors();
+
+        $agent = Agent::where('matricule', '300100')->firstOrFail();
+        $this->assertSame('AHOUANSOU', $agent->nom);
+        $this->assertNull($agent->fonction);
+        $this->assertSame('DIA', $agent->affectationLe()->structure->code);
+        $this->assertSame(1, JournalAudit::where('action', ActionAuditee::AgentEnregistre->value)->count());
+
+        $this->post(route('agents.store'), [
+            'matricule' => '300100', 'nom' => 'X', 'prenoms' => 'Y', 'sexe' => 'M', 'structure_id' => $dia->id, 'date_debut' => '2024-01-02',
+        ])->assertSessionHasErrors('matricule');
+        $this->assertSame(1, Agent::where('matricule', '300100')->count(), 'Rien n’est enregistré en cas d’erreur.');
+    }
+
+    /**
+     * R12, R13 : mutation et fin d'affectation depuis la fiche.
+     */
+    public function test_r12_mute_puis_met_fin_a_l_affectation(): void
+    {
+        $agent = Agent::factory()->femme()->affecteA($this->structure('DIA'), Carbon::parse('2020-01-01'))->create();
+
+        $this->actingAs($this->admin)->get(route('agents.show', $agent))->assertOk()->assertSee('Enregistrer la mutation')->assertSee('En cours');
+        $this->post(route('agents.affecter', $agent), ['structure_id' => $this->structure('TD-ZOU')->id, 'date_debut' => '2026-11-01'])->assertSessionHasNoErrors();
+        $this->assertSame('TD-ZOU', $agent->affectationLe()->structure->code);
+        $this->assertSame(2, $agent->affectations()->count());
+
+        $this->post(route('agents.affecter', $agent), ['structure_id' => $this->structure('DR')->id, 'date_debut' => '2019-01-01'])->assertSessionHasErrors('date_debut');
+
+        $this->post(route('agents.terminer', $agent), ['date_fin' => '2026-11-18'])->assertSessionHasNoErrors();
+        $this->assertNull($agent->affectationLe(Carbon::parse('2026-11-19')));
+        $this->assertSame(['AGENT_AFFECTE', 'AFFECTATION_TERMINEE'], JournalAudit::orderBy('id')->pluck('action')->map->value->all());
+    }
+
+    public function test_modifie_la_fiche_d_un_agent(): void
+    {
+        $agent = Agent::factory()->homme()->affecteA($this->structure('DIA'))->create();
+
+        $this->actingAs($this->admin)->get(route('agents.edit', $agent))->assertOk();
+        $this->put(route('agents.update', $agent), [
+            'matricule' => $agent->matricule, 'nom' => 'DOSSOU', 'prenoms' => 'Marc', 'sexe' => 'M', 'fonction' => 'Chef de service',
+        ])->assertSessionHasNoErrors();
+
+        $this->assertSame('Chef de service', $agent->fresh()->fonction);
+    }
+
+    /**
+     * R4 : le point focal d'une TD contrôle ses agents et ceux des Trésoreries communales rattachées, en lecture seule.
+     */
+    public function test_r4_le_point_focal_controle_les_agents_de_sa_structure_en_lecture_seule(): void
+    {
+        $td = $this->structure('TD-ATL');
+        $tc = Structure::factory()->deType(CodeTypeStructure::TresorerieCommunale)
+            ->create(['code' => 'TC-OUIDAH', 'departement_id' => $td->departement_id, 'structure_parente_id' => $td->id]);
+        $agentTc = Agent::factory()->affecteA($tc)->create(['nom' => 'HOUNTON']);
+        $agentDia = Agent::factory()->affecteA($this->structure('DIA'))->create(['nom' => 'ZINSOU']);
+        $pointFocal = User::factory()->pointFocalDe($td)->create();
+
+        $this->actingAs($pointFocal)->get(route('agents.index'))
+            ->assertOk()->assertSee('Agents de ma structure')->assertSee('HOUNTON')->assertDontSee('ZINSOU')->assertDontSee('Saisir un agent');
+        $this->get(route('agents.show', $agentTc))->assertOk()->assertDontSee('Enregistrer la mutation');
+        $this->get(route('agents.show', $agentDia))->assertForbidden();
+        $this->get(route('agents.create'))->assertForbidden();
+        $this->post(route('agents.affecter', $agentTc), ['structure_id' => $td->id, 'date_debut' => '2026-11-18'])->assertForbidden();
+    }
+
+    public function test_filtre_les_agents_et_refuse_l_electeur(): void
+    {
+        Agent::factory()->femme()->affecteA($this->structure('DIA'))->create(['nom' => 'AHOUANSOU']);
+        Agent::factory()->homme()->affecteA($this->structure('DR'))->create(['nom' => 'DOSSOU']);
+        Agent::factory()->femme()->create(['nom' => 'PARTIE']);
+
+        $this->actingAs($this->admin)->get(route('agents.index', ['sexe' => 'F']))->assertSee('AHOUANSOU')->assertDontSee('DOSSOU')->assertDontSee('PARTIE');
+        $this->get(route('agents.index', ['situation' => 'hors-service']))->assertSee('PARTIE')->assertDontSee('AHOUANSOU');
+        $this->get(route('agents.index', ['recherche' => 'dossou']))->assertSee('DOSSOU')->assertDontSee('AHOUANSOU');
+
+        $electeur = User::factory()->pourAgent(Agent::factory()->create())->avecRoles(CodeRole::Electeur)->create();
+        $this->actingAs($electeur)->get(route('agents.index'))->assertForbidden();
+    }
+
+    private function structure(string $code): Structure
+    {
+        return Structure::where('code', $code)->firstOrFail();
+    }
+}

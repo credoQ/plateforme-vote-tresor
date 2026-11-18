@@ -2,6 +2,7 @@
     /** @var \App\Models\ProcesVerbal $pv */
     $scrutin = $pv->scrutin;
     $edition = $scrutin->phase->edition;
+    $fuseau = 'Africa/Porto-Novo';
 @endphp
 <!doctype html>
 <html lang="fr">
@@ -23,8 +24,8 @@
     <h1>Procès-verbal de dépouillement</h1>
     <p class="sous-titre">{{ $edition->libelle }} · {{ $scrutin->phase->libelle }}<br><strong>{{ $scrutin->libelle }}</strong></p>
 
-    <p>Procès-verbal n° <strong>{{ $pv->numero }}</strong>, établi le {{ $pv->date_etablissement->format('d/m/Y à H:i') }}, validé le {{ $pv->date_validation->format('d/m/Y à H:i') }}.</p>
-    <p>Scrutin ouvert du {{ $scrutin->date_heure_ouverture?->format('d/m/Y H:i') }} au {{ $scrutin->date_heure_fermeture?->format('d/m/Y H:i') }}.</p>
+    <p>Procès-verbal n° <strong>{{ $pv->numero }}</strong>, établi le {{ $pv->date_etablissement->timezone($fuseau)->format('d/m/Y à H:i') }}, validé le {{ $pv->date_validation->timezone($fuseau)->format('d/m/Y à H:i') }}.</p>
+    <p>Scrutin ouvert du {{ $scrutin->date_heure_ouverture?->timezone($fuseau)->format('d/m/Y H:i') }} au {{ $scrutin->date_heure_fermeture?->timezone($fuseau)->format('d/m/Y H:i') }}.</p>
 
     <table>
         <tbody>

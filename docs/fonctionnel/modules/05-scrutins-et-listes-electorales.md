@@ -26,10 +26,11 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] Action `ArreterListes` : arrêt à partir de la date de gel, listes figées ensuite (R27, R30)
 - [x] Actions `DesactiverCandidate` et `ReactiverCandidate` : jusqu'à l'ouverture du scrutin, avec date, auteur et motif (R32 à R34)
 - [x] Tests des règles R14, R15, R20 à R30, R32 à R35 et R37
-- [ ] Contrôle des listes par les points focaux et corrections motivées après l'arrêt (droits du module 01, journal du module 08)
-- [ ] Annulation d'un scrutin dont toutes les candidates sont désactivées (R38), à l'ouverture du scrutin (module 06)
+- [x] Écrans : génération depuis l'édition, fiche du scrutin (planification à l'heure du Bénin, actualisation et arrêt des listes, candidates, liste électorale avec recherche, export) ; le point focal consulte et désactive dans sa structure
+- [ ] Corrections motivées des listes après l'arrêt (R27)
+- [x] Annulation d'un scrutin dont toutes les candidates sont désactivées (R38), à l'ouverture du scrutin (module 06)
 - [ ] Remplacement d'une lauréate qui se désiste (R36), point à confirmer par le métier
-- [ ] Publication et export des listes
+- [x] Export CSV des listes (module 08)
 
 ## Acteurs
 

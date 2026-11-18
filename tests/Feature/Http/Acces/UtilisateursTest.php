@@ -7,7 +7,6 @@ use App\Models\Agent;
 use App\Models\Structure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Hash;
 use Tests\TestCase;
 
 class UtilisateursTest extends TestCase
@@ -33,18 +32,22 @@ class UtilisateursTest extends TestCase
     }
 
     /**
-     * R1, R2 : création d'un compte avec ses rôles et un mot de passe provisoire affiché une seule fois.
+     * R1, R2 : création d'un compte avec ses rôles ; l'adresse e-mail est obligatoire pour recevoir le code (R42).
      */
-    public function test_r2_cree_un_compte_avec_ses_roles_et_un_mot_de_passe_provisoire(): void
+    public function test_r2_cree_un_compte_avec_ses_roles_et_son_adresse(): void
     {
-        $reponse = $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
-            'name' => 'KPADONOU Damien', 'login' => 'dkpadonou', 'roles' => [CodeRole::Comite->value, CodeRole::Observateur->value], 'actif' => '1',
-        ]);
+        $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
+            'name' => 'KPADONOU Damien', 'login' => 'dkpadonou', 'roles' => [CodeRole::Comite->value], 'actif' => '1',
+        ])->assertSessionHasErrors('email');
+
+        $this->post(route('utilisateurs.store'), [
+            'name' => 'KPADONOU Damien', 'login' => 'dkpadonou', 'email' => 'dkpadonou@example.test',
+            'roles' => [CodeRole::Comite->value, CodeRole::Observateur->value], 'actif' => '1',
+        ])->assertSessionHasNoErrors();
 
         $compte = User::where('login', 'dkpadonou')->firstOrFail();
-        $reponse->assertRedirect(route('utilisateurs.edit', $compte))->assertSessionHas('mot_de_passe_provisoire');
-        $this->assertTrue($compte->mot_de_passe_a_changer);
-        $this->assertTrue(Hash::check(session('mot_de_passe_provisoire'), $compte->password));
+        $this->assertNull($compte->password);
+        $this->assertSame('dkpadonou@example.test', $compte->adresseDeConnexion());
         $this->assertEqualsCanonicalizing(['COMITE', 'OBSERVATEUR'], $compte->roles->map(fn ($r) => $r->code->value)->all());
     }
 
@@ -57,37 +60,34 @@ class UtilisateursTest extends TestCase
         User::factory()->pourAgent($agent)->create();
 
         $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
-            'name' => 'Doublon', 'login' => 'doublon', 'matricule_agent' => '102345', 'roles' => [CodeRole::Electeur->value],
+            'name' => 'Doublon', 'login' => 'doublon', 'email' => 'doublon@example.test', 'matricule_agent' => '102345', 'roles' => [CodeRole::Electeur->value],
         ])->assertSessionHasErrors('agent_id');
 
         $this->post(route('utilisateurs.store'), [
-            'name' => 'Point focal', 'login' => 'pf-dia', 'roles' => [CodeRole::PointFocal->value],
+            'name' => 'Point focal', 'login' => 'pf-dia', 'email' => 'pf@example.test', 'roles' => [CodeRole::PointFocal->value],
         ])->assertSessionHasErrors('structure_id');
 
         $this->post(route('utilisateurs.store'), [
-            'name' => 'Point focal', 'login' => 'pf-dia', 'roles' => [CodeRole::PointFocal->value],
+            'name' => 'Point focal', 'login' => 'pf-dia', 'email' => 'pf@example.test', 'roles' => [CodeRole::PointFocal->value],
             'structure_id' => Structure::where('code', 'DIA')->value('id'),
         ])->assertSessionHasNoErrors();
     }
 
-    public function test_desactive_un_compte_et_reinitialise_son_mot_de_passe(): void
+    public function test_desactive_un_compte(): void
     {
         $compte = User::factory()->avecRoles(CodeRole::Comite)->create();
 
         $this->actingAs($this->admin)->put(route('utilisateurs.update', $compte), [
-            'name' => $compte->name, 'login' => $compte->login, 'roles' => [CodeRole::Comite->value],
+            'name' => $compte->name, 'login' => $compte->login, 'email' => $compte->email, 'roles' => [CodeRole::Comite->value],
         ])->assertSessionHasNoErrors();
-        $this->assertFalse($compte->fresh()->actif);
 
-        $this->post(route('utilisateurs.reinitialiser', $compte))->assertSessionHas('mot_de_passe_provisoire');
-        $this->assertTrue($compte->fresh()->mot_de_passe_a_changer);
-        $this->assertTrue(Hash::check(session('mot_de_passe_provisoire'), $compte->fresh()->password));
+        $this->assertFalse($compte->fresh()->actif);
     }
 
     public function test_l_administrateur_ne_peut_pas_desactiver_son_propre_compte(): void
     {
         $this->actingAs($this->admin)->put(route('utilisateurs.update', $this->admin), [
-            'name' => $this->admin->name, 'login' => $this->admin->login, 'roles' => [CodeRole::Administrateur->value],
+            'name' => $this->admin->name, 'login' => $this->admin->login, 'email' => $this->admin->email, 'roles' => [CodeRole::Administrateur->value],
         ])->assertSessionHasErrors('actif');
 
         $this->assertTrue($this->admin->fresh()->actif);
@@ -96,6 +96,6 @@ class UtilisateursTest extends TestCase
     public function test_les_ecrans_de_gestion_s_affichent(): void
     {
         $this->actingAs($this->admin)->get(route('utilisateurs.create'))->assertOk()->assertSee('Créer le compte');
-        $this->get(route('utilisateurs.edit', $this->admin))->assertOk()->assertSee('Réinitialiser le mot de passe');
+        $this->get(route('utilisateurs.edit', $this->admin))->assertOk()->assertSee('Enregistrer le compte');
     }
 }

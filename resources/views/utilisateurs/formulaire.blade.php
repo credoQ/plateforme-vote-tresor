@@ -7,22 +7,7 @@
         <div>
             <h1>{{ $estNouveau ? 'Créer un compte' : $utilisateur->name }}</h1>
         </div>
-        @unless ($estNouveau)
-            <div class="titre-page__actions">
-                <button type="button" class="btn btn-secondaire" data-ouvrir="modale-reinitialiser"><i data-lucide="key-round"></i>Réinitialiser le mot de passe</button>
-            </div>
-        @endunless
     </div>
-
-    @if (session('mot_de_passe_provisoire'))
-        <div class="alerte alerte--attente espace-bloc" role="status"><i data-lucide="key-round"></i>
-            <div>
-                <strong>Mot de passe provisoire de {{ $utilisateur->login }} :</strong>
-                <span class="secret">{{ session('mot_de_passe_provisoire') }}</span><br>
-                Il ne sera plus affiché. Remettez-le à l’intéressé, qui devra le changer à sa première connexion.
-            </div>
-        </div>
-    @endif
 
     <div class="carte">
         <div class="carte__corps">
@@ -30,7 +15,7 @@
                 @csrf
                 @unless ($estNouveau) @method('PUT') @endunless
 
-                @foreach ([['name', 'Nom et prénoms', true], ['login', 'Identifiant (matricule pour un agent)', true], ['email', 'E-mail', false]] as [$champ, $libelle, $requis])
+                @foreach ([['name', 'Nom et prénoms', true], ['login', 'Identifiant (matricule pour un agent)', true], ['email', 'E-mail de connexion', false]] as [$champ, $libelle, $requis])
                     <div class="formulaire__groupe">
                         <label class="libelle" for="{{ $champ }}">{{ $libelle }} @if ($requis)<span class="requis">*</span>@endif</label>
                         <input id="{{ $champ }}" name="{{ $champ }}" class="champ" value="{{ old($champ, $utilisateur->{$champ}) }}" @if ($champ === 'email') type="email" @endif>
@@ -81,21 +66,4 @@
         </div>
     </div>
 
-    @unless ($estNouveau)
-        <x-slot:modales>
-            <div class="voile" id="modale-reinitialiser" hidden>
-                <div class="modale" role="dialog" aria-modal="true" aria-labelledby="titre-reinitialiser">
-                    <div class="modale__entete"><h2 id="titre-reinitialiser">Réinitialiser le mot de passe de {{ $utilisateur->login }} ?</h2></div>
-                    <div class="modale__corps"><p>Un mot de passe provisoire remplacera l’actuel. {{ $utilisateur->name }} devra le changer à sa prochaine connexion.</p></div>
-                    <div class="modale__pied">
-                        <button type="button" class="btn btn-tertiaire" data-fermer>Annuler</button>
-                        <form method="POST" action="{{ route('utilisateurs.reinitialiser', $utilisateur) }}">
-                            @csrf
-                            <button type="submit" class="btn btn-primaire"><i data-lucide="key-round"></i>Réinitialiser le mot de passe</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </x-slot:modales>
-    @endunless
 </x-layouts.app>

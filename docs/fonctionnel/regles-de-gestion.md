@@ -84,7 +84,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 - **R39** · Le vote est électronique et n’est possible que pendant la période d’ouverture du scrutin.
 - **R40** · Un électeur ne vote qu’une seule fois par scrutin et uniquement dans le scrutin où il est inscrit ; le vote est définitif et ne peut être modifié.
 - **R41** · Le scrutin est uninominal à un tour : l’électeur choisit une seule candidate. Le vote blanc est paramétrable par édition.
-- **R42** · Le vote nécessite une authentification par matricule et mot de passe personnel ; un code à usage unique (OTP), envoyé par e-mail, peut être exigé en complément lorsque l’agent dispose d’une adresse e-mail.
+- **R42** · L’authentification se fait sans mot de passe : l’agent saisit son matricule et reçoit par e-mail un code à usage unique (OTP), valable 10 minutes, qu’il saisit pour se connecter. Le compte doit avoir une adresse e-mail (celle du compte ou de la fiche agent).
 - **R43** · Le vote est secret : l’émargement (agent, scrutin, date-heure) et le bulletin (scrutin, candidate) sont enregistrés séparément, dans une même transaction, sans aucun lien entre eux ; l’horodatage du bulletin est volontairement imprécis afin d’empêcher tout rapprochement.
 - **R44** · Chaque bulletin porte une empreinte cryptographique chaînée permettant de détecter toute altération.
 - **R45** · Une candidate est électrice dans son scrutin au même titre que les autres agents (le vote pour soi-même est à confirmer par le métier).

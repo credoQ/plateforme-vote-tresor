@@ -52,7 +52,6 @@
             @endforeach
         </nav>
         <div class="sidebar__pied">
-            <a href="{{ route('securite') }}" @class(['nav-lien', 'est-actif' => $actif === 'securite'])><i data-lucide="key-round"></i>Sécurité du compte</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="nav-lien"><i data-lucide="log-out"></i>Se déconnecter</button>

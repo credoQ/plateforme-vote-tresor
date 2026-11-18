@@ -12,54 +12,55 @@ use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
 
 /**
- * Crée un compte électeur pour chaque agent en service qui n'en a pas (R3, R13) : identifiant = matricule,
- * mot de passe provisoire à remettre par le point focal et à changer à la première connexion.
+ * Crée un compte électeur pour chaque agent en service qui n'en a pas (R3, R13) : identifiant = matricule.
+ * Pas de mot de passe : l'agent se connecte avec un code envoyé à l'adresse e-mail de sa fiche (R42).
  */
 class GenererComptesAgents
 {
-    public function __construct(private MotDePasseProvisoire $motDePasse, private Journaliser $journal) {}
+    public function __construct(private Journaliser $journal) {}
 
     /**
-     * @return list<array{matricule: string, nom: string, structure: string, mot_de_passe: string}>
+     * @return array{crees: int, sans_email: list<array{matricule: string, nom: string, structure: string}>}
      */
     public function handle(?CarbonInterface $date = null): array
     {
         $roleElecteur = Role::where('code', CodeRole::Electeur->value)->firstOrFail();
-        $comptes = [];
+        $crees = 0;
 
         Agent::enServiceLe($date)
             ->whereDoesntHave('compte')
             ->whereNotIn('matricule', User::select('login'))
-            ->chunkById(200, function ($agents) use ($roleElecteur, $date, &$comptes): void {
-                DB::transaction(function () use ($agents, $roleElecteur, $date, &$comptes): void {
-                    $avant = count($comptes);
+            ->chunkById(200, function ($agents) use ($roleElecteur, &$crees): void {
+                DB::transaction(function () use ($agents, $roleElecteur, &$crees): void {
                     foreach ($agents as $agent) {
-                        $motDePasse = $this->motDePasse->generer();
-                        $utilisateur = User::create([
+                        User::create([
                             'name' => $agent->nomComplet(),
                             'login' => $agent->matricule,
-                            'email' => null,
-                            'password' => $motDePasse,
-                            'mot_de_passe_a_changer' => true,
                             'agent_id' => $agent->id,
-                        ]);
-                        $utilisateur->roles()->attach($roleElecteur);
-
-                        $comptes[] = [
-                            'matricule' => $agent->matricule,
-                            'nom' => $agent->nomComplet(),
-                            'structure' => $agent->affectationLe($date)?->structure->code ?? '',
-                            'mot_de_passe' => $motDePasse,
-                        ];
+                        ])->roles()->attach($roleElecteur);
                     }
 
                     // Journalisé dans la transaction du lot : un lot créé l'est toujours avec sa trace (R56).
-                    if (count($comptes) > $avant) {
-                        $this->journal->handle(ActionAuditee::ComptesGeneres, null, ['nombre' => count($comptes) - $avant]);
-                    }
+                    $this->journal->handle(ActionAuditee::ComptesGeneres, null, ['nombre' => $agents->count()]);
+                    $crees += $agents->count();
                 });
             });
 
-        return $comptes;
+        // Comptes qui ne pourront pas recevoir de code tant qu'aucune adresse n'est enregistrée.
+        $sansEmail = User::query()
+            ->whereHas('roles', fn ($q) => $q->where('code', CodeRole::Electeur->value))
+            ->whereNull('email')
+            ->whereHas('agent', fn ($q) => $q->enServiceLe($date)->where(fn ($e) => $e->whereNull('email')->orWhere('email', '')))
+            ->with('agent')
+            ->orderBy('login')
+            ->get()
+            ->map(fn (User $compte): array => [
+                'matricule' => $compte->login,
+                'nom' => $compte->name,
+                'structure' => $compte->agent->affectationLe($date)?->structure->code ?? '',
+            ])
+            ->all();
+
+        return ['crees' => $crees, 'sans_email' => $sansEmail];
     }
 }

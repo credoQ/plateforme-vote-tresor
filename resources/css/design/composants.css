@@ -530,11 +530,12 @@
   .portail__marque img { width: 40px; height: 40px; }
   .portail__marque strong { display: block; font-size: 14px; line-height: 18px; font-weight: 800; color: var(--tr-primaire); }
   .portail__marque small { display: block; font-size: 11px; line-height: 14px; color: var(--tr-texte-3); }
-  .portail__nav { display: flex; align-items: stretch; gap: 4px; height: 100%; }
-  .portail__nav a { display: flex; align-items: center; gap: 8px; padding: 0 14px; margin-bottom: -1px; font-size: 14px; font-weight: 600; color: var(--tr-texte-2); text-decoration: none; border-bottom: 3px solid transparent; }
+  /* onglet actif : même repère que le menu de la console (fond doux, liseré or), détaché de la bande tricolore */
+  .portail__nav { display: flex; align-items: center; gap: 4px; }
+  .portail__nav a { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 14px; border-radius: var(--tr-rayon); font-size: 14px; font-weight: 600; color: var(--tr-texte-2); text-decoration: none; }
   .portail__nav a svg { width: 18px; height: 18px; }
-  .portail__nav a:hover { color: var(--tr-texte); }
-  .portail__nav a.est-actif { color: var(--tr-primaire); border-bottom-color: var(--tr-accent); }
+  .portail__nav a:hover { color: var(--tr-texte); background: var(--tr-surface-2); }
+  .portail__nav a.est-actif { color: var(--tr-primaire-texte); background: var(--tr-primaire-doux); box-shadow: inset 0 -3px 0 var(--tr-accent); }
   .portail__droite { margin-left: auto; display: flex; align-items: center; gap: 8px; }
   .portail__contenu { width: 100%; max-width: 880px; margin: 0 auto; padding: 32px 28px 48px; flex: 1; display: grid; gap: 20px; align-content: start; }
   .portail__contenu > * { min-width: 0; }

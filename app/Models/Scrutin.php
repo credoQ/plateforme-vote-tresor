@@ -110,6 +110,14 @@ class Scrutin extends Model
     }
 
     /**
+     * R27 : le comité peut rouvrir, par décision motivée, des listes arrêtées tant que le scrutin n'est pas ouvert.
+     */
+    public function listesPeuventEtreRouvertes(): bool
+    {
+        return $this->statut === StatutScrutin::ListesArretees;
+    }
+
+    /**
      * Participation, seule donnée visible pendant le vote (R46).
      *
      * @return array{inscrits: int, votants: int, taux: float}

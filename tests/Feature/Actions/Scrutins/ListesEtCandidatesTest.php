@@ -7,11 +7,14 @@ use App\Actions\Scrutins\ConstituerListes;
 use App\Actions\Scrutins\DesactiverCandidate;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\ReactiverCandidate;
+use App\Actions\Scrutins\RouvrirListes;
+use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutCandidate;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Agent;
 use App\Models\Candidate;
 use App\Models\Edition;
+use App\Models\JournalAudit;
 use App\Models\Phase;
 use App\Models\Scrutin;
 use App\Models\Structure;
@@ -105,6 +108,40 @@ class ListesEtCandidatesTest extends TestCase
 
         $this->expectException(ValidationException::class);
         app(ConstituerListes::class)->handle($scrutin->fresh());
+    }
+
+    /**
+     * R27, R28, R33 : après une réouverture motivée et tracée, les listes recalculées intègrent l'agente omise ;
+     * une candidate désactivée le reste.
+     */
+    public function test_r27_rouvre_les_listes_pour_les_corriger_puis_les_arrete_de_nouveau(): void
+    {
+        app(DesactiverCandidate::class)->handle($this->candidate, User::factory()->create(), null);
+        app(ArreterListes::class)->handle($this->scrutin);
+        $omise = Agent::factory()->femme()->affecteA(Structure::where('code', 'DIA')->firstOrFail(), Carbon::parse('2020-01-01'))->create();
+
+        app(RouvrirListes::class)->handle($this->scrutin->fresh(), 'Agente omise de l’import RH');
+
+        $journal = JournalAudit::where('action', ActionAuditee::ListesRouvertes->value)->sole();
+        $this->assertSame('Agente omise de l’import RH', $journal->details['motif']);
+
+        $scrutin = app(ArreterListes::class)->handle($this->scrutin->fresh());
+        $this->assertSame(StatutScrutin::ListesArretees, $scrutin->fresh()->statut);
+        $this->assertTrue($scrutin->inscriptions()->where('agent_id', $omise->id)->exists());
+        $this->assertTrue($scrutin->candidates()->where('agent_id', $omise->id)->exists());
+        $this->assertSame(StatutCandidate::Desactivee, $this->candidate->fresh()->statut);
+    }
+
+    /**
+     * R27 : une fois le scrutin ouvert, les listes ne peuvent plus être rouvertes.
+     */
+    public function test_r27_refuse_de_rouvrir_les_listes_d_un_scrutin_ouvert(): void
+    {
+        app(ArreterListes::class)->handle($this->scrutin);
+        $this->scrutin->update(['statut' => StatutScrutin::Ouvert]);
+
+        $this->expectException(ValidationException::class);
+        app(RouvrirListes::class)->handle($this->scrutin->fresh(), 'Trop tard');
     }
 
     /**

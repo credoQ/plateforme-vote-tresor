@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/scrutins/{scrutin}/planifier', [ScrutinController::class, 'planifier'])->name('scrutins.planifier');
         Route::post('/scrutins/{scrutin}/actualiser', [ScrutinController::class, 'actualiser'])->name('scrutins.actualiser');
         Route::post('/scrutins/{scrutin}/arreter', [ScrutinController::class, 'arreter'])->name('scrutins.arreter');
+        Route::post('/scrutins/{scrutin}/rouvrir', [ScrutinController::class, 'rouvrir'])->name('scrutins.rouvrir');
         Route::post('/scrutins/{scrutin}/fermer', [ResultatController::class, 'fermer'])->name('scrutins.fermer');
         Route::post('/scrutins/{scrutin}/depouiller', [ResultatController::class, 'depouiller'])->name('resultats.depouiller');
         Route::post('/scrutins/{scrutin}/departager', [ResultatController::class, 'trancher'])->name('resultats.trancher');

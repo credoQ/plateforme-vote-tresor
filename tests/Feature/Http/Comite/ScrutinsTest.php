@@ -76,6 +76,25 @@ class ScrutinsTest extends TestCase
     }
 
     /**
+     * R27 : le comité rouvre des listes arrêtées par une décision motivée, puis les arrête de nouveau ; le point focal ne le peut pas.
+     */
+    public function test_r27_le_comite_rouvre_les_listes_arretees_avec_un_motif(): void
+    {
+        $scrutin = $this->scrutinDia();
+        $pointFocal = User::factory()->pointFocalDe(Structure::where('code', 'DIA')->firstOrFail())->create();
+        $this->actingAs($this->comite)->post(route('scrutins.arreter', $scrutin))->assertSessionHasNoErrors();
+
+        $this->get(route('scrutins.show', $scrutin))->assertSee('Rouvrir les listes');
+        $this->post(route('scrutins.rouvrir', $scrutin), ['motif' => ''])->assertSessionHasErrors('motif');
+        $this->actingAs($pointFocal)->post(route('scrutins.rouvrir', $scrutin), ['motif' => 'Agente omise'])->assertForbidden();
+        $this->assertSame(StatutScrutin::ListesArretees, $scrutin->fresh()->statut);
+
+        $this->actingAs($this->comite)->post(route('scrutins.rouvrir', $scrutin), ['motif' => 'Agente omise de l’import RH'])->assertSessionHas('succes');
+        $this->assertSame(StatutScrutin::EnPreparation, $scrutin->fresh()->statut);
+        $this->get(route('scrutins.show', $scrutin))->assertSee('Actualiser les listes')->assertSee('Arrêter les listes');
+    }
+
+    /**
      * R32, R4 : le point focal désactive une candidate de sa structure, et ne voit pas les autres structures.
      */
     public function test_r32_le_point_focal_desactive_une_candidate_de_sa_structure(): void

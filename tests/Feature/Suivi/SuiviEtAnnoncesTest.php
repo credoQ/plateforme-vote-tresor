@@ -81,6 +81,22 @@ class SuiviEtAnnoncesTest extends TestCase
     }
 
     /**
+     * R43, R46 : les votes sont comptés par heure du Bénin (émargement tronqué à l'heure) ; les scrutins se filtrent.
+     */
+    public function test_r46_compte_les_votes_par_heure_et_filtre_les_scrutins(): void
+    {
+        app(DeposerBulletin::class)->handle($this->electriceAtl, $this->scrutinAtl, $this->scrutinAtl->candidates()->sole());
+        $comite = User::factory()->avecRoles(CodeRole::Comite)->create();
+
+        $this->actingAs($comite)->get(route('tableau-de-bord'))
+            ->assertOk()->assertSee('Votes par heure')->assertSee('De 10 h à 11 h : 1 vote(s)');
+        $this->get(route('tableau-de-bord', ['statut' => StatutScrutin::Ouvert->value]))
+            ->assertSee('Scrutin départemental · Atlantique')->assertSee('Réinitialiser');
+        $this->get(route('tableau-de-bord', ['statut' => StatutScrutin::Clos->value]))
+            ->assertDontSee('Scrutin départemental · Atlantique')->assertSee('Aucun scrutin ne correspond.');
+    }
+
+    /**
      * R4 : le point focal ne suit que sa structure.
      */
     public function test_r4_le_point_focal_ne_suit_que_sa_structure(): void

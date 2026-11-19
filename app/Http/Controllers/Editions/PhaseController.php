@@ -38,6 +38,6 @@ class PhaseController extends Controller
 
     private function retour(Phase $phase, string $message): RedirectResponse
     {
-        return redirect()->to(route('editions.show', $phase->edition_id).'#phase-'.$phase->numero)->with('succes', $message);
+        return redirect()->route('editions.show', [$phase->edition_id, 'phase' => $phase->numero])->with('succes', $message);
     }
 }

@@ -1,6 +1,7 @@
 import Alpine from 'alpinejs';
 import { createIcons, icons } from 'lucide';
 import formulaireEtapes from './formulaire-etapes';
+import saisieCode from './saisie-code';
 import selectRecherche from './select-recherche';
 
 // Icônes Lucide (seule bibliothèque autorisée par la charte) : <i data-lucide="vote"></i>
@@ -125,5 +126,6 @@ document.addEventListener('click', (e) => {
 window.Alpine = Alpine;
 Alpine.data('selectRecherche', selectRecherche);
 Alpine.data('formulaireEtapes', formulaireEtapes);
+Alpine.data('saisieCode', saisieCode);
 Alpine.start();
 createIcons({ icons, attrs: { 'stroke-width': 2 } });

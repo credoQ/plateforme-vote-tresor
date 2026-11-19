@@ -88,8 +88,9 @@ class EditionsTest extends TestCase
 
         $edition = Edition::where('annee', 2027)->firstOrFail();
         $this->assertSame([1, 2], $edition->phases->pluck('numero')->all());
-        $this->get(route('editions.show', $edition))->assertOk()
-            ->assertSee('Élections finales')->assertSee('Pôle structures · Un seul scrutin · Nomination par le comité · 3 élue(s) par scrutin');
+        $this->get(route('editions.show', $edition))->assertOk()->assertSee('Élections finales');
+        $this->get(route('editions.show', [$edition, 'phase' => 2, 'onglet' => 'colleges']))->assertOk()
+            ->assertSee('Pôle structures · Un seul scrutin · Nomination par le comité · 3 élue(s) par scrutin');
 
         $this->put(route('editions.update', $edition), [
             'annee' => 2027, 'libelle' => 'Femme modèle du Trésor 2027', 'date_debut' => '2027-03-01', 'date_fin' => '2027-04-30', 'date_gel' => '2027-02-15',
@@ -118,7 +119,13 @@ class EditionsTest extends TestCase
         $this->assertSame(StatutPhase::Ouverte, $phase->fresh()->statut);
 
         $this->post(route('phases.cloturer', $phase))->assertSessionHasErrors('phase');
+        $this->get(route('editions.show', $edition))->assertOk()
+            ->assertSee('0 scrutin(s) terminé(s) sur 1')->assertSee('title="Tous les résultats doivent être publiés"', false)
+            ->assertSee($scrutin->libelle);
+        $scrutin->update(['statut' => 'CLOS']);
+        $this->get(route('editions.show', [$edition, 'phase' => 1, 'onglet' => 'resultats']))->assertSee($scrutin->libelle)->assertSee('Valider');
         $scrutin->update(['statut' => 'RESULTATS_PUBLIES']);
+        $this->get(route('editions.show', [$edition, 'phase' => 1, 'onglet' => 'resultats']))->assertSee('Aucun résultat à valider.');
         $this->post(route('phases.cloturer', $phase))->assertSessionHasNoErrors();
         $this->assertSame(StatutPhase::Cloturee, $phase->fresh()->statut);
     }

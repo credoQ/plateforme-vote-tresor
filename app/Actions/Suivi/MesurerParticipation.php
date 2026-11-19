@@ -5,6 +5,7 @@ namespace App\Actions\Suivi;
 use App\Enums\Scrutins\StatutCandidate;
 use App\Models\Phase;
 use App\Models\Scrutin;
+use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -16,6 +17,8 @@ use Illuminate\Support\Facades\DB;
  */
 class MesurerParticipation
 {
+    public const FUSEAU = 'Africa/Porto-Novo';
+
     /**
      * @param  list<int>|null  $perimetre
      * @return array{global: array{inscrits: int, votants: int, taux: float}, scrutins: Collection<int, array<string, mixed>>, departements: Collection<int, array<string, mixed>>, structures: Collection<int, array<string, mixed>>}
@@ -32,7 +35,10 @@ class MesurerParticipation
 
         $scrutins = Scrutin::where('phase_id', $phase->id)
             ->with('poleElectoral')
-            ->withCount(['candidates as candidates_actives' => fn ($q) => $q->where('statut', StatutCandidate::Active->value)])
+            ->withCount([
+                'candidates as candidates_actives' => fn ($q) => $q->where('statut', StatutCandidate::Active->value),
+                'candidates as candidates_desistees' => fn ($q) => $q->where('statut', StatutCandidate::Desactivee->value),
+            ])
             ->orderBy('code')
             ->get()
             ->filter(fn (Scrutin $s): bool => $perimetre === null || $parScrutin->has($s->id))
@@ -67,6 +73,42 @@ class MesurerParticipation
             'departements' => $departements,
             'structures' => $structures,
         ];
+    }
+
+    /**
+     * Votes par heure du dernier jour de vote de la phase, à l'heure du Bénin. L'heure d'émargement étant tronquée
+     * à l'heure (R43), ce décompte ne dit rien de plus que la participation (R46).
+     *
+     * @param  list<int>|null  $perimetre
+     * @return array{jour: CarbonImmutable|null, heures: array<int, int>}
+     */
+    public function votesParHeure(Phase $phase, ?array $perimetre = null): array
+    {
+        $parHeure = DB::table('inscriptions')
+            ->where('phase_id', $phase->id)
+            ->where('a_vote', true)
+            ->whereNotNull('date_heure_vote')
+            ->when($perimetre !== null, fn ($q) => $q->whereIn('structure_id', $perimetre))
+            ->groupBy('date_heure_vote')
+            ->selectRaw('date_heure_vote, count(*) as votes')
+            ->get()
+            ->map(fn ($ligne): array => [CarbonImmutable::parse($ligne->date_heure_vote, 'UTC')->setTimezone(self::FUSEAU), (int) $ligne->votes]);
+
+        if ($parHeure->isEmpty()) {
+            return ['jour' => null, 'heures' => []];
+        }
+
+        $jour = $parHeure->max(fn (array $ligne): CarbonImmutable => $ligne[0])->startOfDay();
+        $duJour = $parHeure->filter(fn (array $ligne): bool => $ligne[0]->isSameDay($jour));
+        $heures = [];
+        foreach (range($duJour->min(fn (array $l): int => $l[0]->hour), $duJour->max(fn (array $l): int => $l[0]->hour)) as $heure) {
+            $heures[$heure] = 0;
+        }
+        foreach ($duJour as [$moment, $votes]) {
+            $heures[$moment->hour] += $votes;
+        }
+
+        return ['jour' => $jour, 'heures' => $heures];
     }
 
     /**

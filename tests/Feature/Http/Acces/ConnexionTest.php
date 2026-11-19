@@ -68,7 +68,7 @@ class ConnexionTest extends TestCase
 
         $this->post(route('login.store'), ['login' => '102345'])->assertRedirect(route('login.code'));
         $code = $this->codeEnvoyeA('clarisse@example.test');
-        $this->get(route('login.code'))->assertOk()->assertSee('Matricule 102345');
+        $this->get(route('login.code'))->assertOk()->assertSee('(matricule 102345)');
 
         $this->post(route('login.verifier'), ['code' => $code])->assertRedirect(route('espace'));
 
@@ -123,11 +123,28 @@ class ConnexionTest extends TestCase
         $this->post(route('login.verifier'), ['code' => $code])->assertSessionHasErrors('code');
         $this->assertGuest();
 
+        $this->travel(1)->minutes();
         $this->post(route('login.renvoyer'))->assertSessionHas('status');
         $nouveau = $this->codeEnvoyeA('clarisse@example.test', 2);
         $this->travel(11)->minutes();
         $this->post(route('login.verifier'), ['code' => $nouveau])->assertSessionHasErrors('code');
         $this->assertGuest();
+    }
+
+    public function test_un_nouveau_code_ne_se_demande_qu_une_minute_apres_le_precedent(): void
+    {
+        User::factory()->create(['login' => '102345', 'email' => 'clarisse@example.test']);
+        $this->post(route('login.store'), ['login' => '102345']);
+
+        $this->get(route('login.code'))->assertOk()->assertSee('attente: 60', false);
+        $this->travel(20)->seconds();
+        $this->post(route('login.renvoyer'))->assertRedirect(route('login.code'))
+            ->assertSessionHasErrors(['code' => 'Patientez encore 40 seconde(s) avant de demander un nouveau code.']);
+        $this->codeEnvoyeA('clarisse@example.test', 1);
+
+        $this->travel(40)->seconds();
+        $this->post(route('login.renvoyer'))->assertSessionHas('status');
+        $this->codeEnvoyeA('clarisse@example.test', 2);
     }
 
     public function test_limite_les_demandes_de_code(): void

@@ -1,4 +1,4 @@
-@props(['titre', 'indexer' => false])
+@props(['titre', 'indexer' => false, 'editionEnCours' => null])
 {{-- Gabarit des écrans hors connexion : panneau de la DGTCP à gauche, formulaire à droite. --}}
 <!DOCTYPE html>
 <html lang="fr" data-theme="clair">
@@ -18,7 +18,11 @@
             <div><strong>Direction générale du Trésor</strong><small>et de la Comptabilité publique</small></div>
         </div>
         <div class="connexion__accroche">
+            @if ($editionEnCours ?? null)
+                <div class="surtitre">Édition {{ $editionEnCours }}</div>
+            @endif
             <h1>Élisez la Femme modèle du Trésor</h1>
+            <p class="connexion__citation">Elles incarnent l’intégrité, l’engagement et l’excellence qui font, chaque jour, la force du Trésor public.</p>
         </div>
         <div class="connexion__mention">République du Bénin · {{ config('app.ministere') }}</div>
     </section>

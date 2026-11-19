@@ -6,11 +6,14 @@ use App\Actions\Editions\EnregistrerEdition;
 use App\Actions\Editions\LancerEdition;
 use App\Enums\Editions\Decoupage;
 use App\Enums\Editions\StatutEdition;
+use App\Enums\Editions\StatutPhase;
 use App\Enums\Referentiel\CodePoleElectoral;
 use App\Enums\Scrutins\OrigineCandidate;
+use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
 use App\Models\Edition;
 use App\Models\Phase;
+use App\Models\Scrutin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -24,6 +27,11 @@ class EditionController extends Controller
      * Valeur du formulaire pour un collège sans scrutin dans la phase.
      */
     private const AUCUN_SCRUTIN = 'AUCUN';
+
+    /**
+     * Onglets de la phase affichée sur la fiche de l'édition.
+     */
+    private const ONGLETS = ['scrutins', 'colleges', 'resultats'];
 
     public function index(Request $request): View
     {
@@ -58,14 +66,62 @@ class EditionController extends Controller
         return redirect()->route('editions.show', $edition)->with('succes', "L’édition {$edition->annee} est créée avec {$edition->phases->count()} phase(s).");
     }
 
-    public function show(Edition $edition): View
+    /**
+     * Fiche de l'édition : frise des phases, puis la phase choisie (?phase=) avec ses scrutins, ses collèges
+     * ou ses résultats à valider (?onglet=). Par défaut, la phase ouverte, sinon la première non clôturée.
+     */
+    public function show(Request $request, Edition $edition): View
     {
-        $edition->load(['phases.colleges.poleElectoral', 'phases.scrutins' => fn ($q) => $q->withCount([
-            'inscriptions',
-            'candidates as candidates_actives_count' => fn ($c) => $c->actives(),
-        ])->orderBy('code')]);
+        $edition->load(['phases' => fn ($q) => $q->withCount([
+            'scrutins',
+            'scrutins as scrutins_termines_count' => fn ($s) => $s->whereIn('statut', [StatutScrutin::ResultatsPublies->value, StatutScrutin::Annule->value]),
+            'scrutins as scrutins_a_valider_count' => fn ($s) => $s->whereIn('statut', [StatutScrutin::Clos->value, StatutScrutin::ResultatsValides->value]),
+        ]), 'phases.colleges.poleElectoral']);
 
-        return view('editions.show', ['edition' => $edition]);
+        $phase = ($request->integer('phase') ? $edition->phases->firstWhere('numero', $request->integer('phase')) : null)
+            ?? $edition->phases->firstWhere('statut', StatutPhase::Ouverte)
+            ?? $edition->phases->first(fn (Phase $p): bool => $p->statut !== StatutPhase::Cloturee)
+            ?? $edition->phases->last();
+
+        $onglet = in_array($request->query('onglet'), self::ONGLETS, true) ? $request->query('onglet') : 'scrutins';
+        $recherche = trim((string) $request->query('recherche', ''));
+        $college = (string) $request->query('college', '');
+        $statut = StatutScrutin::tryFrom((string) $request->query('statut', ''));
+
+        $scrutins = $phase === null ? null : $phase->scrutins()
+            ->withCount([
+                'inscriptions',
+                'inscriptions as votants_count' => fn ($i) => $i->where('a_vote', true),
+                'candidates as candidates_actives_count' => fn ($c) => $c->actives(),
+            ])
+            ->when($onglet === 'resultats', fn ($q) => $q->whereIn('statut', [StatutScrutin::Clos->value, StatutScrutin::ResultatsValides->value]))
+            ->when($recherche !== '', fn ($q) => $q->where(fn ($r) => $r->whereLike('libelle', "%{$recherche}%")->orWhereLike('code', "%{$recherche}%")))
+            ->when($college === Phase::COLLEGE_DGTCP, fn ($q) => $q->whereNull('pole_electoral_id'))
+            ->when(CodePoleElectoral::tryFrom($college) !== null, fn ($q) => $q->whereHas('poleElectoral', fn ($p) => $p->where('code', $college)))
+            ->when($statut !== null, fn ($q) => $q->where('statut', $statut->value))
+            ->orderBy('code')
+            ->paginate(25)
+            ->withQueryString()
+            ->through(fn (Scrutin $scrutin): array => [
+                'scrutin' => $scrutin,
+                'taux' => $scrutin->inscriptions_count === 0 ? null : round($scrutin->votants_count * 100 / $scrutin->inscriptions_count, 1),
+            ]);
+
+        return view('editions.show', [
+            'edition' => $edition,
+            'phase' => $phase,
+            'onglet' => $onglet,
+            'scrutins' => $scrutins,
+            'recherche' => $recherche,
+            'college' => $college,
+            'statut' => $statut,
+            'colleges' => [
+                CodePoleElectoral::Departemental->value => CodePoleElectoral::Departemental->libelle(),
+                CodePoleElectoral::Structures->value => CodePoleElectoral::Structures->libelle(),
+                Phase::COLLEGE_DGTCP => 'Ensemble de la DGTCP',
+            ],
+            'clotureImpossible' => $phase !== null && $phase->scrutins_termines_count < $phase->scrutins_count,
+        ]);
     }
 
     public function edit(Edition $edition): View

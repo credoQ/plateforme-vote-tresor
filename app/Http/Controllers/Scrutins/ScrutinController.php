@@ -35,7 +35,7 @@ class ScrutinController extends Controller
     {
         $rapport = $generer->handle($phase);
 
-        return redirect()->to(route('editions.show', $phase->edition_id).'#phase-'.$phase->numero)
+        return redirect()->route('editions.show', [$phase->edition_id, 'phase' => $phase->numero])
             ->with('succes', "{$rapport->scrutins->count()} scrutin(s) générés pour la {$phase->libelle}.")
             ->with('sans_femme', $rapport->circonscriptionsSansFemme);
     }

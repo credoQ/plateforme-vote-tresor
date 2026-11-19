@@ -16,6 +16,10 @@
         </div>
     </div>
 
+    @if ($ineligibilite)
+        <div class="alerte alerte--attente espace-bloc"><i data-lucide="crown"></i><div><strong>Inéligible</strong> · {{ ucfirst($ineligibilite) }}.</div></div>
+    @endif
+
     <div class="grille-deux espace-bloc">
         <section class="carte">
             <div class="carte__entete"><h2>Fiche</h2></div>

@@ -80,6 +80,11 @@
 
     <section class="carte espace-bloc">
         <div class="carte__entete"><h2>Candidates</h2><span class="etiquette">{{ $scrutin->college->origine_candidates->libelleCollege() }} · {{ $scrutin->nbElues() }} élue(s)</span></div>
+        @if ($ineligiblesEcartees->isNotEmpty())
+            <div class="carte__corps">
+                <div class="alerte alerte--info"><i data-lucide="crown"></i><div><strong>Inéligibles (R59)</strong>, électrices mais pas candidates : {{ $ineligiblesEcartees->implode(', ') }}.</div></div>
+            </div>
+        @endif
         @if ($nominationOuverte)
             <div class="carte__corps">
                 <form method="POST" action="{{ route('nominations.store', $scrutin) }}" class="formulaire-ligne">

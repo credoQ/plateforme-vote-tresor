@@ -44,6 +44,7 @@ class NavigationComposer
             ],
             'Pilotage' => [
                 ['editions', 'calendar-range', 'Éditions', route('editions.index'), $utilisateur->can('piloter')],
+                ['femmes-modeles', 'crown', 'Femmes modèles', route('femmes-modeles.index'), $utilisateur->can('piloter')],
             ],
             'Suivi' => [
                 ['tableau-de-bord', 'layout-dashboard', 'Tableau de bord', route('tableau-de-bord'), $utilisateur->can('observer') || $utilisateur->can('controler-listes')],

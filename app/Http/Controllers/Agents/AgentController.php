@@ -11,6 +11,7 @@ use App\Enums\Agents\Sexe;
 use App\Enums\Audit\ActionAuditee;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
+use App\Models\Edition;
 use App\Models\Structure;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -95,6 +96,7 @@ class AgentController extends Controller
         return view('agents.show', [
             'agent' => $agent->load(['affectations.structure', 'compte.roles']),
             'affectation' => $agent->affectationLe(),
+            'ineligibilite' => Edition::courante()?->motifIneligibilite($agent->matricule),
             'peutModifier' => $request->user()->can('update', $agent),
             'structures' => $this->structures(null),
         ]);

@@ -1,7 +1,7 @@
 # Règles de gestion
 
 Règles de gestion de la plateforme de vote « Femme modèle du Trésor ».
-Elles reprennent la section 6 du document technique V1. Leur numéro (R1 à R58) sert de référence dans le code et dans les tests.
+Elles reprennent la section 6 du document technique V1. Leur numéro (R1 à R59) sert de référence dans le code et dans les tests.
 
 Une règle qui dépend d'un point encore à valider doit rester paramétrable : voir la fin de ce fichier.
 
@@ -12,7 +12,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 3. [Gestion des agents et des affectations](#gestion-des-agents-et-des-affectations) : R11 à R15
 4. [Gestion des éditions, des phases et des scrutins](#gestion-des-editions-des-phases-et-des-scrutins) : R16 à R23
 5. [Circonscriptions et listes électorales](#circonscriptions-et-listes-electorales) : R24 à R27
-6. [Candidates](#candidates) : R28 à R38, R58
+6. [Candidates](#candidates) : R28 à R38, R58, R59
 7. [Vote](#vote) : R39 à R46
 8. [Dépouillement et résultats](#depouillement-et-resultats) : R47 à R55
 9. [Sécurité et traçabilité](#securite-et-tracabilite) : R56 à R57
@@ -79,6 +79,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 - **R37** · Pour un collège aux candidates d’office, aucun scrutin n’est généré pour une circonscription qui ne compte aucune agent de sexe féminin en service à la date de gel : elle n’a pas de lauréate et ses agents ne votent pas dans cette phase.
 - **R38** · Si toutes les candidates d’un scrutin sont désactivées avant son ouverture, le scrutin est annulé.
 - **R58** · Pour un collège à nomination, le comité saisit les nominées de chaque scrutin jusqu’à l’arrêt des listes : une agent de sexe féminin inscrite sur la liste électorale du scrutin, avec la référence de la décision (procès-verbal, fiche de nomination). Le nombre de nominées n’est pas limité. Il peut retirer une nomination saisie par erreur dans les mêmes conditions. Chaque nomination et chaque retrait sont tracés au journal.
+- **R59** · Une femme modèle du Trésor élue l’année A ne peut être de nouveau candidate, d’office ou nominée, à l’édition de l’année N tant que N − A ≤ délai de rééligibilité, paramètre de l’édition (3 ans par défaut) : élue en 2024 avec un délai de 3 ans, elle est de nouveau candidate en 2028. Elle reste électrice. L’historique des femmes modèles est alimenté à la clôture de la dernière phase de chaque édition et complété par le comité, par import, pour les éditions antérieures à la plateforme.
 
 ## Vote
 

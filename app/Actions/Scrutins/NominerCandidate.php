@@ -15,7 +15,7 @@ use Illuminate\Validation\ValidationException;
 /**
  * Le comité saisit une nominée sur un scrutin dont le collège est à nomination (R28, R58), jusqu'à l'arrêt des listes.
  *
- * La nominée est une agent de sexe féminin inscrite sur la liste électorale du scrutin ; la référence de la décision
+ * La nominée est une agent de sexe féminin inscrite sur la liste électorale du scrutin, éligible (R59) ; la référence de la décision
  * (procès-verbal, fiche de nomination) est obligatoire. Le nombre de nominées n'est pas limité. La saisie est tracée.
  */
 class NominerCandidate
@@ -33,7 +33,7 @@ class NominerCandidate
         }
 
         return DB::transaction(function () use ($scrutin, $matricule, $reference, $auteur): Candidate {
-            $scrutin = Scrutin::with('college')->lockForUpdate()->findOrFail($scrutin->id);
+            $scrutin = Scrutin::with(['college', 'phase.edition'])->lockForUpdate()->findOrFail($scrutin->id);
 
             if ($scrutin->college->origine_candidates !== OrigineCandidate::Nomination) {
                 $this->echouer('matricule', 'Les candidates de ce scrutin ne sont pas nominées par le comité (R28).');
@@ -50,6 +50,11 @@ class NominerCandidate
 
             if (! $agent->estUneFemme()) {
                 $this->echouer('matricule', "{$agent->nomComplet()} n’est pas une agent de sexe féminin.");
+            }
+
+            $motif = $scrutin->phase->edition->motifIneligibilite($agent->matricule);
+            if ($motif !== null) {
+                $this->echouer('matricule', "{$agent->nomComplet()} est inéligible : {$motif}.");
             }
 
             if ($scrutin->candidates()->where('agent_id', $agent->id)->exists()) {

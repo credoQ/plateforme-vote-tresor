@@ -84,8 +84,13 @@ class ConstituerListes
     {
         $origine = $scrutin->college->origine_candidates;
 
+        // D'office : toutes les électrices, sauf les femmes modèles encore inéligibles (R59), qui restent électrices.
         if ($origine === OrigineCandidate::Automatique) {
-            return Agent::femmes()->whereKey($electeurs->keys())->pluck('id')->mapWithKeys(fn (int $id): array => [$id => null]);
+            return Agent::femmes()
+                ->whereKey($electeurs->keys())
+                ->whereNotIn('matricule', $scrutin->phase->edition->ineligibles()->keys())
+                ->pluck('id')
+                ->mapWithKeys(fn (int $id): array => [$id => null]);
         }
 
         // Nomination : les candidates sont saisies par le comité (R58) ; seules restent celles encore inscrites.

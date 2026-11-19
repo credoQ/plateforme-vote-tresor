@@ -3,9 +3,13 @@
 namespace Tests\Feature\Actions\Editions;
 
 use App\Actions\Editions\EnregistrerEdition;
+use App\Enums\Editions\Decoupage;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
+use App\Enums\Referentiel\CodePoleElectoral;
+use App\Enums\Scrutins\OrigineCandidate;
 use App\Models\Edition;
+use App\Models\Scrutin;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Validation\ValidationException;
 use Tests\TestCase;
@@ -15,9 +19,9 @@ class EnregistrerEditionTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * R16, R17 : une édition est créée en préparation, avec ses trois phases ordonnées.
+     * R16, R17 : sans paramétrage, une édition est créée en préparation avec l'organisation par défaut en trois phases.
      */
-    public function test_r17_cree_une_edition_avec_ses_trois_phases(): void
+    public function test_r17_cree_une_edition_avec_l_organisation_par_defaut(): void
     {
         $edition = $this->enregistrer($this->donnees());
 
@@ -26,7 +30,77 @@ class EnregistrerEditionTest extends TestCase
         $this->assertNull($edition->quorum);
         $this->assertSame([1, 2, 3], $edition->phases->pluck('numero')->all());
         $this->assertSame(['Phase 1 · primaires', 'Phase 2 · demi-finales', 'Phase 3 · finale'], $edition->phases->pluck('libelle')->all());
-        $this->assertTrue($edition->phases->every(fn ($phase) => $phase->statut === StatutPhase::Planifiee && $phase->nb_qualifiees === 1));
+        $this->assertTrue($edition->phases->every(fn ($phase) => $phase->statut === StatutPhase::Planifiee));
+        $this->assertSame([2, 2, 1], $edition->phases->map(fn ($phase) => $phase->colleges->count())->all());
+        $finale = $edition->phases->last()->colleges->sole();
+        $this->assertNull($finale->pole_electoral_id);
+        $this->assertSame([Decoupage::Ensemble, OrigineCandidate::Qualification, 1], [$finale->decoupage, $finale->origine_candidates, $finale->nb_elues]);
+    }
+
+    /**
+     * R17, R20, R28, R52 : le comité paramètre ses phases à la création, avec leurs collèges, l'origine des candidates et le nombre d'élues.
+     */
+    public function test_r17_cree_une_edition_avec_ses_phases_et_ses_colleges(): void
+    {
+        $edition = $this->enregistrer($this->donnees(['phases' => [
+            1 => ['libelle' => 'Élections départementales', 'colleges' => [
+                'DEPARTEMENTAL' => ['decoupage' => 'PAR_CIRCONSCRIPTION', 'origine' => 'NOMINATION', 'nb_elues' => 1],
+            ]],
+            2 => ['libelle' => 'Élections finales', 'colleges' => [
+                'DEPARTEMENTAL' => ['decoupage' => 'ENSEMBLE', 'origine' => 'QUALIFICATION', 'nb_elues' => 1],
+                'STRUCTURES' => ['decoupage' => 'ENSEMBLE', 'origine' => 'NOMINATION', 'nb_elues' => 3],
+            ]],
+        ]]));
+
+        $this->assertSame(['Élections départementales', 'Élections finales'], $edition->phases->pluck('libelle')->all());
+        $central = $edition->phase(2)->colleges->firstWhere('poleElectoral.code', CodePoleElectoral::Structures);
+        $this->assertSame([Decoupage::Ensemble, OrigineCandidate::Nomination, 3], [$central->decoupage, $central->origine_candidates, $central->nb_elues]);
+    }
+
+    /**
+     * R17, R26, R35 : les phases se suivent, le collège de toute la DGTCP est seul, la qualification suit un collège du même pôle.
+     */
+    public function test_r17_rejette_une_organisation_incoherente(): void
+    {
+        $college = fn (string $origine = 'AUTOMATIQUE', string $decoupage = 'ENSEMBLE'): array => ['decoupage' => $decoupage, 'origine' => $origine, 'nb_elues' => 1];
+
+        $incoherentes = [
+            'phase 2 sans phase 1' => [2 => ['libelle' => 'P2', 'colleges' => ['DGTCP' => $college()]]],
+            'qualification en phase 1' => [1 => ['libelle' => 'P1', 'colleges' => ['DGTCP' => $college('QUALIFICATION')]]],
+            'DGTCP combinée' => [1 => ['libelle' => 'P1', 'colleges' => ['DGTCP' => $college(), 'STRUCTURES' => $college()]]],
+            'DGTCP par circonscription' => [1 => ['libelle' => 'P1', 'colleges' => ['DGTCP' => $college('AUTOMATIQUE', 'PAR_CIRCONSCRIPTION')]]],
+            'qualification sans le même pôle' => [
+                1 => ['libelle' => 'P1', 'colleges' => ['DEPARTEMENTAL' => $college()]],
+                2 => ['libelle' => 'P2', 'colleges' => ['STRUCTURES' => $college('QUALIFICATION')]],
+            ],
+            'phase sans collège' => [1 => ['libelle' => 'P1', 'colleges' => []]],
+            'quatre phases' => array_fill(1, 4, ['libelle' => 'P', 'colleges' => ['DGTCP' => $college()]]),
+        ];
+
+        foreach ($incoherentes as $cas => $phases) {
+            $this->attendreErreur('phases', fn () => $this->enregistrer($this->donnees(['phases' => $phases])), $cas);
+        }
+        $this->assertSame(0, Edition::count());
+    }
+
+    /**
+     * R17 : les phases se reparamètrent tant qu'aucun scrutin n'est généré ; les dates d'une phase conservée restent.
+     */
+    public function test_r17_reparametre_les_phases_tant_qu_aucun_scrutin_n_est_genere(): void
+    {
+        $edition = $this->enregistrer($this->donnees());
+        $edition->phase(1)->update(['date_debut' => '2027-03-01', 'date_fin' => '2027-03-10']);
+        $unePhase = [1 => ['libelle' => 'Phase unique', 'colleges' => ['DGTCP' => ['decoupage' => 'ENSEMBLE', 'origine' => 'NOMINATION', 'nb_elues' => 2]]]];
+
+        $this->enregistrer($this->donnees(['phases' => $unePhase]), $edition);
+
+        $edition->refresh()->load('phases.colleges');
+        $this->assertSame(['Phase unique'], $edition->phases->pluck('libelle')->all());
+        $this->assertSame('2027-03-10', $edition->phase(1)->date_fin->toDateString());
+        $this->assertSame(2, $edition->phase(1)->colleges->sole()->nb_elues);
+
+        Scrutin::factory()->for($edition->phase(1))->create();
+        $this->attendreErreur('phases', fn () => $this->enregistrer($this->donnees(['phases' => $unePhase]), $edition->fresh()));
     }
 
     public function test_parametre_le_vote_blanc_et_le_quorum_de_l_edition(): void
@@ -93,13 +167,13 @@ class EnregistrerEditionTest extends TestCase
         return app(EnregistrerEdition::class)->handle($donnees, $edition);
     }
 
-    private function attendreErreur(string $champ, callable $action): void
+    private function attendreErreur(string $champ, callable $action, string $cas = ''): void
     {
         try {
             $action();
-            $this->fail("Une erreur de validation était attendue sur « {$champ} ».");
+            $this->fail("Une erreur de validation était attendue sur « {$champ} » {$cas}.");
         } catch (ValidationException $exception) {
-            $this->assertArrayHasKey($champ, $exception->errors());
+            $this->assertNotEmpty(array_filter(array_keys($exception->errors()), fn (string $cle): bool => str_starts_with($cle, $champ)), "Erreur attendue sur « {$champ} » {$cas}.");
         }
     }
 }

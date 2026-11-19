@@ -10,18 +10,23 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Crée une édition avec ses trois phases (R16, R17), ou modifie une édition encore en préparation.
+ * Crée une édition avec ses phases et leurs collèges (R16, R17), ou modifie une édition encore en préparation.
+ * Sans paramétrage des phases, une nouvelle édition reçoit l'organisation par défaut en trois phases.
  * Le vote blanc et le quorum sont des paramètres de l'édition, à valider par le métier.
  */
 class EnregistrerEdition
 {
+    public function __construct(private OrganiserPhases $organiser) {}
+
     /**
-     * @param  array{annee: int, libelle: string, date_debut: string, date_fin: string, date_gel: string, vote_blanc_autorise?: bool, vote_pour_soi_autorise?: bool, quorum?: float|int|string|null}  $donnees
+     * @param  array{annee: int, libelle: string, date_debut: string, date_fin: string, date_gel: string, vote_blanc_autorise?: bool, vote_pour_soi_autorise?: bool, quorum?: float|int|string|null, phases?: array<int, array<string, mixed>>}  $donnees
      *
      * @throws ValidationException
      */
     public function handle(array $donnees, ?Edition $edition = null): Edition
     {
+        $phases = $donnees['phases'] ?? null;
+
         if ($edition !== null && ! $edition->estModifiable()) {
             throw ValidationException::withMessages(['edition' => 'Une édition lancée ou clôturée ne peut plus être modifiée.']);
         }
@@ -44,19 +49,32 @@ class EnregistrerEdition
             'required' => 'Le champ :attribute est obligatoire.',
         ])->validate();
 
-        return DB::transaction(function () use ($donnees, $edition): Edition {
+        return DB::transaction(function () use ($donnees, $edition, $phases): Edition {
             $edition ??= new Edition;
             $estNouvelle = ! $edition->exists;
-            $edition->fill($donnees)->save();
 
-            // R17 : une édition comporte exactement trois phases ordonnées.
-            if ($estNouvelle) {
-                foreach (Phase::LIBELLES as $numero => $libelle) {
-                    $edition->phases()->create(['numero' => $numero, 'libelle' => $libelle]);
-                }
+            if (! $estNouvelle && $phases !== null) {
+                $this->organiser->handle($edition, $phases);
             }
 
-            return $edition->load('phases');
+            $edition->fill($donnees)->save();
+
+            // R17 : sans paramétrage, une nouvelle édition reçoit l'organisation par défaut en trois phases.
+            if ($estNouvelle) {
+                $this->organiser->handle($edition, $phases ?? self::organisationParDefaut());
+            }
+
+            return $edition->load('phases.colleges');
         });
+    }
+
+    /**
+     * Organisation par défaut, au format attendu par OrganiserPhases.
+     *
+     * @return array<int, array{libelle: string, colleges: array<string, array{decoupage: string, origine: string, nb_elues: int}>}>
+     */
+    public static function organisationParDefaut(): array
+    {
+        return Phase::ORGANISATION_PAR_DEFAUT;
     }
 }

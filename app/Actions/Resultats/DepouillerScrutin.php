@@ -18,7 +18,7 @@ use Illuminate\Validation\ValidationException;
  *
  * - Vérifie l'intégrité de la chaîne des bulletins (R44) et sa cohérence avec l'émargement.
  * - Calcule les voix, le pourcentage des suffrages exprimés et le rang de chaque candidate active (rang à égalité partagé).
- * - Désigne les lauréates : les nb_qualifiees premières de la phase (R48, R52). Une égalité à la limite des places
+ * - Désigne les lauréates : les premières, autant que le collège du scrutin compte d’élues (R48, R52). Une égalité à la limite des places
  *   qualificatives n'est pas tranchée : elle est signalée pour départage par le comité (R49, modalité à préciser).
  * - Indique si le quorum éventuel est atteint (R50).
  *
@@ -91,7 +91,7 @@ class DepouillerScrutin
             ->sortByDesc('nb_voix')
             ->values();
 
-        $places = $scrutin->phase->nb_qualifiees;
+        $places = $scrutin->nbElues();
         $rangPrecedent = 0;
         $voixPrecedentes = null;
 

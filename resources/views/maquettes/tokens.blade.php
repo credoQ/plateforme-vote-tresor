@@ -77,6 +77,25 @@
                 </div>
             </section>
             <section class="carte">
+                <div class="carte__entete"><h2>Édition · paramétrage d’une phase et de ses collèges</h2></div>
+                <div class="carte__corps">
+                    <fieldset class="organisation-phase">
+                        <legend class="libelle">Phase 2</legend>
+                        <label class="case"><input type="checkbox" checked> Organiser une phase 2</label>
+                        <div class="formulaire__groupe"><label class="libelle" for="exemple-phase">Libellé</label><input id="exemple-phase" class="champ" value="Phase 2 · demi-finales"></div>
+                        <div class="tableau-defilant">
+                            <table class="tableau">
+                                <thead><tr><th>Collège</th><th>Scrutins</th><th>Candidates</th><th class="nombre">Élues par scrutin</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Pôle structures</td><td><select class="champ"><option>Un seul scrutin</option></select></td><td><select class="champ"><option>Nomination par le comité</option></select></td><td class="nombre"><input type="number" class="champ champ--court" value="3"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                    <ul class="colleges-phase" style="margin-top:16px"><li><i data-lucide="users-round"></i>Pôle structures · Un seul scrutin · Nomination par le comité · 3 élue(s) par scrutin</li></ul>
+                </div>
+            </section>
+            <section class="carte">
                 <div class="carte__entete"><h2>Espace électeur · carte du scrutin (x-layouts.electeur)</h2></div>
                 <div class="carte__corps">
                     <div class="scrutin-carte scrutin-carte--ouvert">

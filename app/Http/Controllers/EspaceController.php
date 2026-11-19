@@ -8,7 +8,6 @@ use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Candidate;
 use App\Models\Edition;
 use App\Models\Inscription;
-use App\Models\Phase;
 use App\Models\Scrutin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -71,13 +70,16 @@ class EspaceController extends Controller
     }
 
     /**
-     * Année de l'édition en cours si l'agent en est la Femme modèle du Trésor (R53), sinon null.
+     * Titre de femme modèle du Trésor de l'agent dans l'édition en cours (R53) : année et scrutin, sinon null.
+     *
+     * @return array{annee: int, scrutin: string}|null
      */
-    private function femmeModele(?int $agentId): ?int
+    private function femmeModele(?int $agentId): ?array
     {
         $edition = $agentId === null ? null : Edition::enCours()->first();
+        $elue = $edition?->femmesModeles()->firstWhere('agent_id', $agentId);
 
-        return $edition !== null && $edition->femmeModele()?->agent_id === $agentId ? $edition->annee : null;
+        return $elue === null ? null : ['annee' => $edition->annee, 'scrutin' => $elue->scrutin->libelle];
     }
 
     /**
@@ -95,9 +97,7 @@ class EspaceController extends Controller
             ->actives()
             ->whereHas('scrutin', fn ($scrutin) => $scrutin
                 ->where('statut', StatutScrutin::ResultatsPublies->value)
-                ->whereHas('phase', fn ($phase) => $phase
-                    ->where('numero', '<', Phase::FINALE)
-                    ->whereHas('edition', fn ($edition) => $edition->where('statut', StatutEdition::EnCours->value))))
+                ->whereHas('phase.edition', fn ($edition) => $edition->where('statut', StatutEdition::EnCours->value)))
             ->get()
             ->sortByDesc(fn (Candidate $candidate): int => $candidate->scrutin->phase->numero)
             ->first();

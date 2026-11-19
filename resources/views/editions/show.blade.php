@@ -49,15 +49,17 @@
                             <label class="libelle" for="fin-{{ $phase->id }}">Fin</label>
                             <input id="fin-{{ $phase->id }}" name="date_fin" type="date" class="champ" value="{{ $phase->date_fin?->format('Y-m-d') }}" required>
                         </div>
-                        <div class="formulaire__groupe">
-                            <label class="libelle" for="qualifiees-{{ $phase->id }}">Qualifiées par scrutin</label>
-                            <input id="qualifiees-{{ $phase->id }}" name="nb_qualifiees" type="number" min="1" max="10" class="champ" value="{{ $phase->nb_qualifiees }}">
-                        </div>
                         <button type="submit" class="btn btn-secondaire"><i data-lucide="calendar-check"></i>Planifier la phase</button>
                     </form>
                 @else
-                    <p>Du {{ $phase->date_debut?->format('d/m/Y') }} au {{ $phase->date_fin?->format('d/m/Y') }} · {{ $phase->nb_qualifiees }} qualifiée(s) par scrutin</p>
+                    <p class="espace-bloc">Du {{ $phase->date_debut?->format('d/m/Y') }} au {{ $phase->date_fin?->format('d/m/Y') }}</p>
                 @endif
+
+                <ul class="colleges-phase" aria-label="Collèges de la phase">
+                    @foreach ($phase->colleges as $college)
+                        <li><i data-lucide="users-round"></i>{{ $college->resume() }}</li>
+                    @endforeach
+                </ul>
 
                 <x-editions.scrutins-de-la-phase :phase="$phase" />
 
@@ -77,7 +79,7 @@
     <x-slot:modales>
         @if ($edition->estModifiable())
             <x-modale-confirmation id="modale-lancer" :titre="'Lancer l’édition '.$edition->annee.' ?'" :action="route('editions.lancer', $edition)" bouton="Lancer l’édition" icone="rocket">
-                L’édition passera en cours et ne pourra plus être modifiée. Les trois phases doivent être planifiées, et aucune autre édition ne doit être en cours.
+                L’édition passera en cours et ne pourra plus être modifiée. Toutes les phases doivent être planifiées, et aucune autre édition ne doit être en cours.
             </x-modale-confirmation>
         @endif
         @foreach ($edition->phases as $phase)

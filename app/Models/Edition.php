@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -35,7 +36,7 @@ class Edition extends Model
     ];
 
     /**
-     * Les trois phases, dans l'ordre (R17).
+     * Les phases, de une à trois, dans l'ordre (R17).
      *
      * @return HasMany<Phase, $this>
      */
@@ -58,23 +59,37 @@ class Edition extends Model
     }
 
     /**
-     * La Femme modèle du Trésor de l'édition : la lauréate de la finale, une fois ses résultats publiés (R53).
+     * Les femmes modèles du Trésor de l'édition : les lauréates de la dernière phase, une fois leurs résultats
+     * publiés (R53). Il y en a une par élue de chaque scrutin de cette phase.
+     *
+     * @return Collection<int, Candidate>
      */
-    public function femmeModele(): ?Candidate
+    public function femmesModeles(): Collection
     {
+        $derniere = $this->phases()->reorder('numero', 'desc')->value('id');
+
         return Candidate::query()
-            ->with('agent')
+            ->with(['agent', 'scrutin'])
             ->where('est_laureate', true)
             ->whereHas('scrutin', fn (Builder $scrutin) => $scrutin
-                ->where('statut', StatutScrutin::ResultatsPublies->value)
-                ->whereHas('phase', fn (Builder $phase) => $phase->where('edition_id', $this->id)->where('numero', Phase::FINALE)))
-            ->orderBy('rang')
-            ->first();
+                ->where('phase_id', $derniere)
+                ->where('statut', StatutScrutin::ResultatsPublies->value))
+            ->get()
+            ->sortBy(fn (Candidate $candidate): string => $candidate->scrutin->code.str_pad((string) $candidate->rang, 3, '0', STR_PAD_LEFT))
+            ->values();
     }
 
     public function estModifiable(): bool
     {
         return $this->statut === StatutEdition::EnPreparation;
+    }
+
+    /**
+     * Les phases et leurs collèges se paramètrent tant que l'édition est en préparation et qu'aucun scrutin n'est généré.
+     */
+    public function organisationEstModifiable(): bool
+    {
+        return $this->estModifiable() && ! $this->scrutins()->exists();
     }
 
     #[Scope]

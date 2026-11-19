@@ -9,12 +9,13 @@ use App\Models\Phase;
 use Illuminate\Support\Collection;
 
 /**
- * Palmarès d'une édition (R53) : lauréates publiées de chaque phase, par scrutin, et Femme modèle du Trésor.
+ * Palmarès d'une édition (R53) : lauréates publiées de chaque phase, par scrutin, et femmes modèles du Trésor
+ * (les lauréates de la dernière phase).
  */
 class EtablirPalmares
 {
     /**
-     * @return array{femme_modele: Candidate|null, phases: Collection<int, array{phase: string, laureates: Collection<int, array{scrutin: string, agent: string, matricule: string, voix: int|null}>}>}
+     * @return array{femmes_modeles: Collection<int, Candidate>, phases: Collection<int, array{phase: string, laureates: Collection<int, array{scrutin: string, agent: string, matricule: string, voix: int|null}>}>}
      */
     public function handle(Edition $edition): array
     {
@@ -34,6 +35,6 @@ class EtablirPalmares
                 ]))->values(),
             ]);
 
-        return ['femme_modele' => $edition->femmeModele(), 'phases' => $phases];
+        return ['femmes_modeles' => $edition->femmesModeles(), 'phases' => $phases];
     }
 }

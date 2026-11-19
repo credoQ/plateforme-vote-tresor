@@ -17,7 +17,7 @@ use Illuminate\Validation\ValidationException;
 class ParametrerPhase
 {
     /**
-     * @param  array{date_debut: string, date_fin: string, nb_qualifiees?: int}  $donnees
+     * @param  array{date_debut: string, date_fin: string}  $donnees
      *
      * @throws ValidationException
      */
@@ -30,10 +30,8 @@ class ParametrerPhase
         $donnees = Validator::make($donnees, [
             'date_debut' => ['required', 'date'],
             'date_fin' => ['required', 'date', 'after_or_equal:date_debut'],
-            'nb_qualifiees' => ['sometimes', 'integer', 'min:1', 'max:10'],
         ], [
             'date_fin.after_or_equal' => 'La phase doit se terminer après son début.',
-            'nb_qualifiees.min' => 'Au moins une lauréate est qualifiée par scrutin (R52).',
             'required' => 'Le champ :attribute est obligatoire.',
         ])->validate();
 

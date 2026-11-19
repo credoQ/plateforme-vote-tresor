@@ -58,23 +58,23 @@ Règles R24 à R27, R28 à R38, extraites de [regles-de-gestion.md](../regles-de
 - **R24** · La circonscription d’un scrutin est l’ensemble des structures qu’il couvre ; la liste électorale est constituée des agents électeurs affectés à ces structures :
   - scrutin départemental : la Trésorerie départementale et les Trésoreries communales du département ;
   - scrutin de structure : la structure électorale (y compris ses services) ;
-  - demi-finale départementale : toutes les Trésoreries départementales et Trésoreries communales ;
-  - demi-finale des structures : toutes les structures du pôle structures (y compris les TMIE et l’ACD) ;
-  - finale : toutes les structures de la DGTCP.
+  - scrutin du pôle départemental : toutes les Trésoreries départementales et Trésoreries communales ;
+  - scrutin du pôle structures : toutes les structures du pôle structures (y compris les TMIE et l’ACD) ;
+  - scrutin de l’ensemble de la DGTCP : toutes les structures de la DGTCP.
 - **R25** · Un agent vote dans la circonscription de son poste d’affectation : les agents d’une structure centrale en poste dans une Trésorerie départementale (par exemple les antennes de la DIA) votent avec le département.
-- **R26** · Pour une phase donnée, un agent est inscrit sur au plus une liste électorale ; il vote donc au plus une fois par phase (il ne vote pas en phase 1 si sa structure n’a pas de scrutin).
+- **R26** · Pour une phase donnée, un agent est inscrit sur au plus une liste électorale ; il vote donc au plus une fois par phase (il ne vote pas dans une phase où sa structure n’a pas de scrutin).
 - **R27** · Les listes électorales sont arrêtées par le comité avant l’ouverture du scrutin et ne peuvent plus être modifiées, sauf décision motivée du comité tracée au journal.
 
 ### Candidates
 
-- **R28** · Il n’y a pas de dépôt de candidature : en phase 1, toutes les agents de sexe féminin en service dans les structures de la circonscription d’un scrutin, à la date de gel des listes, sont automatiquement candidates à ce scrutin.
+- **R28** · Il n’y a pas de dépôt de candidature. Selon le collège du scrutin, les candidates sont : d’office, toutes les agents de sexe féminin en service dans les structures de la circonscription à la date de gel des listes ; nominées, celles que le comité saisit sur décision (procès-verbal, fiche de nomination) ; qualifiées, les lauréates de la phase précédente (R35).
 - **R29** · Une agent qui n’a pas d’affectation en cours à la date de gel n’est ni électrice ni candidate.
 - **R30** · La liste des candidates d’un scrutin est constituée automatiquement à l’arrêt des listes électorales ; elle ne peut ensuite être modifiée que par la désactivation ou la réactivation d’une candidate.
 - **R31** · Une candidate est rattachée à une seule agent et à un seul scrutin ; elle a un statut (Active ou Désactivée) et porte son résultat (nombre de voix, rang, indicateur de lauréate).
 - **R32** · Une agent qui ne souhaite pas concourir peut être désactivée : soit par elle-même depuis son espace (désistement), soit par le point focal de sa structure ou par le comité d’organisation, à sa demande.
 - **R33** · La désactivation n’est possible que jusqu’à l’ouverture du scrutin ; elle est tracée (date, auteur, motif facultatif). Une candidate désactivée n’apparaît plus sur la liste des candidates et ne peut recevoir aucune voix ; elle reste électrice.
 - **R34** · Une candidate désactivée peut être réactivée, par les mêmes acteurs, tant que le scrutin n’est pas ouvert.
-- **R35** · En phases 2 et 3, les candidates sont les lauréates qualifiées de la phase précédente ; chaque candidate conserve le lien avec sa participation d’origine.
+- **R35** · Pour un collège à qualification, les candidates sont les lauréates de la phase précédente pour le même pôle (toutes les lauréates de la phase précédente pour un collège de l’ensemble de la DGTCP) ; chaque candidate conserve le lien avec sa participation d’origine. La qualification n’est pas possible en phase 1.
 - **R36** · Une lauréate qualifiée peut se désister avant l’ouverture de la phase suivante ; elle est alors remplacée par la candidate classée immédiatement après elle dans son scrutin d’origine.
-- **R37** · Aucun scrutin n’est généré pour une structure qui ne compte aucune agent de sexe féminin en service à la date de gel : la structure n’a pas de lauréate et ses agents ne votent pas en phase 1 ; ils votent normalement en phases 2 et 3.
-- **R38** · Si toutes les candidates d’un scrutin de la phase 1 sont désactivées avant son ouverture, le scrutin est annulé dans les mêmes conditions.
+- **R37** · Pour un collège aux candidates d’office, aucun scrutin n’est généré pour une circonscription qui ne compte aucune agent de sexe féminin en service à la date de gel : elle n’a pas de lauréate et ses agents ne votent pas dans cette phase.
+- **R38** · Si toutes les candidates d’un scrutin sont désactivées avant son ouverture, le scrutin est annulé.

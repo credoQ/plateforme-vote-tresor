@@ -45,39 +45,39 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 ## Gestion des éditions, des phases et des scrutins
 
 - **R16** · Une édition est identifiée par un id et possède une année, un libellé, des dates de début et de fin, une date de gel des listes et un statut ; une seule édition peut être en cours.
-- **R17** · Une édition comporte exactement trois phases ordonnées : Phase 1 (primaires), Phase 2 (demi-finales), Phase 3 (finale).
+- **R17** · Une édition comporte une à trois phases ordonnées, paramétrées par le comité à la création de l’édition : le libellé de chaque phase et ses collèges (R20). Ce paramétrage se modifie tant que l’édition est en préparation et qu’aucun scrutin n’est généré ; il est ensuite figé. L’organisation proposée par défaut est décrite en R23.
 - **R18** · Une phase ne peut être ouverte que si les résultats de tous les scrutins de la phase précédente ont été validés et publiés.
 - **R19** · Une phase comporte un ou plusieurs scrutins ; un scrutin appartient à une seule phase et possède une date-heure d’ouverture et de fermeture.
-- **R20** · La phase 1 comporte 12 scrutins départementaux et un scrutin par structure électorale du pôle structures comptant au moins une agent de sexe féminin en service à la date de gel.
-- **R21** · La phase 2 comporte deux scrutins : la demi-finale départementale et la demi-finale des structures.
-- **R22** · Un scrutin relève d’au plus un pôle électoral : les scrutins des phases 1 et 2 relèvent d’un pôle, la finale n’en relève d’aucun puisqu’elle réunit les deux pôles. Le corps électoral d’une demi-finale est constitué des agents des structures dont le type est classé dans le pôle du scrutin.
-- **R23** · La phase 3 comporte un scrutin unique : la finale.
+- **R20** · Chaque phase déclare un ou plusieurs collèges : le pôle départemental, le pôle structures, ou l’ensemble de la DGTCP, qui est alors le seul collège de la phase. Pour chaque collège, le comité fixe le découpage (un scrutin par circonscription, c’est-à-dire par département ou par structure électorale, ou un seul scrutin pour tout le collège), l’origine des candidates (R28) et le nombre d’élues par scrutin (R52).
+- **R21** · Une structure dont le pôle n’a pas de collège dans une phase n’y a pas de scrutin : ses agents ne votent pas dans cette phase.
+- **R22** · Un scrutin relève d’au plus un pôle électoral, celui de son collège ; un scrutin de l’ensemble de la DGTCP ne relève d’aucun pôle. Le corps électoral d’un scrutin d’un seul tenant pour un pôle est constitué des agents des structures de ce pôle.
+- **R23** · Organisation proposée par défaut : phase 1 (primaires), un scrutin par département et par structure électorale, candidates d’office ; phase 2 (demi-finales), un scrutin par pôle, lauréates qualifiées ; phase 3 (finale), un scrutin pour l’ensemble de la DGTCP, lauréates qualifiées ; une élue par scrutin.
 
 ## Circonscriptions et listes électorales
 
 - **R24** · La circonscription d’un scrutin est l’ensemble des structures qu’il couvre ; la liste électorale est constituée des agents électeurs affectés à ces structures :
   - scrutin départemental : la Trésorerie départementale et les Trésoreries communales du département ;
   - scrutin de structure : la structure électorale (y compris ses services) ;
-  - demi-finale départementale : toutes les Trésoreries départementales et Trésoreries communales ;
-  - demi-finale des structures : toutes les structures du pôle structures (y compris les TMIE et l’ACD) ;
-  - finale : toutes les structures de la DGTCP.
+  - scrutin du pôle départemental : toutes les Trésoreries départementales et Trésoreries communales ;
+  - scrutin du pôle structures : toutes les structures du pôle structures (y compris les TMIE et l’ACD) ;
+  - scrutin de l’ensemble de la DGTCP : toutes les structures de la DGTCP.
 - **R25** · Un agent vote dans la circonscription de son poste d’affectation : les agents d’une structure centrale en poste dans une Trésorerie départementale (par exemple les antennes de la DIA) votent avec le département.
-- **R26** · Pour une phase donnée, un agent est inscrit sur au plus une liste électorale ; il vote donc au plus une fois par phase (il ne vote pas en phase 1 si sa structure n’a pas de scrutin).
+- **R26** · Pour une phase donnée, un agent est inscrit sur au plus une liste électorale ; il vote donc au plus une fois par phase (il ne vote pas dans une phase où sa structure n’a pas de scrutin).
 - **R27** · Les listes électorales sont arrêtées par le comité avant l’ouverture du scrutin et ne peuvent plus être modifiées, sauf décision motivée du comité tracée au journal.
 
 ## Candidates
 
-- **R28** · Il n’y a pas de dépôt de candidature : en phase 1, toutes les agents de sexe féminin en service dans les structures de la circonscription d’un scrutin, à la date de gel des listes, sont automatiquement candidates à ce scrutin.
+- **R28** · Il n’y a pas de dépôt de candidature. Selon le collège du scrutin, les candidates sont : d’office, toutes les agents de sexe féminin en service dans les structures de la circonscription à la date de gel des listes ; nominées, celles que le comité saisit sur décision (procès-verbal, fiche de nomination) ; qualifiées, les lauréates de la phase précédente (R35).
 - **R29** · Une agent qui n’a pas d’affectation en cours à la date de gel n’est ni électrice ni candidate.
 - **R30** · La liste des candidates d’un scrutin est constituée automatiquement à l’arrêt des listes électorales ; elle ne peut ensuite être modifiée que par la désactivation ou la réactivation d’une candidate.
 - **R31** · Une candidate est rattachée à une seule agent et à un seul scrutin ; elle a un statut (Active ou Désactivée) et porte son résultat (nombre de voix, rang, indicateur de lauréate).
 - **R32** · Une agent qui ne souhaite pas concourir peut être désactivée : soit par elle-même depuis son espace (désistement), soit par le point focal de sa structure ou par le comité d’organisation, à sa demande.
 - **R33** · La désactivation n’est possible que jusqu’à l’ouverture du scrutin ; elle est tracée (date, auteur, motif facultatif). Une candidate désactivée n’apparaît plus sur la liste des candidates et ne peut recevoir aucune voix ; elle reste électrice.
 - **R34** · Une candidate désactivée peut être réactivée, par les mêmes acteurs, tant que le scrutin n’est pas ouvert.
-- **R35** · En phases 2 et 3, les candidates sont les lauréates qualifiées de la phase précédente ; chaque candidate conserve le lien avec sa participation d’origine.
+- **R35** · Pour un collège à qualification, les candidates sont les lauréates de la phase précédente pour le même pôle (toutes les lauréates de la phase précédente pour un collège de l’ensemble de la DGTCP) ; chaque candidate conserve le lien avec sa participation d’origine. La qualification n’est pas possible en phase 1.
 - **R36** · Une lauréate qualifiée peut se désister avant l’ouverture de la phase suivante ; elle est alors remplacée par la candidate classée immédiatement après elle dans son scrutin d’origine.
-- **R37** · Aucun scrutin n’est généré pour une structure qui ne compte aucune agent de sexe féminin en service à la date de gel : la structure n’a pas de lauréate et ses agents ne votent pas en phase 1 ; ils votent normalement en phases 2 et 3.
-- **R38** · Si toutes les candidates d’un scrutin de la phase 1 sont désactivées avant son ouverture, le scrutin est annulé dans les mêmes conditions.
+- **R37** · Pour un collège aux candidates d’office, aucun scrutin n’est généré pour une circonscription qui ne compte aucune agent de sexe féminin en service à la date de gel : elle n’a pas de lauréate et ses agents ne votent pas dans cette phase.
+- **R38** · Si toutes les candidates d’un scrutin sont désactivées avant son ouverture, le scrutin est annulé.
 
 ## Vote
 
@@ -97,8 +97,8 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 - **R49** · En cas d’égalité en tête, les ex-æquo sont départagées selon une modalité restant à préciser par le métier (voir les questions à éclaircir).
 - **R50** · Un quorum de participation peut être fixé par scrutin ; s’il n’est pas atteint, le comité peut prolonger le scrutin.
 - **R51** · Les résultats sont validés par le comité d’organisation ; un procès-verbal numéroté est généré pour chaque scrutin puis les résultats sont publiés.
-- **R52** · Après publication, les lauréates sont qualifiées automatiquement pour la phase suivante (une qualifiée par scrutin par défaut, nombre paramétrable).
-- **R53** · La lauréate de la finale est proclamée « Femme modèle du Trésor » de l’édition.
+- **R52** · Après publication, les lauréates d’un scrutin, autant que son collège compte d’élues, sont qualifiées pour la phase suivante.
+- **R53** · Les lauréates de la dernière phase sont proclamées « Femme modèle du Trésor » de l’édition : une par élue de chaque scrutin de cette phase.
 - **R54** · Les résultats d’une phase deviennent définitifs dès leur validation et leur publication par le comité d’organisation.
 - **R55** · Les résultats publiés et les procès-verbaux sont archivés et ne peuvent plus être modifiés.
 
@@ -115,7 +115,7 @@ Ces points ont fait l'objet d'une proposition. Ils ne doivent pas être codés e
 
 - Le traitement des TMIE (une circonscription par TMIE). *(Prévu ainsi ; la liste des TMIE reste à importer.)*
 - Les catégories d’agents admis à voter (fonctionnaires, contractuels, stagiaires, agents en détachement ou en congé). *(Tout agent en service à la date de gel vote.)*
-- Le nombre de lauréates qualifiées par scrutin pour la phase suivante (une par défaut). *(Paramètre de chaque phase.)*
+- Le nombre de lauréates qualifiées par scrutin pour la phase suivante (une par défaut). *(Paramètre de chaque collège, R20.)*
 - L’autorisation du vote blanc et l’existence d’un quorum. *(Paramètres de l’édition : vote blanc refusé et aucun quorum par défaut.)*
 - La possibilité pour une candidate de voter pour elle-même. *(Paramètre de l’édition, autorisé par défaut.)*
 - Le remplacement d’une lauréate qui se désiste par la candidate classée immédiatement après elle. *(Non développé.)*

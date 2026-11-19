@@ -17,7 +17,7 @@ class PhaseController extends Controller
 {
     public function update(Request $request, Phase $phase, ParametrerPhase $parametrer): RedirectResponse
     {
-        $parametrer->handle($phase, $request->only(['date_debut', 'date_fin', 'nb_qualifiees']));
+        $parametrer->handle($phase, $request->only(['date_debut', 'date_fin']));
 
         return $this->retour($phase, "La {$phase->libelle} est planifiée.");
     }

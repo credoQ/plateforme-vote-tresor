@@ -8,7 +8,6 @@ use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Affectation;
 use App\Models\Agent;
 use App\Models\Candidate;
-use App\Models\Phase;
 use App\Models\Scrutin;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -18,8 +17,8 @@ use Illuminate\Validation\ValidationException;
  * Constitue, ou actualise tant qu'elles ne sont pas arrêtées, la liste électorale et la liste des candidates d'un scrutin.
  *
  * - Électeurs : agents dont l'affectation à la date de gel est dans la circonscription (R14, R15, R24, R29).
- * - Phase 1 : toutes les électrices sont candidates d'office (R28).
- * - Phases 2 et 3 : les candidates sont les lauréates de la phase précédente, une fois celle-ci clôturée (R35).
+ * - Candidates selon le collège du scrutin (R28) : d'office, toutes les électrices ; par qualification, les lauréates
+ *   de la phase précédente pour le même pôle, une fois celle-ci clôturée (R35) ; par nomination, celles saisies par le comité.
  *
  * Une candidate déjà désactivée le reste lors d'une actualisation (R33).
  */
@@ -35,7 +34,7 @@ class ConstituerListes
         }
 
         return DB::transaction(function () use ($scrutin): Scrutin {
-            $scrutin->loadMissing('phase.edition', 'structures');
+            $scrutin->loadMissing('phase.edition', 'college', 'structures');
             $gel = $scrutin->phase->edition->date_gel;
 
             /** @var Collection<int, int> $electeurs agent_id => structure_id à la date de gel */
@@ -83,8 +82,15 @@ class ConstituerListes
      */
     private function candidatesAttendues(Scrutin $scrutin, Collection $electeurs): ?Collection
     {
-        if ($scrutin->phase->numero === Phase::PRIMAIRES) {
+        $origine = $scrutin->college->origine_candidates;
+
+        if ($origine === OrigineCandidate::Automatique) {
             return Agent::femmes()->whereKey($electeurs->keys())->pluck('id')->mapWithKeys(fn (int $id): array => [$id => null]);
+        }
+
+        // Nomination : les candidates sont saisies par le comité, l'actualisation n'y touche pas.
+        if ($origine === OrigineCandidate::Nomination) {
+            return null;
         }
 
         $precedente = $scrutin->phase->phasePrecedente();

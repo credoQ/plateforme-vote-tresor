@@ -29,14 +29,14 @@ class ParametrerPhaseTest extends TestCase
     }
 
     /**
-     * R52 : le nombre de qualifiées par scrutin est un paramètre de la phase.
+     * R17 : une phase planifiée reçoit ses dates, dans le calendrier de l'édition.
      */
-    public function test_r52_planifie_une_phase_et_fixe_son_nombre_de_qualifiees(): void
+    public function test_r17_planifie_une_phase(): void
     {
-        $phase = $this->parametrer(1, '2027-03-01', '2027-03-15', 2);
+        $phase = $this->parametrer(1, '2027-03-01', '2027-03-15');
 
+        $this->assertSame('2027-03-01', $phase->fresh()->date_debut->toDateString());
         $this->assertSame('2027-03-15', $phase->fresh()->date_fin->toDateString());
-        $this->assertSame(2, $phase->fresh()->nb_qualifiees);
     }
 
     /**
@@ -67,15 +67,11 @@ class ParametrerPhaseTest extends TestCase
         $this->attendreErreur('phase', fn () => $this->parametrer(1, '2027-03-02', '2027-03-15'));
     }
 
-    private function parametrer(int $numero, string $debut, string $fin, ?int $nbQualifiees = null): Phase
+    private function parametrer(int $numero, string $debut, string $fin): Phase
     {
         $phase = $this->edition->phases()->where('numero', $numero)->firstOrFail();
 
-        return app(ParametrerPhase::class)->handle($phase, array_filter([
-            'date_debut' => $debut,
-            'date_fin' => $fin,
-            'nb_qualifiees' => $nbQualifiees,
-        ]));
+        return app(ParametrerPhase::class)->handle($phase, ['date_debut' => $debut, 'date_fin' => $fin]);
     }
 
     private function attendreErreur(string $champ, callable $action): void

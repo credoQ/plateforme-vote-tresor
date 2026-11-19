@@ -9,11 +9,15 @@
     @if ($palmares === null)
         <div class="carte"><div class="carte__corps"><div class="etat-vide"><i data-lucide="trophy"></i><p>Aucune édition n’est encore organisée.</p></div></div></div>
     @else
-        @if ($femme = $palmares['femme_modele'])
-            <div class="tuile tuile--heros espace-bloc">
-                <div class="tuile__haut"><span class="surtitre">Femme modèle du Trésor {{ $edition->annee }}</span><span class="tuile__icone"><i data-lucide="crown"></i></span></div>
-                <div class="tuile__valeur">{{ $femme->agent->nomComplet() }}</div>
-                <div class="tuile__detail">Lauréate de la finale · {{ $femme->nb_voix }} voix</div>
+        @if ($palmares['femmes_modeles']->isNotEmpty())
+            <div class="grille-tuiles espace-bloc">
+                @foreach ($palmares['femmes_modeles'] as $femme)
+                    <div class="tuile tuile--heros">
+                        <div class="tuile__haut"><span class="surtitre">Femme modèle du Trésor {{ $edition->annee }}</span><span class="tuile__icone"><i data-lucide="crown"></i></span></div>
+                        <div class="tuile__valeur">{{ $femme->agent->nomComplet() }}</div>
+                        <div class="tuile__detail">{{ $femme->scrutin->libelle }} · {{ $femme->nb_voix }} voix</div>
+                    </div>
+                @endforeach
             </div>
         @endif
 

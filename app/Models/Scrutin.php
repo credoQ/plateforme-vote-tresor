@@ -14,10 +14,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
 /**
- * Scrutin d'une phase (R19). Il relève d'au plus un pôle électoral : la finale n'en a pas (R22).
+ * Scrutin d’une phase (R19), issu d’un collège. Il relève d’au plus un pôle électoral : un collège de toute la DGTCP n’en a pas (R22).
  */
 #[Table('scrutins')]
-#[Fillable(['phase_id', 'pole_electoral_id', 'code', 'libelle', 'date_heure_ouverture', 'date_heure_fermeture', 'quorum', 'statut'])]
+#[Fillable(['phase_id', 'college_id', 'pole_electoral_id', 'code', 'libelle', 'date_heure_ouverture', 'date_heure_fermeture', 'quorum', 'statut'])]
 class Scrutin extends Model
 {
     /** @use HasFactory<ScrutinFactory> */
@@ -36,6 +36,24 @@ class Scrutin extends Model
     public function phase(): BelongsTo
     {
         return $this->belongsTo(Phase::class);
+    }
+
+    /**
+     * Collège dont relève le scrutin : il fixe l'origine des candidates et le nombre d'élues (R28, R52).
+     *
+     * @return BelongsTo<College, $this>
+     */
+    public function college(): BelongsTo
+    {
+        return $this->belongsTo(College::class);
+    }
+
+    /**
+     * Nombre de lauréates du scrutin, fixé par son collège (R52).
+     */
+    public function nbElues(): int
+    {
+        return $this->college->nb_elues;
     }
 
     /**

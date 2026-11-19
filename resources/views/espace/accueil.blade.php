@@ -7,7 +7,7 @@
     </div>
 
     @if ($femmeModele)
-        <div class="alerte alerte--succes" role="status"><i data-lucide="crown"></i><div><strong>Vous êtes la Femme modèle du Trésor {{ $femmeModele }}</strong> · félicitations !</div></div>
+        <div class="alerte alerte--succes" role="status"><i data-lucide="crown"></i><div><strong>Vous êtes Femme modèle du Trésor {{ $femmeModele['annee'] }}</strong> · {{ $femmeModele['scrutin'] }}, félicitations !</div></div>
     @endif
     @if ($qualification)
         <div class="alerte alerte--succes" role="status"><i data-lucide="award"></i><div><strong>Vous êtes qualifiée pour la {{ $qualification['phase'] }}</strong> · {{ $qualification['scrutin'] }}, rang {{ $qualification['rang'] }}.</div></div>

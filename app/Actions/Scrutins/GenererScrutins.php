@@ -6,6 +6,7 @@ use App\Actions\Audit\Journaliser;
 use App\Enums\Audit\ActionAuditee;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
+use App\Enums\Scrutins\OrigineCandidate;
 use App\Models\Affectation;
 use App\Models\Agent;
 use App\Models\Phase;
@@ -18,8 +19,8 @@ use Illuminate\Validation\ValidationException;
 /**
  * Génère les scrutins d'une phase et leur circonscription (R19 à R24), puis constitue leurs listes (R28, R35).
  *
- * En phase 1, une circonscription sans agent femme en service à la date de gel n'a pas de scrutin :
- * elle est signalée au comité et ses agents ne votent pas en phase 1 (R20, R37).
+ * Pour un collège aux candidates d'office, une circonscription sans agent femme en service à la date de gel
+ * n'a pas de scrutin : elle est signalée au comité et ses agents ne votent pas dans cette phase (R20, R37).
  */
 class GenererScrutins
 {
@@ -51,13 +52,14 @@ class GenererScrutins
             $sansFemme = [];
 
             foreach ($this->decouper->handle($phase) as $circonscription) {
-                if ($phase->numero === Phase::PRIMAIRES && ! $this->compteUneFemmeEnService($circonscription['structures'], $gel)) {
+                if ($circonscription['college']->origine_candidates === OrigineCandidate::Automatique && ! $this->compteUneFemmeEnService($circonscription['structures'], $gel)) {
                     $sansFemme[] = $circonscription['libelle'];
 
                     continue;
                 }
 
                 $scrutin = $phase->scrutins()->create([
+                    'college_id' => $circonscription['college']->id,
                     'code' => $circonscription['code'],
                     'libelle' => $circonscription['libelle'],
                     'pole_electoral_id' => $circonscription['pole'] !== null ? $poles[$circonscription['pole']->value]->id : null,

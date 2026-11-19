@@ -36,21 +36,17 @@
                 <thead><tr><th>Code</th><th>Département</th><th>Trésorerie départementale</th><th class="nombre">Trésoreries communales</th></tr></thead>
                 <tbody>
                     @foreach ($departements as $departement)
-                        @php
-                            $td = $departement->structures->first(fn ($s) => $s->typeStructure->code === \App\Enums\Referentiel\CodeTypeStructure::TresorerieDepartementale);
-                            $nombreTc = $departement->structures->filter(fn ($s) => $s->typeStructure->code === \App\Enums\Referentiel\CodeTypeStructure::TresorerieCommunale)->count();
-                        @endphp
                         <tr>
                             <td class="reference">{{ $departement->code }}</td>
                             <td>{{ $departement->libelle }}</td>
                             <td>
-                                @if ($td)
-                                    <a href="{{ route('structures.show', $td) }}">{{ $td->code }}</a>
+                                @if ($departement->tresorerieDepartementale)
+                                    <a href="{{ route('structures.show', $departement->tresorerieDepartementale) }}">{{ $departement->tresorerieDepartementale->code }}</a>
                                 @else
                                     <span class="badge badge--attente">Aucune</span>
                                 @endif
                             </td>
-                            <td class="nombre"><a href="{{ route('structures.index', ['departement' => $departement->id]) }}">{{ $nombreTc }}</a></td>
+                            <td class="nombre"><a href="{{ route('structures.index', ['departement' => $departement->id]) }}">{{ $departement->tresoreries_communales_count }}</a></td>
                         </tr>
                     @endforeach
                 </tbody>

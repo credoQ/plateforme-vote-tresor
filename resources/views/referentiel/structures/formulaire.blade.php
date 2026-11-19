@@ -1,16 +1,15 @@
-@php $estNouvelle = ! $structure->exists; @endphp
-<x-layouts.app :titre="$estNouvelle ? 'Créer une structure' : 'Structure '.$structure->code" :ariane="['Administration', 'Structures', $estNouvelle ? 'Créer' : $structure->code]" actif="structures">
+<x-layouts.app :titre="$structure->exists ? 'Structure '.$structure->code : 'Créer une structure'" :ariane="['Administration', 'Structures', $structure->exists ? $structure->code : 'Créer']" actif="structures">
     <div class="titre-page">
         <div>
-            <h1>{{ $estNouvelle ? 'Créer une structure' : 'Modifier '.$structure->libelle }}</h1>
+            <h1>{{ $structure->exists ? 'Modifier '.$structure->libelle : 'Créer une structure' }}</h1>
         </div>
     </div>
 
     <div class="carte">
         <div class="carte__corps">
-            <form method="POST" action="{{ $estNouvelle ? route('structures.store') : route('structures.update', $structure) }}" class="formulaire" novalidate>
+            <form method="POST" action="{{ $structure->exists ? route('structures.update', $structure) : route('structures.store') }}" class="formulaire" novalidate>
                 @csrf
-                @unless ($estNouvelle) @method('PUT') @endunless
+                @if ($structure->exists) @method('PUT') @endif
 
                 <fieldset class="formulaire__groupe">
                     <legend class="libelle">Identification</legend>
@@ -84,7 +83,7 @@
 
                 <div class="formulaire__actions">
                     <button type="submit" class="btn btn-primaire"><i data-lucide="save"></i>Enregistrer la structure</button>
-                    <a href="{{ $estNouvelle ? route('structures.index') : route('structures.show', $structure) }}" class="btn btn-tertiaire">Annuler</a>
+                    <a href="{{ $structure->exists ? route('structures.show', $structure) : route('structures.index') }}" class="btn btn-tertiaire">Annuler</a>
                 </div>
             </form>
         </div>

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Acces;
 
 use App\Actions\Acces\EnregistrerUtilisateur;
-use App\Enums\Acces\CodeRole;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
 use App\Models\Structure;
@@ -19,22 +18,10 @@ use Illuminate\View\View;
  */
 class UtilisateurController extends Controller
 {
-    public function index(Request $request): View
+    public function index(): View
     {
-        $recherche = trim((string) $request->query('recherche', ''));
-        $role = CodeRole::tryFrom((string) $request->query('role', ''));
-
-        $utilisateurs = User::query()
-            ->with(['roles', 'structure'])
-            ->when($recherche !== '', fn ($query) => $query->where(fn ($q) => $q
-                ->whereLike('login', "%{$recherche}%")
-                ->orWhereLike('name', "%{$recherche}%")))
-            ->when($role !== null, fn ($query) => $query->whereRelation('roles', 'code', $role->value))
-            ->orderBy('name')
-            ->paginate(25)
-            ->withQueryString();
-
-        return view('utilisateurs.index', ['utilisateurs' => $utilisateurs, 'recherche' => $recherche, 'role' => $role]);
+        // La liste et ses filtres sont dans le composant Livewire Acces\ListeUtilisateurs.
+        return view('utilisateurs.index');
     }
 
     public function create(): View

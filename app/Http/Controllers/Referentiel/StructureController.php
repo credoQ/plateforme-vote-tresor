@@ -30,33 +30,8 @@ class StructureController extends Controller
     {
         Gate::authorize('viewAny', Structure::class);
 
-        $recherche = trim((string) $request->query('recherche', ''));
-        $typeId = $request->integer('type') ?: null;
-        $departementId = $request->integer('departement') ?: null;
-        $statut = (string) $request->query('statut', 'actives');
-
-        $structures = Structure::query()
-            ->with(['typeStructure', 'departement', 'structureParente'])
-            ->withCount(['affectations as agents_en_service_count' => fn (Builder $q) => $q->enCoursLe()])
-            ->when($recherche !== '', fn (Builder $q) => $q->where(fn (Builder $r) => $r
-                ->whereLike('code', "%{$recherche}%")->orWhereLike('sigle', "%{$recherche}%")->orWhereLike('libelle', "%{$recherche}%")))
-            ->when($typeId !== null, fn (Builder $q) => $q->where('type_structure_id', $typeId))
-            ->when($departementId !== null, fn (Builder $q) => $q->where('departement_id', $departementId))
-            ->when($statut === 'actives', fn (Builder $q) => $q->where('actif', true))
-            ->when($statut === 'desactivees', fn (Builder $q) => $q->where('actif', false))
-            ->orderBy('code')
-            ->paginate(50)
-            ->withQueryString();
-
-        return view('referentiel.structures.index', [
-            'structures' => $structures,
-            'types' => TypeStructure::orderBy('libelle')->get(),
-            'departements' => Departement::orderBy('libelle')->get(),
-            'recherche' => $recherche,
-            'typeId' => $typeId,
-            'departementId' => $departementId,
-            'statut' => $statut,
-        ]);
+        // La liste et ses filtres sont dans le composant Livewire Referentiel\ListeStructures.
+        return view('referentiel.structures.index');
     }
 
     /**

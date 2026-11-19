@@ -9,47 +9,6 @@
     </div>
 
     <div class="carte">
-        <x-barre-filtres :total="$utilisateurs->total()" libelle="utilisateur(s)">
-            <x-filtre libelle="Recherche" pour="filtre-recherche" large>
-                <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Nom ou identifiant"></div>
-            </x-filtre>
-            <x-filtre libelle="Rôle" pour="filtre-role">
-                <x-select-recherche compact soumettre>
-                    <select id="filtre-role" name="role" class="champ">
-                        <option value="">Tous les rôles</option>
-                        @foreach (\App\Enums\Acces\CodeRole::cases() as $code)
-                            <option value="{{ $code->value }}" @selected($role === $code)>{{ $code->libelle() }}</option>
-                        @endforeach
-                    </select>
-                </x-select-recherche>
-            </x-filtre>
-        </x-barre-filtres>
-
-        <div class="tableau-defilant">
-            <table class="tableau tableau--fiches">
-                <thead><tr><th>Identifiant</th><th>Nom</th><th>Rôles</th><th>Structure</th><th>Statut</th><th class="actions">Actions</th></tr></thead>
-                <tbody>
-                    @forelse ($utilisateurs as $utilisateur)
-                        <tr>
-                            <td>{{ $utilisateur->login }}</td>
-                            <td>{{ $utilisateur->name }}</td>
-                            <td>{{ $utilisateur->roles->map(fn ($r) => $r->code->libelle())->implode(', ') }}</td>
-                            <td>{{ $utilisateur->structure?->code }}</td>
-                            <td>
-                                @if ($utilisateur->actif)
-                                    <span class="badge badge--succes">Actif</span>
-                                @else
-                                    <span class="badge badge--erreur">Désactivé</span>
-                                @endif
-                            </td>
-                            <td class="actions"><a href="{{ route('utilisateurs.edit', $utilisateur) }}" class="btn btn-tertiaire btn--sm"><i data-lucide="pencil"></i>Modifier</a></td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="6"><div class="etat-vide"><i data-lucide="users"></i><p>Aucun utilisateur ne correspond à la recherche.</p></div></td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        {{ $utilisateurs->onEachSide(1)->links('pagination.tresor', ['libelle' => 'utilisateurs']) }}
+        <livewire:acces.liste-utilisateurs />
     </div>
 </x-layouts.app>

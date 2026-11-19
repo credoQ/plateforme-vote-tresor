@@ -37,7 +37,7 @@ class ArreterListes
             }
 
             if ($scrutin->candidates_count === 0) {
-                $this->echouer('Le scrutin n’a aucune candidate : pour les phases 2 et 3, la phase précédente doit être clôturée (R35).');
+                $this->echouer('Le scrutin n’a aucune candidate : nominez-en au moins une, ou, pour des lauréates qualifiées, clôturez d’abord la phase précédente (R35, R58).');
             }
 
             $scrutin->update(['statut' => StatutScrutin::ListesArretees]);

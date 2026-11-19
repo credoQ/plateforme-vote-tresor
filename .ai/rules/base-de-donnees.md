@@ -24,7 +24,7 @@ paths:
 ## Candidates
 
 - Une ligne `candidates` relie une agent à un scrutin.
-- Elle porte `origine` (automatique, nomination ou qualification), `statut` (active ou désactivée), `date_desistement`, `motif_desistement` et le résultat (`nb_voix`, `rang`, `est_laureate`).
+- Elle porte `origine` (automatique, nomination ou qualification), pour une nominée la référence de la décision (`reference_nomination`), son auteur (`nommee_par_id`) et sa date (`date_nomination`), `statut` (active ou désactivée), `date_desistement`, `motif_desistement` et le résultat (`nb_voix`, `rang`, `est_laureate`).
 - `candidate_source_id` (auto-référence nullable) relie une candidate qualifiée à sa candidate de la phase précédente.
 
 ## Connexion

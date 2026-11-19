@@ -1,4 +1,3 @@
-@use('App\Enums\Scrutins\OrigineCandidate')
 @use('App\Enums\Scrutins\StatutScrutin')
 <x-layouts.electeur titre="Mon espace" actif="espace">
     <div class="portail__bonjour">
@@ -51,7 +50,7 @@
                     <div>
                         <p><strong>{{ $candidature->scrutin->libelle }}</strong> · {{ $candidature->scrutin->phase->libelle }}</p>
                         @if ($candidature->estActive())
-                            <p class="aide">{{ $candidature->origine === OrigineCandidate::Automatique ? 'Candidate d’office' : 'Lauréate qualifiée' }}</p>
+                            <p class="aide">{{ $candidature->origine->libelle() }}</p>
                         @else
                             <p class="aide">Candidature retirée le {{ $candidature->date_desistement->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.</p>
                         @endif

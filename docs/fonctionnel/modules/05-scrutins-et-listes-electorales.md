@@ -29,6 +29,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] Écrans : génération depuis l'édition, fiche du scrutin (planification à l'heure du Bénin, actualisation et arrêt des listes, candidates, liste électorale avec recherche, export) ; le point focal consulte et désactive dans sa structure
 - [x] Corrections motivées des listes après l'arrêt (R27) : réouverture par le comité avec motif tracé au journal, avant l'ouverture du scrutin, puis correction des agents, actualisation et nouvel arrêt
 - [x] Annulation d'un scrutin dont toutes les candidates sont désactivées (R38), à l'ouverture du scrutin (module 06)
+- [x] Nomination par le comité (R28, R58) : actions `NominerCandidate` et `RetirerNomination`, saisie du matricule et de la référence de la décision sur la fiche du scrutin, jusqu'à l'arrêt des listes, sans limite de nombre ; tracées au journal
 - [ ] Remplacement d'une lauréate qui se désiste (R36), point à confirmer par le métier
 - [x] Exports CSV, Excel et PDF des listes, avec QR code de vérification sur le PDF (module 08)
 
@@ -51,7 +52,7 @@ SCRUTIN, COUVRIR, INSCRIRE (liste électorale), CANDIDATE, QUALIFIER
 
 ## Règles de gestion
 
-Règles R24 à R27, R28 à R38, extraites de [regles-de-gestion.md](../regles-de-gestion.md) :
+Règles R24 à R27, R28 à R38 et R58, extraites de [regles-de-gestion.md](../regles-de-gestion.md) :
 
 ### Circonscriptions et listes électorales
 
@@ -78,3 +79,4 @@ Règles R24 à R27, R28 à R38, extraites de [regles-de-gestion.md](../regles-de
 - **R36** · Une lauréate qualifiée peut se désister avant l’ouverture de la phase suivante ; elle est alors remplacée par la candidate classée immédiatement après elle dans son scrutin d’origine.
 - **R37** · Pour un collège aux candidates d’office, aucun scrutin n’est généré pour une circonscription qui ne compte aucune agent de sexe féminin en service à la date de gel : elle n’a pas de lauréate et ses agents ne votent pas dans cette phase.
 - **R38** · Si toutes les candidates d’un scrutin sont désactivées avant son ouverture, le scrutin est annulé.
+- **R58** · Pour un collège à nomination, le comité saisit les nominées de chaque scrutin jusqu’à l’arrêt des listes : une agent de sexe féminin inscrite sur la liste électorale du scrutin, avec la référence de la décision (procès-verbal, fiche de nomination). Le nombre de nominées n’est pas limité. Il peut retirer une nomination saisie par erreur dans les mêmes conditions. Chaque nomination et chaque retrait sont tracés au journal.

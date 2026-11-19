@@ -1,3 +1,4 @@
+@use('App\Enums\Scrutins\OrigineCandidate')
 <x-layouts.app :titre="$scrutin->libelle" :ariane="['Pilotage', 'Édition '.$scrutin->phase->edition->annee, $scrutin->code]" :actif="$pilote ? 'editions' : 'tableau-de-bord'">
     <div class="titre-page">
         <div>
@@ -78,7 +79,30 @@
     @include('resultats._scrutin')
 
     <section class="carte espace-bloc">
-        <div class="carte__entete"><h2>Candidates</h2></div>
+        <div class="carte__entete"><h2>Candidates</h2><span class="etiquette">{{ $scrutin->college->origine_candidates->libelleCollege() }} · {{ $scrutin->nbElues() }} élue(s)</span></div>
+        @if ($nominationOuverte)
+            <div class="carte__corps">
+                <form method="POST" action="{{ route('nominations.store', $scrutin) }}" class="formulaire-ligne">
+                    @csrf
+                    <div class="formulaire__groupe">
+                        <label class="libelle" for="matricule-nominee">Matricule de la candidate</label>
+                        <input id="matricule-nominee" name="matricule" class="champ" list="electrices-nominables" value="{{ old('matricule') }}" autocomplete="off" required>
+                        @error('matricule')<p class="erreur-champ">{{ $message }}</p>@enderror
+                    </div>
+                    <div class="formulaire__groupe formulaire__groupe--large">
+                        <label class="libelle" for="reference-nomination">Référence de la décision</label>
+                        <input id="reference-nomination" name="reference_nomination" class="champ" maxlength="200" value="{{ old('reference_nomination') }}" placeholder="Ex. : PV du CODIR du 25/11/2026" required>
+                        @error('reference_nomination')<p class="erreur-champ">{{ $message }}</p>@enderror
+                    </div>
+                    <button type="submit" class="btn btn-secondaire"><i data-lucide="user-plus"></i>Nominer la candidate</button>
+                </form>
+                <datalist id="electrices-nominables">
+                    @foreach ($nominables as $electrice)
+                        <option value="{{ $electrice->matricule }}">{{ $electrice->nomComplet() }}</option>
+                    @endforeach
+                </datalist>
+            </div>
+        @endif
         <div class="tableau-defilant">
             <table class="tableau tableau--fiches">
                 <thead><tr><th>Candidate</th><th>Structure</th><th>Origine</th><th>Statut</th><th class="actions">Actions</th></tr></thead>
@@ -87,7 +111,12 @@
                         <tr>
                             <td>{{ $candidate->agent->nomComplet() }}<div class="aide">{{ $candidate->agent->matricule }}</div></td>
                             <td>{{ $structures[$candidate->structure_inscription_id]->code ?? '' }}</td>
-                            <td>{{ $candidate->origine->libelle() }}</td>
+                            <td>
+                                {{ $candidate->origine->libelle() }}
+                                @if ($candidate->reference_nomination)
+                                    <div class="aide">{{ $candidate->reference_nomination }}{{ $candidate->nommeePar ? ' · saisie par '.$candidate->nommeePar->name : '' }}</div>
+                                @endif
+                            </td>
                             <td>
                                 @if ($candidate->estActive())
                                     <span class="badge badge--succes">Active</span>
@@ -97,6 +126,9 @@
                                 @endif
                             </td>
                             <td class="actions">
+                                @if ($nominationOuverte && $candidate->origine === OrigineCandidate::Nomination)
+                                    <button type="button" class="btn btn-tertiaire btn--sm" data-ouvrir="modale-retirer-nomination-{{ $candidate->id }}"><i data-lucide="user-minus"></i>Retirer la nomination</button>
+                                @endif
                                 @if ($scrutin->accepteLesDesistements())
                                     @if ($candidate->estActive())
                                         @can('desactiver', $candidate)
@@ -166,6 +198,13 @@
                     <textarea id="motif-rouvrir" name="motif" class="champ" maxlength="500" required placeholder="Ex. : agente omise de l’import RH, affectée à la TD Borgou à la date de gel"></textarea>
                 </x-slot:champs>
             </x-modale-confirmation>
+        @endif
+        @if ($nominationOuverte)
+            @foreach ($candidates->where('origine', OrigineCandidate::Nomination) as $candidate)
+                <x-modale-confirmation :id="'modale-retirer-nomination-'.$candidate->id" :titre="'Retirer la nomination de '.$candidate->agent->nomComplet().' ?'" :action="route('nominations.destroy', $candidate)" bouton="Retirer la nomination" icone="user-minus" :danger="true">
+                    Elle ne sera plus candidate à ce scrutin et reste électrice. Le retrait est tracé au journal. Pour une nominée qui renonce à concourir, désactivez plutôt sa candidature.
+                </x-modale-confirmation>
+            @endforeach
         @endif
         @if ($scrutin->accepteLesDesistements())
             @foreach ($actives as $candidate)

@@ -4,6 +4,7 @@ namespace Tests\Feature\Http\Comite;
 
 use App\Actions\Scrutins\GenererScrutins;
 use App\Enums\Acces\CodeRole;
+use App\Enums\Scrutins\OrigineCandidate;
 use App\Enums\Scrutins\StatutCandidate;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Agent;
@@ -117,6 +118,31 @@ class ScrutinsTest extends TestCase
         $electeur = User::factory()->pourAgent($this->femmeDia)->avecRoles(CodeRole::Electeur)->create();
 
         $this->actingAs($electeur)->get(route('scrutins.show', $this->scrutinDia()))->assertForbidden();
+    }
+
+    /**
+     * R58 : le comité nomine une candidate depuis la fiche d'un scrutin à nomination, puis peut retirer la nomination ; le point focal ne le peut pas.
+     */
+    public function test_r58_le_comite_nomine_une_candidate_depuis_la_fiche_du_scrutin(): void
+    {
+        $this->edition->phase(Phase::PRIMAIRES)->colleges()->update(['origine_candidates' => OrigineCandidate::Nomination]);
+        $scrutin = $this->scrutinDia();
+        $pointFocal = User::factory()->pointFocalDe(Structure::where('code', 'DIA')->firstOrFail())->create();
+
+        $this->actingAs($this->comite)->get(route('scrutins.show', $scrutin))->assertOk()
+            ->assertSee('Nominer la candidate')->assertSee('Nomination par le comité · 1 élue(s)')->assertSee($this->femmeDia->matricule);
+
+        $this->post(route('nominations.store', $scrutin), ['matricule' => $this->femmeDia->matricule, 'reference_nomination' => ''])->assertSessionHasErrors('reference_nomination');
+        $this->post(route('nominations.store', $scrutin), ['matricule' => $this->femmeDia->matricule, 'reference_nomination' => 'PV du CODIR du 25/11/2026'])
+            ->assertSessionHas('succes');
+        $this->get(route('scrutins.show', $scrutin))->assertSee('AHOUANSOU')->assertSee('PV du CODIR du 25/11/2026')->assertSee('Retirer la nomination');
+
+        $candidate = $scrutin->candidates()->sole();
+        $this->actingAs($pointFocal)->post(route('nominations.store', $scrutin), ['matricule' => '000000', 'reference_nomination' => 'PV'])->assertForbidden();
+        $this->post(route('nominations.destroy', $candidate))->assertForbidden();
+
+        $this->actingAs($this->comite)->post(route('nominations.destroy', $candidate))->assertSessionHas('succes');
+        $this->assertSame(0, $scrutin->candidates()->count());
     }
 
     private function scrutinDia(): Scrutin

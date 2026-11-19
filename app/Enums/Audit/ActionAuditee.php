@@ -29,6 +29,8 @@ enum ActionAuditee: string
     case ListesRouvertes = 'LISTES_ROUVERTES';
     case CandidateDesactivee = 'CANDIDATE_DESACTIVEE';
     case CandidateReactivee = 'CANDIDATE_REACTIVEE';
+    case CandidateNominee = 'CANDIDATE_NOMINEE';
+    case NominationRetiree = 'NOMINATION_RETIREE';
     case ScrutinOuvert = 'SCRUTIN_OUVERT';
     case ScrutinAnnule = 'SCRUTIN_ANNULE';
     case ScrutinFerme = 'SCRUTIN_FERME';
@@ -65,6 +67,8 @@ enum ActionAuditee: string
             self::ListesRouvertes => 'Listes rouvertes',
             self::CandidateDesactivee => 'Candidate désactivée',
             self::CandidateReactivee => 'Candidate réactivée',
+            self::CandidateNominee => 'Candidate nominée',
+            self::NominationRetiree => 'Nomination retirée',
             self::ScrutinOuvert => 'Scrutin ouvert',
             self::ScrutinAnnule => 'Scrutin annulé',
             self::ScrutinFerme => 'Scrutin fermé',

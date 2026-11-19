@@ -8,6 +8,7 @@ use App\Http\Controllers\Editions\PhaseController;
 use App\Http\Controllers\EspaceController;
 use App\Http\Controllers\Referentiel\StructureController;
 use App\Http\Controllers\Resultats\ResultatController;
+use App\Http\Controllers\Scrutins\NominationController;
 use App\Http\Controllers\Scrutins\ScrutinController;
 use App\Http\Controllers\Suivi\ExportController;
 use App\Http\Controllers\Suivi\JournalAuditController;
@@ -76,6 +77,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/scrutins/{scrutin}/actualiser', [ScrutinController::class, 'actualiser'])->name('scrutins.actualiser');
         Route::post('/scrutins/{scrutin}/arreter', [ScrutinController::class, 'arreter'])->name('scrutins.arreter');
         Route::post('/scrutins/{scrutin}/rouvrir', [ScrutinController::class, 'rouvrir'])->name('scrutins.rouvrir');
+        Route::post('/scrutins/{scrutin}/nominations', [NominationController::class, 'store'])->name('nominations.store');
+        Route::post('/candidates/{candidate}/retirer-nomination', [NominationController::class, 'destroy'])->name('nominations.destroy');
         Route::post('/scrutins/{scrutin}/fermer', [ResultatController::class, 'fermer'])->name('scrutins.fermer');
         Route::post('/scrutins/{scrutin}/depouiller', [ResultatController::class, 'depouiller'])->name('resultats.depouiller');
         Route::post('/scrutins/{scrutin}/departager', [ResultatController::class, 'trancher'])->name('resultats.trancher');

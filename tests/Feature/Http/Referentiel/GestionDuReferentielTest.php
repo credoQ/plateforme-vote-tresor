@@ -60,7 +60,7 @@ class GestionDuReferentielTest extends TestCase
         $this->actingAs($this->admin)->post(route('structures.store'), [
             'code' => 'TD-TEST', 'libelle' => 'TD de test', 'niveau' => '1',
             'type_structure_id' => (string) $this->type(CodeTypeStructure::TresorerieDepartementale),
-        ])->assertSessionHasErrors(['departement_id' => 'Une Trésorerie départementale ou communale doit être située dans un département (R9).']);
+        ])->assertSessionHasErrors(['departement_id' => 'Une Trésorerie départementale ou communale doit être située dans un département.']);
 
         $this->assertDatabaseMissing('structures', ['code' => 'TD-TEST']);
         $this->assertSame(0, JournalAudit::count());
@@ -77,7 +77,7 @@ class GestionDuReferentielTest extends TestCase
         $this->actingAs($this->admin)->put(route('structures.update', $cabinet), [
             'code' => $cabinet->code, 'libelle' => $cabinet->libelle, 'niveau' => '1',
             'type_structure_id' => (string) $cabinet->type_structure_id, 'structure_parente_id' => (string) $cellule->id,
-        ])->assertSessionHasErrors(['structure_parente_id' => 'Une structure ne peut pas être rattachée à l’une de ses structures rattachées (R8).']);
+        ])->assertSessionHasErrors(['structure_parente_id' => 'Une structure ne peut pas être rattachée à l’une de ses structures rattachées.']);
 
         $this->assertNull($cabinet->fresh()->structure_parente_id);
     }

@@ -12,7 +12,7 @@
                 @if ($agent->exists) @method('PUT') @endif
 
                 <fieldset class="formulaire__groupe">
-                    <legend class="libelle">Identité (R11)</legend>
+                    <legend class="libelle">Identité</legend>
                     @foreach ([['matricule', 'Matricule', true, 'text'], ['npi', 'NPI', false, 'text'], ['nom', 'Nom', true, 'text'], ['prenoms', 'Prénoms', true, 'text'], ['date_naissance', 'Date de naissance', false, 'date']] as [$champ, $libelle, $requis, $type])
                         <div class="formulaire__groupe">
                             <label class="libelle" for="{{ $champ }}">{{ $libelle }} @if ($requis)<span class="requis">*</span>@endif</label>
@@ -34,7 +34,7 @@
 
                 @unless ($agent->exists)
                     <fieldset class="formulaire__groupe">
-                        <legend class="libelle">Affectation (R12)</legend>
+                        <legend class="libelle">Affectation</legend>
                         <div class="formulaire-ligne">
                             <div class="formulaire__groupe">
                                 <label class="libelle" for="structure_id">Structure <span class="requis">*</span></label>

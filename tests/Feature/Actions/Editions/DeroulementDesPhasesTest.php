@@ -49,7 +49,7 @@ class DeroulementDesPhasesTest extends TestCase
         $edition = $this->editionLancee();
         Scrutin::factory()->for($edition->phase(2))->create();
 
-        $this->attendreErreur(fn () => $this->ouvrir($edition->phase(2)), 'R18');
+        $this->attendreErreur(fn () => $this->ouvrir($edition->phase(2)), 'doit être clôturée');
     }
 
     /**

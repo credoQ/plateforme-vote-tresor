@@ -54,5 +54,5 @@ Règles R1 à R4, R56 à R57, extraites de [regles-de-gestion.md](../regles-de-g
 
 ### Sécurité et traçabilité
 
-- **R56** · Toutes les opérations sensibles (demande de code et connexion, gestion des comptes et des agents, import, génération et arrêt des listes, désactivation ou réactivation de candidate, ouverture/clôture, dépouillement, départage, validation et publication des résultats, relance des tâches en échec) sont enregistrées dans un journal d’audit non modifiable (utilisateur, date-heure, action, entité, adresse IP). Le vote lui-même n’y figure jamais.
+- **R56** · Toutes les opérations sensibles (demande de code et connexion, gestion des comptes, des structures et des agents, imports des agents et de l’historique des femmes modèles, génération, arrêt et réouverture des listes, nomination et retrait de nomination, désactivation ou réactivation de candidate, ouverture et clôture des phases et des scrutins, dépouillement, départage, validation et publication des résultats, relance et suppression des tâches en échec) sont enregistrées dans un journal d’audit non modifiable (utilisateur, date-heure, action, entité, adresse IP). Le vote lui-même n’y figure jamais.
 - **R57** · Aucun utilisateur, y compris l’administrateur, ne peut consulter le choix d’un électeur ni modifier un bulletin.

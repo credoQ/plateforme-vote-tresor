@@ -69,7 +69,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 
 - **R28** · Il n’y a pas de dépôt de candidature. Selon le collège du scrutin, les candidates sont : d’office, toutes les agents de sexe féminin en service dans les structures de la circonscription à la date de gel des listes ; nominées, celles que le comité saisit sur décision (procès-verbal, fiche de nomination) ; qualifiées, les lauréates de la phase précédente (R35).
 - **R29** · Une agent qui n’a pas d’affectation en cours à la date de gel n’est ni électrice ni candidate.
-- **R30** · La liste des candidates d’un scrutin est constituée automatiquement à l’arrêt des listes électorales ; elle ne peut ensuite être modifiée que par la désactivation ou la réactivation d’une candidate.
+- **R30** · La liste des candidates d’un scrutin se constitue selon son collège (d’office, par qualification ou par nomination) et se fige à l’arrêt des listes électorales ; elle ne peut ensuite être modifiée que par la désactivation ou la réactivation d’une candidate, sauf réouverture motivée des listes (R27).
 - **R31** · Une candidate est rattachée à une seule agent et à un seul scrutin ; elle a un statut (Active ou Désactivée) et porte son résultat (nombre de voix, rang, indicateur de lauréate).
 - **R32** · Une agent qui ne souhaite pas concourir peut être désactivée : soit par elle-même depuis son espace (désistement), soit par le point focal de sa structure ou par le comité d’organisation, à sa demande.
 - **R33** · La désactivation n’est possible que jusqu’à l’ouverture du scrutin ; elle est tracée (date, auteur, motif facultatif). Une candidate désactivée n’apparaît plus sur la liste des candidates et ne peut recevoir aucune voix ; elle reste électrice.
@@ -95,9 +95,9 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 ## Dépouillement et résultats
 
 - **R47** · À la clôture, le système calcule pour chaque candidate le nombre de voix, le pourcentage des suffrages exprimés et le rang, ainsi que le nombre d’inscrits, de votants, de bulletins blancs et le taux de participation.
-- **R48** · Est lauréate du scrutin la candidate ayant obtenu le plus grand nombre de voix.
-- **R49** · En cas d’égalité en tête, les ex-æquo sont départagées selon une modalité restant à préciser par le métier (voir les questions à éclaircir).
-- **R50** · Un quorum de participation peut être fixé par scrutin ; s’il n’est pas atteint, le comité peut prolonger le scrutin.
+- **R48** · Sont lauréates du scrutin les candidates ayant obtenu le plus grand nombre de voix, autant que son collège compte d’élues.
+- **R49** · En cas d’égalité de voix à la dernière place d’élue, le comité départage les ex-æquo par une décision motivée, portée au procès-verbal ; la validation des résultats attend ce départage (modalité à confirmer par le métier).
+- **R50** · Un quorum de participation peut être fixé pour l’édition ; il s’applique à chacun de ses scrutins. S’il n’est pas atteint à la fermeture, le comité peut prolonger le scrutin.
 - **R51** · Les résultats sont validés par le comité d’organisation ; un procès-verbal numéroté est généré pour chaque scrutin puis les résultats sont publiés.
 - **R52** · Après publication, les lauréates d’un scrutin, autant que son collège compte d’élues, sont qualifiées pour la phase suivante.
 - **R53** · Les lauréates de la dernière phase sont proclamées « Femme modèle du Trésor » de l’édition : une par élue de chaque scrutin de cette phase.
@@ -106,7 +106,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 
 ## Sécurité et traçabilité
 
-- **R56** · Toutes les opérations sensibles (demande de code et connexion, gestion des comptes et des agents, import, génération et arrêt des listes, désactivation ou réactivation de candidate, ouverture/clôture, dépouillement, départage, validation et publication des résultats, relance des tâches en échec) sont enregistrées dans un journal d’audit non modifiable (utilisateur, date-heure, action, entité, adresse IP). Le vote lui-même n’y figure jamais.
+- **R56** · Toutes les opérations sensibles (demande de code et connexion, gestion des comptes, des structures et des agents, imports des agents et de l’historique des femmes modèles, génération, arrêt et réouverture des listes, nomination et retrait de nomination, désactivation ou réactivation de candidate, ouverture et clôture des phases et des scrutins, dépouillement, départage, validation et publication des résultats, relance et suppression des tâches en échec) sont enregistrées dans un journal d’audit non modifiable (utilisateur, date-heure, action, entité, adresse IP). Le vote lui-même n’y figure jamais.
 - **R57** · Aucun utilisateur, y compris l’administrateur, ne peut consulter le choix d’un électeur ni modifier un bulletin.
 
 ## Points à valider et questions à éclaircir
@@ -126,6 +126,6 @@ Ces points ont fait l'objet d'une proposition. Ils ne doivent pas être codés e
 ### Questions à éclaircir
 
 - L’Inspection générale des services, la Cellule des réformes et de la démarche qualité et la Cellule de sécurité des systèmes d’information auront-elles chacune leur propre scrutin, ou seront-elles incluses dans le scrutin du Cabinet du Directeur général ? *(Chacune a son propre scrutin.)*
-- Comment départager les ex-æquo en cas d’égalité en tête d’un scrutin : second tour limité aux ex-æquo, ou un autre critère ? *(Le comité retient les lauréates parmi les ex-æquo par une décision motivée, portée au procès-verbal.)*
+- Comment départager les ex-æquo en cas d’égalité à la dernière place d’élue : second tour limité aux ex-æquo, ou un autre critère ? *(Le comité retient les lauréates parmi les ex-æquo par une décision motivée, portée au procès-verbal.)*
 - Quel type de structure attribuer au Cabinet du Directeur général et à l’Inspection générale des services (proposition : Direction centrale pour le Cabinet, Cellule pour l’IGS) ? *(Appliqué ainsi.)*
 - Lorsqu’une structure ne compte qu’une seule agent femme en service, le scrutin est-il maintenu ou l’agent est-elle désignée lauréate d’office ? *(Le scrutin est maintenu.)*

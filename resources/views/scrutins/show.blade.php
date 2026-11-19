@@ -82,7 +82,7 @@
         <div class="carte__entete"><h2>Candidates</h2><span class="etiquette">{{ $scrutin->college->origine_candidates->libelleCollege() }} · {{ $scrutin->nbElues() }} élue(s)</span></div>
         @if ($ineligiblesEcartees->isNotEmpty())
             <div class="carte__corps">
-                <div class="alerte alerte--info"><i data-lucide="crown"></i><div><strong>Inéligibles (R59)</strong>, électrices mais pas candidates : {{ $ineligiblesEcartees->implode(', ') }}.</div></div>
+                <div class="alerte alerte--info"><i data-lucide="crown"></i><div><strong>Inéligibles</strong>, électrices mais pas candidates : {{ $ineligiblesEcartees->implode(', ') }}.</div></div>
             </div>
         @endif
         @if ($nominationOuverte)

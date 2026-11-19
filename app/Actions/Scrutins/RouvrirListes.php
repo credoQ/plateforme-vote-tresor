@@ -30,7 +30,7 @@ class RouvrirListes
             $scrutin = Scrutin::lockForUpdate()->findOrFail($scrutin->id);
 
             if (! $scrutin->listesPeuventEtreRouvertes()) {
-                throw ValidationException::withMessages(['scrutin' => 'Seules des listes arrêtées, avant l’ouverture du scrutin, peuvent être rouvertes (R27).']);
+                throw ValidationException::withMessages(['scrutin' => 'Seules des listes arrêtées, avant l’ouverture du scrutin, peuvent être rouvertes.']);
             }
 
             $scrutin->update(['statut' => StatutScrutin::EnPreparation]);

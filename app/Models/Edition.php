@@ -120,7 +120,7 @@ class Edition extends Model
     {
         $annee = $this->ineligibles()->get($matricule);
 
-        return $annee === null ? null : "élue Femme modèle du Trésor en {$annee}, elle ne peut être de nouveau candidate qu’à partir de ".($this->derniereAnneeIneligible($annee) + 1).' (R59)';
+        return $annee === null ? null : "élue Femme modèle du Trésor en {$annee}, elle ne peut être de nouveau candidate qu’à partir de ".($this->derniereAnneeIneligible($annee) + 1);
     }
 
     public function estModifiable(): bool

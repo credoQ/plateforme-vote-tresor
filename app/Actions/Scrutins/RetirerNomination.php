@@ -33,7 +33,7 @@ class RetirerNomination
             }
 
             if (! $scrutin->listesSontModifiables()) {
-                throw ValidationException::withMessages(['candidate' => 'Les listes du scrutin sont arrêtées : rouvrez-les pour retirer une nomination (R27).']);
+                throw ValidationException::withMessages(['candidate' => 'Les listes du scrutin sont arrêtées : rouvrez-les pour retirer une nomination.']);
             }
 
             $this->journal->handle(ActionAuditee::NominationRetiree, $candidate, ['scrutin' => $scrutin->code, 'matricule' => $candidate->agent->matricule, 'reference' => $candidate->reference_nomination], $auteur);

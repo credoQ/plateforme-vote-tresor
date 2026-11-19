@@ -8,6 +8,7 @@
   - `docs/fonctionnel/modules/*.md` : fonctionnalités de chaque module, avec ses acteurs, ses entités et ses règles ;
   - le document technique Word (MCD, cas d'utilisation), hors du dépôt.
 - En cas de doute sur une règle métier, lisez ces fichiers plutôt que de supposer. Citez le numéro de la règle (`R40`) dans le code et les tests concernés.
+- Le numéro de règle ne s'affiche jamais à l'utilisateur : ni dans les messages d'erreur ou de validation, ni dans les libellés des écrans, ni dans les e-mails ou les documents. Il reste dans les commentaires, les docblocks et les tests.
 - Quand une fonctionnalité est livrée, cochez sa case dans le fichier du module.
 - Les « Points à valider et questions à éclaircir » (fin de `regles-de-gestion.md`) ne sont pas tranchés : ne les codez pas en dur, rendez-les paramétrables ou demandez.
 

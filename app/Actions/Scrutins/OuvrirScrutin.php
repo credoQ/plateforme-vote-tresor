@@ -29,15 +29,15 @@ class OuvrirScrutin
             $scrutin = Scrutin::with('phase')->lockForUpdate()->findOrFail($scrutin->id);
 
             if ($scrutin->statut !== StatutScrutin::ListesArretees) {
-                $this->echouer('Seul un scrutin dont les listes sont arrêtées peut être ouvert (R27).');
+                $this->echouer('Seul un scrutin dont les listes sont arrêtées peut être ouvert.');
             }
 
             if ($scrutin->phase->statut !== StatutPhase::Ouverte) {
-                $this->echouer('La phase du scrutin doit être ouverte (R18).');
+                $this->echouer('La phase du scrutin doit être ouverte.');
             }
 
             if ($scrutin->date_heure_ouverture === null || $scrutin->date_heure_ouverture->isFuture()) {
-                $this->echouer('Le scrutin n’est pas encore à sa date-heure d’ouverture (R39).');
+                $this->echouer('Le scrutin n’est pas encore à sa date-heure d’ouverture.');
             }
 
             $statut = $scrutin->candidates()->actives()->exists() ? StatutScrutin::Ouvert : StatutScrutin::Annule;

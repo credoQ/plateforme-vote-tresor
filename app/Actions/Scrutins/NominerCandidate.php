@@ -36,11 +36,11 @@ class NominerCandidate
             $scrutin = Scrutin::with(['college', 'phase.edition'])->lockForUpdate()->findOrFail($scrutin->id);
 
             if ($scrutin->college->origine_candidates !== OrigineCandidate::Nomination) {
-                $this->echouer('matricule', 'Les candidates de ce scrutin ne sont pas nominées par le comité (R28).');
+                $this->echouer('matricule', 'Les candidates de ce scrutin ne sont pas nominées par le comité.');
             }
 
             if (! $scrutin->listesSontModifiables()) {
-                $this->echouer('matricule', 'Les listes du scrutin sont arrêtées : rouvrez-les pour nominer une candidate (R27).');
+                $this->echouer('matricule', 'Les listes du scrutin sont arrêtées : rouvrez-les pour nominer une candidate.');
             }
 
             $agent = Agent::where('matricule', trim($matricule))->first();

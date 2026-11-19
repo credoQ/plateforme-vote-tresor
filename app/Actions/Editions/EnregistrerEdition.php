@@ -42,14 +42,14 @@ class EnregistrerEdition
             'quorum' => ['nullable', 'numeric', 'gt:0', 'max:100'],
             'delai_reeligibilite' => ['sometimes', 'integer', 'min:0', 'max:20'],
         ], [
-            'annee.unique' => 'Une édition existe déjà pour cette année (R16).',
+            'annee.unique' => 'Une édition existe déjà pour cette année.',
             'date_fin.after_or_equal' => 'La date de fin doit suivre la date de début.',
             'date_gel.before_or_equal' => 'Les listes électorales doivent être gelées au plus tard au début de l’édition.',
             'quorum.gt' => 'Le quorum est un pourcentage de participation compris entre 0 et 100.',
             'quorum.max' => 'Le quorum est un pourcentage de participation compris entre 0 et 100.',
-            'delai_reeligibilite.integer' => 'Le délai de rééligibilité est un nombre d’années, de 0 à 20 (R59).',
-            'delai_reeligibilite.min' => 'Le délai de rééligibilité est un nombre d’années, de 0 à 20 (R59).',
-            'delai_reeligibilite.max' => 'Le délai de rééligibilité est un nombre d’années, de 0 à 20 (R59).',
+            'delai_reeligibilite.integer' => 'Le délai de rééligibilité est un nombre d’années, de 0 à 20.',
+            'delai_reeligibilite.min' => 'Le délai de rééligibilité est un nombre d’années, de 0 à 20.',
+            'delai_reeligibilite.max' => 'Le délai de rééligibilité est un nombre d’années, de 0 à 20.',
             'required' => 'Le champ :attribute est obligatoire.',
         ])->validate();
 

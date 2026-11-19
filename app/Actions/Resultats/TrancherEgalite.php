@@ -35,7 +35,7 @@ class TrancherEgalite
             }
 
             if (trim($motif) === '') {
-                $this->echouer('Le départage doit être motivé (R49).');
+                $this->echouer('Le départage doit être motivé.');
             }
 
             $candidates = $scrutin->candidates()->actives()->get();

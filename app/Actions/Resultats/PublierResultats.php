@@ -31,11 +31,11 @@ class PublierResultats
             $scrutin = Scrutin::with('procesVerbal')->lockForUpdate()->findOrFail($scrutin->id);
 
             if ($scrutin->statut !== StatutScrutin::ResultatsValides) {
-                throw ValidationException::withMessages(['scrutin' => 'Seuls des résultats validés peuvent être publiés (R51).']);
+                throw ValidationException::withMessages(['scrutin' => 'Seuls des résultats validés peuvent être publiés.']);
             }
 
             if ($scrutin->procesVerbal->fichier === null) {
-                throw ValidationException::withMessages(['scrutin' => 'Le procès-verbal n’est pas encore généré : la publication suit sa génération (R51).']);
+                throw ValidationException::withMessages(['scrutin' => 'Le procès-verbal n’est pas encore généré : la publication suit sa génération.']);
             }
 
             $scrutin->procesVerbal->update(['date_publication' => now()]);

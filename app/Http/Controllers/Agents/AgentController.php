@@ -179,7 +179,7 @@ class AgentController extends Controller
             'structure_id' => ['required', 'integer', 'exists:structures,id'],
             'date_debut' => ['required', 'date'],
         ], [
-            'structure_id.required' => 'Choisissez la structure d’affectation (R12).',
+            'structure_id.required' => 'Choisissez la structure d’affectation.',
             'date_debut.required' => 'Indiquez la date de début de l’affectation.',
             'date' => 'Date invalide.',
         ]);

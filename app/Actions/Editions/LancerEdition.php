@@ -30,12 +30,12 @@ class LancerEdition
 
             $enCours = Edition::enCours()->lockForUpdate()->first();
             if ($enCours !== null) {
-                $this->echouer("L’édition {$enCours->annee} est déjà en cours : une seule édition peut être en cours (R16).");
+                $this->echouer("L’édition {$enCours->annee} est déjà en cours : une seule édition peut être en cours.");
             }
 
             $nonPlanifiees = $edition->phases->filter(fn ($phase): bool => $phase->date_debut === null || $phase->date_fin === null);
             if ($edition->phases->isEmpty() || $nonPlanifiees->isNotEmpty()) {
-                $this->echouer('Toutes les phases doivent être planifiées avant de lancer l’édition (R17).');
+                $this->echouer('Toutes les phases doivent être planifiées avant de lancer l’édition.');
             }
 
             $edition->update(['statut' => StatutEdition::EnCours]);

@@ -40,7 +40,7 @@ class AffecterAgent
                 || ($affectation->date_fin !== null && $affectation->date_fin->toDateString() >= $jour));
 
             if ($chevauchement !== null) {
-                $this->echouer('date_debut', "L’affectation du {$dateDebut->format('d/m/Y')} chevauche une affectation déjà enregistrée de l’agent {$agent->matricule} (R12).");
+                $this->echouer('date_debut', "L’affectation du {$dateDebut->format('d/m/Y')} chevauche une affectation déjà enregistrée de l’agent {$agent->matricule}.");
             }
 
             $enCours?->update(['date_fin' => $dateDebut->copy()->subDay()->toDateString()]);

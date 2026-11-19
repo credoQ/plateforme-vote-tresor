@@ -32,7 +32,7 @@ class DesactiverCandidate
             $candidate = Candidate::lockForUpdate()->findOrFail($candidate->id)->setRelation('scrutin', $scrutin);
 
             if (! $scrutin->accepteLesDesistements()) {
-                throw ValidationException::withMessages(['candidate' => 'Le scrutin est ouvert : la candidate ne peut plus être désactivée (R33).']);
+                throw ValidationException::withMessages(['candidate' => 'Le scrutin est ouvert : la candidate ne peut plus être désactivée.']);
             }
 
             if (! $candidate->estActive()) {

@@ -30,7 +30,7 @@ class ConstituerListes
     public function handle(Scrutin $scrutin): Scrutin
     {
         if (! $scrutin->listesSontModifiables()) {
-            throw ValidationException::withMessages(['scrutin' => "Les listes du scrutin « {$scrutin->libelle} » sont arrêtées et ne peuvent plus être modifiées (R27)."]);
+            throw ValidationException::withMessages(['scrutin' => "Les listes du scrutin « {$scrutin->libelle} » sont arrêtées et ne peuvent plus être modifiées."]);
         }
 
         return DB::transaction(function () use ($scrutin): Scrutin {

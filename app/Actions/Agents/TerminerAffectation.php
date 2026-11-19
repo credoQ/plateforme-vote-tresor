@@ -25,7 +25,7 @@ class TerminerAffectation
         }
 
         if ($dateFin->toDateString() < $enCours->date_debut->toDateString()) {
-            throw ValidationException::withMessages(['date_fin' => 'La date de fin ne peut pas précéder le début de l’affectation (R12).']);
+            throw ValidationException::withMessages(['date_fin' => 'La date de fin ne peut pas précéder le début de l’affectation.']);
         }
 
         $enCours->update(['date_fin' => $dateFin->toDateString()]);

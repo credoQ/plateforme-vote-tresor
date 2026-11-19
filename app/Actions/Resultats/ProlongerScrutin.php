@@ -32,7 +32,7 @@ class ProlongerScrutin
             }
 
             if ($pv->quorum_atteint) {
-                $this->echouer('Le quorum est atteint : le scrutin ne peut pas être prolongé (R50).');
+                $this->echouer('Le quorum est atteint : le scrutin ne peut pas être prolongé.');
             }
 
             if ($nouvelleFermeture->isPast()) {

@@ -60,15 +60,15 @@ class EnregistrerStructure
 
         // R9 : une TD ou une Trésorerie communale est située dans un département.
         if ($type->exigeUnDepartement() && $departementId === null) {
-            $this->echouer('departement_id', 'Une Trésorerie départementale ou communale doit être située dans un département (R9).');
+            $this->echouer('departement_id', 'Une Trésorerie départementale ou communale doit être située dans un département.');
         }
 
         if ($parente !== null && $structure !== null && $parente->is($structure)) {
-            $this->echouer('structure_parente_id', 'Une structure ne peut pas être rattachée à elle-même (R8).');
+            $this->echouer('structure_parente_id', 'Une structure ne peut pas être rattachée à elle-même.');
         }
 
         if ($parente !== null && $structure !== null && $this->estDescendante($parente, $structure)) {
-            $this->echouer('structure_parente_id', 'Une structure ne peut pas être rattachée à l’une de ses structures rattachées (R8).');
+            $this->echouer('structure_parente_id', 'Une structure ne peut pas être rattachée à l’une de ses structures rattachées.');
         }
 
         if ($parente !== null && ! $parente->actif && $parente->id !== $structure?->structure_parente_id) {
@@ -77,23 +77,23 @@ class EnregistrerStructure
 
         // Un service ne porte pas lui-même de structures rattachées (R8, R10).
         if ($niveau === Structure::NIVEAU_SERVICE && $structure?->structuresFilles()->exists()) {
-            $this->echouer('niveau', 'Cette structure a des structures rattachées : elle ne peut pas devenir un service (R8).');
+            $this->echouer('niveau', 'Cette structure a des structures rattachées : elle ne peut pas devenir un service.');
         }
 
         // R8 : un service est rattaché à une structure électorale.
         if ($niveau === Structure::NIVEAU_SERVICE
             && ($parente === null || $parente->niveau !== Structure::NIVEAU_STRUCTURE_ELECTORALE)) {
-            $this->echouer('structure_parente_id', 'Un service doit être rattaché à une structure électorale de niveau 1 (R8).');
+            $this->echouer('structure_parente_id', 'Un service doit être rattaché à une structure électorale de niveau 1.');
         }
 
         // R8 : une Trésorerie communale est rattachée à la Trésorerie départementale de son département.
         if ($type === CodeTypeStructure::TresorerieCommunale) {
             if ($parente === null || $parente->typeStructure->code !== CodeTypeStructure::TresorerieDepartementale) {
-                $this->echouer('structure_parente_id', 'Une Trésorerie communale doit être rattachée à une Trésorerie départementale (R8).');
+                $this->echouer('structure_parente_id', 'Une Trésorerie communale doit être rattachée à une Trésorerie départementale.');
             }
 
             if ($parente->departement_id !== $departementId) {
-                $this->echouer('departement_id', 'Une Trésorerie communale doit être dans le même département que sa Trésorerie départementale (R8, R9).');
+                $this->echouer('departement_id', 'Une Trésorerie communale doit être dans le même département que sa Trésorerie départementale.');
             }
         }
     }

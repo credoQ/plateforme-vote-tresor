@@ -38,9 +38,9 @@ class EnregistrerAgent
             'fonction' => ['nullable', 'string', 'max:150'],
             'statut' => ['nullable', 'string', 'max:60'],
         ], [
-            'matricule.unique' => 'Ce matricule est déjà attribué à un autre agent (R11).',
-            'npi.unique' => 'Ce NPI est déjà attribué à un autre agent (R11).',
-            'sexe.required' => 'Le sexe de l’agent est obligatoire : il détermine la qualité de candidate (R11).',
+            'matricule.unique' => 'Ce matricule est déjà attribué à un autre agent.',
+            'npi.unique' => 'Ce NPI est déjà attribué à un autre agent.',
+            'sexe.required' => 'Le sexe de l’agent est obligatoire : il détermine la qualité de candidate.',
             'sexe.enum' => 'Le sexe doit être F (féminin) ou M (masculin).',
             'required' => 'Le champ :attribute est obligatoire.',
             'date' => 'Le champ :attribute doit être une date valide.',

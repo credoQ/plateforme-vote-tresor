@@ -37,11 +37,11 @@ class DepouillerScrutin
             $scrutin = Scrutin::with(['phase', 'procesVerbal'])->lockForUpdate()->findOrFail($scrutin->id);
 
             if ($scrutin->statut !== StatutScrutin::Clos) {
-                $this->echouer('Seul un scrutin clos peut être dépouillé (R46).');
+                $this->echouer('Seul un scrutin clos peut être dépouillé.');
             }
 
             if (! $this->empreinte->chaineEstIntacte($scrutin->id)) {
-                $this->echouer('La chaîne des empreintes des bulletins est rompue : dépouillement impossible, le comité doit être alerté (R44).');
+                $this->echouer('La chaîne des empreintes des bulletins est rompue : dépouillement impossible, le comité doit être alerté.');
             }
 
             $inscrits = $scrutin->inscriptions()->count();

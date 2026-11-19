@@ -36,7 +36,7 @@ class CloturerPhase
 
             $enAttente = $phase->scrutins->reject(fn (Scrutin $scrutin): bool => $scrutin->statut->estTermine());
             if ($enAttente->isNotEmpty()) {
-                throw ValidationException::withMessages(['phase' => 'Les résultats de tous les scrutins doivent être validés et publiés avant la clôture (R18). En attente : '.$enAttente->pluck('libelle')->implode(', ').'.']);
+                throw ValidationException::withMessages(['phase' => 'Les résultats de tous les scrutins doivent être validés et publiés avant la clôture. En attente : '.$enAttente->pluck('libelle')->implode(', ').'.']);
             }
 
             $phase->update(['statut' => StatutPhase::Cloturee, 'date_cloture' => now()]);

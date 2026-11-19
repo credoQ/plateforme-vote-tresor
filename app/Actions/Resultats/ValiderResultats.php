@@ -31,11 +31,11 @@ class ValiderResultats
             $pv = $scrutin->procesVerbal;
 
             if ($scrutin->statut !== StatutScrutin::Clos || $pv === null) {
-                $this->echouer('Le scrutin doit être clos et dépouillé avant la validation de ses résultats (R51).');
+                $this->echouer('Le scrutin doit être clos et dépouillé avant la validation de ses résultats.');
             }
 
             if ($pv->egalite_a_departager) {
-                $this->echouer('Une égalité reste à départager avant la validation (R49).');
+                $this->echouer('Une égalité reste à départager avant la validation.');
             }
 
             $edition = Edition::lockForUpdate()->findOrFail($scrutin->phase->edition_id);

@@ -73,17 +73,17 @@ class OrganiserPhases
             'phases.*.colleges.*.origine' => ['required', Rule::enum(OrigineCandidate::class)],
             'phases.*.colleges.*.nb_elues' => ['required', 'integer', 'min:1', 'max:20'],
         ], [
-            'phases.required' => 'Une édition compte au moins une phase (R17).',
-            'phases.max' => 'Une édition compte au plus trois phases (R17).',
+            'phases.required' => 'Une édition compte au moins une phase.',
+            'phases.max' => 'Une édition compte au plus trois phases.',
             'phases.*.libelle.required' => 'Chaque phase a un libellé.',
             'phases.*.colleges.required' => 'Chaque phase compte au moins un collège.',
-            'phases.*.colleges.*.nb_elues.min' => 'Chaque scrutin élit au moins une lauréate (R52).',
+            'phases.*.colleges.*.nb_elues.min' => 'Chaque scrutin élit au moins une lauréate.',
             'phases.*.colleges.*.nb_elues.max' => 'Un scrutin élit au plus vingt lauréates.',
         ])->validate()['phases'];
 
         ksort($phases);
         if (array_keys($phases) !== range(1, count($phases))) {
-            $this->echouer('Les phases se suivent sans trou, à partir de la phase 1 (R17).');
+            $this->echouer('Les phases se suivent sans trou, à partir de la phase 1.');
         }
 
         foreach ($phases as $numero => $phase) {
@@ -94,7 +94,7 @@ class OrganiserPhases
             }
 
             if (isset($colleges[Phase::COLLEGE_DGTCP]) && count($colleges) > 1) {
-                $this->echouer("Phase {$numero} : le collège de toute la DGTCP ne se combine avec aucun autre collège (R26).");
+                $this->echouer("Phase {$numero} : le collège de toute la DGTCP ne se combine avec aucun autre collège.");
             }
 
             if (($colleges[Phase::COLLEGE_DGTCP]['decoupage'] ?? null) === Decoupage::ParCirconscription->value) {
@@ -108,11 +108,11 @@ class OrganiserPhases
 
                 $precedents = array_keys($phases[$numero - 1]['colleges'] ?? []);
                 if ($numero === 1) {
-                    $this->echouer('Phase 1 : aucune lauréate n’est encore qualifiée ; choisissez des candidates d’office ou nominées (R35).');
+                    $this->echouer('Phase 1 : aucune lauréate n’est encore qualifiée ; choisissez des candidates d’office ou nominées.');
                 }
 
                 if ($cle !== Phase::COLLEGE_DGTCP && ! in_array($cle, $precedents, true)) {
-                    $this->echouer("Phase {$numero} : la qualification suppose que la phase précédente ait un collège pour le même pôle (R35).");
+                    $this->echouer("Phase {$numero} : la qualification suppose que la phase précédente ait un collège pour le même pôle.");
                 }
             }
         }

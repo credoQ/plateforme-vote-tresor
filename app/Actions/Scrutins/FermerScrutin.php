@@ -29,7 +29,7 @@ class FermerScrutin
             }
 
             if ($scrutin->date_heure_fermeture->isFuture()) {
-                throw ValidationException::withMessages(['scrutin' => 'Le scrutin n’a pas atteint sa date-heure de fermeture (R39).']);
+                throw ValidationException::withMessages(['scrutin' => 'Le scrutin n’a pas atteint sa date-heure de fermeture.']);
             }
 
             $scrutin->update(['statut' => StatutScrutin::Clos]);

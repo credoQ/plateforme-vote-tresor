@@ -30,7 +30,7 @@ class OuvrirPhase
             $phase = Phase::with('edition')->lockForUpdate()->findOrFail($phase->id);
 
             if ($phase->edition->statut !== StatutEdition::EnCours) {
-                $this->echouer('L’édition doit être en cours pour ouvrir une phase (R16).');
+                $this->echouer('L’édition doit être en cours pour ouvrir une phase.');
             }
 
             if ($phase->statut !== StatutPhase::Planifiee) {
@@ -39,12 +39,12 @@ class OuvrirPhase
 
             $precedente = $phase->phasePrecedente();
             if ($precedente !== null && $precedente->statut !== StatutPhase::Cloturee) {
-                $this->echouer("La phase {$precedente->numero} doit être clôturée, tous ses résultats validés et publiés, avant d’ouvrir la phase {$phase->numero} (R18).");
+                $this->echouer("La phase {$precedente->numero} doit être clôturée, tous ses résultats validés et publiés, avant d’ouvrir la phase {$phase->numero}.");
             }
 
             $aDesScrutins = $phase->scrutins()->where('statut', '!=', StatutScrutin::Annule->value)->exists();
             if (! $aDesScrutins) {
-                $this->echouer('La phase ne compte aucun scrutin : générez les scrutins avant de l’ouvrir (R19).');
+                $this->echouer('La phase ne compte aucun scrutin : générez les scrutins avant de l’ouvrir.');
             }
 
             $phase->update(['statut' => StatutPhase::Ouverte, 'date_ouverture' => now()]);

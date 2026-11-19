@@ -45,10 +45,10 @@ class EnregistrerUtilisateur
             'login.unique' => 'Cet identifiant est déjà utilisé.',
             'email.required' => 'Une adresse e-mail est nécessaire pour recevoir le code de connexion.',
             'email.email' => 'Adresse e-mail invalide.',
-            'agent_id.unique' => 'Cet agent dispose déjà d’un compte (R3).',
-            'structure_id.required' => 'Un point focal est rattaché à une structure (R4).',
-            'roles.required' => 'Un utilisateur possède au moins un rôle (R2).',
-            'roles.min' => 'Un utilisateur possède au moins un rôle (R2).',
+            'agent_id.unique' => 'Cet agent dispose déjà d’un compte.',
+            'structure_id.required' => 'Un point focal est rattaché à une structure.',
+            'roles.required' => 'Un utilisateur possède au moins un rôle.',
+            'roles.min' => 'Un utilisateur possède au moins un rôle.',
             'required' => 'Le champ :attribute est obligatoire.',
         ])->validate();
 

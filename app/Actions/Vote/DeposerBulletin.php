@@ -43,17 +43,17 @@ class DeposerBulletin
             if ($scrutin->statut !== StatutScrutin::Ouvert
                 || $maintenant->lt($scrutin->date_heure_ouverture)
                 || $maintenant->gte($scrutin->date_heure_fermeture)) {
-                $this->echouer('scrutin', 'Le scrutin n’est pas ouvert : le vote n’est pas possible (R39).');
+                $this->echouer('scrutin', 'Le scrutin n’est pas ouvert : le vote n’est pas possible.');
             }
 
             // R40 : uniquement dans le scrutin où l'électeur est inscrit, une seule fois.
             $inscription = Inscription::where('scrutin_id', $scrutin->id)->where('agent_id', $electeur->id)->lockForUpdate()->first();
             if ($inscription === null) {
-                $this->echouer('scrutin', 'Vous n’êtes pas inscrit sur la liste électorale de ce scrutin (R40).');
+                $this->echouer('scrutin', 'Vous n’êtes pas inscrit sur la liste électorale de ce scrutin.');
             }
 
             if ($inscription->a_vote) {
-                $this->echouer('scrutin', 'Vous avez déjà voté à ce scrutin : le vote est définitif (R40).');
+                $this->echouer('scrutin', 'Vous avez déjà voté à ce scrutin : le vote est définitif.');
             }
 
             $this->verifierChoix($scrutin, $choix, $electeur, $edition->vote_blanc_autorise, $edition->vote_pour_soi_autorise);
@@ -88,18 +88,18 @@ class DeposerBulletin
     {
         if ($choix === null) {
             if (! $blancAutorise) {
-                $this->echouer('candidate_id', 'Le vote blanc n’est pas autorisé pour cette édition (R41).');
+                $this->echouer('candidate_id', 'Le vote blanc n’est pas autorisé pour cette édition.');
             }
 
             return;
         }
 
         if ($choix->scrutin_id !== $scrutin->id || ! $choix->fresh()?->estActive()) {
-            $this->echouer('candidate_id', 'Cette candidate ne figure pas sur la liste des candidates du scrutin (R33).');
+            $this->echouer('candidate_id', 'Cette candidate ne figure pas sur la liste des candidates du scrutin.');
         }
 
         if (! $votePourSoiAutorise && $choix->agent_id === $electeur->id) {
-            $this->echouer('candidate_id', 'Le vote pour soi-même n’est pas autorisé pour cette édition (R45).');
+            $this->echouer('candidate_id', 'Le vote pour soi-même n’est pas autorisé pour cette édition.');
         }
     }
 

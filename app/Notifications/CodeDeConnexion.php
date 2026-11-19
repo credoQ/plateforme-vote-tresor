@@ -2,15 +2,42 @@
 
 namespace App\Notifications;
 
+use Carbon\CarbonImmutable;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldBeEncrypted;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
- * Code de connexion à usage unique (R42). Envoyé immédiatement, sans file d'attente : l'agent l'attend pour se connecter.
+ * Code de connexion à usage unique (R42), envoyé par la file d'attente prioritaire « urgent ».
+ *
+ * Le job est chiffré (le code n'apparaît pas en clair dans la table des jobs) et n'est plus tenté
+ * au-delà de la validité du code.
  */
-class CodeDeConnexion extends Notification
+class CodeDeConnexion extends Notification implements ShouldBeEncrypted, ShouldQueue
 {
-    public function __construct(public string $code, public int $minutes) {}
+    use Queueable;
+
+    public const FILE = 'urgent';
+
+    public int $tries = 3;
+
+    public CarbonImmutable $retryUntil;
+
+    public function __construct(public string $code, public int $minutes)
+    {
+        $this->onQueue(self::FILE);
+        $this->retryUntil = CarbonImmutable::now()->addMinutes($minutes);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function backoff(): array
+    {
+        return [5, 30];
+    }
 
     /**
      * @return list<string>

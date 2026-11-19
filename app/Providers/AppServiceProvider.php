@@ -9,6 +9,7 @@ use App\Models\User;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Foundation\DevCommands;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -33,13 +34,16 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('piloter', fn (User $user): bool => $user->aLeRole(CodeRole::Comite));
         Gate::define('controler-listes', fn (User $user): bool => $user->aLeRole(CodeRole::Comite, CodeRole::PointFocal));
         Gate::define('observer', fn (User $user): bool => $user->aLeRole(CodeRole::Observateur, CodeRole::Comite, CodeRole::Administrateur));
+        Gate::define('voter', fn (User $user): bool => $user->agent_id !== null && $user->aLeRole(CodeRole::Electeur));
+
         $this->journaliserLesConnexions();
 
-        Gate::define('voter', fn (User $user): bool => $user->agent_id !== null && $user->aLeRole(CodeRole::Electeur));
+        // En développement (« composer run dev »), le processus de file traite aussi les files des e-mails, par priorité.
+        DevCommands::artisan('queue:listen --queue=urgent,mails,default --tries=1 --timeout=0', 'queue');
     }
 
     /**
-     * R56 : connexions réussies et échouées, déconnexions. Le mot de passe saisi n'est jamais enregistré.
+     * R56 : demandes de code, connexions réussies et échouées, déconnexions. Le code n'est jamais enregistré.
      */
     private function journaliserLesConnexions(): void
     {

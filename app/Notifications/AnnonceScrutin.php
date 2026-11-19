@@ -4,14 +4,16 @@ namespace App\Notifications;
 
 use App\Models\Scrutin;
 use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
 /**
  * Annonce envoyée par e-mail aux inscrits d'un scrutin dont le contact est connu (module 08) :
  * ouverture du vote ou publication des résultats. Elle ne contient jamais de voix avant la publication (R46).
+ * Chaque e-mail est un job de la file « mails », relancé en cas d'échec du serveur de messagerie.
  */
-class AnnonceScrutin extends Notification
+class AnnonceScrutin extends Notification implements ShouldQueue
 {
     use Queueable;
 
@@ -19,7 +21,22 @@ class AnnonceScrutin extends Notification
 
     public const PUBLICATION = 'publication';
 
-    public function __construct(public Scrutin $scrutin, public string $type) {}
+    public const FILE = 'mails';
+
+    public int $tries = 3;
+
+    public function __construct(public Scrutin $scrutin, public string $type)
+    {
+        $this->onQueue(self::FILE);
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function backoff(): array
+    {
+        return [60, 300];
+    }
 
     /**
      * @return list<string>

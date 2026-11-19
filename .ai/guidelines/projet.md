@@ -32,7 +32,9 @@
 
 ## Notifications
 
-- Les notifications (annonces, codes de connexion) sont envoyées uniquement par e-mail, via les notifications Laravel et la file d'attente. Pas de SMS ni de passerelle tierce.
+- Les notifications (annonces, codes de connexion) sont envoyées uniquement par e-mail. Pas de SMS ni de passerelle tierce.
+- Tout envoi d'e-mail est asynchrone : chaque notification implémente `ShouldQueue` (jamais `notifyNow`, jamais `Mail::send` direct), avec ses tentatives et son délai de reprise. Files : `urgent` pour les codes de connexion (job chiffré avec `ShouldBeEncrypted`, abandonné après la validité du code), `mails` pour les annonces.
+- En production, le processus de file traite les files par priorité : `php artisan queue:work --queue=urgent,mails,default`. Les échecs se relancent depuis l'écran « Tâches en échec ».
 - L'adresse utilisée est celle du compte, sinon celle de la fiche agent ; un agent sans adresse voit les annonces sur la plateforme.
 
 ## Authentification

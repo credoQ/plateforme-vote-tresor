@@ -17,7 +17,10 @@ class EnvoyerAnnonceScrutin implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public int $scrutinId, public string $type) {}
+    public function __construct(public int $scrutinId, public string $type)
+    {
+        $this->onQueue(AnnonceScrutin::FILE);
+    }
 
     public function handle(): void
     {

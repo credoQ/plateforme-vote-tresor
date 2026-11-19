@@ -46,7 +46,8 @@ class DemanderCodeConnexion
             $this->journal->handle(ActionAuditee::CodeConnexionEnvoye, $utilisateur, [], $utilisateur);
         });
 
-        Notification::route('mail', $email)->notifyNow(new CodeDeConnexion($code, self::VALIDITE_MINUTES));
+        // Envoi asynchrone sur la file prioritaire « urgent ».
+        Notification::route('mail', $email)->notify(new CodeDeConnexion($code, self::VALIDITE_MINUTES));
     }
 
     public static function empreinte(string $code): string

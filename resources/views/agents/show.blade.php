@@ -76,11 +76,25 @@
 
     <section class="carte">
         <div class="carte__entete"><h2>Historique des affectations</h2></div>
+        <x-barre-filtres :total="$affectations->total()" libelle="affectation(s)">
+            <x-filtre libelle="Structure" pour="filtre-recherche" large>
+                <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Code ou libellé"></div>
+            </x-filtre>
+            <x-filtre libelle="Période" pour="filtre-periode">
+                <x-select-recherche compact soumettre>
+                    <select id="filtre-periode" name="periode" class="champ">
+                        <option value="">Toutes</option>
+                        <option value="en-cours" @selected($periode === 'en-cours')>En cours</option>
+                        <option value="terminees" @selected($periode === 'terminees')>Terminées</option>
+                    </select>
+                </x-select-recherche>
+            </x-filtre>
+        </x-barre-filtres>
         <div class="tableau-defilant">
             <table class="tableau tableau--fiches">
                 <thead><tr><th>Structure</th><th>Du</th><th>Au</th><th></th></tr></thead>
                 <tbody>
-                    @forelse ($agent->affectations as $ligne)
+                    @forelse ($affectations as $ligne)
                         <tr>
                             <td>{{ $ligne->structure->code }}<div class="aide">{{ $ligne->structure->libelle }}</div></td>
                             <td>{{ $ligne->date_debut->format('d/m/Y') }}</td>
@@ -88,11 +102,12 @@
                             <td>@if ($ligne->date_fin === null)<span class="badge badge--succes">En cours</span>@endif</td>
                         </tr>
                     @empty
-                        <tr><td colspan="4"><div class="etat-vide"><p>Aucune affectation enregistrée.</p></div></td></tr>
+                        <tr><td colspan="4"><div class="etat-vide"><p>{{ $recherche !== '' || $periode !== '' ? 'Aucune affectation ne correspond aux filtres.' : 'Aucune affectation enregistrée.' }}</p></div></td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        {{ $affectations->onEachSide(1)->links('pagination.tresor', ['libelle' => 'affectations']) }}
     </section>
 
     <x-slot:modales>

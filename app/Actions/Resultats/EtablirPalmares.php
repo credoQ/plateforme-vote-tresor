@@ -15,7 +15,7 @@ use Illuminate\Support\Collection;
 class EtablirPalmares
 {
     /**
-     * @return array{femmes_modeles: Collection<int, Candidate>, phases: Collection<int, array{phase: string, laureates: Collection<int, array{scrutin: string, agent: string, matricule: string, voix: int|null}>}>}
+     * @return array{femmes_modeles: Collection<int, Candidate>, phases: Collection<int, array{numero: int, phase: string, laureates: Collection<int, array{scrutin: string, agent: string, matricule: string, voix: int|null}>}>}
      */
     public function handle(Edition $edition): array
     {
@@ -26,6 +26,7 @@ class EtablirPalmares
                 ->with(['laureates.agent'])])
             ->get()
             ->map(fn (Phase $phase): array => [
+                'numero' => $phase->numero,
                 'phase' => $phase->libelle,
                 'laureates' => $phase->scrutins->flatMap(fn ($scrutin) => $scrutin->laureates->map(fn (Candidate $c): array => [
                     'scrutin' => $scrutin->libelle,

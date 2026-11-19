@@ -21,14 +21,41 @@
             </div>
         @endif
 
-        @foreach ($palmares['phases'] as $phase)
+        <div class="carte espace-bloc">
+            <x-barre-filtres :action="route('palmares')">
+                <x-filtre libelle="Recherche" pour="filtre-recherche" large>
+                    <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Lauréate, matricule ou scrutin"></div>
+                </x-filtre>
+                <x-filtre libelle="Édition" pour="filtre-annee">
+                    <x-select-recherche compact soumettre>
+                        <select id="filtre-annee" name="annee" class="champ">
+                            @foreach ($annees as $annee)
+                                <option value="{{ $annee }}" @selected($edition->annee === $annee)>{{ $annee }}</option>
+                            @endforeach
+                        </select>
+                    </x-select-recherche>
+                </x-filtre>
+                <x-filtre libelle="Phase" pour="filtre-phase">
+                    <x-select-recherche compact soumettre>
+                        <select id="filtre-phase" name="phase" class="champ">
+                            <option value="">Toutes les phases</option>
+                            @foreach ($phases as $choix)
+                                <option value="{{ $choix->numero }}" @selected($phase === $choix->numero)>{{ $choix->libelle }}</option>
+                            @endforeach
+                        </select>
+                    </x-select-recherche>
+                </x-filtre>
+            </x-barre-filtres>
+        </div>
+
+        @foreach ($palmares['phases'] as $phaseDuPalmares)
             <section class="carte espace-bloc">
-                <div class="carte__entete"><h2>{{ $phase['phase'] }}</h2></div>
+                <div class="carte__entete"><h2>{{ $phaseDuPalmares['phase'] }}</h2></div>
                 <div class="tableau-defilant">
                     <table class="tableau tableau--fiches">
                         <thead><tr><th>Scrutin</th><th>Lauréate</th><th>Matricule</th><th class="nombre">Voix</th></tr></thead>
                         <tbody>
-                            @forelse ($phase['laureates'] as $laureate)
+                            @forelse ($phaseDuPalmares['laureates'] as $laureate)
                                 <tr>
                                     <td>{{ $laureate['scrutin'] }}</td>
                                     <td><span class="badge badge--accent">Lauréate</span> {{ $laureate['agent'] }}</td>
@@ -36,7 +63,7 @@
                                     <td class="nombre">{{ $laureate['voix'] }}</td>
                                 </tr>
                             @empty
-                                <tr><td colspan="4"><div class="etat-vide"><p>Aucun résultat publié pour cette phase.</p></div></td></tr>
+                                <tr><td colspan="4"><div class="etat-vide"><p>{{ $recherche !== '' ? 'Aucune lauréate ne correspond à la recherche.' : 'Aucun résultat publié pour cette phase.' }}</p></div></td></tr>
                             @endforelse
                         </tbody>
                     </table>

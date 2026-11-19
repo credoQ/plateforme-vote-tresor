@@ -4,6 +4,7 @@ namespace Tests\Feature\Http\Agents;
 
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
+use App\Models\Affectation;
 use App\Models\Agent;
 use App\Models\JournalAudit;
 use App\Models\Structure;
@@ -25,6 +26,17 @@ class GestionDesAgentsTest extends TestCase
         $this->withoutVite();
         $this->travelTo(Carbon::parse('2026-11-18 10:00:00'));
         $this->admin = User::factory()->avecRoles(CodeRole::Administrateur)->create();
+    }
+
+    public function test_filtre_l_historique_des_affectations_d_un_agent(): void
+    {
+        $agent = Agent::factory()->affecteA($this->structure('DIA'), Carbon::parse('2024-01-01'))->create();
+        Affectation::factory()->terminee('2023-12-31')->create(['agent_id' => $agent->id, 'structure_id' => $this->structure('TD-ZOU')->id, 'date_debut' => '2020-01-01']);
+
+        $this->actingAs($this->admin)->get(route('agents.show', [$agent, 'periode' => 'terminees']))->assertOk()
+            ->assertSee('<b class="chiffres">1</b> affectation(s)', false)->assertSee('31/12/2023');
+        $this->get(route('agents.show', [$agent, 'recherche' => 'td-zou']))->assertSee('<b class="chiffres">1</b> affectation(s)', false);
+        $this->get(route('agents.show', [$agent, 'recherche' => 'inconnue']))->assertSee('Aucune affectation ne correspond aux filtres.');
     }
 
     /**

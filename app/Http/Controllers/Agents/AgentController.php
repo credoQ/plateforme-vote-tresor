@@ -93,8 +93,21 @@ class AgentController extends Controller
     {
         Gate::authorize('view', $agent);
 
+        $recherche = trim((string) $request->query('recherche', ''));
+        $periode = (string) $request->query('periode', '');
+
         return view('agents.show', [
-            'agent' => $agent->load(['affectations.structure', 'compte.roles']),
+            'agent' => $agent->load('compte.roles'),
+            'affectations' => $agent->affectations()
+                ->with('structure')
+                ->when($recherche !== '', fn ($q) => $q->whereHas('structure', fn ($s) => $s
+                    ->whereLike('code', "%{$recherche}%")->orWhereLike('libelle', "%{$recherche}%")))
+                ->when($periode === 'en-cours', fn ($q) => $q->whereNull('date_fin'))
+                ->when($periode === 'terminees', fn ($q) => $q->whereNotNull('date_fin'))
+                ->paginate(10)
+                ->withQueryString(),
+            'recherche' => $recherche,
+            'periode' => $periode,
             'affectation' => $agent->affectationLe(),
             'ineligibilite' => Edition::courante()?->motifIneligibilite($agent->matricule),
             'peutModifier' => $request->user()->can('update', $agent),

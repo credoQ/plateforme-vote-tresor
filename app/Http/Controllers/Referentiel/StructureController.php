@@ -62,17 +62,38 @@ class StructureController extends Controller
     /**
      * Types de structure classés par pôle électoral (R6, R7) et départements avec leurs postes déconcentrés (R9).
      */
-    public function organisation(): View
+    /**
+     * Types de structure (filtrés par pôle et par recherche) et départements (filtrés par recherche) : chaque
+     * tableau a ses propres paramètres, pour que filtrer l'un ne vide pas l'autre.
+     */
+    public function organisation(Request $request): View
     {
         Gate::authorize('viewAny', Structure::class);
 
+        $filtres = [
+            'type' => trim((string) $request->query('type', '')),
+            'pole' => (string) $request->query('pole', ''),
+            'departement' => trim((string) $request->query('departement', '')),
+        ];
+        $contient = fn (string $texte, string $terme): bool => $terme === '' || str_contains(mb_strtolower($texte), mb_strtolower($terme));
+
+        $poles = PoleElectoral::with(['typesStructure' => fn ($q) => $q->withCount(['structures' => fn (Builder $s) => $s->where('actif', true)])->orderBy('libelle')])
+            ->orderBy('libelle')->get();
+
         return view('referentiel.organisation', [
-            'poles' => PoleElectoral::with(['typesStructure' => fn ($q) => $q->withCount(['structures' => fn (Builder $s) => $s->where('actif', true)])->orderBy('libelle')])
-                ->orderBy('libelle')->get(),
+            'types' => $poles
+                ->filter(fn (PoleElectoral $pole): bool => $filtres['pole'] === '' || $pole->code->value === $filtres['pole'])
+                ->flatMap(fn (PoleElectoral $pole) => $pole->typesStructure->map(fn ($type): array => ['pole' => $pole, 'type' => $type]))
+                ->filter(fn (array $ligne): bool => $contient($ligne['type']->code->libelle().' '.$ligne['type']->code->value, $filtres['type']))
+                ->values(),
+            'poles' => $poles,
             'departements' => Departement::query()
                 ->with('tresorerieDepartementale')
                 ->withCount('tresoreriesCommunales')
-                ->orderBy('libelle')->get(),
+                ->orderBy('libelle')->get()
+                ->filter(fn (Departement $departement): bool => $contient($departement->code.' '.$departement->libelle, $filtres['departement']))
+                ->values(),
+            'filtres' => $filtres,
         ]);
     }
 

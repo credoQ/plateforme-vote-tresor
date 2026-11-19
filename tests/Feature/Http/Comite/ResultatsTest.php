@@ -90,6 +90,9 @@ class ResultatsTest extends TestCase
 
         $electrice = User::factory()->pourAgent($this->femmes[2])->avecRoles(CodeRole::Electeur)->create();
         $this->actingAs($electrice)->get(route('palmares'))->assertOk()->assertSee($this->femmes[0]->nomComplet());
+        $this->get(route('palmares', ['recherche' => $this->femmes[0]->matricule]))->assertSee($this->femmes[0]->nomComplet());
+        $this->get(route('palmares', ['recherche' => 'personne-inconnue']))
+            ->assertDontSee($this->femmes[0]->nomComplet())->assertSee('Aucune lauréate ne correspond à la recherche.');
         $this->get(route('resultats.proces-verbal', $this->scrutin))->assertOk();
     }
 

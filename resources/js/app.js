@@ -25,6 +25,30 @@ document.addEventListener('click', (e) => {
     if (ouvrir) document.getElementById(ouvrir.dataset.ouvrir)?.removeAttribute('hidden');
 });
 
+// Menu repliable des petits écrans : data-ouvrir-menu (bouton de l'en-tête) / data-fermer-menu (voile, croix)
+const boutonMenu = document.querySelector('[data-ouvrir-menu]');
+const navigation = document.getElementById('navigation');
+function basculerMenu(ouvert) {
+    if (!boutonMenu || !navigation) return;
+    document.documentElement.classList.toggle('menu-ouvert', ouvert);
+    boutonMenu.setAttribute('aria-expanded', String(ouvert));
+    if (ouvert) (navigation.querySelector('.nav-lien.est-actif') ?? navigation.querySelector('.nav-lien'))?.focus();
+    else boutonMenu.focus({ preventScroll: true });
+}
+document.addEventListener('click', (e) => {
+    if (e.target.closest('[data-ouvrir-menu]')) basculerMenu(true);
+    else if (e.target.closest('[data-fermer-menu]')) basculerMenu(false);
+});
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && document.documentElement.classList.contains('menu-ouvert')) basculerMenu(false);
+});
+window.matchMedia('(min-width: 901px)').addEventListener('change', (e) => {
+    if (e.matches) {
+        document.documentElement.classList.remove('menu-ouvert');
+        boutonMenu?.setAttribute('aria-expanded', 'false');
+    }
+});
+
 // Impression (accusé de vote) : data-imprimer
 document.addEventListener('click', (e) => {
     if (e.target.closest('[data-imprimer]')) window.print();

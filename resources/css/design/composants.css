@@ -42,6 +42,10 @@
   .icone-bouton { width: 36px; height: 36px; display: grid; place-items: center; border-radius: var(--tr-rayon); color: var(--tr-texte-2); background: none; border: 0; cursor: pointer; position: relative; }
   .icone-bouton:hover { background: var(--tr-surface-2); }
   .icone-bouton svg { width: 18px; height: 18px; }
+
+  /* menu repliable des petits écrans : bouton dans l'en-tête, barre latérale en panneau sur un voile */
+  .entete__menu, .sidebar__fermer, .voile-menu { display: none; }
+  .sidebar__fermer { margin-left: auto; }
   .icone-bouton .point { position: absolute; top: 8px; right: 9px; width: 8px; height: 8px; border-radius: 50%; background: var(--tr-erreur-500); box-shadow: 0 0 0 2px var(--tr-surface); }
   .profil { display: flex; align-items: center; gap: 10px; padding-left: 12px; border-left: 1px solid var(--tr-bordure-legere); }
   .profil__nom { font-size: 13px; line-height: 16px; font-weight: 600; }
@@ -288,7 +292,12 @@
   @media (max-width: 1100px) { .grille-tuiles { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 900px) {
     .app { grid-template-columns: 1fr; }
-    .sidebar { display: none; }
+    .sidebar { position: fixed; inset: 0 auto 0 0; z-index: 40; width: min(var(--tr-sidebar), 85vw); height: 100dvh; box-shadow: var(--tr-ombre-3); transform: translateX(-100%); visibility: hidden; transition: transform .2s ease, visibility .2s; }
+    .menu-ouvert .sidebar { transform: none; visibility: visible; transition: transform .2s ease, visibility 0s; }
+    .menu-ouvert .voile-menu { display: block; position: fixed; inset: 0; z-index: 30; background: color-mix(in srgb, var(--tr-gris-900) 50%, transparent); }
+    html.menu-ouvert { overflow: hidden; }
+    .entete__menu, .sidebar__fermer { display: grid; }
+    .entete { gap: 8px; }
     .connexion { grid-template-columns: 1fr; }
     .connexion__panneau { display: none; }
     .contenu { padding: 20px 16px; }
@@ -297,6 +306,7 @@
     .barre-vote { margin: 24px -16px -20px; padding: 12px 16px; }
   }
   @media (max-width: 600px) { .grille-tuiles { grid-template-columns: 1fr; } .barre { grid-template-columns: 100px 1fr 48px; } .tableau-defilant { overflow-x: auto; } }
+  @media (prefers-reduced-motion: reduce) { .sidebar { transition: none; } }
 }
 
 /* ---------------------------------------------------------------- ajustements du thème sombre */

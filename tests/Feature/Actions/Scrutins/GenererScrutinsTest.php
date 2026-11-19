@@ -6,7 +6,6 @@ use App\Actions\Scrutins\ConstituerListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\RapportGeneration;
 use App\Enums\Editions\StatutPhase;
-use App\Enums\Referentiel\CodeTypeStructure;
 use App\Enums\Scrutins\OrigineCandidate;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Affectation;
@@ -41,10 +40,8 @@ class GenererScrutinsTest extends TestCase
             'annee' => 2026, 'date_debut' => '2026-11-01', 'date_fin' => '2026-12-31', 'date_gel' => '2026-10-01',
         ]);
 
-        $atl = Departement::where('code', 'ATL')->firstOrFail();
         $zou = Departement::where('code', 'ZOU')->firstOrFail();
-        $tcOuidah = Structure::factory()->deType(CodeTypeStructure::TresorerieCommunale)->dansDepartement($atl)
-            ->create(['code' => 'TC-OUIDAH', 'structure_parente_id' => $this->structure('TD-ATL')->id]);
+        $tcOuidah = $this->structure('TC-OUIDAH');
         $antenneDiaZou = Structure::factory()->serviceDe($this->structure('DIA'))->dansDepartement($zou)->create(['code' => 'DIA-ZOU']);
         $serviceDr = Structure::factory()->serviceDe($this->structure('DR'))->create(['code' => 'DR-SERV']);
 
@@ -76,8 +73,8 @@ class GenererScrutinsTest extends TestCase
         $this->assertContains('Scrutin départemental · Borgou', $rapport->circonscriptionsSansFemme);
 
         // R24 : le scrutin départemental couvre la TD, les Trésoreries communales et les antennes du département.
-        $this->assertEqualsCanonicalizing(['TD-ATL', 'TC-OUIDAH'], $this->scrutin('DEP-ATL')->structures->pluck('code')->all());
-        $this->assertEqualsCanonicalizing(['TD-ZOU', 'DIA-ZOU'], $this->scrutin('DEP-ZOU')->structures->pluck('code')->all());
+        $this->assertEqualsCanonicalizing(['TD-ATL', 'TC-ABOMEY-CALAVI', 'TC-ALLADA', 'TC-KPOMASSE', 'TC-OUIDAH', 'TC-SO-AVA', 'TC-TOFFO', 'TC-TORI-BOSSITO', 'TC-ZE'], $this->scrutin('DEP-ATL')->structures->pluck('code')->all());
+        $this->assertEqualsCanonicalizing(['TD-ZOU', 'TC-ABOMEY', 'TC-AGBANGNIZOUN', 'TC-BOHICON', 'TC-COVE', 'TC-DJIDJA', 'TC-OUINHI', 'TC-ZA-KPOTA', 'TC-ZAGNANADO', 'TC-ZOGBODOMEY', 'DIA-ZOU'], $this->scrutin('DEP-ZOU')->structures->pluck('code')->all());
         $this->assertEqualsCanonicalizing(['DR', 'DR-SERV'], $this->scrutin('STR-DR')->structures->pluck('code')->all());
 
         $this->assertSame($this->ids('femme_td_atl', 'homme_tc_ouidah'), $this->inscrits('DEP-ATL'));

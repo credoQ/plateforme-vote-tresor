@@ -9,7 +9,6 @@ use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Vote\DeposerBulletin;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutPhase;
-use App\Enums\Referentiel\CodeTypeStructure;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Agent;
 use App\Models\Edition;
@@ -49,8 +48,7 @@ class SuiviEtAnnoncesTest extends TestCase
         ]);
         $depuis = Carbon::parse('2020-01-01');
         $tdAtl = Structure::where('code', 'TD-ATL')->firstOrFail();
-        $tc = Structure::factory()->deType(CodeTypeStructure::TresorerieCommunale)
-            ->create(['code' => 'TC-OUIDAH', 'departement_id' => $tdAtl->departement_id, 'structure_parente_id' => $tdAtl->id]);
+        $tc = Structure::where('code', 'TC-OUIDAH')->firstOrFail();
         $this->electriceAtl = Agent::factory()->femme()->affecteA($tdAtl, $depuis)->create(['email' => 'electrice@example.test']);
         Agent::factory()->homme()->affecteA($tc, $depuis)->create();
         Agent::factory()->femme()->affecteA(Structure::where('code', 'DIA')->firstOrFail(), $depuis)->create();

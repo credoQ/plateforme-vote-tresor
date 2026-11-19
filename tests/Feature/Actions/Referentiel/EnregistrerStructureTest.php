@@ -46,8 +46,8 @@ class EnregistrerStructureTest extends TestCase
         $td = Structure::where('code', 'TD-ATL')->firstOrFail();
 
         $tc = $this->enregistrer([
-            'code' => 'TC-OUIDAH',
-            'libelle' => 'Trésorerie communale de Ouidah',
+            'code' => 'TC-TEST',
+            'libelle' => 'Trésorerie communale de test',
             'type_structure_id' => $this->type(CodeTypeStructure::TresorerieCommunale),
             'departement_id' => $td->departement_id,
             'structure_parente_id' => $td->id,

@@ -36,8 +36,8 @@ class StructureTest extends TestCase
         $departemental = Structure::duPole(CodePoleElectoral::Departemental)->pluck('code');
         $structures = Structure::duPole(CodePoleElectoral::Structures)->pluck('code');
 
-        $this->assertCount(12, $departemental);
-        $this->assertTrue($departemental->every(fn (string $code) => str_starts_with($code, 'TD-')));
+        $this->assertCount(12 + 77, $departemental);
+        $this->assertTrue($departemental->every(fn (string $code) => str_starts_with($code, 'TD-') || str_starts_with($code, 'TC-')));
         $this->assertContains('TGE', $structures);
         $this->assertContains('ACD', $structures);
         $this->assertNotContains('TD-ATL', $structures);

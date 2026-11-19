@@ -9,6 +9,7 @@
     <x-meta :titre="$titre.' · Femme modèle du Trésor'" />
     <script>try { const t = localStorage.getItem('fm-theme'); if (t) { document.documentElement.dataset.theme = t; } } catch (e) {}</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body>
 <div class="isoloir">
@@ -48,5 +49,6 @@
     <x-pied-de-page class="isoloir__pied" />
 </div>
 {{ $modales ?? '' }}
+@livewireScripts
 </body>
 </html>

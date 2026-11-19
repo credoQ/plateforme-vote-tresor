@@ -7,7 +7,6 @@ use App\Actions\Agents\EnregistrerAgent;
 use App\Actions\Agents\TerminerAffectation;
 use App\Actions\Audit\Journaliser;
 use App\Enums\Acces\CodeRole;
-use App\Enums\Agents\Sexe;
 use App\Enums\Audit\ActionAuditee;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
@@ -36,34 +35,8 @@ class AgentController extends Controller
         $utilisateur = $request->user();
         $perimetre = $utilisateur->aLeRole(CodeRole::Administrateur, CodeRole::Comite, CodeRole::Observateur) ? null : $utilisateur->perimetre();
 
-        $recherche = trim((string) $request->query('recherche', ''));
-        $structureId = $request->integer('structure') ?: null;
-        $sexe = Sexe::tryFrom((string) $request->query('sexe', ''));
-        $situation = (string) $request->query('situation', 'en-service');
-
-        $agents = Agent::query()
-            ->with('affectationEnCours.structure')
-            ->when($perimetre !== null, fn ($q) => $q->affectesLe(Carbon::today(), $perimetre))
-            ->when($structureId !== null, fn ($q) => $q->affectesLe(Carbon::today(), [$structureId]))
-            ->when($recherche !== '', fn ($q) => $q->where(fn ($r) => $r
-                ->whereLike('matricule', "%{$recherche}%")->orWhereLike('nom', "%{$recherche}%")
-                ->orWhereLike('prenoms', "%{$recherche}%")->orWhereLike('npi', "%{$recherche}%")))
-            ->when($sexe !== null, fn ($q) => $q->where('sexe', $sexe->value))
-            ->when($situation === 'en-service', fn ($q) => $q->enServiceLe())
-            ->when($situation === 'hors-service', fn ($q) => $q->whereDoesntHave('affectations', fn ($a) => $a->enCoursLe()))
-            ->orderBy('nom')->orderBy('prenoms')
-            ->paginate(50)
-            ->withQueryString();
-
-        return view('agents.index', [
-            'agents' => $agents,
-            'structures' => $this->structures($perimetre),
-            'recherche' => $recherche,
-            'structureId' => $structureId,
-            'sexe' => $sexe,
-            'situation' => $situation,
-            'restreint' => $perimetre !== null,
-        ]);
+        // La liste et ses filtres sont dans le composant Livewire Agents\ListeAgents.
+        return view('agents.index', ['restreint' => $perimetre !== null]);
     }
 
     public function create(): View

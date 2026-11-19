@@ -49,6 +49,16 @@ class ConnexionTest extends TestCase
         $this->get(route('login.code'))->assertSee('<meta name="robots" content="noindex, nofollow">', false);
     }
 
+    public function test_un_profil_de_gestion_arrive_sur_la_console_apres_la_connexion(): void
+    {
+        User::factory()->avecRoles(CodeRole::Comite)->create(['login' => 'COMITE01', 'email' => 'comite@example.test']);
+
+        $this->post(route('login.store'), ['login' => 'COMITE01']);
+        $code = $this->codeEnvoyeA('comite@example.test');
+
+        $this->post(route('login.verifier'), ['code' => $code])->assertRedirect(route('tableau-de-bord'));
+    }
+
     /**
      * R42 : le code est envoyé à l'adresse du compte, puis permet de se connecter une seule fois.
      */

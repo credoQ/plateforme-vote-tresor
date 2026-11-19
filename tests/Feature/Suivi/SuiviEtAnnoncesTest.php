@@ -150,10 +150,11 @@ class SuiviEtAnnoncesTest extends TestCase
         $this->assertSame($avant, JournalAudit::count());
     }
 
-    public function test_l_accueil_affiche_les_annonces_des_scrutins_ouverts(): void
+    public function test_l_espace_electeur_annonce_le_scrutin_ouvert_de_l_electrice(): void
     {
         $electrice = User::factory()->pourAgent($this->electriceAtl)->avecRoles(CodeRole::Electeur)->create();
 
-        $this->actingAs($electrice)->get(route('espace'))->assertOk()->assertSee('Vote ouvert')->assertSee('Scrutin départemental · Atlantique');
+        $this->actingAs($electrice)->get(route('espace'))->assertOk()
+            ->assertSee('Scrutin départemental · Atlantique')->assertSee('Ouvert')->assertSee('Voter maintenant');
     }
 }

@@ -1,4 +1,4 @@
-<x-layouts.app titre="Résultats" :ariane="['Mon espace', 'Résultats']" actif="palmares">
+<x-dynamic-component :component="$gabarit" titre="Résultats" :ariane="['Mon espace', 'Résultats']" actif="palmares">
     <div class="titre-page">
         <div>
             <div class="surtitre">{{ $edition?->libelle ?? 'Résultats' }}</div>
@@ -40,4 +40,4 @@
             </section>
         @endforeach
     @endif
-</x-layouts.app>
+</x-dynamic-component>

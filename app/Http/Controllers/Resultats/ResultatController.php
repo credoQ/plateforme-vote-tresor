@@ -108,11 +108,12 @@ class ResultatController extends Controller
     /**
      * Palmarès de l'édition en cours ou de la dernière édition (R53), à partir des seuls résultats publiés.
      */
-    public function palmares(EtablirPalmares $etablir, ?Edition $edition = null): View
+    public function palmares(Request $request, EtablirPalmares $etablir, ?Edition $edition = null): View
     {
         $edition ??= Edition::where('statut', StatutEdition::EnCours->value)->first() ?? Edition::orderByDesc('annee')->first();
 
         return view('resultats.palmares', [
+            'gabarit' => $request->user()->aAccesALaGestion() ? 'layouts.app' : 'layouts.electeur',
             'edition' => $edition,
             'palmares' => $edition === null ? null : $etablir->handle($edition),
         ]);

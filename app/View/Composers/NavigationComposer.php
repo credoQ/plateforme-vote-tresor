@@ -23,7 +23,7 @@ class NavigationComposer
         $view->with([
             'utilisateur' => $utilisateur,
             'menus' => $this->menus($utilisateur),
-            'initiales' => collect(preg_split('/\s+/', trim($utilisateur->name)))->take(2)->map(fn (string $mot): string => mb_substr($mot, 0, 1))->implode(''),
+            'initiales' => $utilisateur->initiales(),
             'profil' => $utilisateur->roles->first()?->code->libelle() ?? 'Utilisateur',
             'affectationUtilisateur' => $utilisateur->agent?->affectationLe(),
         ]);
@@ -38,7 +38,7 @@ class NavigationComposer
     {
         $groupes = [
             'Mon espace' => [
-                ['espace', 'house', 'Accueil', route('espace'), true],
+                ['espace', 'house', 'Mon espace électeur', route('espace'), $utilisateur->agent_id !== null],
                 ['vote', 'vote', 'Voter', route('vote'), $utilisateur->can('voter')],
                 ['palmares', 'trophy', 'Résultats', route('palmares'), true],
             ],

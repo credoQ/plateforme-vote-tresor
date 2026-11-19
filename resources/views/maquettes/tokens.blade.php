@@ -77,6 +77,19 @@
                 </div>
             </section>
             <section class="carte">
+                <div class="carte__entete"><h2>Espace électeur · carte du scrutin (x-layouts.electeur)</h2></div>
+                <div class="carte__corps">
+                    <div class="scrutin-carte scrutin-carte--ouvert">
+                        <div class="scrutin-carte__haut">
+                            <div><div class="surtitre">Mon scrutin · Phase 1 · primaires</div><h2>Scrutin départemental · Atlantique</h2></div>
+                            <span class="badge badge--succes">Ouvert</span>
+                        </div>
+                        <div class="scrutin-carte__infos"><span><i data-lucide="clock"></i>Clôture le 28/11/2026 à 18:00</span><span><i data-lucide="users-round"></i>38 candidate(s)</span></div>
+                        <a href="#" class="btn btn-primaire btn--lg"><i data-lucide="vote"></i>Voter maintenant</a>
+                    </div>
+                </div>
+            </section>
+            <section class="carte">
                 <div class="carte__entete"><h2>Page de vote · en-tête et étapes (x-layouts.vote)</h2></div>
                 <header class="isoloir__entete">
                     <div class="isoloir__marque">

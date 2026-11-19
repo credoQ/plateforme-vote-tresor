@@ -6,6 +6,7 @@ use App\Actions\Audit\Journaliser;
 use App\Actions\Documents\EnteteDocument;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
+use App\Models\Edition;
 use App\Models\User;
 use App\View\Composers\NavigationComposer;
 use Illuminate\Auth\Events\Failed;
@@ -45,6 +46,7 @@ class AppServiceProvider extends ServiceProvider
         // Les vues ne font aucun traitement serveur : les données des gabarits leur sont fournies ici.
         View::composer('components.layouts.app', NavigationComposer::class);
         View::composer('components.pdf.document', fn (Vue $vue) => $vue->with('images', app(EnteteDocument::class)->images()));
+        View::composer('mail::message', fn (Vue $vue) => $vue->with('editionEnCours', Edition::enCours()->value('annee')));
 
         // En développement (« composer run dev »), le processus de file traite aussi les files des e-mails, par priorité.
         DevCommands::artisan('queue:listen --queue=urgent,mails,default --tries=1 --timeout=0', 'queue');

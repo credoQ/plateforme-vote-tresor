@@ -1,7 +1,6 @@
-<x-layouts.app titre="Confirmer mon vote" :ariane="['Mon espace', 'Voter', 'Confirmation']" actif="vote">
-    <div class="titre-page">
+<x-layouts.vote titre="Confirmer mon vote" :contexte="$scrutin->phase->libelle.' · '.$scrutin->libelle" :etape="2">
+    <div class="titre-page isoloir__centre">
         <div>
-            <div class="surtitre">{{ $scrutin->phase->libelle }} · étape 2 sur 2</div>
             <h1>Confirmer votre vote</h1>
             <p>{{ $scrutin->libelle }}</p>
         </div>
@@ -31,4 +30,4 @@
             </div>
         </div>
     </section>
-</x-layouts.app>
+</x-layouts.vote>

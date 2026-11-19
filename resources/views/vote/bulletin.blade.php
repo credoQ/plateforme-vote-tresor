@@ -1,18 +1,14 @@
-<x-layouts.app titre="Voter" :ariane="['Mon espace', 'Voter']" actif="vote">
+<x-layouts.vote titre="Voter" :contexte="$scrutin->phase->libelle.' · '.$scrutin->libelle" :etape="1">
     <div class="titre-page">
         <div>
-            <div class="surtitre">{{ $scrutin->phase->libelle }}</div>
-            <h1>{{ $scrutin->libelle }}</h1>
+            <h1>Choisissez votre candidate</h1>
+            <p>{{ $scrutin->libelle }}</p>
         </div>
         <div class="titre-page__actions">
             <span class="badge badge--succes">Ouvert</span>
             <span class="etiquette"><i data-lucide="clock"></i>Clôture le {{ $scrutin->date_heure_fermeture->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}</span>
         </div>
     </div>
-
-    @error('candidate_id')
-        <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $message }}</div></div>
-    @enderror
 
     <section class="carte">
         <form method="GET" action="{{ route('vote') }}" class="barre-filtres">
@@ -64,4 +60,4 @@
             </div>
         </form>
     </section>
-</x-layouts.app>
+</x-layouts.vote>

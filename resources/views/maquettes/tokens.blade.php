@@ -76,6 +76,22 @@
                     </div>
                 </div>
             </section>
+            <section class="carte">
+                <div class="carte__entete"><h2>Page de vote · en-tête et étapes (x-layouts.vote)</h2></div>
+                <header class="isoloir__entete">
+                    <div class="isoloir__marque">
+                        <img src="{{ asset('images/embleme-tresor.png') }}" alt="Trésor public">
+                        <div><strong>Femme modèle du Trésor</strong><small>Phase 1 · Scrutin départemental · Atlantique</small></div>
+                    </div>
+                    <div class="etapes isoloir__etapes">
+                        <div class="etape est-faite"><span class="etape__puce"><i data-lucide="check"></i></span><span class="etape__texte">Choisir<small>votre candidate</small></span></div>
+                        <span class="etape__trait"></span>
+                        <div class="etape est-en-cours"><span class="etape__puce">2</span><span class="etape__texte">Confirmer<small>votre vote</small></span></div>
+                    </div>
+                    <div class="isoloir__droite"><a href="#" class="btn btn-discret isoloir__quitter"><i data-lucide="x"></i><span>Quitter</span></a></div>
+                </header>
+                <div class="bande-tricolore"></div>
+            </section>
         </div>
     </div>
 </x-layouts.maquette>

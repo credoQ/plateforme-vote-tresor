@@ -54,6 +54,20 @@ class Inscription extends Model
     }
 
     /**
+     * Créneau du vote, à l'heure près comme son horodatage (R43) : « 19/11/2026, entre 10 h et 11 h ».
+     */
+    public function creneauDeVote(): ?string
+    {
+        if ($this->date_heure_vote === null) {
+            return null;
+        }
+
+        $debut = $this->date_heure_vote->timezone('Africa/Porto-Novo');
+
+        return $debut->format('d/m/Y').', entre '.$debut->format('G').' h et '.$debut->addHour()->format('G').' h';
+    }
+
+    /**
      * @return array<string, string>
      */
     protected function casts(): array

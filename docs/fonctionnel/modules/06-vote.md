@@ -25,6 +25,7 @@ Ce module permet aux électeurs de voter en ligne pendant la période d’ouvert
 - [x] Taux de participation, seule donnée visible pendant le vote (R46)
 - [x] Tests des règles R33, R38 à R41 et R43 à R46
 - [x] Écrans de l'électeur : bulletin avec recherche, confirmation en deux étapes sans JavaScript, accusé imprimable sans le choix, retrait et réactivation de candidature depuis l'accueil (R32 à R34, R40, R42)
+- [x] Accusé de vote en PDF sur le canevas des documents (QR code de vérification publique sans l'identité du votant), téléchargeable par son seul électeur et envoyé par e-mail en pièce jointe (file `mails`) après le vote (R43)
 
 ## Acteurs
 
@@ -41,6 +42,8 @@ INSCRIRE (émargement), BULLETIN, CANDIDATE
 ## Écrans
 
 - `/vote` : bulletin, confirmation, accusé de vote (électeur)
+- `/vote/accuse/{numero}` : accusé de vote en PDF (électeur)
+- `/verification/accuse-de-vote/{numero}` : vérification publique de l'accusé (lien signé du QR code)
 - `/espace` : retrait et réactivation de sa candidature
 
 ## Règles de gestion

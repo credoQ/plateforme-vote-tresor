@@ -22,11 +22,14 @@
                     <tbody>
                         <tr><td>Accusé n°</td><td class="nombre reference">{{ $inscription->numero_accuse }}</td></tr>
                         <tr><td>Scrutin</td><td class="nombre">{{ $scrutin->libelle }}</td></tr>
-                        <tr><td>Horodatage</td><td class="nombre">{{ $inscription->date_heure_vote->timezone('Africa/Porto-Novo')->format('d/m/Y') }}, entre {{ $inscription->date_heure_vote->timezone('Africa/Porto-Novo')->format('H') }} h et {{ $inscription->date_heure_vote->timezone('Africa/Porto-Novo')->addHour()->format('H') }} h</td></tr>
+                        <tr><td>Date et heure</td><td class="nombre">{{ $inscription->creneauDeVote() }}</td></tr>
                     </tbody>
                 </table>
+                @if (session('accuse_envoye'))
+                    <p class="aide"><i data-lucide="mail"></i> L’accusé de vote vous est aussi envoyé par e-mail.</p>
+                @endif
                 <div class="formulaire__actions">
-                    <button type="button" class="btn btn-secondaire" data-imprimer><i data-lucide="printer"></i>Imprimer l’accusé</button>
+                    <a href="{{ route('vote.accuse', $inscription->numero_accuse) }}" class="btn btn-secondaire"><i data-lucide="download"></i>Télécharger l’accusé (PDF)</a>
                     <a href="{{ route('espace') }}" class="btn btn-primaire">Terminer</a>
                 </div>
             </div>

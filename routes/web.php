@@ -25,6 +25,7 @@ Route::redirect('/', '/espace');
 // Vérification publique des documents PDF par leur QR code (liens signés).
 Route::middleware(['signed', 'throttle:30,1'])->prefix('verification')->name('verification.')->group(function () {
     Route::get('/proces-verbal/{numero}', [VerificationController::class, 'procesVerbal'])->name('proces-verbal');
+    Route::get('/accuse-de-vote/{numero}', [VerificationController::class, 'accuseDeVote'])->name('accuse-de-vote');
     Route::get('/export', [VerificationController::class, 'export'])->name('export');
 });
 
@@ -55,6 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/vote', [VoteController::class, 'show'])->name('vote');
         Route::post('/vote/confirmation', [VoteController::class, 'confirmer'])->name('vote.confirmer');
         Route::post('/vote', [VoteController::class, 'store'])->middleware('throttle:10,1')->name('vote.store');
+        Route::get('/vote/accuse/{numero}', [VoteController::class, 'accuse'])->name('vote.accuse');
     });
     Route::post('/candidatures/{candidate}/desister', [CandidatureController::class, 'desister'])->name('candidatures.desister');
     Route::post('/candidatures/{candidate}/reactiver', [CandidatureController::class, 'reactiver'])->name('candidatures.reactiver');

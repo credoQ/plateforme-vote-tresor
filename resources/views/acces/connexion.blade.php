@@ -1,4 +1,4 @@
-<x-layouts.invite titre="Connexion">
+<x-layouts.invite titre="Connexion" :indexer="true">
     <form method="POST" action="{{ route('login.store') }}" novalidate>
         @csrf
         <h2>Connexion</h2>

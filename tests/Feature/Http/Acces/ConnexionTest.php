@@ -36,6 +36,19 @@ class ConnexionTest extends TestCase
         $this->get(route('login'))->assertOk()->assertSee('Matricule')->assertSee('Recevoir mon code')->assertDontSee('Mot de passe');
     }
 
+    public function test_seule_la_page_de_connexion_est_indexable_et_partageable(): void
+    {
+        $this->get(route('login'))->assertOk()
+            ->assertSee('<meta name="robots" content="index, follow">', false)
+            ->assertSee('<meta property="og:image" content="'.asset('images/partage.png').'">', false)
+            ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
+            ->assertSee('<link rel="icon" href="'.asset('favicon.ico').'" sizes="48x48">', false);
+
+        $this->post(route('login.store'), ['login' => '000000']);
+
+        $this->get(route('login.code'))->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+    }
+
     /**
      * R42 : le code est envoyé à l'adresse du compte, puis permet de se connecter une seule fois.
      */

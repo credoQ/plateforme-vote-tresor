@@ -88,8 +88,10 @@ class ConstituerListes
             return Agent::femmes()->whereKey($electeurs->keys())->pluck('id')->mapWithKeys(fn (int $id): array => [$id => null]);
         }
 
-        // Nomination : les candidates sont saisies par le comité, l'actualisation n'y touche pas.
+        // Nomination : les candidates sont saisies par le comité (R58) ; seules restent celles encore inscrites.
         if ($origine === OrigineCandidate::Nomination) {
+            $scrutin->candidates()->whereNotIn('agent_id', $electeurs->keys())->delete();
+
             return null;
         }
 

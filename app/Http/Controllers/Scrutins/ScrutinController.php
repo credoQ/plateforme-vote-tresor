@@ -8,8 +8,10 @@ use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Scrutins\RouvrirListes;
 use App\Enums\Acces\CodeRole;
+use App\Enums\Scrutins\OrigineCandidate;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
+use App\Models\Agent;
 use App\Models\Candidate;
 use App\Models\Phase;
 use App\Models\Scrutin;
@@ -45,10 +47,10 @@ class ScrutinController extends Controller
         $perimetre = $utilisateur->aLeRole(CodeRole::Comite, CodeRole::Observateur, CodeRole::Administrateur) ? null : $utilisateur->perimetre();
         $recherche = trim((string) $request->query('recherche', ''));
 
-        $scrutin->load(['phase.edition', 'poleElectoral', 'structures' => fn ($q) => $q->orderBy('code'), 'procesVerbal']);
+        $scrutin->load(['phase.edition', 'college.poleElectoral', 'poleElectoral', 'structures' => fn ($q) => $q->orderBy('code'), 'procesVerbal']);
 
         $structuresInscription = $scrutin->inscriptions()->pluck('structure_id', 'agent_id');
-        $candidates = $scrutin->candidates()->with(['agent', 'desactiveePar'])->get()
+        $candidates = $scrutin->candidates()->with(['agent', 'desactiveePar', 'nommeePar'])->get()
             ->each(fn ($c) => $c->setAttribute('structure_inscription_id', $structuresInscription[$c->agent_id] ?? null))
             ->filter(fn ($c) => $perimetre === null || in_array($c->structure_inscription_id, $perimetre, true))
             ->sortBy([['rang', 'asc'], [fn ($c) => $c->agent->nomComplet(), 'asc']])
@@ -73,10 +75,33 @@ class ScrutinController extends Controller
             'restreint' => $perimetre !== null,
             'fuseau' => self::FUSEAU,
             'pilote' => $utilisateur->can('piloter'),
+            ...$this->nominations($scrutin, $utilisateur),
             'structures' => $scrutin->structures->keyBy('id'),
             'participation' => $scrutin->participation(),
             ...$this->resultats($scrutin, $candidates, $utilisateur),
         ]);
+    }
+
+    /**
+     * Saisie des nominées par le comité (R58) : ouverte sur un collège à nomination tant que les listes ne sont pas arrêtées,
+     * avec les électrices du scrutin pas encore candidates pour la saisie du matricule.
+     *
+     * @return array{nominationOuverte: bool, nominables: Collection<int, Agent>}
+     */
+    private function nominations(Scrutin $scrutin, User $utilisateur): array
+    {
+        $ouverte = $utilisateur->can('piloter')
+            && $scrutin->college->origine_candidates === OrigineCandidate::Nomination
+            && $scrutin->listesSontModifiables();
+
+        return [
+            'nominationOuverte' => $ouverte,
+            'nominables' => ! $ouverte ? collect() : Agent::femmes()
+                ->whereIn('id', $scrutin->inscriptions()->select('agent_id'))
+                ->whereNotIn('id', $scrutin->candidates()->select('agent_id'))
+                ->orderBy('nom')->orderBy('prenoms')
+                ->get(['id', 'matricule', 'nom', 'prenoms']),
+        ];
     }
 
     /**

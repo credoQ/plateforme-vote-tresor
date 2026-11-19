@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 #[Table('candidates')]
 #[Fillable([
-    'scrutin_id', 'agent_id', 'origine', 'statut', 'date_desistement', 'motif_desistement',
+    'scrutin_id', 'agent_id', 'origine', 'reference_nomination', 'nommee_par_id', 'date_nomination', 'statut', 'date_desistement', 'motif_desistement',
     'desactivee_par_id', 'candidate_source_id', 'nb_voix', 'pourcentage', 'rang', 'est_laureate',
 ])]
 class Candidate extends Model
@@ -57,6 +57,16 @@ class Candidate extends Model
     public function desactiveePar(): BelongsTo
     {
         return $this->belongsTo(User::class, 'desactivee_par_id');
+    }
+
+    /**
+     * Membre du comité qui a saisi la nomination (R58).
+     *
+     * @return BelongsTo<User, $this>
+     */
+    public function nommeePar(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'nommee_par_id');
     }
 
     /**
@@ -100,6 +110,7 @@ class Candidate extends Model
             'origine' => OrigineCandidate::class,
             'statut' => StatutCandidate::class,
             'date_desistement' => 'immutable_datetime',
+            'date_nomination' => 'immutable_datetime',
             'nb_voix' => 'integer',
             'pourcentage' => 'decimal:2',
             'rang' => 'integer',

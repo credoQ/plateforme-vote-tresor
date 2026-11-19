@@ -9,6 +9,7 @@ use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Scrutins\RouvrirListes;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Scrutins\OrigineCandidate;
+use App\Enums\Scrutins\StatutCandidate;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
@@ -18,6 +19,7 @@ use App\Models\Scrutin;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
@@ -30,6 +32,10 @@ use Illuminate\View\View;
 class ScrutinController extends Controller
 {
     public const FUSEAU = 'Africa/Porto-Novo';
+
+    private const CANDIDATES_PAR_PAGE = 25;
+
+    private const PAGE_CANDIDATES = 'page_candidates';
 
     public function generer(Phase $phase, GenererScrutins $generer): RedirectResponse
     {
@@ -56,6 +62,12 @@ class ScrutinController extends Controller
             ->sortBy([['rang', 'asc'], [fn ($c) => $c->agent->nomComplet(), 'asc']])
             ->values();
 
+        $filtresCandidates = [
+            'candidate' => trim((string) $request->query('candidate', '')),
+            'statut_candidate' => StatutCandidate::tryFrom((string) $request->query('statut_candidate', '')),
+            'structure_candidate' => $request->integer('structure_candidate') ?: null,
+        ];
+
         $inscriptions = $scrutin->inscriptions()
             ->with(['agent', 'structure'])
             ->when($perimetre !== null, fn ($q) => $q->whereIn('inscriptions.structure_id', $perimetre))
@@ -70,7 +82,9 @@ class ScrutinController extends Controller
         return view('scrutins.show', [
             'scrutin' => $scrutin,
             'candidates' => $candidates,
-            'inscriptions' => $inscriptions,
+            'pageCandidates' => $this->pageCandidates($candidates, $filtresCandidates, $request),
+            'filtresCandidates' => $filtresCandidates,
+            'inscriptions' => $inscriptions->fragment('liste-electorale'),
             'recherche' => $recherche,
             'restreint' => $perimetre !== null,
             'fuseau' => self::FUSEAU,
@@ -80,6 +94,34 @@ class ScrutinController extends Controller
             'participation' => $scrutin->participation(),
             ...$this->resultats($scrutin, $candidates, $utilisateur),
         ]);
+    }
+
+    /**
+     * Candidates affichées dans le tableau : recherche par nom ou matricule, statut et structure d'inscription,
+     * 25 par page (paramètre de page distinct de celui de la liste électorale).
+     *
+     * @param  Collection<int, Candidate>  $candidates
+     * @param  array{candidate: string, statut_candidate: StatutCandidate|null, structure_candidate: int|null}  $filtres
+     * @return LengthAwarePaginator<int, Candidate>
+     */
+    private function pageCandidates(Collection $candidates, array $filtres, Request $request): LengthAwarePaginator
+    {
+        $terme = mb_strtolower($filtres['candidate']);
+        $filtrees = $candidates
+            ->when($terme !== '', fn (Collection $c) => $c->filter(fn (Candidate $candidate): bool => str_contains(mb_strtolower($candidate->agent->nomComplet().' '.$candidate->agent->matricule), $terme)))
+            ->when($filtres['statut_candidate'] !== null, fn (Collection $c) => $c->filter(fn (Candidate $candidate): bool => $candidate->statut === $filtres['statut_candidate']))
+            ->when($filtres['structure_candidate'] !== null, fn (Collection $c) => $c->filter(fn (Candidate $candidate): bool => $candidate->structure_inscription_id === $filtres['structure_candidate']))
+            ->values();
+
+        $page = LengthAwarePaginator::resolveCurrentPage(self::PAGE_CANDIDATES);
+
+        return (new LengthAwarePaginator(
+            $filtrees->forPage($page, self::CANDIDATES_PAR_PAGE)->values(),
+            $filtrees->count(),
+            self::CANDIDATES_PAR_PAGE,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query(), 'pageName' => self::PAGE_CANDIDATES],
+        ))->fragment('candidates');
     }
 
     /**

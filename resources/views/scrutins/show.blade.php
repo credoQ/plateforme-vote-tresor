@@ -78,7 +78,7 @@
 
     @include('resultats._scrutin')
 
-    <section class="carte espace-bloc">
+    <section class="carte espace-bloc" id="candidates">
         <div class="carte__entete"><h2>Candidates</h2><span class="etiquette">{{ $scrutin->college->origine_candidates->libelleCollege() }} · {{ $scrutin->nbElues() }} élue(s)</span></div>
         @if ($ineligiblesEcartees->isNotEmpty())
             <div class="carte__corps">
@@ -108,11 +108,38 @@
                 </datalist>
             </div>
         @endif
+        <x-barre-filtres :total="$pageCandidates->total()" libelle="candidate(s)" :action="route('scrutins.show', $scrutin).'#candidates'" :conserver="['recherche' => $recherche]">
+            <x-filtre libelle="Recherche" pour="filtre-candidate" large>
+                <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-candidate" type="search" name="candidate" class="champ" value="{{ $filtresCandidates['candidate'] }}" placeholder="Nom ou matricule"></div>
+            </x-filtre>
+            @if ($structures->count() > 1)
+                <x-filtre libelle="Structure" pour="filtre-structure-candidate">
+                    <x-select-recherche compact soumettre>
+                        <select id="filtre-structure-candidate" name="structure_candidate" class="champ">
+                            <option value="">Toutes les structures</option>
+                            @foreach ($structures as $structure)
+                                <option value="{{ $structure->id }}" data-detail="{{ $structure->libelle }}" @selected($filtresCandidates['structure_candidate'] === $structure->id)>{{ $structure->code }}</option>
+                            @endforeach
+                        </select>
+                    </x-select-recherche>
+                </x-filtre>
+            @endif
+            <x-filtre libelle="Statut" pour="filtre-statut-candidate">
+                <x-select-recherche compact soumettre>
+                    <select id="filtre-statut-candidate" name="statut_candidate" class="champ">
+                        <option value="">Tous les statuts</option>
+                        @foreach (\App\Enums\Scrutins\StatutCandidate::cases() as $cas)
+                            <option value="{{ $cas->value }}" @selected($filtresCandidates['statut_candidate'] === $cas)>{{ $cas->libelle() }}</option>
+                        @endforeach
+                    </select>
+                </x-select-recherche>
+            </x-filtre>
+        </x-barre-filtres>
         <div class="tableau-defilant">
             <table class="tableau tableau--fiches">
                 <thead><tr><th>Candidate</th><th>Structure</th><th>Origine</th><th>Statut</th><th class="actions">Actions</th></tr></thead>
                 <tbody>
-                    @forelse ($candidates as $candidate)
+                    @forelse ($pageCandidates as $candidate)
                         <tr>
                             <td>{{ $candidate->agent->nomComplet() }}<div class="aide">{{ $candidate->agent->matricule }}</div></td>
                             <td>{{ $structures[$candidate->structure_inscription_id]->code ?? '' }}</td>
@@ -151,16 +178,18 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5"><div class="etat-vide"><i data-lucide="users-round"></i><p>Aucune candidate.</p></div></td></tr>
+                        <tr><td colspan="5"><div class="etat-vide"><i data-lucide="users-round"></i><p>{{ $candidates->isEmpty() ? 'Aucune candidate.' : 'Aucune candidate ne correspond aux filtres.' }}</p></div></td></tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
+        {{ $pageCandidates->onEachSide(1)->links('pagination.tresor', ['libelle' => 'candidates']) }}
     </section>
 
-    <section class="carte espace-bloc">
+    <section class="carte espace-bloc" id="liste-electorale">
         <div class="carte__entete"><h2>Liste électorale</h2></div>
-        <x-barre-filtres :total="$inscriptions->total()" libelle="inscrit(s)">
+        <x-barre-filtres :total="$inscriptions->total()" libelle="inscrit(s)" :action="route('scrutins.show', $scrutin).'#liste-electorale'"
+                         :conserver="['candidate' => $filtresCandidates['candidate'], 'statut_candidate' => $filtresCandidates['statut_candidate']?->value, 'structure_candidate' => $filtresCandidates['structure_candidate']]">
             <x-filtre libelle="Recherche" pour="filtre-recherche" large>
                 <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Matricule ou nom"></div>
             </x-filtre>
@@ -206,14 +235,14 @@
             </x-modale-confirmation>
         @endif
         @if ($nominationOuverte)
-            @foreach ($candidates->where('origine', OrigineCandidate::Nomination) as $candidate)
+            @foreach ($pageCandidates->where('origine', OrigineCandidate::Nomination) as $candidate)
                 <x-modale-confirmation :id="'modale-retirer-nomination-'.$candidate->id" :titre="'Retirer la nomination de '.$candidate->agent->nomComplet().' ?'" :action="route('nominations.destroy', $candidate)" bouton="Retirer la nomination" icone="user-minus" :danger="true">
                     Elle ne sera plus candidate à ce scrutin et reste électrice. Le retrait est tracé au journal. Pour une nominée qui renonce à concourir, désactivez plutôt sa candidature.
                 </x-modale-confirmation>
             @endforeach
         @endif
         @if ($scrutin->accepteLesDesistements())
-            @foreach ($actives as $candidate)
+            @foreach ($pageCandidates->getCollection()->filter->estActive() as $candidate)
                 @can('desactiver', $candidate)
                     <x-modale-confirmation :id="'modale-desactiver-'.$candidate->id" :titre="'Désactiver '.$candidate->agent->nomComplet().' ?'" :action="route('candidatures.desister', $candidate)" bouton="Désactiver la candidate" icone="user-x" :danger="true">
                         À sa demande, la candidate ne figurera plus sur le bulletin et ne pourra recevoir aucune voix. Elle reste électrice et peut être réactivée jusqu’à l’ouverture.

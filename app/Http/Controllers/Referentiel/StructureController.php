@@ -103,16 +103,27 @@ class StructureController extends Controller
         return redirect()->route('structures.show', $structure)->with('succes', "La structure {$structure->code} est enregistrée.");
     }
 
-    public function show(Structure $structure): View
+    public function show(Request $request, Structure $structure): View
     {
         Gate::authorize('view', $structure);
+
+        $recherche = trim((string) $request->query('recherche', ''));
+        $statut = (string) $request->query('statut', 'toutes');
 
         return view('referentiel.structures.show', [
             'structure' => $structure->load(['typeStructure.poleElectoral', 'departement', 'structureParente']),
             'structuresFilles' => $structure->structuresFilles()
                 ->with('typeStructure')
                 ->withCount(['affectations as agents_en_service_count' => fn (Builder $q) => $q->enCoursLe()])
-                ->orderBy('code')->get(),
+                ->when($recherche !== '', fn ($q) => $q->where(fn ($r) => $r
+                    ->whereLike('code', "%{$recherche}%")->orWhereLike('sigle', "%{$recherche}%")->orWhereLike('libelle', "%{$recherche}%")))
+                ->when($statut === 'actives', fn ($q) => $q->where('actif', true))
+                ->when($statut === 'desactivees', fn ($q) => $q->where('actif', false))
+                ->orderBy('code')
+                ->paginate(25)
+                ->withQueryString(),
+            'recherche' => $recherche,
+            'statut' => $statut,
             'agentsEnService' => $structure->affectations()->enCoursLe()->count(),
         ]);
     }

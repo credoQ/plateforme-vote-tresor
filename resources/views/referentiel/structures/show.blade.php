@@ -69,6 +69,20 @@
                     @endif
                 @endcan
             </div>
+            <x-barre-filtres :total="$structuresFilles->total()" libelle="structure(s)">
+                <x-filtre libelle="Recherche" pour="filtre-recherche" large>
+                    <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Code, sigle ou libellé"></div>
+                </x-filtre>
+                <x-filtre libelle="Statut" pour="filtre-statut">
+                    <x-select-recherche compact soumettre>
+                        <select id="filtre-statut" name="statut" class="champ">
+                            <option value="toutes" @selected($statut === 'toutes')>Toutes</option>
+                            <option value="actives" @selected($statut === 'actives')>Actives</option>
+                            <option value="desactivees" @selected($statut === 'desactivees')>Désactivées</option>
+                        </select>
+                    </x-select-recherche>
+                </x-filtre>
+            </x-barre-filtres>
             <div class="tableau-defilant">
                 <table class="tableau tableau--fiches">
                     <thead><tr><th>Code</th><th>Structure</th><th class="nombre">Agents</th><th>Statut</th></tr></thead>
@@ -87,11 +101,12 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="4"><div class="etat-vide"><p>Aucune structure rattachée.</p></div></td></tr>
+                            <tr><td colspan="4"><div class="etat-vide"><p>{{ $recherche !== '' || $statut !== 'toutes' ? 'Aucune structure rattachée ne correspond aux filtres.' : 'Aucune structure rattachée.' }}</p></div></td></tr>
                         @endforelse
                     </tbody>
                 </table>
             </div>
+            {{ $structuresFilles->onEachSide(1)->links('pagination.tresor', ['libelle' => 'structures rattachées']) }}
         </section>
     </div>
 

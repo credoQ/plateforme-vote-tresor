@@ -70,13 +70,25 @@ class TachesEchoueesTest extends TestCase
         $this->post(route('taches-echouees.relancer', (string) Str::uuid()))->assertNotFound();
     }
 
-    private function tacheEnEchec(): string
+    public function test_filtre_les_taches_en_echec_par_file_et_par_erreur(): void
+    {
+        $this->tacheEnEchec('mails', 'Boîte de réception pleine');
+        $this->tacheEnEchec('urgent', 'Délai de connexion dépassé');
+
+        $this->actingAs($this->admin)->get(route('taches-echouees.index', ['file' => 'mails']))
+            ->assertOk()->assertSee('Boîte de réception pleine')->assertDontSee('Délai de connexion dépassé')
+            ->assertSee('Relancer les 2 tâche(s) en échec ?');
+        $this->get(route('taches-echouees.index', ['recherche' => 'délai de connexion']))
+            ->assertSee('Délai de connexion dépassé')->assertDontSee('Boîte de réception pleine');
+    }
+
+    private function tacheEnEchec(string $file = 'default', string $erreur = 'Connexion au serveur de messagerie refusée'): string
     {
         $uuid = (string) Str::uuid();
         DB::table('failed_jobs')->insert([
             'uuid' => $uuid,
             'connection' => 'database',
-            'queue' => 'default',
+            'queue' => $file,
             'payload' => json_encode([
                 'uuid' => $uuid,
                 'displayName' => GenererFichierProcesVerbal::class,
@@ -84,7 +96,7 @@ class TachesEchoueesTest extends TestCase
                 'attempts' => 3,
                 'data' => ['commandName' => GenererFichierProcesVerbal::class, 'command' => serialize(new GenererFichierProcesVerbal(1))],
             ]),
-            'exception' => "RuntimeException: Connexion au serveur de messagerie refusée\n#0 trace",
+            'exception' => "RuntimeException: {$erreur}\n#0 trace",
             'failed_at' => now(),
         ]);
 

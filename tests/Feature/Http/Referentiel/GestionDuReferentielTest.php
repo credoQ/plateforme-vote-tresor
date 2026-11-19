@@ -153,6 +153,16 @@ class GestionDuReferentielTest extends TestCase
             ->assertSee('TD-ZOU');
     }
 
+    public function test_filtre_les_structures_rattachees_d_une_structure(): void
+    {
+        $td = $this->structure('TD-ATL');
+
+        $this->actingAs($this->admin)->get(route('structures.show', [$td, 'recherche' => 'tc-ouidah']))
+            ->assertOk()->assertSee('TC-OUIDAH')->assertSee('<b class="chiffres">1</b> structure(s)', false);
+        $this->get(route('structures.show', [$td, 'statut' => 'desactivees']))
+            ->assertSee('Aucune structure rattachée ne correspond aux filtres.');
+    }
+
     public function test_filtre_les_structures_par_type_et_departement(): void
     {
         $zou = Departement::where('code', 'ZOU')->firstOrFail();

@@ -93,7 +93,7 @@ git merge --no-ff module/06-vote
 
 - Plateforme de vote électronique de la Direction générale du Trésor et de la Comptabilité publique (DGTCP, Bénin). Chaque édition annuelle désigne la « Femme modèle du Trésor ».
 - Références fonctionnelles, dans le dépôt :
-  - `docs/fonctionnel/regles-de-gestion.md` : règles R1 à R58 ;
+  - `docs/fonctionnel/regles-de-gestion.md` : règles R1 à R59 ;
   - `docs/fonctionnel/modules/*.md` : fonctionnalités de chaque module, avec ses acteurs, ses entités et ses règles ;
   - le document technique Word (MCD, cas d'utilisation), hors du dépôt.
 - En cas de doute sur une règle métier, lisez ces fichiers plutôt que de supposer. Citez le numéro de la règle (`R40`) dans le code et les tests concernés.

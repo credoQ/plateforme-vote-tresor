@@ -28,6 +28,11 @@
             <div class="tuile__haut"><span class="surtitre">Quorum</span><span class="tuile__icone"><i data-lucide="percent"></i></span></div>
             <div class="tuile__valeur">{{ $edition->quorum === null ? 'Aucun' : number_format((float) $edition->quorum, 0, ',', ' ').' %' }}</div>
         </div>
+        <div class="tuile">
+            <div class="tuile__haut"><span class="surtitre">Rééligibilité</span><span class="tuile__icone"><i data-lucide="crown"></i></span></div>
+            <div class="tuile__valeur">{{ $edition->delai_reeligibilite }} an(s)</div>
+            <div class="tuile__detail">après l’élection d’une femme modèle</div>
+        </div>
     </div>
 
     @foreach ($edition->phases as $phase)

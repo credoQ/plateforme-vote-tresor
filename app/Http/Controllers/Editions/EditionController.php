@@ -164,6 +164,7 @@ class EditionController extends Controller
             'vote_blanc_autorise' => $request->boolean('vote_blanc_autorise'),
             'vote_pour_soi_autorise' => $request->boolean('vote_pour_soi_autorise'),
             'quorum' => $request->filled('quorum') ? $request->input('quorum') : null,
+            'delai_reeligibilite' => $request->filled('delai_reeligibilite') ? $request->input('delai_reeligibilite') : 3,
         ];
     }
 }

@@ -30,6 +30,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] Corrections motivées des listes après l'arrêt (R27) : réouverture par le comité avec motif tracé au journal, avant l'ouverture du scrutin, puis correction des agents, actualisation et nouvel arrêt
 - [x] Annulation d'un scrutin dont toutes les candidates sont désactivées (R38), à l'ouverture du scrutin (module 06)
 - [x] Nomination par le comité (R28, R58) : actions `NominerCandidate` et `RetirerNomination`, saisie du matricule et de la référence de la décision sur la fiche du scrutin, jusqu'à l'arrêt des listes, sans limite de nombre ; tracées au journal
+- [x] Inéligibilité (R59) : délai de rééligibilité paramétré sur l'édition ; historique `femmes_modeles` alimenté à la clôture de la dernière phase et importé (Excel ou CSV) pour les éditions antérieures ; femme modèle inéligible écartée des candidates d'office et refusée à la nomination, signalée sur la fiche du scrutin et sur sa fiche agent ; écran `/femmes-modeles` (comité)
 - [ ] Remplacement d'une lauréate qui se désiste (R36), point à confirmer par le métier
 - [x] Exports CSV, Excel et PDF des listes, avec QR code de vérification sur le PDF (module 08)
 
@@ -52,7 +53,7 @@ SCRUTIN, COUVRIR, INSCRIRE (liste électorale), CANDIDATE, QUALIFIER
 
 ## Règles de gestion
 
-Règles R24 à R27, R28 à R38 et R58, extraites de [regles-de-gestion.md](../regles-de-gestion.md) :
+Règles R24 à R27, R28 à R38, R58 et R59, extraites de [regles-de-gestion.md](../regles-de-gestion.md) :
 
 ### Circonscriptions et listes électorales
 
@@ -80,3 +81,4 @@ Règles R24 à R27, R28 à R38 et R58, extraites de [regles-de-gestion.md](../re
 - **R37** · Pour un collège aux candidates d’office, aucun scrutin n’est généré pour une circonscription qui ne compte aucune agent de sexe féminin en service à la date de gel : elle n’a pas de lauréate et ses agents ne votent pas dans cette phase.
 - **R38** · Si toutes les candidates d’un scrutin sont désactivées avant son ouverture, le scrutin est annulé.
 - **R58** · Pour un collège à nomination, le comité saisit les nominées de chaque scrutin jusqu’à l’arrêt des listes : une agent de sexe féminin inscrite sur la liste électorale du scrutin, avec la référence de la décision (procès-verbal, fiche de nomination). Le nombre de nominées n’est pas limité. Il peut retirer une nomination saisie par erreur dans les mêmes conditions. Chaque nomination et chaque retrait sont tracés au journal.
+- **R59** · Une femme modèle du Trésor élue l’année A ne peut être de nouveau candidate, d’office ou nominée, à l’édition de l’année N tant que N − A ≤ délai de rééligibilité, paramètre de l’édition (3 ans par défaut) : élue en 2024 avec un délai de 3 ans, elle est de nouveau candidate en 2028. Elle reste électrice. L’historique des femmes modèles est alimenté à la clôture de la dernière phase de chaque édition et complété par le comité, par import, pour les éditions antérieures à la plateforme.

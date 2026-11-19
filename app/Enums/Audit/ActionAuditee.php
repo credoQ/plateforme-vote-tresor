@@ -31,6 +31,8 @@ enum ActionAuditee: string
     case CandidateReactivee = 'CANDIDATE_REACTIVEE';
     case CandidateNominee = 'CANDIDATE_NOMINEE';
     case NominationRetiree = 'NOMINATION_RETIREE';
+    case ImportFemmesModeles = 'IMPORT_FEMMES_MODELES';
+    case FemmeModeleSupprimee = 'FEMME_MODELE_SUPPRIMEE';
     case ScrutinOuvert = 'SCRUTIN_OUVERT';
     case ScrutinAnnule = 'SCRUTIN_ANNULE';
     case ScrutinFerme = 'SCRUTIN_FERME';
@@ -69,6 +71,8 @@ enum ActionAuditee: string
             self::CandidateReactivee => 'Candidate réactivée',
             self::CandidateNominee => 'Candidate nominée',
             self::NominationRetiree => 'Nomination retirée',
+            self::ImportFemmesModeles => 'Import de l’historique des femmes modèles',
+            self::FemmeModeleSupprimee => 'Femme modèle retirée de l’historique',
             self::ScrutinOuvert => 'Scrutin ouvert',
             self::ScrutinAnnule => 'Scrutin annulé',
             self::ScrutinFerme => 'Scrutin fermé',

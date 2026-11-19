@@ -27,6 +27,13 @@
                 </fieldset>
 
                 <div class="formulaire__groupe">
+                    <label class="libelle" for="delai_reeligibilite">Délai avant qu’une femme modèle puisse être réélue (années)</label>
+                    <input id="delai_reeligibilite" name="delai_reeligibilite" type="number" min="0" max="20" class="champ champ--court" value="{{ old('delai_reeligibilite', $edition->delai_reeligibilite) }}">
+                    <p class="aide">Avec 3 ans, une femme modèle élue en 2024 peut de nouveau être candidate en 2028.</p>
+                    @error('delai_reeligibilite')<p class="erreur-champ">{{ $message }}</p>@enderror
+                </div>
+
+                <div class="formulaire__groupe">
                     <label class="libelle" for="quorum">Quorum de participation (%)</label>
                     <input id="quorum" name="quorum" type="number" min="1" max="100" step="0.01" class="champ" value="{{ old('quorum', $edition->quorum) }}" placeholder="Aucun quorum">
                     @error('quorum')<p class="erreur-champ">{{ $message }}</p>@enderror

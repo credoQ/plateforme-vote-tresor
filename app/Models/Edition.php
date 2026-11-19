@@ -14,13 +14,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Collection as SupportCollection;
 
 /**
  * Édition annuelle du concours (R16). Le vote blanc et le quorum sont des paramètres de l'édition,
  * en attendant leur validation par le métier.
  */
 #[Table('editions')]
-#[Fillable(['annee', 'libelle', 'date_debut', 'date_fin', 'date_gel', 'statut', 'vote_blanc_autorise', 'vote_pour_soi_autorise', 'quorum'])]
+#[Fillable(['annee', 'libelle', 'date_debut', 'date_fin', 'date_gel', 'statut', 'vote_blanc_autorise', 'vote_pour_soi_autorise', 'quorum', 'delai_reeligibilite'])]
 class Edition extends Model
 {
     /** @use HasFactory<EditionFactory> */
@@ -33,6 +34,7 @@ class Edition extends Model
         'statut' => 'EN_PREPARATION',
         'vote_blanc_autorise' => false,
         'vote_pour_soi_autorise' => true,
+        'delai_reeligibilite' => 3,
     ];
 
     /**
@@ -79,6 +81,48 @@ class Edition extends Model
             ->values();
     }
 
+    /**
+     * Agents inéligibles à cette édition (R59) : élues femmes modèles depuis moins de « délai » ans, soit
+     * année de l'édition − année d'élection ≤ délai. Matricule => année de la dernière élection.
+     *
+     * @return SupportCollection<string, int>
+     */
+    public function ineligibles(): SupportCollection
+    {
+        return FemmeModele::query()
+            ->where('annee', '<', $this->annee)
+            ->where('annee', '>=', $this->annee - $this->delai_reeligibilite)
+            ->orderBy('annee')
+            ->pluck('annee', 'matricule');
+    }
+
+    /**
+     * Édition qui s'organise ou se déroule (la plus récente en préparation ou en cours) : celle dont le délai
+     * de rééligibilité s'applique aujourd'hui (R59).
+     */
+    public static function courante(): ?self
+    {
+        return self::whereIn('statut', [StatutEdition::EnPreparation->value, StatutEdition::EnCours->value])->orderByDesc('annee')->first();
+    }
+
+    /**
+     * Dernière année où une femme modèle élue en $annee est inéligible, selon le délai de cette édition (R59).
+     */
+    public function derniereAnneeIneligible(int $annee): int
+    {
+        return $annee + $this->delai_reeligibilite;
+    }
+
+    /**
+     * Motif d'inéligibilité d'une agent à cette édition (R59), ou null si elle peut être candidate.
+     */
+    public function motifIneligibilite(string $matricule): ?string
+    {
+        $annee = $this->ineligibles()->get($matricule);
+
+        return $annee === null ? null : "élue Femme modèle du Trésor en {$annee}, elle ne peut être de nouveau candidate qu’à partir de ".($this->derniereAnneeIneligible($annee) + 1).' (R59)';
+    }
+
     public function estModifiable(): bool
     {
         return $this->statut === StatutEdition::EnPreparation;
@@ -112,6 +156,7 @@ class Edition extends Model
             'vote_blanc_autorise' => 'boolean',
             'vote_pour_soi_autorise' => 'boolean',
             'quorum' => 'decimal:2',
+            'delai_reeligibilite' => 'integer',
         ];
     }
 }

@@ -86,7 +86,7 @@ class ScrutinController extends Controller
      * Saisie des nominées par le comité (R58) : ouverte sur un collège à nomination tant que les listes ne sont pas arrêtées,
      * avec les électrices du scrutin pas encore candidates pour la saisie du matricule.
      *
-     * @return array{nominationOuverte: bool, nominables: Collection<int, Agent>}
+     * @return array{ineligiblesEcartees: Collection<int, string>, nominationOuverte: bool, nominables: Collection<int, Agent>}
      */
     private function nominations(Scrutin $scrutin, User $utilisateur): array
     {
@@ -94,7 +94,17 @@ class ScrutinController extends Controller
             && $scrutin->college->origine_candidates === OrigineCandidate::Nomination
             && $scrutin->listesSontModifiables();
 
+        // R59 : électrices du scrutin écartées des candidates parce que femmes modèles encore inéligibles.
+        $ineligibles = $scrutin->phase->edition->ineligibles();
+        $ecartees = $scrutin->college->origine_candidates === OrigineCandidate::Qualification ? collect() : Agent::femmes()
+            ->whereIn('id', $scrutin->inscriptions()->select('agent_id'))
+            ->whereIn('matricule', $ineligibles->keys())
+            ->orderBy('nom')
+            ->get()
+            ->map(fn (Agent $agent): string => "{$agent->nomComplet()} (élue en {$ineligibles[$agent->matricule]})");
+
         return [
+            'ineligiblesEcartees' => $ecartees,
             'nominationOuverte' => $ouverte,
             'nominables' => ! $ouverte ? collect() : Agent::femmes()
                 ->whereIn('id', $scrutin->inscriptions()->select('agent_id'))

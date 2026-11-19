@@ -99,7 +99,7 @@ class ScrutinController extends Controller
             'actives' => $actives,
             'rangEnBalance' => $rangEnBalance,
             'exAequo' => $rangEnBalance === null ? collect() : $actives->where('rang', $rangEnBalance),
-            'placesRestantes' => $scrutin->phase->nb_qualifiees - $actives->where('est_laureate', true)->count(),
+            'placesRestantes' => $scrutin->nbElues() - $actives->where('est_laureate', true)->count(),
         ];
     }
 

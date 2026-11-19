@@ -19,7 +19,7 @@ class PhaseFactory extends Factory
         return [
             'edition_id' => Edition::factory(),
             'numero' => Phase::PRIMAIRES,
-            'libelle' => Phase::LIBELLES[Phase::PRIMAIRES],
+            'libelle' => Phase::ORGANISATION_PAR_DEFAUT[Phase::PRIMAIRES]['libelle'],
         ];
     }
 }

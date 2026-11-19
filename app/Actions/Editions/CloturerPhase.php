@@ -13,7 +13,7 @@ use Illuminate\Validation\ValidationException;
 
 /**
  * Clôture une phase ouverte quand tous ses scrutins ont leurs résultats validés et publiés, ou sont annulés (R18, R38, R54).
- * La clôture de la finale clôture l'édition (R53).
+ * La clôture de la dernière phase clôture l'édition (R53).
  */
 class CloturerPhase
 {
@@ -39,7 +39,7 @@ class CloturerPhase
             $phase->update(['statut' => StatutPhase::Cloturee, 'date_cloture' => now()]);
             $this->journal->handle(ActionAuditee::PhaseCloturee, $phase, ['phase' => $phase->libelle]);
 
-            if ($phase->estLaFinale()) {
+            if ($phase->estLaDerniere()) {
                 $phase->edition->update(['statut' => StatutEdition::Cloturee]);
             }
 

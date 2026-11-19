@@ -34,8 +34,8 @@ class LancerEdition
             }
 
             $nonPlanifiees = $edition->phases->filter(fn ($phase): bool => $phase->date_debut === null || $phase->date_fin === null);
-            if ($edition->phases->count() !== 3 || $nonPlanifiees->isNotEmpty()) {
-                $this->echouer('Les trois phases doivent être planifiées avant de lancer l’édition (R17).');
+            if ($edition->phases->isEmpty() || $nonPlanifiees->isNotEmpty()) {
+                $this->echouer('Toutes les phases doivent être planifiées avant de lancer l’édition (R17).');
             }
 
             $edition->update(['statut' => StatutEdition::EnCours]);

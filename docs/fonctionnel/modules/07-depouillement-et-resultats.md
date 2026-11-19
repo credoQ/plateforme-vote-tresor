@@ -58,7 +58,7 @@ Règles R47 à R55, extraites de [regles-de-gestion.md](../regles-de-gestion.md)
 - **R49** · En cas d’égalité en tête, les ex-æquo sont départagées selon une modalité restant à préciser par le métier (voir les questions à éclaircir).
 - **R50** · Un quorum de participation peut être fixé par scrutin ; s’il n’est pas atteint, le comité peut prolonger le scrutin.
 - **R51** · Les résultats sont validés par le comité d’organisation ; un procès-verbal numéroté est généré pour chaque scrutin puis les résultats sont publiés.
-- **R52** · Après publication, les lauréates sont qualifiées automatiquement pour la phase suivante (une qualifiée par scrutin par défaut, nombre paramétrable).
-- **R53** · La lauréate de la finale est proclamée « Femme modèle du Trésor » de l’édition.
+- **R52** · Après publication, les lauréates d’un scrutin, autant que son collège compte d’élues, sont qualifiées pour la phase suivante.
+- **R53** · Les lauréates de la dernière phase sont proclamées « Femme modèle du Trésor » de l’édition : une par élue de chaque scrutin de cette phase.
 - **R54** · Les résultats d’une phase deviennent définitifs dès leur validation et leur publication par le comité d’organisation.
 - **R55** · Les résultats publiés et les procès-verbaux sont archivés et ne peuvent plus être modifiés.

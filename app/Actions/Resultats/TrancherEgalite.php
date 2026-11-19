@@ -39,7 +39,7 @@ class TrancherEgalite
             }
 
             $candidates = $scrutin->candidates()->actives()->get();
-            $places = $scrutin->phase->nb_qualifiees - $candidates->where('est_laureate', true)->count();
+            $places = $scrutin->nbElues() - $candidates->where('est_laureate', true)->count();
             $rangEnBalance = $candidates->where('est_laureate', false)->min('rang');
             $exAequo = $candidates->where('rang', $rangEnBalance)->modelKeys();
             $retenuesIds = collect($retenues)->map->getKey()->unique()->values();

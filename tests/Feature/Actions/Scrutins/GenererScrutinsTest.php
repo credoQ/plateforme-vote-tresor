@@ -5,7 +5,9 @@ namespace Tests\Feature\Actions\Scrutins;
 use App\Actions\Scrutins\ConstituerListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\RapportGeneration;
+use App\Enums\Editions\Decoupage;
 use App\Enums\Editions\StatutPhase;
+use App\Enums\Referentiel\CodePoleElectoral;
 use App\Enums\Scrutins\OrigineCandidate;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Affectation;
@@ -96,9 +98,9 @@ class GenererScrutinsTest extends TestCase
     {
         $rapport = $this->generer(Phase::DEMI_FINALES);
 
-        $this->assertSame(['DEMI-DEPARTEMENTAL', 'DEMI-STRUCTURES'], $rapport->scrutins->pluck('code')->all());
-        $this->assertSame($this->ids('femme_td_atl', 'homme_tc_ouidah', 'femme_antenne_dia_zou'), $this->inscrits('DEMI-DEPARTEMENTAL'));
-        $this->assertSame($this->ids('femme_dia', 'homme_dmg', 'femme_service_dr', 'mutee_apres_gel'), $this->inscrits('DEMI-STRUCTURES'));
+        $this->assertSame(['POLE-DEPARTEMENTAL', 'POLE-STRUCTURES'], $rapport->scrutins->pluck('code')->all());
+        $this->assertSame($this->ids('femme_td_atl', 'homme_tc_ouidah', 'femme_antenne_dia_zou'), $this->inscrits('POLE-DEPARTEMENTAL'));
+        $this->assertSame($this->ids('femme_dia', 'homme_dmg', 'femme_service_dr', 'mutee_apres_gel'), $this->inscrits('POLE-STRUCTURES'));
         $this->assertSame(0, Candidate::count(), 'R35 : les candidates attendent la clôture de la phase 1.');
     }
 
@@ -110,11 +112,35 @@ class GenererScrutinsTest extends TestCase
         $rapport = $this->generer(Phase::FINALE);
 
         $finale = $rapport->scrutins->sole();
-        $this->assertSame('FINALE', $finale->code);
+        $this->assertSame('DGTCP', $finale->code);
         $this->assertNull($finale->pole_electoral_id);
         $this->assertSame(Structure::actives()->count(), $finale->structures()->count());
-        $this->assertCount(7, $this->inscrits('FINALE'), 'R29 : tous les agents sauf celle arrivée après le gel.');
-        $this->assertNotContains($this->agents['arrivee_apres_gel']->id, $this->inscrits('FINALE'));
+        $this->assertCount(7, $this->inscrits('DGTCP'), 'R29 : tous les agents sauf celle arrivée après le gel.');
+        $this->assertNotContains($this->agents['arrivee_apres_gel']->id, $this->inscrits('DGTCP'));
+    }
+
+    /**
+     * R20, R26, R28 : une phase paramétrée réunit un scrutin par département et un seul scrutin pour le pôle structures ;
+     * avec des nominées, aucune candidate n'est créée d'office et aucune circonscription n'est écartée faute de femme.
+     */
+    public function test_r20_decoupe_une_phase_selon_ses_colleges(): void
+    {
+        $colleges = $this->edition->phase(Phase::PRIMAIRES)->colleges()->with('poleElectoral')->get();
+        $colleges->firstWhere('poleElectoral.code', CodePoleElectoral::Departemental)->update(['origine_candidates' => OrigineCandidate::Nomination]);
+        $colleges->firstWhere('poleElectoral.code', CodePoleElectoral::Structures)->update(['decoupage' => Decoupage::Ensemble, 'nb_elues' => 3]);
+
+        $rapport = $this->generer(Phase::PRIMAIRES);
+
+        $this->assertCount(13, $rapport->scrutins, '12 départements et le pôle structures.');
+        $this->assertSame([], $rapport->circonscriptionsSansFemme);
+        $this->assertSame(0, $this->scrutin('DEP-ATL')->candidates->count(), 'Les nominées sont saisies par le comité.');
+
+        $central = $this->scrutin('POLE-STRUCTURES');
+        $this->assertSame('Scrutin du pôle structures', $central->libelle);
+        $this->assertSame(3, $central->nbElues());
+        $this->assertSame($this->ids('femme_dia', 'homme_dmg', 'femme_service_dr', 'mutee_apres_gel'), $this->inscrits('POLE-STRUCTURES'));
+        $this->assertSame($this->ids('femme_dia', 'femme_service_dr', 'mutee_apres_gel'), $central->candidates->pluck('agent_id')->sort()->values()->all());
+        $this->assertSame($this->ids('femme_antenne_dia_zou'), $this->inscrits('DEP-ZOU'), 'R25 : l’antenne vote toujours avec son département.');
     }
 
     /**
@@ -132,13 +158,13 @@ class GenererScrutinsTest extends TestCase
         $this->edition->phase(Phase::PRIMAIRES)->scrutins()->update(['statut' => StatutScrutin::ResultatsPublies]);
         $this->edition->phase(Phase::PRIMAIRES)->update(['statut' => StatutPhase::Cloturee]);
 
-        $demiDep = app(ConstituerListes::class)->handle($this->scrutin('DEMI-DEPARTEMENTAL'));
-        app(ConstituerListes::class)->handle($this->scrutin('DEMI-STRUCTURES'));
+        $demiDep = app(ConstituerListes::class)->handle($this->scrutin('POLE-DEPARTEMENTAL'));
+        app(ConstituerListes::class)->handle($this->scrutin('POLE-STRUCTURES'));
 
         $candidate = $demiDep->candidates()->sole();
         $this->assertSame(OrigineCandidate::Qualification, $candidate->origine);
         $this->assertTrue($candidate->candidateSource->is($laureateAtl));
-        $this->assertSame([$this->agents['femme_dia']->id], $this->scrutin('DEMI-STRUCTURES')->candidates->pluck('agent_id')->all());
+        $this->assertSame([$this->agents['femme_dia']->id], $this->scrutin('POLE-STRUCTURES')->candidates->pluck('agent_id')->all());
     }
 
     public function test_refuse_de_generer_deux_fois_les_scrutins_d_une_phase(): void

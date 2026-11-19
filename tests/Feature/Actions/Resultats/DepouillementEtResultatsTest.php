@@ -121,6 +121,33 @@ class DepouillementEtResultatsTest extends TestCase
     }
 
     /**
+     * R52 : un collège à trois élues désigne les trois premières ; une égalité à la troisième place est départagée par le comité.
+     */
+    public function test_r52_designe_autant_de_laureates_que_le_college_compte_d_elues(): void
+    {
+        $this->scrutin->college->update(['nb_elues' => 2]);
+        $this->voter([0, 0, 0, 1, 1, 2]);
+
+        $this->depouiller();
+
+        $this->assertSame([$this->candidate(0)->id, $this->candidate(1)->id], $this->scrutin->laureates()->pluck('id')->all());
+        $this->assertFalse($this->candidate(2)->est_laureate);
+    }
+
+    public function test_r52_une_egalite_a_la_derniere_place_d_elue_est_departagee(): void
+    {
+        $this->scrutin->college->update(['nb_elues' => 2]);
+        $this->voter([0, 0, 1, 2]);
+
+        $pv = $this->depouiller();
+
+        $this->assertTrue($pv->egalite_a_departager);
+        $this->assertSame([$this->candidate(0)->id], $this->scrutin->laureates()->pluck('id')->all(), 'La première est élue, la seconde place reste à départager.');
+        app(TrancherEgalite::class)->handle($this->scrutin, [$this->candidate(2)], 'Décision du comité du 20 novembre');
+        $this->assertEqualsCanonicalizing([$this->candidate(0)->id, $this->candidate(2)->id], $this->scrutin->laureates()->pluck('id')->all());
+    }
+
+    /**
      * R49 : une égalité en tête bloque la validation jusqu'au départage motivé du comité.
      */
     public function test_r49_une_egalite_en_tete_est_departagee_par_le_comite_avant_validation(): void
@@ -233,14 +260,15 @@ class DepouillementEtResultatsTest extends TestCase
 
         $palmares = app(EtablirPalmares::class)->handle($this->edition);
 
-        $this->assertTrue($palmares['femme_modele']->is($gagnante));
+        $this->assertCount(1, $palmares['femmes_modeles']);
+        $this->assertTrue($palmares['femmes_modeles']->sole()->is($gagnante));
         $this->assertSame($this->femmes[0]->matricule, $palmares['phases'][0]['laureates'][0]['matricule']);
         $this->assertSame('Finale', $palmares['phases'][2]['laureates'][0]['scrutin']);
         $this->assertCount(0, $palmares['phases'][1]['laureates']);
     }
 
     /**
-     * R53 : la lauréate de la finale est prévenue par e-mail et voit sur son accueil qu'elle est la Femme modèle du Trésor.
+     * R53 : la lauréate de la dernière phase est prévenue par e-mail et voit sur son accueil qu'elle est Femme modèle du Trésor.
      */
     public function test_r53_previent_la_femme_modele_a_la_publication_de_la_finale(): void
     {
@@ -253,11 +281,11 @@ class DepouillementEtResultatsTest extends TestCase
 
         Notification::assertSentOnDemandTimes(QualificationCandidate::class, 0);
         Notification::assertSentOnDemand(ProclamationFemmeModele::class, fn (ProclamationFemmeModele $notification, array $canaux, AnonymousNotifiable $destinataire): bool => $destinataire->routes['mail'] === 'gagnante@example.test'
-            && $notification->toMail($destinataire)->subject === 'Vous êtes la Femme modèle du Trésor 2026'
+            && $notification->toMail($destinataire)->subject === 'Vous êtes Femme modèle du Trésor 2026'
             && str_contains((string) $notification->toMail($destinataire)->render(), 'vous êtes élue Femme modèle du Trésor 2026'));
 
         $compte = User::factory()->avecRoles(CodeRole::Electeur)->pourAgent($this->femmes[0])->create();
-        $this->withoutVite()->actingAs($compte)->get(route('espace'))->assertSee('Vous êtes la Femme modèle du Trésor 2026');
+        $this->withoutVite()->actingAs($compte)->get(route('espace'))->assertSee('Vous êtes Femme modèle du Trésor 2026')->assertSee('Finale');
     }
 
     /**

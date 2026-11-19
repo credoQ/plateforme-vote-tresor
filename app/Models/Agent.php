@@ -66,6 +66,16 @@ class Agent extends Model
         return $this->hasOne(User::class);
     }
 
+    /**
+     * Adresse des notifications : celle du compte, sinon celle de la fiche agent ; null si aucune n'est valide.
+     */
+    public function adresseDeNotification(): ?string
+    {
+        $email = $this->compte?->email ?: $this->email;
+
+        return filled($email) && filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null;
+    }
+
     public function estUneFemme(): bool
     {
         return $this->sexe === Sexe::Feminin;

@@ -5,6 +5,7 @@ namespace App\Actions\Resultats;
 use App\Actions\Audit\Journaliser;
 use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Jobs\Resultats\EnvoyerQualifications;
 use App\Jobs\Suivi\EnvoyerAnnonceScrutin;
 use App\Models\Scrutin;
 use App\Notifications\AnnonceScrutin;
@@ -41,6 +42,7 @@ class PublierResultats
             $scrutin->update(['statut' => StatutScrutin::ResultatsPublies]);
             $this->journal->handle(ActionAuditee::ResultatsPublies, $scrutin, ['scrutin' => $scrutin->code, 'proces_verbal' => $scrutin->procesVerbal->numero]);
             EnvoyerAnnonceScrutin::dispatch($scrutin->id, AnnonceScrutin::PUBLICATION)->afterCommit();
+            EnvoyerQualifications::dispatch($scrutin->id)->afterCommit();
 
             return $scrutin;
         });

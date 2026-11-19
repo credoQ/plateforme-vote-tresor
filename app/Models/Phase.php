@@ -70,6 +70,13 @@ class Phase extends Model
             : self::where('edition_id', $this->edition_id)->where('numero', $this->numero - 1)->first();
     }
 
+    public function phaseSuivante(): ?self
+    {
+        return $this->estLaFinale()
+            ? null
+            : self::where('edition_id', $this->edition_id)->where('numero', $this->numero + 1)->first();
+    }
+
     public function estLaFinale(): bool
     {
         return $this->numero === self::FINALE;

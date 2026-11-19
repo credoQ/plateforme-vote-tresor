@@ -70,6 +70,16 @@ class Structure extends Model
     }
 
     /**
+     * Affectations des agents à la structure, historique compris (R12).
+     *
+     * @return HasMany<Affectation, $this>
+     */
+    public function affectations(): HasMany
+    {
+        return $this->hasMany(Affectation::class);
+    }
+
+    /**
      * Structures actives.
      */
     #[Scope]

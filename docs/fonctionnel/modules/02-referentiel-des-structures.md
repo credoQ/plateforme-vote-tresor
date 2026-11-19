@@ -8,9 +8,9 @@ Ce module permet de décrire l’organisation de la DGTCP.
 
 ## Fonctionnalités
 
-- [ ] La gestion des types de structure (Cellule, Direction centrale, TMIE, Trésorerie départementale, ACD, Trésorerie communale) et des pôles électoraux (pôle départemental, pôle structures), chaque type étant classé dans un pôle.
-- [ ] La gestion des structures et de leur rattachement hiérarchique (service → direction, Trésorerie communale → Trésorerie départementale).
-- [ ] La gestion des 12 départements géographiques et le rattachement des postes déconcentrés à leur département.
+- [x] La gestion des types de structure (Cellule, Direction centrale, TMIE, Trésorerie départementale, ACD, Trésorerie communale) et des pôles électoraux (pôle départemental, pôle structures), chaque type étant classé dans un pôle.
+- [x] La gestion des structures et de leur rattachement hiérarchique (service → direction, Trésorerie communale → Trésorerie départementale).
+- [x] La gestion des 12 départements géographiques et le rattachement des postes déconcentrés à leur département.
 
 ## Avancement
 
@@ -20,7 +20,8 @@ Ce module permet de décrire l’organisation de la DGTCP.
 - [x] Action `EnregistrerStructure` : règles R5, R8 et R9, messages d'erreur en français
 - [x] `ReferentielSeeder` : 2 pôles, 6 types, 12 départements, 12 TD et les 13 structures du pôle structures de l'organisation de 2022
 - [x] Tests des règles R7 à R10
-- [ ] Écrans d'administration du référentiel (liste, création, modification, désactivation)
+- [x] Écrans d'administration du référentiel : liste filtrable (type, département, statut), fiche avec structures rattachées et agents en service, création, modification, désactivation et réactivation par l'administrateur, tracées au journal ; consultation par le comité et l'observateur. Les types, pôles et départements sont consultables (onglet « Types et départements ») ; leurs codes sont fixés par R6, R7 et R9
+- [x] Contrôles ajoutés : pas de rattachement en boucle (R8), pas de désactivation d'une structure qui a des agents en service ou des structures rattachées actives
 - [ ] Import des TMIE et des Trésoreries communales
 
 ## Acteurs
@@ -33,7 +34,8 @@ POLE_ELECTORAL, TYPE_STRUCTURE, STRUCTURE, DEPARTEMENT
 
 ## Écrans
 
-- Aucun pour l'instant : le référentiel est chargé par `ReferentielSeeder`
+- Structures : liste, fiche, création et modification (`/structures`)
+- Types et départements : consultation (`/structures/organisation`)
 
 ## Règles de gestion
 

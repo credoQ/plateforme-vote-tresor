@@ -14,6 +14,9 @@ enum ActionAuditee: string
     case CompteEnregistre = 'COMPTE_ENREGISTRE';
     case MotDePasseReinitialise = 'MOT_DE_PASSE_REINITIALISE';
     case ComptesGeneres = 'COMPTES_GENERES';
+    case StructureEnregistree = 'STRUCTURE_ENREGISTREE';
+    case StructureDesactivee = 'STRUCTURE_DESACTIVEE';
+    case StructureReactivee = 'STRUCTURE_REACTIVEE';
     case ImportAgents = 'IMPORT_AGENTS';
     case AgentEnregistre = 'AGENT_ENREGISTRE';
     case AgentAffecte = 'AGENT_AFFECTE';
@@ -46,6 +49,9 @@ enum ActionAuditee: string
             self::CompteEnregistre => 'Compte enregistré',
             self::MotDePasseReinitialise => 'Mot de passe réinitialisé',
             self::ComptesGeneres => 'Comptes électeurs générés',
+            self::StructureEnregistree => 'Structure enregistrée',
+            self::StructureDesactivee => 'Structure désactivée',
+            self::StructureReactivee => 'Structure réactivée',
             self::ImportAgents => 'Import des agents',
             self::AgentEnregistre => 'Fiche agent enregistrée',
             self::AgentAffecte => 'Agent affecté',

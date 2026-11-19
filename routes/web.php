@@ -6,6 +6,7 @@ use App\Http\Controllers\Agents\AgentController;
 use App\Http\Controllers\Editions\EditionController;
 use App\Http\Controllers\Editions\PhaseController;
 use App\Http\Controllers\EspaceController;
+use App\Http\Controllers\Referentiel\StructureController;
 use App\Http\Controllers\Resultats\ResultatController;
 use App\Http\Controllers\Scrutins\ScrutinController;
 use App\Http\Controllers\Suivi\ExportController;
@@ -42,6 +43,11 @@ Route::middleware('auth')->group(function () {
     Route::resource('agents', AgentController::class)->except(['destroy']);
     Route::post('/agents/{agent}/affecter', [AgentController::class, 'affecter'])->name('agents.affecter');
     Route::post('/agents/{agent}/terminer', [AgentController::class, 'terminer'])->name('agents.terminer');
+
+    Route::get('/structures/organisation', [StructureController::class, 'organisation'])->name('structures.organisation');
+    Route::resource('structures', StructureController::class)->except(['destroy']);
+    Route::post('/structures/{structure}/desactiver', [StructureController::class, 'desactiver'])->name('structures.desactiver');
+    Route::post('/structures/{structure}/reactiver', [StructureController::class, 'reactiver'])->name('structures.reactiver');
 
     Route::middleware('can:voter')->group(function () {
         Route::get('/vote', [VoteController::class, 'show'])->name('vote');

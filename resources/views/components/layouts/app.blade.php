@@ -16,6 +16,7 @@
         ], fn (array $lien): bool => $lien[4])),
         'Administration' => array_values(array_filter([
             ['agents', 'id-card', $utilisateur->aLeRole(\App\Enums\Acces\CodeRole::Administrateur, \App\Enums\Acces\CodeRole::Comite, \App\Enums\Acces\CodeRole::Observateur) ? 'Agents' : 'Agents de ma structure', route('agents.index'), $utilisateur->can('viewAny', \App\Models\Agent::class)],
+            ['structures', 'building-2', 'Structures', route('structures.index'), $utilisateur->can('viewAny', \App\Models\Structure::class)],
             ['utilisateurs', 'users', 'Utilisateurs', route('utilisateurs.index'), $utilisateur->can('administrer')],
             ['taches-echouees', 'rotate-ccw', 'Tâches en échec', route('taches-echouees.index'), $utilisateur->can('administrer')],
         ], fn (array $lien): bool => $lien[4])),
@@ -85,7 +86,7 @@
             @if (session('succes'))
                 <div class="alerte alerte--succes espace-bloc" role="status"><i data-lucide="circle-check"></i><div>{{ session('succes') }}</div></div>
             @endif
-            @foreach (['edition', 'phase', 'scrutin', 'candidate', 'agent_id', 'date_fin'] as $cleErreur)
+            @foreach (['edition', 'phase', 'scrutin', 'candidate', 'agent_id', 'date_fin', 'structure'] as $cleErreur)
                 @error($cleErreur)
                     <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $message }}</div></div>
                 @enderror

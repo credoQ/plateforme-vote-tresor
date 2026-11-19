@@ -67,6 +67,19 @@ class EnregistrerStructure
             $this->echouer('structure_parente_id', 'Une structure ne peut pas être rattachée à elle-même (R8).');
         }
 
+        if ($parente !== null && $structure !== null && $this->estDescendante($parente, $structure)) {
+            $this->echouer('structure_parente_id', 'Une structure ne peut pas être rattachée à l’une de ses structures rattachées (R8).');
+        }
+
+        if ($parente !== null && ! $parente->actif && $parente->id !== $structure?->structure_parente_id) {
+            $this->echouer('structure_parente_id', 'La structure de rattachement est désactivée.');
+        }
+
+        // Un service ne porte pas lui-même de structures rattachées (R8, R10).
+        if ($niveau === Structure::NIVEAU_SERVICE && $structure?->structuresFilles()->exists()) {
+            $this->echouer('niveau', 'Cette structure a des structures rattachées : elle ne peut pas devenir un service (R8).');
+        }
+
         // R8 : un service est rattaché à une structure électorale.
         if ($niveau === Structure::NIVEAU_SERVICE
             && ($parente === null || $parente->niveau !== Structure::NIVEAU_STRUCTURE_ELECTORALE)) {
@@ -83,6 +96,30 @@ class EnregistrerStructure
                 $this->echouer('departement_id', 'Une Trésorerie communale doit être dans le même département que sa Trésorerie départementale (R8, R9).');
             }
         }
+    }
+
+    /**
+     * Vrai si $candidate figure sous $structure dans la hiérarchie : la rattacher à elle créerait une boucle.
+     */
+    private function estDescendante(Structure $candidate, Structure $structure): bool
+    {
+        $vues = [];
+        $courante = $candidate;
+
+        while ($courante->structure_parente_id !== null && ! in_array($courante->id, $vues, true)) {
+            if ($courante->structure_parente_id === $structure->id) {
+                return true;
+            }
+
+            $vues[] = $courante->id;
+            $courante = Structure::find($courante->structure_parente_id);
+
+            if ($courante === null) {
+                return false;
+            }
+        }
+
+        return false;
     }
 
     /**

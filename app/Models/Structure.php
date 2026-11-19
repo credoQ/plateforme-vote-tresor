@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Referentiel\CodePoleElectoral;
+use App\Enums\Referentiel\CodeTypeStructure;
 use Database\Factories\StructureFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -80,6 +81,14 @@ class Structure extends Model
     }
 
     /**
+     * Service rattaché (niveau 2) : il vote avec sa structure mère (R10, R24).
+     */
+    public function estUnService(): bool
+    {
+        return $this->niveau === self::NIVEAU_SERVICE;
+    }
+
+    /**
      * Structures actives.
      */
     #[Scope]
@@ -95,6 +104,15 @@ class Structure extends Model
     protected function electorales(Builder $query): Builder
     {
         return $query->actives()->where('niveau', self::NIVEAU_STRUCTURE_ELECTORALE);
+    }
+
+    /**
+     * Structures du type donné (R5).
+     */
+    #[Scope]
+    protected function duType(Builder $query, CodeTypeStructure $type): Builder
+    {
+        return $query->whereHas('typeStructure', fn (Builder $q) => $q->where('code', $type->value));
     }
 
     /**

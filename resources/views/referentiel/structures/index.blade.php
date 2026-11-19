@@ -45,7 +45,7 @@
                     @forelse ($structures as $structure)
                         <tr>
                             <td class="reference">{{ $structure->code }}</td>
-                            <td>{{ $structure->libelle }}@if ($structure->niveau === \App\Models\Structure::NIVEAU_SERVICE)<div class="aide">Service</div>@endif</td>
+                            <td>{{ $structure->libelle }}@if ($structure->estUnService())<div class="aide">Service</div>@endif</td>
                             <td>{{ $structure->typeStructure->code->libelle() }}@if ($structure->departement)<div class="aide">{{ $structure->departement->libelle }}</div>@endif</td>
                             <td>{{ $structure->structureParente?->code }}</td>
                             <td class="nombre">{{ number_format($structure->agents_en_service_count, 0, ',', ' ') }}</td>

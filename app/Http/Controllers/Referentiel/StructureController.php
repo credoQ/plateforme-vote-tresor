@@ -70,7 +70,8 @@ class StructureController extends Controller
             'poles' => PoleElectoral::with(['typesStructure' => fn ($q) => $q->withCount(['structures' => fn (Builder $s) => $s->where('actif', true)])->orderBy('libelle')])
                 ->orderBy('libelle')->get(),
             'departements' => Departement::query()
-                ->with(['structures' => fn ($q) => $q->where('actif', true)->with('typeStructure')->orderBy('code')])
+                ->with('tresorerieDepartementale')
+                ->withCount('tresoreriesCommunales')
                 ->orderBy('libelle')->get(),
         ]);
     }

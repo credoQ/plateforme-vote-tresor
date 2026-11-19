@@ -52,8 +52,9 @@ class AppServiceProvider extends ServiceProvider
         View::composer('components.pdf.document', fn (Vue $vue) => $vue->with('images', app(EnteteDocument::class)->images()));
         View::composer('mail::message', fn (Vue $vue) => $vue->with('editionEnCours', Edition::enCours()->value('annee')));
 
-        // En développement (« composer run dev »), le processus de file traite aussi les files des e-mails, par priorité.
-        DevCommands::artisan('queue:listen --queue=urgent,mails,default --tries=1 --timeout=0', 'queue');
+        // En développement (« composer run dev »), le processus de file traite aussi les files des e-mails, par priorité,
+        // avec une pause de 2 secondes entre deux tâches : la boîte de test Mailtrap refuse plusieurs e-mails par seconde.
+        DevCommands::artisan('queue:listen --queue=urgent,mails,default --tries=1 --timeout=0 --rest=2', 'queue');
         DevCommands::artisan('schedule:work', 'planificateur');
     }
 

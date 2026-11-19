@@ -14,6 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        $this->call([ReferentielSeeder::class, RolesSeeder::class]);
+        $this->call([ReferentielSeeder::class, StructuresCentralesSeeder::class, StructuresDeconcentreesSeeder::class, RolesSeeder::class]);
     }
 }

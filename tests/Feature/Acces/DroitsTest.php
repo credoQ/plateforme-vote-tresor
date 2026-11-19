@@ -4,7 +4,6 @@ namespace Tests\Feature\Acces;
 
 use App\Actions\Acces\GenererComptesAgents;
 use App\Enums\Acces\CodeRole;
-use App\Enums\Referentiel\CodeTypeStructure;
 use App\Models\Agent;
 use App\Models\Candidate;
 use App\Models\Inscription;
@@ -52,15 +51,14 @@ class DroitsTest extends TestCase
     public function test_r4_le_perimetre_du_point_focal_couvre_ses_structures_rattachees(): void
     {
         $td = $this->structure('TD-ATL');
-        $tc = Structure::factory()->deType(CodeTypeStructure::TresorerieCommunale)
-            ->create(['departement_id' => $td->departement_id, 'structure_parente_id' => $td->id]);
+        $tc = $this->structure('TC-OUIDAH');
         $pointFocal = User::factory()->pointFocalDe($td)->create();
         $scrutin = Scrutin::factory()->create();
 
         $inscritTc = Inscription::factory()->create(['scrutin_id' => $scrutin->id, 'structure_id' => $tc->id]);
         $inscritDia = Inscription::factory()->create(['scrutin_id' => $scrutin->id, 'structure_id' => $this->structure('DIA')->id]);
 
-        $this->assertEqualsCanonicalizing([$td->id, $tc->id], $pointFocal->perimetre());
+        $this->assertEqualsCanonicalizing(Structure::whereIn('code', ['TD-ATL', 'TC-ABOMEY-CALAVI', 'TC-ALLADA', 'TC-KPOMASSE', 'TC-OUIDAH', 'TC-SO-AVA', 'TC-TOFFO', 'TC-TORI-BOSSITO', 'TC-ZE'])->pluck('id')->all(), $pointFocal->perimetre());
         $this->assertTrue($pointFocal->can('view', $inscritTc));
         $this->assertFalse($pointFocal->can('view', $inscritDia));
     }

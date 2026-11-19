@@ -4,7 +4,6 @@ namespace Tests\Feature\Http\Agents;
 
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
-use App\Enums\Referentiel\CodeTypeStructure;
 use App\Models\Agent;
 use App\Models\JournalAudit;
 use App\Models\Structure;
@@ -90,8 +89,7 @@ class GestionDesAgentsTest extends TestCase
     public function test_r4_le_point_focal_controle_les_agents_de_sa_structure_en_lecture_seule(): void
     {
         $td = $this->structure('TD-ATL');
-        $tc = Structure::factory()->deType(CodeTypeStructure::TresorerieCommunale)
-            ->create(['code' => 'TC-OUIDAH', 'departement_id' => $td->departement_id, 'structure_parente_id' => $td->id]);
+        $tc = $this->structure('TC-OUIDAH');
         $agentTc = Agent::factory()->affecteA($tc)->create(['nom' => 'HOUNTON']);
         $agentDia = Agent::factory()->affecteA($this->structure('DIA'))->create(['nom' => 'ZINSOU']);
         $pointFocal = User::factory()->pointFocalDe($td)->create();

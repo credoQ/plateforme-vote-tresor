@@ -39,17 +39,17 @@ class GestionDuReferentielTest extends TestCase
 
         $this->actingAs($this->admin)->get(route('structures.create'))->assertOk()->assertSee('Enregistrer la structure');
         $this->post(route('structures.store'), [
-            'code' => 'tc-ouidah', 'sigle' => '', 'libelle' => 'Trésorerie communale de Ouidah', 'niveau' => '1',
+            'code' => 'tc-test', 'sigle' => '', 'libelle' => 'Trésorerie communale de test', 'niveau' => '1',
             'type_structure_id' => (string) $this->type(CodeTypeStructure::TresorerieCommunale),
             'departement_id' => (string) $td->departement_id, 'structure_parente_id' => (string) $td->id,
-        ])->assertSessionHasNoErrors()->assertRedirect(route('structures.show', $this->structure('TC-OUIDAH')));
+        ])->assertSessionHasNoErrors()->assertRedirect(route('structures.show', $this->structure('TC-TEST')));
 
-        $tc = $this->structure('TC-OUIDAH');
+        $tc = $this->structure('TC-TEST');
         $this->assertNull($tc->sigle);
         $this->assertTrue($tc->structureParente->is($td));
-        $this->assertSame(['code' => 'TC-OUIDAH', 'creation' => true], JournalAudit::where('action', ActionAuditee::StructureEnregistree->value)->sole()->details);
+        $this->assertSame(['code' => 'TC-TEST', 'creation' => true], JournalAudit::where('action', ActionAuditee::StructureEnregistree->value)->sole()->details);
 
-        $this->get(route('structures.show', $td))->assertOk()->assertSee('TC-OUIDAH');
+        $this->get(route('structures.show', $td))->assertOk()->assertSee('TC-TEST');
     }
 
     /**

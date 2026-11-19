@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Http\Vote;
 
+use App\Actions\Documents\LienVerification;
 use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
@@ -17,7 +18,9 @@ use App\Models\Phase;
 use App\Models\Scrutin;
 use App\Models\Structure;
 use App\Models\User;
+use App\Notifications\AccuseDeVoteEnregistre;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -89,6 +92,63 @@ class EcransDuVoteTest extends TestCase
 
         $this->post(route('vote.store'), ['candidate' => $clarisse->id])->assertRedirect(route('vote'));
         $this->assertSame(1, Bulletin::count(), 'R40 : un seul vote.');
+    }
+
+    /**
+     * R43 : après le vote, l'accusé part par e-mail (file des mails) et se télécharge en PDF, par son seul électeur.
+     */
+    public function test_r43_l_accuse_de_vote_part_par_e_mail_et_se_telecharge_en_pdf(): void
+    {
+        $this->ouvrir();
+        $this->electeur->update(['email' => 'marc@example.test']);
+
+        $this->actingAs($this->electeur)->post(route('vote.store'), ['candidate' => $this->candidate($this->clarisse)->id]);
+        $inscription = $this->scrutin->inscriptions()->where('agent_id', $this->electeur->agent_id)->sole();
+
+        Notification::assertSentOnDemand(AccuseDeVoteEnregistre::class, fn (AccuseDeVoteEnregistre $notification, array $canaux, AnonymousNotifiable $destinataire): bool => $notification->inscriptionId === $inscription->id
+            && $notification->queue === AccuseDeVoteEnregistre::FILE
+            && $destinataire->routes['mail'] === 'marc@example.test');
+        $this->get(route('vote'))->assertSee('L’accusé de vote vous est aussi envoyé par e-mail.')->assertSee(route('vote.accuse', $inscription->numero_accuse));
+
+        $this->get(route('vote.accuse', $inscription->numero_accuse))
+            ->assertOk()->assertHeader('Content-Type', 'application/pdf')->assertDownload('accuse-de-vote-'.$inscription->numero_accuse.'.pdf');
+
+        $autre = User::factory()->pourAgent($this->ines)->avecRoles(CodeRole::Electeur)->create();
+        $this->actingAs($autre)->get(route('vote.accuse', $inscription->numero_accuse))->assertNotFound();
+    }
+
+    public function test_r43_sans_adresse_l_accuse_n_est_pas_envoye_par_e_mail(): void
+    {
+        $this->ouvrir();
+        $this->electeur->update(['email' => null]);
+        $this->electeur->agent->update(['email' => null]);
+
+        $this->actingAs($this->electeur)->post(route('vote.store'), ['candidate' => $this->candidate($this->clarisse)->id]);
+
+        Notification::assertSentOnDemandTimes(AccuseDeVoteEnregistre::class, 0);
+        $this->get(route('vote'))->assertSee('Télécharger l’accusé (PDF)')->assertDontSee('vous est aussi envoyé par e-mail');
+    }
+
+    /**
+     * R43 : l'e-mail et la vérification publique de l'accusé ne disent ni le choix, ni (pour la vérification) l'électeur.
+     */
+    public function test_r43_l_e_mail_et_la_verification_de_l_accuse_ne_revelent_pas_le_choix(): void
+    {
+        $this->ouvrir();
+        $this->actingAs($this->electeur)->post(route('vote.store'), ['candidate' => $this->candidate($this->clarisse)->id]);
+        $inscription = $this->scrutin->inscriptions()->where('agent_id', $this->electeur->agent_id)->sole();
+
+        $message = (new AccuseDeVoteEnregistre($inscription->id))->toMail(new AnonymousNotifiable);
+        $html = (string) $message->render();
+        $this->assertStringContainsString($inscription->numero_accuse, $html);
+        $this->assertStringContainsString('entre 11 h et 12 h', $html);
+        $this->assertStringNotContainsString('AHOUANSOU', $html);
+        $this->assertSame('accuse-de-vote-'.$inscription->numero_accuse.'.pdf', $message->rawAttachments[0]['name']);
+
+        $this->get(app(LienVerification::class)->accuseDeVote($inscription))
+            ->assertOk()->assertSee('Accusé de vote n° '.$inscription->numero_accuse)->assertSee('entre 11 h et 12 h')
+            ->assertDontSee($this->electeur->agent->nom)->assertDontSee('AHOUANSOU');
+        $this->get(route('verification.accuse-de-vote', $inscription->numero_accuse))->assertForbidden();
     }
 
     /**

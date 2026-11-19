@@ -2,6 +2,7 @@
 
 namespace App\Actions\Documents;
 
+use App\Models\Inscription;
 use App\Models\ProcesVerbal;
 use App\Models\Scrutin;
 use Carbon\CarbonInterface;
@@ -16,6 +17,14 @@ class LienVerification
     public function procesVerbal(ProcesVerbal $pv): string
     {
         return URL::signedRoute('verification.proces-verbal', ['numero' => $pv->numero]);
+    }
+
+    /**
+     * Le lien ne porte que le numéro d'accusé : ni l'électeur, ni son choix.
+     */
+    public function accuseDeVote(Inscription $inscription): string
+    {
+        return URL::signedRoute('verification.accuse-de-vote', ['numero' => $inscription->numero_accuse]);
     }
 
     /**

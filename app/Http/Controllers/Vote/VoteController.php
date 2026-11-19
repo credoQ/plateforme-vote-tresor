@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Vote;
 
 use App\Actions\Vote\DeposerBulletin;
+use App\Actions\Vote\EnvoyerAccuseDeVote;
+use App\Actions\Vote\GenererAccuseDeVote;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
@@ -11,6 +13,7 @@ use App\Models\Inscription;
 use App\Models\Scrutin;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
@@ -67,7 +70,7 @@ class VoteController extends Controller
         ]);
     }
 
-    public function store(Request $request, DeposerBulletin $deposer): RedirectResponse
+    public function store(Request $request, DeposerBulletin $deposer, EnvoyerAccuseDeVote $envoyer): RedirectResponse
     {
         $inscription = $this->inscription($request);
         if ($inscription === null) {
@@ -83,7 +86,27 @@ class VoteController extends Controller
             return redirect()->route('vote')->withErrors($exception->errors());
         }
 
-        return redirect()->route('vote')->with('vote_enregistre', true);
+        // Le vote est enregistré (transaction validée) : l'accusé part par e-mail, en file d'attente.
+        $envoye = $envoyer->handle($request->user(), $inscription);
+
+        return redirect()->route('vote')->with('vote_enregistre', true)->with('accuse_envoye', $envoye);
+    }
+
+    /**
+     * Accusé de vote en PDF, réservé à l'électeur qui a voté sous ce numéro.
+     */
+    public function accuse(Request $request, string $numero, GenererAccuseDeVote $generer): Response
+    {
+        $inscription = Inscription::query()
+            ->where('numero_accuse', $numero)
+            ->where('agent_id', $request->user()->agent_id)
+            ->where('a_vote', true)
+            ->firstOrFail();
+
+        return response($generer->handle($inscription), 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$generer->nomDeFichier($inscription).'"',
+        ]);
     }
 
     private function inscription(Request $request): ?Inscription

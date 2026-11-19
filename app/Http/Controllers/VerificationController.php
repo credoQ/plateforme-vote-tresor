@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Actions\Documents\LignesExport;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Models\Inscription;
 use App\Models\ProcesVerbal;
 use App\Models\Scrutin;
 use Illuminate\Http\Request;
@@ -32,6 +33,21 @@ class VerificationController extends Controller
                 'Votants' => $publie ? (string) $pv->nb_votants : null,
                 'Lauréate(s)' => $publie ? $pv->scrutin->laureates->map(fn ($c) => $c->agent->nomComplet())->implode(', ') : null,
             ]),
+        ]);
+    }
+
+    /**
+     * Accusé de vote : la page confirme qu'un vote est enregistré sous ce numéro, sans nommer l'électeur (R43).
+     */
+    public function accuseDeVote(string $numero): View
+    {
+        $inscription = Inscription::with('scrutin.phase.edition')->where('numero_accuse', $numero)->where('a_vote', true)->firstOrFail();
+
+        return view('verification.document', [
+            'conforme' => true,
+            'type' => 'Accusé de vote n° '.$inscription->numero_accuse,
+            'scrutin' => $inscription->scrutin,
+            'lignes' => ['Vote enregistré le' => $inscription->creneauDeVote()],
         ]);
     }
 

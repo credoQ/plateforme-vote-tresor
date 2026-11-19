@@ -31,8 +31,8 @@ class EnvoyerAnnonceScrutin implements ShouldQueue
             ->with(['agent:id,email', 'agent.compte:id,agent_id,email,actif'])
             ->chunkById(500, function ($inscriptions) use ($scrutin): void {
                 foreach ($inscriptions as $inscription) {
-                    $email = $inscription->agent?->compte?->email ?: $inscription->agent?->email;
-                    if (filled($email) && filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                    $email = $inscription->agent?->adresseDeNotification();
+                    if ($email !== null) {
                         Notification::route('mail', $email)->notify(new AnnonceScrutin($scrutin, $this->type));
                     }
                 }

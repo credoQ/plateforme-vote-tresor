@@ -15,8 +15,10 @@ use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
 use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Vote\DeposerBulletin;
+use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Jobs\Resultats\EnvoyerQualifications;
 use App\Jobs\Resultats\GenererFichierProcesVerbal;
 use App\Models\Agent;
 use App\Models\Candidate;
@@ -26,10 +28,14 @@ use App\Models\ProcesVerbal;
 use App\Models\Scrutin;
 use App\Models\Structure;
 use App\Models\User;
+use App\Notifications\ProclamationFemmeModele;
+use App\Notifications\QualificationCandidate;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
@@ -234,10 +240,56 @@ class DepouillementEtResultatsTest extends TestCase
     }
 
     /**
+     * R53 : la lauréate de la finale est prévenue par e-mail et voit sur son accueil qu'elle est la Femme modèle du Trésor.
+     */
+    public function test_r53_previent_la_femme_modele_a_la_publication_de_la_finale(): void
+    {
+        Notification::fake();
+        $this->femmes[0]->update(['email' => 'gagnante@example.test']);
+        $finale = Scrutin::factory()->for($this->edition->phase(Phase::FINALE))->statut(StatutScrutin::ResultatsPublies)->create(['libelle' => 'Finale']);
+        Candidate::factory()->for($finale)->for($this->femmes[0])->laureate()->create(['nb_voix' => 40]);
+
+        (new EnvoyerQualifications($finale->id))->handle();
+
+        Notification::assertSentOnDemandTimes(QualificationCandidate::class, 0);
+        Notification::assertSentOnDemand(ProclamationFemmeModele::class, fn (ProclamationFemmeModele $notification, array $canaux, AnonymousNotifiable $destinataire): bool => $destinataire->routes['mail'] === 'gagnante@example.test'
+            && $notification->toMail($destinataire)->subject === 'Vous êtes la Femme modèle du Trésor 2026'
+            && str_contains((string) $notification->toMail($destinataire)->render(), 'vous êtes élue Femme modèle du Trésor 2026'));
+
+        $compte = User::factory()->avecRoles(CodeRole::Electeur)->pourAgent($this->femmes[0])->create();
+        $this->withoutVite()->actingAs($compte)->get(route('espace'))->assertSee('Vous êtes la Femme modèle du Trésor 2026');
+    }
+
+    /**
      * Fait voter un électeur par choix, dans l'ordre : index d'une femme candidate, ou null pour un vote blanc.
      *
      * @param  list<int|null>  $choix
      */
+    /**
+     * R35, R52 : à la publication, la lauréate est prévenue par e-mail de sa qualification et la voit sur son accueil.
+     */
+    public function test_r52_previent_la_laureate_de_sa_qualification_a_la_publication(): void
+    {
+        Notification::fake();
+        $this->femmes[0]->update(['email' => 'laureate@example.test']);
+        $this->femmes[1]->update(['email' => 'autre@example.test']);
+        $this->voter([0, 0, 1]);
+        $this->depouiller();
+        app(ValiderResultats::class)->handle($this->scrutin, User::factory()->create());
+
+        app(PublierResultats::class)->handle($this->scrutin);
+
+        Notification::assertSentOnDemandTimes(QualificationCandidate::class, 1);
+        Notification::assertSentOnDemand(QualificationCandidate::class, fn (QualificationCandidate $notification, array $canaux, AnonymousNotifiable $destinataire): bool => $destinataire->routes['mail'] === 'laureate@example.test'
+            && $notification->phaseSuivante->numero === Phase::DEMI_FINALES
+            && str_contains((string) $notification->toMail($destinataire)->render(), 'Vous êtes qualifiée pour la Phase 2 · demi-finales'));
+
+        $compte = User::factory()->avecRoles(CodeRole::Electeur)->pourAgent($this->femmes[0])->create();
+        $this->withoutVite()->actingAs($compte)->get(route('espace'))->assertSee('Vous êtes qualifiée pour la Phase 2 · demi-finales');
+        $this->actingAs(User::factory()->avecRoles(CodeRole::Electeur)->pourAgent($this->femmes[1])->create())
+            ->get(route('espace'))->assertDontSee('Vous êtes qualifiée');
+    }
+
     private function voter(array $choix): void
     {
         $electeurs = Agent::whereIn('id', $this->scrutin->inscriptions()->select('agent_id'))

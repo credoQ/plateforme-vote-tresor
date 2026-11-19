@@ -21,6 +21,12 @@
         </div>
     @endif
 
+    @if ($femmeModele)
+        <div class="alerte alerte--succes espace-bloc" role="status"><i data-lucide="crown"></i><div><strong>Vous êtes la Femme modèle du Trésor {{ $femmeModele }}</strong> · félicitations !</div></div>
+    @endif
+    @if ($qualification)
+        <div class="alerte alerte--succes espace-bloc" role="status"><i data-lucide="award"></i><div><strong>Vous êtes qualifiée pour la {{ $qualification['phase'] }}</strong> · {{ $qualification['scrutin'] }}, rang {{ $qualification['rang'] }}.</div></div>
+    @endif
     <div class="grille-tuiles espace-bloc">
         <div class="tuile">
             <div class="tuile__haut"><span class="surtitre">Identifiant</span><span class="tuile__icone"><i data-lucide="id-card"></i></span></div>

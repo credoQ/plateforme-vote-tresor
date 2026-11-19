@@ -27,6 +27,7 @@ Ce module calcule les résultats à la clôture du scrutin et organise la qualif
 - [x] Procès-verbal en PDF (dompdf) aux en-tête et bas de page de la DGTCP, avec QR code de vérification ; affiché dans le navigateur ou téléchargé ; génération relançable
 - [x] Écrans : fermeture manuelle si l'heure est passée, dépouillement, résultats provisoires réservés au comité et à l'observateur, départage des ex-æquo, prolongation, validation, publication, procès-verbal, palmarès pour tous
 - [x] Journalisation de la validation et de la publication (R56, module 08)
+- [x] Notification des lauréates à la publication : qualification pour la phase suivante en phases 1 et 2 (R35, R52), proclamation de la Femme modèle du Trésor en finale (R53) ; e-mail (file « mails ») et bandeau sur l'accueil
 
 ## Acteurs
 

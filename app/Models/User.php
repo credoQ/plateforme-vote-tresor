@@ -65,6 +65,31 @@ class User extends Authenticatable
         return filled($email) && filter_var($email, FILTER_VALIDATE_EMAIL) ? $email : null;
     }
 
+    /**
+     * Initiales affichées dans l'avatar : les deux premiers mots du nom.
+     */
+    public function initiales(): string
+    {
+        return collect(preg_split('/\s+/', trim($this->name)))->take(2)->map(fn (string $mot): string => mb_substr($mot, 0, 1))->implode('');
+    }
+
+    /**
+     * Le compte a un profil de gestion (administrateur, comité, point focal, observateur) : il arrive sur la console
+     * de gestion ; un électeur seul n'a que l'espace électeur.
+     */
+    public function aAccesALaGestion(): bool
+    {
+        return $this->aLeRole(CodeRole::Administrateur, CodeRole::Comite, CodeRole::PointFocal, CodeRole::Observateur);
+    }
+
+    /**
+     * Page d'arrivée après la connexion : la console de gestion pour un profil de gestion, sinon l'espace électeur.
+     */
+    public function pageDAccueil(): string
+    {
+        return $this->aAccesALaGestion() ? route('tableau-de-bord') : route('espace');
+    }
+
     public function aLeRole(CodeRole ...$roles): bool
     {
         $codes = array_map(fn (CodeRole $role): string => $role->value, $roles);

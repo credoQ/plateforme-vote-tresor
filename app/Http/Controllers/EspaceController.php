@@ -10,17 +10,25 @@ use App\Models\Edition;
 use App\Models\Inscription;
 use App\Models\Phase;
 use App\Models\Scrutin;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
- * Page d'accueil de l'utilisateur connecté : son profil et, pour un électeur, son scrutin de la phase ouverte.
+ * Espace électeur : son scrutin de la phase ouverte, ses candidatures, sa qualification et les résultats publiés.
+ * Un compte de gestion sans fiche agent est renvoyé vers la console de gestion.
  */
 class EspaceController extends Controller
 {
-    public function __invoke(Request $request): View
+    public function __invoke(Request $request): View|RedirectResponse
     {
         $utilisateur = $request->user()->load(['roles', 'agent', 'structure']);
+
+        // Un compte de gestion sans fiche agent (administrateur technique, observateur externe) ne vote pas.
+        if ($utilisateur->agent_id === null && $utilisateur->aAccesALaGestion()) {
+            return redirect()->route('tableau-de-bord');
+        }
 
         $inscription = $utilisateur->agent_id === null ? null : Inscription::query()
             ->with('scrutin.phase.edition')
@@ -28,12 +36,13 @@ class EspaceController extends Controller
             ->whereHas('scrutin.phase', fn ($phase) => $phase->where('statut', StatutPhase::Ouverte->value))
             ->first();
 
-        // Annonces de la plateforme (module 08) : scrutins ouverts et résultats publiés de l'édition en cours.
-        $annonces = Scrutin::query()
+        // Annonces de la plateforme (module 08) : résultats publiés de l'édition en cours, avec leur PDF.
+        $resultatsPublies = Scrutin::query()
+            ->with(['phase', 'procesVerbal'])
             ->whereHas('phase.edition', fn ($edition) => $edition->where('statut', StatutEdition::EnCours->value))
-            ->whereIn('statut', [StatutScrutin::Ouvert->value, StatutScrutin::ResultatsPublies->value])
+            ->where('statut', StatutScrutin::ResultatsPublies->value)
             ->orderByDesc('updated_at')
-            ->limit(5)
+            ->limit(6)
             ->get();
 
         // Candidatures de l'agent qui acceptent encore un désistement ou une réactivation (R32 à R34).
@@ -45,13 +54,18 @@ class EspaceController extends Controller
                 ->whereHas('phase.edition', fn ($edition) => $edition->where('statut', StatutEdition::EnCours->value)))
             ->get();
 
+        $scrutin = $inscription?->scrutin;
+
         return view('espace.accueil', [
+            'prenom' => $utilisateur->agent ? Str::of($utilisateur->agent->prenoms)->before(' ')->toString() : $utilisateur->name,
+            'affectation' => $utilisateur->agent?->affectationLe(),
             'qualification' => $utilisateur->agent_id === null ? null : $this->qualification($utilisateur->agent_id),
             'femmeModele' => $this->femmeModele($utilisateur->agent_id),
-            'utilisateur' => $utilisateur,
-            'affectation' => $utilisateur->agent?->affectationLe(),
             'inscription' => $inscription,
-            'annonces' => $annonces,
+            'scrutin' => $scrutin,
+            'peutVoter' => $scrutin !== null && ! $inscription->a_vote && $scrutin->statut === StatutScrutin::Ouvert && $utilisateur->can('voter'),
+            'nbCandidates' => $scrutin?->statut === StatutScrutin::Ouvert ? $scrutin->candidates()->actives()->count() : null,
+            'resultatsPublies' => $resultatsPublies,
             'candidatures' => $candidatures,
         ]);
     }

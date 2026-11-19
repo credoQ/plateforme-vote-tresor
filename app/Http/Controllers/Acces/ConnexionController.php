@@ -63,7 +63,7 @@ class ConnexionController extends Controller
         $request->session()->forget(['connexion.login', 'connexion.souvenir']);
         $request->session()->regenerate();
 
-        return redirect()->intended(route('espace'));
+        return redirect()->intended($utilisateur->pageDAccueil());
     }
 
     public function renvoyer(Request $request, DemanderCodeConnexion $demander): RedirectResponse

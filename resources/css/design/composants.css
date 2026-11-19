@@ -278,6 +278,39 @@
   .confirmation-vote, .accuse-vote { max-width: 640px; }
   .accuse-vote .carte__entete { gap: 12px; justify-content: flex-start; }
 
+  /* ---------------------------------------------------------------- espace électeur (gabarit x-layouts.electeur) */
+  .portail { min-height: 100vh; display: flex; flex-direction: column; background: var(--tr-fond); }
+  .portail__entete { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 28px; height: 64px; padding: 0 28px; background: var(--tr-surface); border-bottom: 1px solid var(--tr-bordure); }
+  .portail__marque { display: flex; align-items: center; gap: 10px; flex: none; color: inherit; text-decoration: none; }
+  .portail__marque img { width: 40px; height: 40px; }
+  .portail__marque strong { display: block; font-size: 14px; line-height: 18px; font-weight: 800; color: var(--tr-primaire); }
+  .portail__marque small { display: block; font-size: 11px; line-height: 14px; color: var(--tr-texte-3); }
+  .portail__nav { display: flex; align-items: stretch; gap: 4px; height: 100%; }
+  .portail__nav a { display: flex; align-items: center; gap: 8px; padding: 0 14px; margin-bottom: -1px; font-size: 14px; font-weight: 600; color: var(--tr-texte-2); text-decoration: none; border-bottom: 3px solid transparent; }
+  .portail__nav a svg { width: 18px; height: 18px; }
+  .portail__nav a:hover { color: var(--tr-texte); }
+  .portail__nav a.est-actif { color: var(--tr-primaire); border-bottom-color: var(--tr-accent); }
+  .portail__droite { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .portail__contenu { width: 100%; max-width: 880px; margin: 0 auto; padding: 32px 28px 48px; flex: 1; display: grid; gap: 20px; align-content: start; }
+  .portail__contenu > * { min-width: 0; }
+  .portail__bonjour h1 { font-size: 26px; line-height: 34px; font-weight: 800; }
+  .portail__bonjour p { color: var(--tr-texte-2); margin-top: 2px; }
+  .portail__deux { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start; }
+  .portail__pied { padding: 18px 28px; text-align: center; font-size: 12px; color: var(--tr-texte-3); }
+  .portail__onglets { display: none; }
+  .scrutin-carte { display: grid; gap: 18px; padding: 24px; background: var(--tr-surface); border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon-carte); box-shadow: var(--tr-ombre-1); }
+  .scrutin-carte--ouvert { border-color: var(--tr-primaire); box-shadow: 0 0 0 4px var(--tr-primaire-doux); }
+  .scrutin-carte__haut { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .scrutin-carte h2 { font-size: 20px; line-height: 28px; font-weight: 800; margin-top: 2px; }
+  .scrutin-carte__infos { display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 13px; color: var(--tr-texte-2); }
+  .scrutin-carte__infos span { display: inline-flex; align-items: center; gap: 6px; }
+  .scrutin-carte__infos svg { width: 15px; height: 15px; }
+  .scrutin-carte .btn { justify-self: start; }
+  .liste-resultats { display: grid; }
+  .liste-resultats a { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0; border-top: 1px solid var(--tr-bordure-legere); color: inherit; text-decoration: none; font-size: 14px; }
+  .liste-resultats a:first-child { border-top: 0; padding-top: 0; }
+  .liste-resultats small { display: block; font-size: 12px; color: var(--tr-texte-3); }
+
   /* ---------------------------------------------------------------- page de vote (gabarit x-layouts.vote, sans menu) */
   .isoloir { min-height: 100vh; display: flex; flex-direction: column; background: var(--tr-fond); }
   .isoloir__entete { display: flex; align-items: center; gap: 24px; min-height: 72px; padding: 0 28px; background: var(--tr-surface); border-bottom: 1px solid var(--tr-bordure); }
@@ -293,7 +326,7 @@
   .isoloir .confirmation-vote, .isoloir .accuse-vote, .isoloir__centre { max-width: 640px; margin-inline: auto; }
   .candidature { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
   @media print {
-    .sidebar, .entete, .isoloir__entete, .bande-tricolore, .formulaire__actions, .alerte { display: none !important; }
+    .sidebar, .entete, .isoloir__entete, .portail__entete, .portail__onglets, .portail__pied, .bande-tricolore, .formulaire__actions, .alerte { display: none !important; }
     .app { display: block; }
     .contenu { padding: 0; }
   }
@@ -322,6 +355,17 @@
     .isoloir__etapes { order: 3; flex-basis: 100%; max-width: none; }
     .isoloir__marque small, .isoloir__etapes .etape__texte small { display: none; }
     .isoloir__contenu { padding: 20px 16px; }
+    .portail__entete { padding: 0 16px; gap: 12px; }
+    .portail__nav, .portail__marque small, .portail__profil .avatar, .portail__profil .profil__nom, .portail__console span, .portail__pied { display: none; }
+    .portail__profil { border: 0; padding: 0; }
+    .portail__contenu { padding: 20px 16px 96px; }
+    .portail__bonjour h1 { font-size: 22px; line-height: 30px; }
+    .scrutin-carte { padding: 18px; }
+    .scrutin-carte .btn { justify-self: stretch; justify-content: center; }
+    .portail__onglets { display: grid; grid-template-columns: repeat(2, 1fr); position: fixed; inset: auto 0 0; z-index: 20; height: calc(64px + env(safe-area-inset-bottom, 0px)); padding-bottom: env(safe-area-inset-bottom, 0px); background: var(--tr-surface); border-top: 1px solid var(--tr-bordure); }
+    .portail__onglets a { display: grid; place-items: center; align-content: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--tr-texte-3); text-decoration: none; }
+    .portail__onglets a svg { width: 22px; height: 22px; }
+    .portail__onglets a.est-actif { color: var(--tr-primaire); }
   }
   @media (max-width: 600px) { .grille-tuiles { grid-template-columns: 1fr; } .barre { grid-template-columns: 100px 1fr 48px; } .tableau-defilant { overflow-x: auto; } }
   /* barre du bulletin sur téléphone : le bouton principal passe sur sa propre ligne, pleine largeur. */

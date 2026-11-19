@@ -1,93 +1,89 @@
-<x-layouts.app titre="Accueil" :ariane="['Mon espace']" actif="espace">
-    <div class="titre-page">
-        <div>
-            <h1>Bonjour {{ $utilisateur->name }}</h1>
-            <p>
-                {{ $utilisateur->roles->map(fn ($role) => $role->code->libelle())->implode(' · ') }}
-                @if ($utilisateur->structure) · {{ $utilisateur->structure->libelle }} @endif
-            </p>
-        </div>
+@use('App\Enums\Scrutins\OrigineCandidate')
+@use('App\Enums\Scrutins\StatutScrutin')
+<x-layouts.electeur titre="Mon espace" actif="espace">
+    <div class="portail__bonjour">
+        <h1>Bonjour {{ $prenom }}</h1>
+        @if ($affectation)<p>{{ $affectation->structure->libelle }}</p>@endif
     </div>
-
-    @if ($annonces->isNotEmpty())
-        <div class="annonces" aria-label="Annonces">
-            @foreach ($annonces as $annonce)
-                @if ($annonce->statut === \App\Enums\Scrutins\StatutScrutin::Ouvert)
-                    <div class="alerte alerte--info"><i data-lucide="megaphone"></i><div><strong>Vote ouvert</strong> · {{ $annonce->libelle }}, jusqu’au {{ $annonce->date_heure_fermeture?->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.</div></div>
-                @else
-                    <div class="alerte alerte--succes"><i data-lucide="trophy"></i><div><strong>Résultats publiés</strong> · {{ $annonce->libelle }}. <a class="lien" href="{{ route('exports.resultats', [$annonce, 'format' => 'pdf']) }}">Télécharger les résultats (PDF)</a></div></div>
-                @endif
-            @endforeach
-        </div>
-    @endif
 
     @if ($femmeModele)
-        <div class="alerte alerte--succes espace-bloc" role="status"><i data-lucide="crown"></i><div><strong>Vous êtes la Femme modèle du Trésor {{ $femmeModele }}</strong> · félicitations !</div></div>
+        <div class="alerte alerte--succes" role="status"><i data-lucide="crown"></i><div><strong>Vous êtes la Femme modèle du Trésor {{ $femmeModele }}</strong> · félicitations !</div></div>
     @endif
     @if ($qualification)
-        <div class="alerte alerte--succes espace-bloc" role="status"><i data-lucide="award"></i><div><strong>Vous êtes qualifiée pour la {{ $qualification['phase'] }}</strong> · {{ $qualification['scrutin'] }}, rang {{ $qualification['rang'] }}.</div></div>
+        <div class="alerte alerte--succes" role="status"><i data-lucide="award"></i><div><strong>Vous êtes qualifiée pour la {{ $qualification['phase'] }}</strong> · {{ $qualification['scrutin'] }}, rang {{ $qualification['rang'] }}.</div></div>
     @endif
-    <div class="grille-tuiles espace-bloc">
-        <div class="tuile">
-            <div class="tuile__haut"><span class="surtitre">Identifiant</span><span class="tuile__icone"><i data-lucide="id-card"></i></span></div>
-            <div class="tuile__valeur">{{ $utilisateur->login }}</div>
-            <div class="tuile__detail">Dernière connexion : {{ $utilisateur->derniere_connexion?->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') ?? 'aucune' }}</div>
-        </div>
-        @if ($affectation)
-            <div class="tuile">
-                <div class="tuile__haut"><span class="surtitre">Affectation</span><span class="tuile__icone"><i data-lucide="map-pin"></i></span></div>
-                <div class="tuile__valeur">{{ $affectation->structure->code }}</div>
-                <div class="tuile__detail">{{ $affectation->structure->libelle }}, depuis le {{ $affectation->date_debut->format('d/m/Y') }}</div>
-            </div>
-        @endif
-    </div>
 
-    @can('voter')
-        <div class="carte">
-            <div class="carte__entete"><h2>Mon scrutin</h2></div>
-            <div class="carte__corps">
-                @if ($inscription)
-                    <p><strong>{{ $inscription->scrutin->libelle }}</strong> · {{ $inscription->scrutin->phase->libelle }}</p>
-                    <p class="aide">
-                        @if ($inscription->a_vote)
-                            Vous avez voté. Accusé n° {{ $inscription->numero_accuse }}.
-                        @elseif ($inscription->scrutin->date_heure_ouverture)
-                            Vote du {{ $inscription->scrutin->date_heure_ouverture->timezone('Africa/Porto-Novo')->format('d/m/Y H:i') }} au {{ $inscription->scrutin->date_heure_fermeture->timezone('Africa/Porto-Novo')->format('d/m/Y H:i') }}.
-                        @endif
-                    </p>
-                    @unless ($inscription->a_vote)
-                        <a href="{{ route('vote') }}" class="btn btn-primaire"><i data-lucide="vote"></i>Accéder au bulletin</a>
-                    @endunless
+    @if ($inscription)
+        <section @class(['scrutin-carte', 'scrutin-carte--ouvert' => $peutVoter]) aria-labelledby="mon-scrutin">
+            <div class="scrutin-carte__haut">
+                <div><div class="surtitre">Mon scrutin · {{ $scrutin->phase->libelle }}</div><h2 id="mon-scrutin">{{ $scrutin->libelle }}</h2></div>
+                <span class="badge {{ $scrutin->statut->badge() }}">{{ $scrutin->statut->libelle() }}</span>
+            </div>
+            <div class="scrutin-carte__infos">
+                @if ($inscription->a_vote)
+                    <span><i data-lucide="circle-check"></i>Vous avez voté · accusé n° {{ $inscription->numero_accuse }}</span>
+                @elseif ($scrutin->statut === StatutScrutin::Ouvert)
+                    <span><i data-lucide="clock"></i>Clôture le {{ $scrutin->date_heure_fermeture->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}</span>
+                    <span><i data-lucide="users-round"></i>{{ $nbCandidates }} candidate(s)</span>
+                @elseif ($scrutin->date_heure_ouverture)
+                    <span><i data-lucide="calendar"></i>Vote du {{ $scrutin->date_heure_ouverture->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }} au {{ $scrutin->date_heure_fermeture->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}</span>
                 @else
-                    <div class="etat-vide"><i data-lucide="calendar-clock"></i><p>Aucun scrutin ne vous concerne pour la phase en cours.</p></div>
+                    <span><i data-lucide="calendar"></i>Dates du vote à venir</span>
                 @endif
             </div>
-        </div>
-    @endcan
+            @if ($peutVoter)
+                <a href="{{ route('vote') }}" class="btn btn-primaire btn--lg"><i data-lucide="vote"></i>Voter maintenant</a>
+            @elseif ($inscription->a_vote)
+                <a href="{{ route('vote') }}" class="btn btn-secondaire"><i data-lucide="receipt"></i>Voir mon accusé de vote</a>
+            @endif
+        </section>
+    @else
+        <section class="carte" aria-label="Mon scrutin">
+            <div class="etat-vide"><i data-lucide="calendar-clock"></i><p>Aucun scrutin ne vous concerne pour la phase en cours.</p></div>
+        </section>
+    @endif
 
-    @foreach ($candidatures as $candidature)
-        <section class="carte espace-bloc">
-            <div class="carte__entete"><h2>Ma candidature</h2></div>
-            <div class="carte__corps candidature">
-                <div>
-                    <p><strong>{{ $candidature->scrutin->libelle }}</strong> · {{ $candidature->scrutin->phase->libelle }}</p>
+    <div class="portail__deux">
+        @foreach ($candidatures as $candidature)
+            <section class="carte">
+                <div class="carte__entete"><h2>Ma candidature</h2></div>
+                <div class="carte__corps candidature">
+                    <div>
+                        <p><strong>{{ $candidature->scrutin->libelle }}</strong> · {{ $candidature->scrutin->phase->libelle }}</p>
+                        @if ($candidature->estActive())
+                            <p class="aide">{{ $candidature->origine === OrigineCandidate::Automatique ? 'Candidate d’office' : 'Lauréate qualifiée' }}</p>
+                        @else
+                            <p class="aide">Candidature retirée le {{ $candidature->date_desistement->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.</p>
+                        @endif
+                    </div>
                     @if ($candidature->estActive())
-                        <p class="aide">{{ $candidature->origine === \App\Enums\Scrutins\OrigineCandidate::Automatique ? 'Candidate d’office' : 'Lauréate qualifiée' }}</p>
+                        <button type="button" class="btn btn-danger-contour" data-ouvrir="desister-{{ $candidature->id }}"><i data-lucide="user-x"></i>Retirer ma candidature</button>
                     @else
-                        <p class="aide">Candidature retirée le {{ $candidature->date_desistement->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.</p>
+                        <form method="POST" action="{{ route('candidatures.reactiver', $candidature) }}">
+                            @csrf
+                            <button type="submit" class="btn btn-secondaire"><i data-lucide="user-check"></i>Réactiver ma candidature</button>
+                        </form>
                     @endif
                 </div>
-                @if ($candidature->estActive())
-                    <button type="button" class="btn btn-danger-contour" data-ouvrir="desister-{{ $candidature->id }}"><i data-lucide="user-x"></i>Retirer ma candidature</button>
-                @else
-                    <form method="POST" action="{{ route('candidatures.reactiver', $candidature) }}">
-                        @csrf
-                        <button type="submit" class="btn btn-secondaire"><i data-lucide="user-check"></i>Réactiver ma candidature</button>
-                    </form>
-                @endif
-            </div>
+            </section>
+        @endforeach
+
+        <section class="carte">
+            <div class="carte__entete"><h2>Résultats publiés</h2></div>
+            @if ($resultatsPublies->isEmpty())
+                <div class="etat-vide"><i data-lucide="trophy"></i><p>Aucun résultat publié pour l’instant.</p></div>
+            @else
+                <div class="carte__corps liste-resultats">
+                    @foreach ($resultatsPublies as $resultat)
+                        <a href="{{ route('exports.resultats', [$resultat, 'format' => 'pdf']) }}">
+                            <span>{{ $resultat->libelle }}<small>{{ $resultat->phase->libelle }}@if ($resultat->procesVerbal?->date_publication) · publié le {{ $resultat->procesVerbal->date_publication->timezone('Africa/Porto-Novo')->format('d/m/Y') }}@endif</small></span>
+                            <span class="lien"><i data-lucide="file-down"></i>PDF</span>
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </section>
-    @endforeach
+    </div>
 
     <x-slot:modales>
         @foreach ($candidatures->filter->estActive() as $candidature)
@@ -113,4 +109,4 @@
             </div>
         @endforeach
     </x-slot:modales>
-</x-layouts.app>
+</x-layouts.electeur>

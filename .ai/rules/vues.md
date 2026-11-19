@@ -8,7 +8,7 @@ paths:
 
 ## Gabarit et composants
 
-- Les écrans connectés utilisent le gabarit `x-layouts.app`, les écrans hors connexion (connexion, vérification d'un document) `x-layouts.invite`. Les maquettes de `resources/views/maquettes/` (gabarit `x-layouts.maquette`) fixent la structure d'écran :
+- Les écrans de la console de gestion (administrateur, comité, point focal, observateur) utilisent le gabarit `x-layouts.app` ; l'espace électeur (accueil, résultats d'un électeur) `x-layouts.electeur`, sans menu de gestion ; le bulletin et la confirmation `x-layouts.vote` ; les écrans hors connexion (connexion, vérification d'un document) `x-layouts.invite`. Les maquettes de `resources/views/maquettes/` (gabarit `x-layouts.maquette`) fixent la structure d'écran :
   - sidebar de 264 px ;
   - en-tête de 64 px qui affiche l'affectation ;
   - contenu à 28 px des bords.

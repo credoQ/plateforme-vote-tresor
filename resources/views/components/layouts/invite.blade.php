@@ -9,6 +9,7 @@
     <x-meta :titre="$titre.' · Femme modèle du Trésor'" :indexer="$indexer" />
     <script>try { const t = localStorage.getItem('fm-theme'); if (t) { document.documentElement.dataset.theme = t; } } catch (e) {}</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body>
 <div class="connexion">
@@ -43,5 +44,6 @@
         </div>
     </section>
 </div>
+@livewireScripts
 </body>
 </html>

@@ -8,6 +8,7 @@
     <x-meta :titre="$titre.' · Femme modèle du Trésor'" />
     <script>document.documentElement.classList.add('js'); try { const t = localStorage.getItem('fm-theme'); if (t) { document.documentElement.dataset.theme = t; } if (localStorage.getItem('fm-menu') === 'replie') { document.documentElement.classList.add('menu-replie'); } } catch (e) {}</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body>
 <div class="app">
@@ -21,7 +22,7 @@
             @foreach ($menus as $groupe => $liens)
                 <div class="nav-groupe">{{ $groupe }}</div>
                 @foreach ($liens as $lien)
-                    <a href="{{ $lien['url'] }}" @class(['nav-lien', 'est-actif' => $lien['cle'] === $actif]) data-infobulle="{{ $lien['libelle'] }}" @if ($lien['cle'] === $actif) aria-current="page" @endif>
+                    <a href="{{ $lien['url'] }}" @class(['nav-lien', 'est-actif' => $lien['cle'] === $actif]) data-infobulle="{{ $lien['libelle'] }}" @if ($lien['cle'] === $actif) aria-current="page" @endif @if ($lien['cle'] !== 'vote') wire:navigate @endif>
                         <i data-lucide="{{ $lien['icone'] }}"></i><span class="nav-lien__libelle">{{ $lien['libelle'] }}</span>
                     </a>
                 @endforeach
@@ -88,5 +89,6 @@
     </div>
 </div>
 {{ $modales ?? '' }}
+@livewireScripts
 </body>
 </html>

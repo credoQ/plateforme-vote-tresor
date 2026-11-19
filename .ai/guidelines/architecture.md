@@ -2,8 +2,10 @@
 
 ## Pile
 
-- Monolithe Laravel 13 (PHP 8.5), base PostgreSQL, interface Blade avec Tailwind CSS 4 et Vite 8, icônes Lucide.
-- Le front reste dans le monolithe : vues Blade et composants anonymes (`resources/views/components`). N'ajoutez pas de framework JavaScript (Vue, React, Livewire, Inertia) sans accord.
+- Monolithe Laravel 13 (PHP 8.5), base PostgreSQL, interface Blade avec Tailwind CSS 4 et Vite 8, Livewire 4 (qui fournit Alpine.js), icônes Lucide.
+- Le front reste dans le monolithe : vues Blade, composants anonymes (`resources/views/components`) et composants Livewire (`app/Livewire/<Domaine>/…`, vues dans `resources/views/livewire`). N'ajoutez pas d'autre framework JavaScript (Vue, React, Inertia, Turbo) sans accord.
+- Livewire sert aux écrans qui gagnent à être interactifs (listes filtrées, tableau de bord). La logique métier reste dans les actions ; un composant ne fait que lire, filtrer et appeler une action. Les pages de vote (bulletin, confirmation) restent en Blade simple, sans Livewire : le choix ne transite que dans la requête de vote.
+- N'importez jamais Alpine.js vous-même : Livewire le fournit. Les composants Alpine s'enregistrent sur l'événement `alpine:init` (`resources/js/app.js`), et le code lancé au chargement d'une page s'exécute sur `livewire:navigated`.
 - Les traitements longs (dépouillement, génération des procès-verbaux, envoi de notifications) passent par des jobs en file d'attente. L'ouverture et la clôture des scrutins passent par le planificateur.
 
 ## Organisation du code

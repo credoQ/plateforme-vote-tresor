@@ -1,18 +1,14 @@
 @use('App\Enums\Scrutins\StatutScrutin')
-<x-layouts.app titre="Voter" :ariane="['Mon espace', 'Voter']" actif="vote">
-    <div class="titre-page">
+<x-layouts.vote titre="Voter" :contexte="$scrutin ? $scrutin->phase->libelle.' · '.$scrutin->libelle : null">
+    <div class="titre-page isoloir__centre">
         <div>
             <div class="surtitre">{{ $scrutin?->phase->libelle ?? 'Vote' }}</div>
             <h1>{{ $scrutin?->libelle ?? 'Aucun scrutin en cours' }}</h1>
         </div>
     </div>
 
-    @error('candidate_id')
-        <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $message }}</div></div>
-    @enderror
-
     @if ($inscription === null)
-        <div class="carte"><div class="carte__corps"><div class="etat-vide"><i data-lucide="calendar-clock"></i>
+        <div class="carte isoloir__centre"><div class="carte__corps"><div class="etat-vide"><i data-lucide="calendar-clock"></i>
             <p>Vous n’êtes inscrit sur aucune liste électorale de la phase en cours.</p>
         </div></div></div>
     @elseif ($inscription->a_vote)
@@ -36,7 +32,7 @@
             </div>
         </section>
     @else
-        <div class="carte"><div class="carte__corps"><div class="etat-vide"><i data-lucide="hourglass"></i>
+        <div class="carte isoloir__centre"><div class="carte__corps"><div class="etat-vide"><i data-lucide="hourglass"></i>
             @if (in_array($scrutin->statut, [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], true))
                 <p>Le scrutin n’est pas encore ouvert.@if ($scrutin->date_heure_ouverture) Ouverture le {{ $scrutin->date_heure_ouverture->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.@endif</p>
             @elseif ($scrutin->statut === StatutScrutin::Annule)
@@ -46,4 +42,4 @@
             @endif
         </div></div></div>
     @endif
-</x-layouts.app>
+</x-layouts.vote>

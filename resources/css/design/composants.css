@@ -277,9 +277,23 @@
   .choix-confirme { display: flex; align-items: center; gap: 14px; padding: 16px; margin-bottom: 16px; border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon-carte); }
   .confirmation-vote, .accuse-vote { max-width: 640px; }
   .accuse-vote .carte__entete { gap: 12px; justify-content: flex-start; }
+
+  /* ---------------------------------------------------------------- page de vote (gabarit x-layouts.vote, sans menu) */
+  .isoloir { min-height: 100vh; display: flex; flex-direction: column; background: var(--tr-fond); }
+  .isoloir__entete { display: flex; align-items: center; gap: 24px; min-height: 72px; padding: 0 28px; background: var(--tr-surface); border-bottom: 1px solid var(--tr-bordure); }
+  .isoloir__marque { display: flex; align-items: center; gap: 12px; min-width: 0; }
+  .isoloir__marque img { width: 44px; height: 44px; flex: none; }
+  .isoloir__marque strong { display: block; font-size: 14px; line-height: 18px; font-weight: 800; color: var(--tr-primaire); }
+  .isoloir__marque small { display: block; font-size: 12px; line-height: 16px; color: var(--tr-texte-3); }
+  .isoloir__etapes { flex: 1; max-width: 420px; margin: 0 auto; }
+  .isoloir__etapes .etape__texte { white-space: nowrap; }
+  .isoloir__droite { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+  .isoloir__contenu { width: 100%; max-width: 1040px; margin: 0 auto; padding: 28px; flex: 1; }
+  .isoloir .barre-vote { margin: 0; border-radius: 0 0 var(--tr-rayon-carte) var(--tr-rayon-carte); }
+  .isoloir .confirmation-vote, .isoloir .accuse-vote, .isoloir__centre { max-width: 640px; margin-inline: auto; }
   .candidature { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
   @media print {
-    .sidebar, .entete, .formulaire__actions, .alerte { display: none !important; }
+    .sidebar, .entete, .isoloir__entete, .bande-tricolore, .formulaire__actions, .alerte { display: none !important; }
     .app { display: block; }
     .contenu { padding: 0; }
   }
@@ -304,8 +318,22 @@
     .entete { padding: 0 16px; }
     .affectation, .profil__nom { display: none; }
     .barre-vote { margin: 24px -16px -20px; padding: 12px 16px; }
+    .isoloir__entete { flex-wrap: wrap; gap: 12px 16px; padding: 12px 16px; }
+    .isoloir__etapes { order: 3; flex-basis: 100%; max-width: none; }
+    .isoloir__marque small, .isoloir__etapes .etape__texte small { display: none; }
+    .isoloir__contenu { padding: 20px 16px; }
   }
   @media (max-width: 600px) { .grille-tuiles { grid-template-columns: 1fr; } .barre { grid-template-columns: 100px 1fr 48px; } .tableau-defilant { overflow-x: auto; } }
+  /* barre du bulletin sur téléphone : le bouton principal passe sur sa propre ligne, pleine largeur. */
+  @media (max-width: 600px) {
+    .barre-vote { flex-wrap: wrap; gap: 10px 12px; }
+    .barre-vote > div:not(.barre-vote__actions) { flex: 1; min-width: 0; }
+    .barre-vote__actions { width: 100%; margin-left: 0; }
+    .barre-vote__actions .btn { flex: 1 1 100%; justify-content: center; }
+    .barre-vote__actions .btn-primaire { order: -1; }
+    .isoloir__marque img { width: 36px; height: 36px; }
+    .isoloir__quitter span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  }
   /* tableaux de liste sur téléphone : chaque ligne devient une fiche « libellé : valeur », actions en bas.
      Le libellé de chaque cellule (data-libelle) est repris de l'en-tête du tableau par app.js. */
   @media (max-width: 600px) {

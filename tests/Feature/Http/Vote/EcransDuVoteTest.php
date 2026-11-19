@@ -73,7 +73,8 @@ class EcransDuVoteTest extends TestCase
         $clarisse = $this->candidate($this->clarisse);
 
         $this->actingAs($this->electeur)->get(route('vote'))
-            ->assertOk()->assertSee('AHOUANSOU Clarisse')->assertSee('KPADE Inès')->assertDontSee('Vote blanc');
+            ->assertOk()->assertSee('AHOUANSOU Clarisse')->assertSee('KPADE Inès')->assertDontSee('Vote blanc')
+            ->assertSee('Étape 1 sur 2')->assertDontSee('Navigation principale');
         $this->get(route('vote', ['recherche' => 'kpade']))->assertSee('KPADE Inès')->assertDontSee('AHOUANSOU Clarisse');
 
         $this->post(route('vote.confirmer'), ['candidate' => $clarisse->id])

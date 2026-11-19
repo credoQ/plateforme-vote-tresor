@@ -24,8 +24,18 @@ class GabaritEmailTest extends TestCase
         $this->assertStringContainsString(asset('images/embleme-tresor.png'), $html);
         $this->assertStringContainsString('tricolore-vert', $html);
         $this->assertStringContainsString('Édition 2026', $html);
-        $this->assertStringContainsString('© DIA/DGTCP', $html);
+        $this->assertStringContainsString('© '.date('Y').' DIA/DGTCP', $html);
+        $this->assertStringContainsString('chargé des Finances et de la Microfinance', $html);
         $this->assertStringNotContainsString('Laravel', $html);
+    }
+
+    public function test_le_code_de_connexion_est_mis_en_avant_dans_son_bloc_avec_sa_validite(): void
+    {
+        $html = (string) (new CodeDeConnexion('482917', 10))->toMail(new AnonymousNotifiable)->render();
+
+        $this->assertMatchesRegularExpression('/class="code-valeur"[^>]*>\s*482917\s*</', $html);
+        $this->assertStringContainsString('Valable 10 minutes', $html);
+        $this->assertStringContainsString(asset('fonts/montserrat/Montserrat-Regular.ttf'), $html);
     }
 
     public function test_sans_edition_en_cours_l_en_tete_n_affiche_pas_d_edition(): void

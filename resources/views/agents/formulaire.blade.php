@@ -1,4 +1,4 @@
-<x-layouts.app :titre="! $agent->exists ? 'Saisir un agent' : 'Agent '.$agent->matricule" :ariane="['Administration', 'Agents', ! $agent->exists ? 'Saisir' : $agent->matricule]" actif="agents">
+<x-layouts.app centre :titre="! $agent->exists ? 'Saisir un agent' : 'Agent '.$agent->matricule" :ariane="['Administration', 'Agents', ! $agent->exists ? 'Saisir' : $agent->matricule]" actif="agents">
     <div class="titre-page">
         <div>
             <h1>{{ ! $agent->exists ? 'Saisir un agent' : 'Modifier la fiche de '.$agent->nomComplet() }}</h1>
@@ -22,12 +22,14 @@
                     @endforeach
                     <div class="formulaire__groupe">
                         <label class="libelle" for="sexe">Sexe <span class="requis">*</span></label>
-                        <select id="sexe" name="sexe" class="champ" required>
-                            <option value="">Choisir</option>
-                            @foreach (\App\Enums\Agents\Sexe::cases() as $cas)
-                                <option value="{{ $cas->value }}" @selected(old('sexe', $agent->sexe?->value) === $cas->value)>{{ $cas->libelle() }}</option>
-                            @endforeach
-                        </select>
+                        <x-select-recherche>
+                            <select id="sexe" name="sexe" class="champ" required>
+                                <option value="">Choisir</option>
+                                @foreach (\App\Enums\Agents\Sexe::cases() as $cas)
+                                    <option value="{{ $cas->value }}" @selected(old('sexe', $agent->sexe?->value) === $cas->value)>{{ $cas->libelle() }}</option>
+                                @endforeach
+                            </select>
+                        </x-select-recherche>
                         @error('sexe')<p class="erreur-champ">{{ $message }}</p>@enderror
                     </div>
                 </fieldset>
@@ -38,12 +40,14 @@
                         <div class="formulaire-ligne">
                             <div class="formulaire__groupe">
                                 <label class="libelle" for="structure_id">Structure <span class="requis">*</span></label>
-                                <select id="structure_id" name="structure_id" class="champ" required>
-                                    <option value="">Choisir</option>
-                                    @foreach ($structures as $structure)
-                                        <option value="{{ $structure->id }}" @selected((int) old('structure_id') === $structure->id)>{{ $structure->code }} · {{ $structure->libelle }}</option>
-                                    @endforeach
-                                </select>
+                                <x-select-recherche>
+                                    <select id="structure_id" name="structure_id" class="champ" required>
+                                        <option value="">Choisir</option>
+                                        @foreach ($structures as $structure)
+                                            <option value="{{ $structure->id }}" @selected((int) old('structure_id') === $structure->id)>{{ $structure->code }} · {{ $structure->libelle }}</option>
+                                        @endforeach
+                                    </select>
+                                </x-select-recherche>
                                 @error('structure_id')<p class="erreur-champ">{{ $message }}</p>@enderror
                             </div>
                             <div class="formulaire__groupe">

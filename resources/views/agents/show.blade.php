@@ -46,12 +46,14 @@
                         @csrf
                         <div class="formulaire__groupe">
                             <label class="libelle" for="structure_id">Nouvelle structure <span class="requis">*</span></label>
-                            <select id="structure_id" name="structure_id" class="champ" required>
-                                <option value="">Choisir</option>
-                                @foreach ($structures as $structure)
-                                    <option value="{{ $structure->id }}" @selected((int) old('structure_id') === $structure->id)>{{ $structure->code }} · {{ $structure->libelle }}</option>
-                                @endforeach
-                            </select>
+                            <x-select-recherche>
+                                <select id="structure_id" name="structure_id" class="champ" required>
+                                    <option value="">Choisir</option>
+                                    @foreach ($structures as $structure)
+                                        <option value="{{ $structure->id }}" @selected((int) old('structure_id') === $structure->id)>{{ $structure->code }} · {{ $structure->libelle }}</option>
+                                    @endforeach
+                                </select>
+                            </x-select-recherche>
                             @error('structure_id')<p class="erreur-champ">{{ $message }}</p>@enderror
                         </div>
                         <div class="formulaire__groupe">

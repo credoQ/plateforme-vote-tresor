@@ -21,8 +21,9 @@
     {{-- Footer --}}
     <x-slot:footer>
         <x-mail::footer>
-            Direction générale du Trésor et de la Comptabilité publique · République du Bénin
-            © DIA/DGTCP {{ date('Y') }}
+            {{ config('app.direction') }}
+            République du Bénin · {{ config('app.ministere') }}
+            © {{ date('Y') }} {{ config('app.copyright') }}
         </x-mail::footer>
     </x-slot:footer>
 </x-mail::layout>

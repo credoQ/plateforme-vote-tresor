@@ -14,12 +14,14 @@
         <form method="GET" action="{{ route('vote') }}" class="barre-filtres">
             <div class="champ-icone"><i data-lucide="search"></i><input name="recherche" class="champ" value="{{ $recherche }}" placeholder="Rechercher une candidate par nom" aria-label="Rechercher une candidate"></div>
             @if ($structures->count() > 1)
-                <select name="structure" class="champ" aria-label="Filtrer par structure">
-                    <option value="">Toutes les structures</option>
-                    @foreach ($structures as $id => $libelle)
-                        <option value="{{ $id }}" @selected($structureId === $id)>{{ $libelle }}</option>
-                    @endforeach
-                </select>
+                <x-select-recherche compact soumettre>
+                    <select name="structure" class="champ" aria-label="Filtrer par structure">
+                        <option value="">Toutes les structures</option>
+                        @foreach ($structures as $id => $libelle)
+                            <option value="{{ $id }}" @selected($structureId === $id)>{{ $libelle }}</option>
+                        @endforeach
+                    </select>
+                </x-select-recherche>
             @endif
             <button type="submit" class="btn btn-secondaire"><i data-lucide="filter"></i>Filtrer</button>
             <span class="aide"><b class="chiffres">{{ $candidates->count() }}</b> candidate(s) sur {{ $total }}</span>

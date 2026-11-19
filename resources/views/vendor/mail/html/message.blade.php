@@ -21,10 +21,10 @@ Femme modèle du Trésor
 {{-- Footer --}}
 <x-slot:footer>
 <x-mail::footer>
-Direction générale du Trésor et de la Comptabilité publique<br>
-République du Bénin · Ministère de l'Économie et des Finances
+{{ config('app.direction') }}<br>
+République du Bénin · {{ config('app.ministere') }}
 
-**© DIA/DGTCP {{ date('Y') }}**
+**© {{ date('Y') }} {{ config('app.copyright') }}**
 </x-mail::footer>
 </x-slot:footer>
 </x-mail::layout>

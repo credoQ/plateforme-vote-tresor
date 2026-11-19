@@ -61,7 +61,7 @@
         </table>
         <table class="edition">
             <tr>
-                <td style="width:62%">Femme modèle du Trésor · édité le <strong>{{ $editeLe->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}</strong>@if ($editePar) par <strong>{{ $editePar }}</strong>@endif</td>
+                <td style="width:62%">Femme modèle du Trésor · édité le <strong>{{ $editeLe->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}</strong>@if ($editePar) par <strong>{{ $editePar }}</strong>@endif · © {{ $editeLe->timezone('Africa/Porto-Novo')->format('Y') }} {{ config('app.copyright') }}</td>
                 <td style="width:14%"><table class="mini-tricolore"><tr><td class="vert"></td><td class="jaune"></td><td class="rouge"></td></tr></table></td>
                 <td style="width:24%;text-align:right"><span class="badge">{{ $type }}</span></td>
             </tr>

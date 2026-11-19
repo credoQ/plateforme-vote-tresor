@@ -309,6 +309,80 @@ img {
     padding-bottom: 0;
 }
 
+/* Code de connexion : bloc centré sur fond bleu clair, chiffres espacés (composant x-mail::code). */
+
+.code {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 24px 0;
+    width: 100%;
+}
+
+.code-cell {
+    background-color: #EFF5F9;
+    border: 1px solid #C2D6E8;
+    border-radius: 12px;
+    padding: 22px 16px;
+    text-align: center;
+}
+
+.code-libelle {
+    color: #004788;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin: 0;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.code-valeur {
+    color: #002E59;
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 10px;
+    line-height: 1.3em;
+    margin: 10px 0 6px;
+    padding-left: 10px;
+    text-align: center;
+}
+
+.code-validite {
+    color: #4D5359;
+    font-size: 12px;
+    margin: 0;
+    text-align: center;
+}
+
+/* Récapitulatif (accusé de vote) : libellé à gauche, valeur à droite. */
+
+.recapitulatif {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    border: 1px solid #E2E7EE;
+    border-radius: 8px;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.recapitulatif td {
+    border-bottom: 1px solid #EEF0F2;
+    font-size: 13px;
+    padding: 10px 14px;
+}
+
+.recapitulatif-libelle {
+    color: #4D5359;
+}
+
+.recapitulatif-valeur {
+    color: #1C2733;
+    font-weight: bold;
+    text-align: right;
+}
+
 /* Utilitaires */
 
 .break-all {

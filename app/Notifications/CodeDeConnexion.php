@@ -51,11 +51,6 @@ class CodeDeConnexion extends Notification implements ShouldBeEncrypted, ShouldQ
     {
         return (new MailMessage)
             ->subject("Votre code de connexion : {$this->code}")
-            ->greeting('Bonjour,')
-            ->line('Votre code de connexion à la plateforme de vote de la Femme modèle du Trésor :')
-            ->line("**{$this->code}**")
-            ->line("Il est valable {$this->minutes} minutes et ne sert qu’une fois. Ne le communiquez à personne.")
-            ->line('Si vous n’êtes pas à l’origine de cette demande, ignorez ce message.')
-            ->salutation('Le comité d’organisation de la Femme modèle du Trésor');
+            ->markdown('mail.code-connexion', ['code' => $this->code, 'minutes' => $this->minutes]);
     }
 }

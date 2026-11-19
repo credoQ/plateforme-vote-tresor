@@ -11,28 +11,40 @@
     </div>
 
     <div class="carte">
-        <form method="GET" class="barre-filtres">
-            <div class="champ-icone"><i data-lucide="search"></i><input name="recherche" class="champ" value="{{ $recherche }}" placeholder="Matricule, NPI ou nom" aria-label="Rechercher un agent"></div>
-            <select name="structure" class="champ" aria-label="Filtrer par structure">
-                <option value="">Toutes les structures</option>
-                @foreach ($structures as $structure)
-                    <option value="{{ $structure->id }}" @selected($structureId === $structure->id)>{{ $structure->code }}</option>
-                @endforeach
-            </select>
-            <select name="sexe" class="champ" aria-label="Filtrer par sexe">
-                <option value="">Tous</option>
-                @foreach (\App\Enums\Agents\Sexe::cases() as $cas)
-                    <option value="{{ $cas->value }}" @selected($sexe === $cas)>{{ $cas->libelle() }}</option>
-                @endforeach
-            </select>
-            <select name="situation" class="champ" aria-label="Filtrer par situation">
-                <option value="en-service" @selected($situation === 'en-service')>En service</option>
-                @unless ($restreint)<option value="hors-service" @selected($situation === 'hors-service')>Sans affectation en cours</option>@endunless
-                <option value="tous" @selected($situation === 'tous')>Tous</option>
-            </select>
-            <button type="submit" class="btn btn-secondaire"><i data-lucide="filter"></i>Filtrer</button>
-            <span class="aide"><b class="chiffres">{{ number_format($agents->total(), 0, ',', ' ') }}</b> agent(s)</span>
-        </form>
+        <x-barre-filtres :total="$agents->total()" libelle="agent(s)">
+            <x-filtre libelle="Recherche" pour="filtre-recherche" large>
+                <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Matricule, NPI ou nom"></div>
+            </x-filtre>
+            <x-filtre libelle="Structure" pour="filtre-structure">
+                <x-select-recherche compact soumettre>
+                    <select id="filtre-structure" name="structure" class="champ">
+                        <option value="">Toutes les structures</option>
+                        @foreach ($structures as $structure)
+                            <option value="{{ $structure->id }}" data-detail="{{ $structure->libelle }}" @selected($structureId === $structure->id)>{{ $structure->code }}</option>
+                        @endforeach
+                    </select>
+                </x-select-recherche>
+            </x-filtre>
+            <x-filtre libelle="Sexe" pour="filtre-sexe">
+                <x-select-recherche compact soumettre>
+                    <select id="filtre-sexe" name="sexe" class="champ">
+                        <option value="">Tous</option>
+                        @foreach (\App\Enums\Agents\Sexe::cases() as $cas)
+                            <option value="{{ $cas->value }}" @selected($sexe === $cas)>{{ $cas->libelle() }}</option>
+                        @endforeach
+                    </select>
+                </x-select-recherche>
+            </x-filtre>
+            <x-filtre libelle="Situation" pour="filtre-situation">
+                <x-select-recherche compact soumettre>
+                    <select id="filtre-situation" name="situation" class="champ">
+                        <option value="en-service" @selected($situation === 'en-service')>En service</option>
+                        @unless ($restreint)<option value="hors-service" @selected($situation === 'hors-service')>Sans affectation en cours</option>@endunless
+                        <option value="tous" @selected($situation === 'tous')>Tous</option>
+                    </select>
+                </x-select-recherche>
+            </x-filtre>
+        </x-barre-filtres>
 
         <div class="tableau-defilant">
             <table class="tableau tableau--fiches">
@@ -59,6 +71,6 @@
                 </tbody>
             </table>
         </div>
-        {{ $agents->links() }}
+        {{ $agents->onEachSide(1)->links('pagination.tresor', ['libelle' => 'agents']) }}
     </div>
 </x-layouts.app>

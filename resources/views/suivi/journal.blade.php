@@ -6,18 +6,27 @@
     </div>
 
     <div class="carte">
-        <form method="GET" class="barre-filtres">
-            <select name="action" class="champ" aria-label="Filtrer par opération">
-                <option value="">Toutes les opérations</option>
-                @foreach (\App\Enums\Audit\ActionAuditee::cases() as $cas)
-                    <option value="{{ $cas->value }}" @selected($action === $cas)>{{ $cas->libelle() }}</option>
-                @endforeach
-            </select>
-            <input name="login" class="champ" value="{{ $login }}" placeholder="Utilisateur" aria-label="Filtrer par utilisateur">
-            <input name="du" type="date" class="champ" value="{{ $du }}" aria-label="Du">
-            <input name="au" type="date" class="champ" value="{{ $au }}" aria-label="Au">
-            <button type="submit" class="btn btn-secondaire"><i data-lucide="filter"></i>Filtrer</button>
-        </form>
+        <x-barre-filtres :total="$entrees->total()" libelle="opération(s)">
+            <x-filtre libelle="Opération" pour="filtre-action" large>
+                <x-select-recherche compact soumettre>
+                    <select id="filtre-action" name="action" class="champ">
+                        <option value="">Toutes les opérations</option>
+                        @foreach (\App\Enums\Audit\ActionAuditee::cases() as $cas)
+                            <option value="{{ $cas->value }}" @selected($action === $cas)>{{ $cas->libelle() }}</option>
+                        @endforeach
+                    </select>
+                </x-select-recherche>
+            </x-filtre>
+            <x-filtre libelle="Utilisateur" pour="filtre-login">
+                <input id="filtre-login" name="login" class="champ" value="{{ $login }}" placeholder="Identifiant">
+            </x-filtre>
+            <x-filtre libelle="Du" pour="filtre-du">
+                <input id="filtre-du" name="du" type="date" class="champ" value="{{ $du }}">
+            </x-filtre>
+            <x-filtre libelle="Au" pour="filtre-au">
+                <input id="filtre-au" name="au" type="date" class="champ" value="{{ $au }}">
+            </x-filtre>
+        </x-barre-filtres>
 
         <div class="tableau-defilant">
             <table class="tableau tableau--fiches">
@@ -38,6 +47,6 @@
                 </tbody>
             </table>
         </div>
-        {{ $entrees->links() }}
+        {{ $entrees->onEachSide(1)->links('pagination.tresor', ['libelle' => 'opérations']) }}
     </div>
 </x-layouts.app>

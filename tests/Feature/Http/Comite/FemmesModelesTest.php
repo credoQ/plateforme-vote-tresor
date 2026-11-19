@@ -44,6 +44,18 @@ class FemmesModelesTest extends TestCase
         $this->assertModelMissing($ligne);
     }
 
+    public function test_r59_filtre_l_historique_par_nom_et_par_annee(): void
+    {
+        FemmeModele::factory()->create(['nom_complet' => 'AHOUANSOU Clarisse', 'annee' => 2024]);
+        FemmeModele::factory()->create(['nom_complet' => 'KPADE Inès', 'annee' => 2021]);
+        $comite = User::factory()->avecRoles(CodeRole::Comite)->create();
+
+        $this->actingAs($comite)->get(route('femmes-modeles.index', ['annee' => 2021]))
+            ->assertOk()->assertSee('KPADE Inès')->assertDontSee('AHOUANSOU Clarisse');
+        $this->get(route('femmes-modeles.index', ['recherche' => 'ahouansou']))
+            ->assertSee('AHOUANSOU Clarisse')->assertDontSee('KPADE Inès');
+    }
+
     public function test_r59_l_historique_est_reserve_au_comite(): void
     {
         $pointFocal = User::factory()->pointFocalDe(Structure::where('code', 'DIA')->firstOrFail())->create();

@@ -50,7 +50,7 @@
         {{ $slot }}
     </main>
 
-    <footer class="portail__pied">Direction générale du Trésor et de la Comptabilité publique · © DIA/DGTCP {{ date('Y') }}</footer>
+    <x-pied-de-page class="portail__pied" />
     <nav class="portail__onglets" aria-label="Navigation principale">
         <a href="{{ route('espace') }}" @class(['est-actif' => $actif === 'espace'])><i data-lucide="house"></i>Mon espace</a>
         <a href="{{ route('palmares') }}" @class(['est-actif' => $actif === 'palmares'])><i data-lucide="trophy"></i>Résultats</a>

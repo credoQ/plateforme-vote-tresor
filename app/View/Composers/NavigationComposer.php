@@ -26,6 +26,7 @@ class NavigationComposer
             'initiales' => $utilisateur->initiales(),
             'profil' => $utilisateur->roles->first()?->code->libelle() ?? 'Utilisateur',
             'affectationUtilisateur' => $utilisateur->agent?->affectationLe(),
+            'espaceElecteur' => $utilisateur->agent_id !== null ? route('espace') : null,
         ]);
     }
 

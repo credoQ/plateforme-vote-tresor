@@ -48,7 +48,7 @@
                 </tbody>
             </table>
         </div>
-        {{ $taches->links() }}
+        {{ $taches->onEachSide(1)->links('pagination.tresor', ['libelle' => 'tâches']) }}
     </div>
 
     <x-slot:modales>

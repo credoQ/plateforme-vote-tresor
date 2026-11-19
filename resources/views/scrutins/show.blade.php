@@ -160,10 +160,11 @@
 
     <section class="carte espace-bloc">
         <div class="carte__entete"><h2>Liste électorale</h2></div>
-        <form method="GET" class="barre-filtres">
-            <div class="champ-icone"><i data-lucide="search"></i><input name="recherche" class="champ" value="{{ $recherche }}" placeholder="Matricule ou nom" aria-label="Rechercher un inscrit"></div>
-            <button type="submit" class="btn btn-secondaire"><i data-lucide="filter"></i>Rechercher</button>
-        </form>
+        <x-barre-filtres :total="$inscriptions->total()" libelle="inscrit(s)">
+            <x-filtre libelle="Recherche" pour="filtre-recherche" large>
+                <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Matricule ou nom"></div>
+            </x-filtre>
+        </x-barre-filtres>
         <div class="tableau-defilant">
             <table class="tableau tableau--fiches">
                 <thead><tr><th>Matricule</th><th>Agent</th><th>Sexe</th><th>Structure à la date de gel</th></tr></thead>
@@ -181,7 +182,7 @@
                 </tbody>
             </table>
         </div>
-        {{ $inscriptions->links() }}
+        {{ $inscriptions->onEachSide(1)->links('pagination.tresor', ['libelle' => 'inscrits']) }}
     </section>
 
     <section class="carte">

@@ -45,6 +45,7 @@
         @endforeach
         {{ $slot }}
     </main>
+    <x-pied-de-page class="isoloir__pied" />
 </div>
 {{ $modales ?? '' }}
 </body>

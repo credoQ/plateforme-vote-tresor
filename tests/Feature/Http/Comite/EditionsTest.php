@@ -31,6 +31,17 @@ class EditionsTest extends TestCase
         $this->actingAs($this->comite)->get(route('editions.index'))->assertOk()->assertSee('Aucune édition');
     }
 
+    public function test_filtre_les_editions_par_statut_et_par_annee(): void
+    {
+        Edition::factory()->create(['annee' => 2031, 'libelle' => 'Édition préparée']);
+        Edition::factory()->enCours()->create(['annee' => 2032, 'libelle' => 'Édition lancée']);
+
+        $this->actingAs($this->comite)->get(route('editions.index', ['statut' => StatutEdition::EnCours->value]))
+            ->assertOk()->assertSee('Édition lancée')->assertDontSee('Édition préparée')->assertSee('Réinitialiser');
+        $this->get(route('editions.index', ['recherche' => '2031']))->assertSee('Édition préparée')->assertDontSee('Édition lancée');
+        $this->get(route('editions.index'))->assertSee('Affichage de')->assertDontSee('Réinitialiser');
+    }
+
     /**
      * R16, R17 : création d'une édition avec l'organisation par défaut, puis planification et lancement.
      */

@@ -20,7 +20,7 @@
         <div class="connexion__accroche">
             <h1>Élisez la Femme modèle du Trésor</h1>
         </div>
-        <div class="connexion__mention">République du Bénin · Ministère de l'Économie et des Finances</div>
+        <div class="connexion__mention">République du Bénin · {{ config('app.ministere') }}</div>
     </section>
 
     <section class="connexion__formulaire">
@@ -35,6 +35,7 @@
             {{ $slot }}
 
             <div class="bande-tricolore connexion__bande"></div>
+            <x-pied-de-page class="pied-de-page--connexion" />
         </div>
     </section>
 </div>

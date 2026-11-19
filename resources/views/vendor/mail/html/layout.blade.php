@@ -7,6 +7,11 @@
 <meta name="color-scheme" content="light">
 <meta name="supported-color-schemes" content="light">
 <style>
+{{-- Montserrat servie par la plateforme (public/fonts) : les messageries qui ne la chargent pas retombent sur Arial. --}}
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 400; src: url('{{ asset('fonts/montserrat/Montserrat-Regular.ttf') }}') format('truetype'); }
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 600; src: url('{{ asset('fonts/montserrat/Montserrat-SemiBold.ttf') }}') format('truetype'); }
+@font-face { font-family: 'Montserrat'; font-style: normal; font-weight: 700; src: url('{{ asset('fonts/montserrat/Montserrat-Bold.ttf') }}') format('truetype'); }
+
 @media only screen and (max-width: 600px) {
 .inner-body {
 width: 100% !important;

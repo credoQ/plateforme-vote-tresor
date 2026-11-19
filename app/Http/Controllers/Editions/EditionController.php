@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Editions;
 use App\Actions\Editions\EnregistrerEdition;
 use App\Actions\Editions\LancerEdition;
 use App\Enums\Editions\Decoupage;
+use App\Enums\Editions\StatutEdition;
 use App\Enums\Referentiel\CodePoleElectoral;
 use App\Enums\Scrutins\OrigineCandidate;
 use App\Http\Controllers\Controller;
@@ -24,10 +25,24 @@ class EditionController extends Controller
      */
     private const AUCUN_SCRUTIN = 'AUCUN';
 
-    public function index(): View
+    public function index(Request $request): View
     {
+        $recherche = trim((string) $request->query('recherche', ''));
+        $statut = StatutEdition::tryFrom((string) $request->query('statut', ''));
+
+        $editions = Edition::withCount('scrutins')
+            ->when($recherche !== '', fn ($q) => $q->where(fn ($r) => $r
+                ->whereLike('libelle', "%{$recherche}%")
+                ->when(ctype_digit($recherche), fn ($a) => $a->orWhere('annee', (int) $recherche))))
+            ->when($statut !== null, fn ($q) => $q->where('statut', $statut->value))
+            ->orderByDesc('annee')
+            ->paginate(25)
+            ->withQueryString();
+
         return view('editions.index', [
-            'editions' => Edition::withCount('scrutins')->orderByDesc('annee')->get(),
+            'editions' => $editions,
+            'recherche' => $recherche,
+            'statut' => $statut,
         ]);
     }
 

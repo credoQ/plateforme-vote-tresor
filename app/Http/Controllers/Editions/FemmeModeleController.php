@@ -18,13 +18,26 @@ use InvalidArgumentException;
  */
 class FemmeModeleController extends Controller
 {
-    public function index(): View
+    public function index(Request $request): View
     {
         $edition = Edition::courante();
         $ineligibles = $edition?->ineligibles() ?? collect();
+        $recherche = trim((string) $request->query('recherche', ''));
+        $annee = $request->integer('annee') ?: null;
+
+        $femmesModeles = FemmeModele::query()
+            ->when($recherche !== '', fn ($q) => $q->where(fn ($r) => $r
+                ->whereLike('nom_complet', "%{$recherche}%")->orWhereLike('matricule', "%{$recherche}%")))
+            ->when($annee !== null, fn ($q) => $q->where('annee', $annee))
+            ->orderByDesc('annee')->orderBy('nom_complet')
+            ->paginate(25)
+            ->withQueryString();
 
         return view('femmes-modeles.index', [
-            'femmesModeles' => FemmeModele::orderByDesc('annee')->orderBy('nom_complet')->get(),
+            'femmesModeles' => $femmesModeles,
+            'annees' => FemmeModele::query()->distinct()->orderByDesc('annee')->pluck('annee'),
+            'recherche' => $recherche,
+            'annee' => $annee,
             'edition' => $edition,
             'ineligibles' => $ineligibles,
         ]);

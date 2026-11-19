@@ -9,16 +9,21 @@
     </div>
 
     <div class="carte">
-        <form method="GET" class="barre-filtres">
-            <div class="champ-icone"><i data-lucide="search"></i><input name="recherche" class="champ" value="{{ $recherche }}" placeholder="Nom ou identifiant" aria-label="Rechercher un utilisateur"></div>
-            <select name="role" class="champ" aria-label="Filtrer par rôle">
-                <option value="">Tous les rôles</option>
-                @foreach (\App\Enums\Acces\CodeRole::cases() as $code)
-                    <option value="{{ $code->value }}" @selected($role === $code)>{{ $code->libelle() }}</option>
-                @endforeach
-            </select>
-            <button type="submit" class="btn btn-secondaire"><i data-lucide="filter"></i>Filtrer</button>
-        </form>
+        <x-barre-filtres :total="$utilisateurs->total()" libelle="utilisateur(s)">
+            <x-filtre libelle="Recherche" pour="filtre-recherche" large>
+                <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Nom ou identifiant"></div>
+            </x-filtre>
+            <x-filtre libelle="Rôle" pour="filtre-role">
+                <x-select-recherche compact soumettre>
+                    <select id="filtre-role" name="role" class="champ">
+                        <option value="">Tous les rôles</option>
+                        @foreach (\App\Enums\Acces\CodeRole::cases() as $code)
+                            <option value="{{ $code->value }}" @selected($role === $code)>{{ $code->libelle() }}</option>
+                        @endforeach
+                    </select>
+                </x-select-recherche>
+            </x-filtre>
+        </x-barre-filtres>
 
         <div class="tableau-defilant">
             <table class="tableau tableau--fiches">
@@ -45,6 +50,6 @@
                 </tbody>
             </table>
         </div>
-        {{ $utilisateurs->links() }}
+        {{ $utilisateurs->onEachSide(1)->links('pagination.tresor', ['libelle' => 'utilisateurs']) }}
     </div>
 </x-layouts.app>

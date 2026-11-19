@@ -9,6 +9,7 @@ use App\Enums\Audit\ActionAuditee;
 use App\Models\Edition;
 use App\Models\User;
 use App\View\Composers\EspaceElecteurComposer;
+use App\View\Composers\FiltresComposer;
 use App\View\Composers\NavigationComposer;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
@@ -47,6 +48,7 @@ class AppServiceProvider extends ServiceProvider
         // Les vues ne font aucun traitement serveur : les données des gabarits leur sont fournies ici.
         View::composer('components.layouts.app', NavigationComposer::class);
         View::composer('components.layouts.electeur', EspaceElecteurComposer::class);
+        View::composer('components.barre-filtres', FiltresComposer::class);
         View::composer('components.pdf.document', fn (Vue $vue) => $vue->with('images', app(EnteteDocument::class)->images()));
         View::composer('mail::message', fn (Vue $vue) => $vue->with('editionEnCours', Edition::enCours()->value('annee')));
 

@@ -1,4 +1,4 @@
-<x-layouts.app :titre="! $utilisateur->exists ? 'Créer un compte' : 'Compte '.$utilisateur->login" :ariane="['Administration', 'Utilisateurs', ! $utilisateur->exists ? 'Créer' : $utilisateur->login]" actif="utilisateurs">
+<x-layouts.app centre :titre="! $utilisateur->exists ? 'Créer un compte' : 'Compte '.$utilisateur->login" :ariane="['Administration', 'Utilisateurs', ! $utilisateur->exists ? 'Créer' : $utilisateur->login]" actif="utilisateurs">
     <div class="titre-page">
         <div>
             <h1>{{ ! $utilisateur->exists ? 'Créer un compte' : $utilisateur->name }}</h1>
@@ -38,12 +38,14 @@
 
                 <div class="formulaire__groupe">
                     <label class="libelle" for="structure_id">Structure du point focal</label>
-                    <select id="structure_id" name="structure_id" class="champ">
-                        <option value="">Aucune</option>
-                        @foreach ($structures as $structure)
-                            <option value="{{ $structure->id }}" @selected((int) old('structure_id', $utilisateur->structure_id) === $structure->id)>{{ $structure->code }} · {{ $structure->libelle }}</option>
-                        @endforeach
-                    </select>
+                    <x-select-recherche>
+                        <select id="structure_id" name="structure_id" class="champ">
+                            <option value="">Aucune</option>
+                            @foreach ($structures as $structure)
+                                <option value="{{ $structure->id }}" @selected((int) old('structure_id', $utilisateur->structure_id) === $structure->id)>{{ $structure->code }} · {{ $structure->libelle }}</option>
+                            @endforeach
+                        </select>
+                    </x-select-recherche>
                     @error('structure_id')<p class="erreur-champ">{{ $message }}</p>@enderror
                 </div>
 

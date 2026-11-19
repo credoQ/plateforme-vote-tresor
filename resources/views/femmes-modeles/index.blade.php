@@ -41,7 +41,22 @@
     </section>
 
     <section class="carte">
-        <div class="carte__entete"><h2>Historique</h2><span class="etiquette">{{ $femmesModeles->count() }} femme(s) modèle(s)</span></div>
+        <div class="carte__entete"><h2>Historique</h2></div>
+        <x-barre-filtres :total="$femmesModeles->total()" libelle="femme(s) modèle(s)">
+            <x-filtre libelle="Recherche" pour="filtre-recherche" large>
+                <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Nom ou matricule"></div>
+            </x-filtre>
+            <x-filtre libelle="Année" pour="filtre-annee">
+                <x-select-recherche compact soumettre>
+                    <select id="filtre-annee" name="annee" class="champ">
+                        <option value="">Toutes les années</option>
+                        @foreach ($annees as $valeur)
+                            <option value="{{ $valeur }}" @selected($annee === $valeur)>{{ $valeur }}</option>
+                        @endforeach
+                    </select>
+                </x-select-recherche>
+            </x-filtre>
+        </x-barre-filtres>
         <div class="tableau-defilant">
             <table class="tableau tableau--fiches">
                 <thead><tr><th class="nombre">Année</th><th>Femme modèle</th><th>Matricule</th><th>Scrutin</th><th>Source</th><th>Éligibilité</th><th class="actions">Actions</th></tr></thead>
@@ -70,6 +85,7 @@
                 </tbody>
             </table>
         </div>
+        {{ $femmesModeles->onEachSide(1)->links('pagination.tresor', ['libelle' => 'femmes modèles']) }}
     </section>
 
     <x-slot:modales>

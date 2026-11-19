@@ -65,6 +65,11 @@
                         </form>
                         <button type="button" class="btn btn-primaire" data-ouvrir="modale-arreter"><i data-lucide="lock"></i>Arrêter les listes</button>
                     </div>
+                @else
+                    <div class="formulaire__actions">
+                        <button type="button" class="btn btn-secondaire" data-ouvrir="modale-rouvrir"><i data-lucide="lock-open"></i>Rouvrir les listes</button>
+                    </div>
+                    @error('motif')<p class="erreur-champ">{{ $message }}</p>@enderror
                 @endif
             </div>
         </section>
@@ -151,6 +156,15 @@
         @if ($pilote && $scrutin->listesSontModifiables())
             <x-modale-confirmation id="modale-arreter" :titre="'Arrêter les listes de « '.$scrutin->libelle.' » ?'" :action="route('scrutins.arreter', $scrutin)" bouton="Arrêter les listes" icone="lock">
                 Les listes sont actualisées une dernière fois d’après les affectations à la date de gel, puis figées. Seules les désactivations et réactivations de candidates resteront possibles jusqu’à l’ouverture.
+            </x-modale-confirmation>
+        @endif
+        @if ($pilote && $scrutin->listesPeuventEtreRouvertes())
+            <x-modale-confirmation id="modale-rouvrir" :titre="'Rouvrir les listes de « '.$scrutin->libelle.' » ?'" :action="route('scrutins.rouvrir', $scrutin)" bouton="Rouvrir les listes" icone="lock-open">
+                La décision et son motif sont tracés au journal. Le scrutin ne s’ouvrira pas tant que les listes ne seront pas de nouveau arrêtées. Les candidates désactivées le restent.
+                <x-slot:champs>
+                    <label class="libelle" for="motif-rouvrir">Motif de la décision du comité</label>
+                    <textarea id="motif-rouvrir" name="motif" class="champ" maxlength="500" required placeholder="Ex. : agente omise de l’import RH, affectée à la TD Borgou à la date de gel"></textarea>
+                </x-slot:champs>
             </x-modale-confirmation>
         @endif
         @if ($scrutin->accepteLesDesistements())

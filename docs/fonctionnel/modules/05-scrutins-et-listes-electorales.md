@@ -11,7 +11,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] La génération automatique des scrutins de la phase 1 (12 scrutins départementaux et un scrutin par structure électorale comptant au moins une agent femme en service ; les structures sans agent femme sont signalées au comité), de la phase 2 (deux demi-finales) et de la phase 3 (finale).
 - [x] La définition de la circonscription de chaque scrutin (ensemble des structures couvertes).
 - [x] La constitution automatique des listes électorales à partir des affectations à la date de gel.
-- [ ] Le contrôle des listes par les points focaux, les corrections et l’arrêt définitif des listes par le comité. (Fait : contrôle et arrêt ; reste : corrections motivées après l’arrêt.)
+- [x] Le contrôle des listes par les points focaux, les corrections et l’arrêt définitif des listes par le comité.
 - [x] La constitution automatique de la liste des candidates de chaque scrutin de la phase 1 (agents de sexe féminin en service dans la circonscription) et de la reprise des lauréates qualifiées dans les phases 2 et 3.
 - [x] La désactivation d’une candidate qui ne souhaite pas concourir (désistement), par le point focal ou le comité à sa demande, et sa réactivation éventuelle avant l’ouverture du scrutin.
 - [x] La publication et l’export des listes électorales et des listes de candidates.
@@ -27,7 +27,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] Actions `DesactiverCandidate` et `ReactiverCandidate` : jusqu'à l'ouverture du scrutin, avec date, auteur et motif (R32 à R34)
 - [x] Tests des règles R14, R15, R20 à R30, R32 à R35 et R37
 - [x] Écrans : génération depuis l'édition, fiche du scrutin (planification à l'heure du Bénin, actualisation et arrêt des listes, candidates, liste électorale avec recherche, export) ; le point focal consulte et désactive dans sa structure
-- [ ] Corrections motivées des listes après l'arrêt (R27)
+- [x] Corrections motivées des listes après l'arrêt (R27) : réouverture par le comité avec motif tracé au journal, avant l'ouverture du scrutin, puis correction des agents, actualisation et nouvel arrêt
 - [x] Annulation d'un scrutin dont toutes les candidates sont désactivées (R38), à l'ouverture du scrutin (module 06)
 - [ ] Remplacement d'une lauréate qui se désiste (R36), point à confirmer par le métier
 - [x] Exports CSV, Excel et PDF des listes, avec QR code de vérification sur le PDF (module 08)

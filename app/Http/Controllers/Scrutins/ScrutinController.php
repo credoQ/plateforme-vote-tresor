@@ -6,6 +6,7 @@ use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\ConstituerListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\PlanifierScrutin;
+use App\Actions\Scrutins\RouvrirListes;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
@@ -135,5 +136,24 @@ class ScrutinController extends Controller
         }
 
         return redirect()->route('scrutins.show', $scrutin)->with('succes', 'Les listes sont arrêtées : elles ne seront plus modifiées.');
+    }
+
+    /**
+     * R27 : réouverture motivée des listes arrêtées, pour les corriger avant l'ouverture du scrutin.
+     */
+    public function rouvrir(Request $request, Scrutin $scrutin, RouvrirListes $rouvrir): RedirectResponse
+    {
+        $motif = $request->validate(['motif' => ['required', 'string', 'max:500']], [
+            'motif.required' => 'Indiquez le motif de la décision du comité.',
+            'motif.max' => 'Le motif ne dépasse pas 500 caractères.',
+        ])['motif'];
+
+        try {
+            $rouvrir->handle($scrutin, $motif);
+        } catch (ValidationException $exception) {
+            return redirect()->route('scrutins.show', $scrutin)->withErrors($exception->errors());
+        }
+
+        return redirect()->route('scrutins.show', $scrutin)->with('succes', 'Les listes sont rouvertes : corrigez les agents, actualisez puis arrêtez de nouveau les listes.');
     }
 }

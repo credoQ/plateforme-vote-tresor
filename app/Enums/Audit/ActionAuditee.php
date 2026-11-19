@@ -26,6 +26,7 @@ enum ActionAuditee: string
     case PhaseCloturee = 'PHASE_CLOTUREE';
     case ScrutinsGeneres = 'SCRUTINS_GENERES';
     case ListesArretees = 'LISTES_ARRETEES';
+    case ListesRouvertes = 'LISTES_ROUVERTES';
     case CandidateDesactivee = 'CANDIDATE_DESACTIVEE';
     case CandidateReactivee = 'CANDIDATE_REACTIVEE';
     case ScrutinOuvert = 'SCRUTIN_OUVERT';
@@ -61,6 +62,7 @@ enum ActionAuditee: string
             self::PhaseCloturee => 'Phase clôturée',
             self::ScrutinsGeneres => 'Scrutins générés',
             self::ListesArretees => 'Listes arrêtées',
+            self::ListesRouvertes => 'Listes rouvertes',
             self::CandidateDesactivee => 'Candidate désactivée',
             self::CandidateReactivee => 'Candidate réactivée',
             self::ScrutinOuvert => 'Scrutin ouvert',

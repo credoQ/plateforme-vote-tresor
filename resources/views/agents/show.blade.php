@@ -1,4 +1,3 @@
-@php $peutModifier = auth()->user()->can('update', $agent); @endphp
 <x-layouts.app :titre="$agent->nomComplet()" :ariane="['Administration', 'Agents', $agent->matricule]" actif="agents">
     <div class="titre-page">
         <div>

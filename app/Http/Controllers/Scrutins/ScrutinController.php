@@ -7,12 +7,16 @@ use App\Actions\Scrutins\ConstituerListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\PlanifierScrutin;
 use App\Enums\Acces\CodeRole;
+use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
+use App\Models\Candidate;
 use App\Models\Phase;
 use App\Models\Scrutin;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -67,7 +71,35 @@ class ScrutinController extends Controller
             'recherche' => $recherche,
             'restreint' => $perimetre !== null,
             'fuseau' => self::FUSEAU,
+            'pilote' => $utilisateur->can('piloter'),
+            'structures' => $scrutin->structures->keyBy('id'),
+            'participation' => $scrutin->participation(),
+            ...$this->resultats($scrutin, $candidates, $utilisateur),
         ]);
+    }
+
+    /**
+     * Données de la partie « Dépouillement et résultats » de l'écran : visibilité des résultats,
+     * classement des candidates actives et, en cas d'égalité, ex-æquo à départager.
+     *
+     * @param  Collection<int, Candidate>  $candidates
+     * @return array<string, mixed>
+     */
+    private function resultats(Scrutin $scrutin, Collection $candidates, User $utilisateur): array
+    {
+        $pv = $scrutin->procesVerbal;
+        $actives = $candidates->filter->estActive()->sortBy([['rang', 'asc']]);
+        $rangEnBalance = $pv?->egalite_a_departager ? $actives->where('est_laureate', false)->min('rang') : null;
+
+        return [
+            'pv' => $pv,
+            'voitResultats' => $pv !== null && ($scrutin->statut === StatutScrutin::ResultatsPublies || $utilisateur->can('piloter') || $utilisateur->can('observer')),
+            'nonValide' => $scrutin->statut === StatutScrutin::Clos,
+            'actives' => $actives,
+            'rangEnBalance' => $rangEnBalance,
+            'exAequo' => $rangEnBalance === null ? collect() : $actives->where('rang', $rangEnBalance),
+            'placesRestantes' => $scrutin->phase->nb_qualifiees - $actives->where('est_laureate', true)->count(),
+        ];
     }
 
     public function planifier(Request $request, Scrutin $scrutin, PlanifierScrutin $planifier): RedirectResponse

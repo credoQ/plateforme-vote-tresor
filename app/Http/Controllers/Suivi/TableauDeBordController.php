@@ -6,6 +6,7 @@ use App\Actions\Suivi\MesurerParticipation;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
+use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
 use App\Models\Edition;
 use Illuminate\Http\Request;
@@ -31,10 +32,20 @@ class TableauDeBordController extends Controller
 
         $limite = $utilisateur->aLeRole(CodeRole::Comite, CodeRole::Observateur, CodeRole::Administrateur) ? null : $utilisateur->perimetre();
 
+        $participation = $phase === null ? null : $mesurer->handle($phase, $limite);
+        $scrutins = $participation['scrutins'] ?? collect();
+
         return view('suivi.tableau-de-bord', [
             'edition' => $edition,
             'phase' => $phase,
-            'participation' => $phase === null ? null : $mesurer->handle($phase, $limite),
+            'participation' => $participation,
+            'global' => $participation['global'] ?? null,
+            'scrutins' => $scrutins,
+            'indicateurs' => [
+                'ouverts' => $scrutins->filter(fn (array $ligne): bool => $ligne['scrutin']->statut === StatutScrutin::Ouvert)->count(),
+                'termines' => $scrutins->filter(fn (array $ligne): bool => $ligne['scrutin']->statut->estTermine())->count(),
+                'candidates' => $scrutins->sum(fn (array $ligne): int => (int) $ligne['scrutin']->candidates_actives),
+            ],
             'restreint' => $limite !== null,
         ]);
     }

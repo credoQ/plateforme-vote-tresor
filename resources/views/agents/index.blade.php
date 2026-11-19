@@ -39,19 +39,18 @@
                 <thead><tr><th>Matricule</th><th>Agent</th><th>Sexe</th><th>Affectation en cours</th><th>Depuis</th><th class="actions"></th></tr></thead>
                 <tbody>
                     @forelse ($agents as $agent)
-                        @php $affectation = $agent->affectations->first(); @endphp
                         <tr>
                             <td class="reference">{{ $agent->matricule }}</td>
                             <td>{{ $agent->nomComplet() }}@if ($agent->npi)<div class="aide">NPI {{ $agent->npi }}</div>@endif</td>
                             <td>{{ $agent->sexe->libelle() }}</td>
                             <td>
-                                @if ($affectation)
-                                    {{ $affectation->structure->code }}<div class="aide">{{ $affectation->structure->libelle }}</div>
+                                @if ($agent->affectationEnCours)
+                                    {{ $agent->affectationEnCours->structure->code }}<div class="aide">{{ $agent->affectationEnCours->structure->libelle }}</div>
                                 @else
                                     <span class="badge badge--attente">Sans affectation</span>
                                 @endif
                             </td>
-                            <td>{{ $affectation?->date_debut->format('d/m/Y') }}</td>
+                            <td>{{ $agent->affectationEnCours?->date_debut->format('d/m/Y') }}</td>
                             <td class="actions"><a href="{{ route('agents.show', $agent) }}" class="btn btn-tertiaire btn--sm"><i data-lucide="eye"></i>Fiche</a></td>
                         </tr>
                     @empty

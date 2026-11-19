@@ -19,4 +19,16 @@ enum StatutPhase: string
             self::Cloturee => 'Clôturée',
         };
     }
+
+    /**
+     * Variante du badge qui affiche le statut.
+     */
+    public function badge(): string
+    {
+        return match ($this) {
+            self::Planifiee => 'badge--info',
+            self::Ouverte => 'badge--succes',
+            self::Cloturee => 'badge--accent',
+        };
+    }
 }

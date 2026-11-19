@@ -1,8 +1,4 @@
-@php
-    use App\Enums\Scrutins\StatutScrutin;
-    $fuseau = 'Africa/Porto-Novo';
-    $scrutin = $inscription?->scrutin;
-@endphp
+@use('App\Enums\Scrutins\StatutScrutin')
 <x-layouts.app titre="Voter" :ariane="['Mon espace', 'Voter']" actif="vote">
     <div class="titre-page">
         <div>
@@ -30,7 +26,7 @@
                     <tbody>
                         <tr><td>Accusé n°</td><td class="nombre reference">{{ $inscription->numero_accuse }}</td></tr>
                         <tr><td>Scrutin</td><td class="nombre">{{ $scrutin->libelle }}</td></tr>
-                        <tr><td>Horodatage</td><td class="nombre">{{ $inscription->date_heure_vote->timezone($fuseau)->format('d/m/Y') }}, entre {{ $inscription->date_heure_vote->timezone($fuseau)->format('H') }} h et {{ $inscription->date_heure_vote->timezone($fuseau)->addHour()->format('H') }} h</td></tr>
+                        <tr><td>Horodatage</td><td class="nombre">{{ $inscription->date_heure_vote->timezone('Africa/Porto-Novo')->format('d/m/Y') }}, entre {{ $inscription->date_heure_vote->timezone('Africa/Porto-Novo')->format('H') }} h et {{ $inscription->date_heure_vote->timezone('Africa/Porto-Novo')->addHour()->format('H') }} h</td></tr>
                     </tbody>
                 </table>
                 <div class="formulaire__actions">
@@ -42,7 +38,7 @@
     @else
         <div class="carte"><div class="carte__corps"><div class="etat-vide"><i data-lucide="hourglass"></i>
             @if (in_array($scrutin->statut, [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], true))
-                <p>Le scrutin n’est pas encore ouvert.@if ($scrutin->date_heure_ouverture) Ouverture le {{ $scrutin->date_heure_ouverture->timezone($fuseau)->format('d/m/Y à H:i') }}.@endif</p>
+                <p>Le scrutin n’est pas encore ouvert.@if ($scrutin->date_heure_ouverture) Ouverture le {{ $scrutin->date_heure_ouverture->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.@endif</p>
             @elseif ($scrutin->statut === StatutScrutin::Annule)
                 <p>Ce scrutin est annulé.</p>
             @else

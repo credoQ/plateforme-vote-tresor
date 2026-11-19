@@ -3,9 +3,11 @@
 namespace App\Providers;
 
 use App\Actions\Audit\Journaliser;
+use App\Actions\Documents\EnteteDocument;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
 use App\Models\User;
+use App\View\Composers\NavigationComposer;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
@@ -13,7 +15,9 @@ use Illuminate\Foundation\DevCommands;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\View\View as Vue;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -37,6 +41,10 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('voter', fn (User $user): bool => $user->agent_id !== null && $user->aLeRole(CodeRole::Electeur));
 
         $this->journaliserLesConnexions();
+
+        // Les vues ne font aucun traitement serveur : les données des gabarits leur sont fournies ici.
+        View::composer('components.layouts.app', NavigationComposer::class);
+        View::composer('components.pdf.document', fn (Vue $vue) => $vue->with('images', app(EnteteDocument::class)->images()));
 
         // En développement (« composer run dev »), le processus de file traite aussi les files des e-mails, par priorité.
         DevCommands::artisan('queue:listen --queue=urgent,mails,default --tries=1 --timeout=0', 'queue');

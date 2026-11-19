@@ -1,22 +1,20 @@
-@php $estNouvelle = ! $edition->exists; @endphp
-<x-layouts.app :titre="$estNouvelle ? 'Créer une édition' : 'Édition '.$edition->annee" :ariane="['Pilotage', 'Éditions', $estNouvelle ? 'Créer' : (string) $edition->annee]" actif="editions">
+<x-layouts.app :titre="! $edition->exists ? 'Créer une édition' : 'Édition '.$edition->annee" :ariane="['Pilotage', 'Éditions', ! $edition->exists ? 'Créer' : (string) $edition->annee]" actif="editions">
     <div class="titre-page">
         <div>
-            <h1>{{ $estNouvelle ? 'Créer une édition' : 'Paramétrer l’édition '.$edition->annee }}</h1>
+            <h1>{{ ! $edition->exists ? 'Créer une édition' : 'Paramétrer l’édition '.$edition->annee }}</h1>
         </div>
     </div>
 
     <div class="carte">
         <div class="carte__corps">
-            <form method="POST" action="{{ $estNouvelle ? route('editions.store') : route('editions.update', $edition) }}" class="formulaire" novalidate>
+            <form method="POST" action="{{ ! $edition->exists ? route('editions.store') : route('editions.update', $edition) }}" class="formulaire" novalidate>
                 @csrf
-                @unless ($estNouvelle) @method('PUT') @endunless
+                @if ($edition->exists) @method('PUT') @endif
 
                 @foreach ([['annee', 'Année', 'number'], ['libelle', 'Libellé', 'text'], ['date_debut', 'Début de l’édition', 'date'], ['date_fin', 'Fin de l’édition', 'date'], ['date_gel', 'Gel des listes électorales', 'date']] as [$champ, $libelle, $type])
-                    @php $valeur = $edition->{$champ} instanceof \DateTimeInterface ? $edition->{$champ}->format('Y-m-d') : $edition->{$champ}; @endphp
                     <div class="formulaire__groupe">
                         <label class="libelle" for="{{ $champ }}">{{ $libelle }} <span class="requis">*</span></label>
-                        <input id="{{ $champ }}" name="{{ $champ }}" type="{{ $type }}" class="champ" value="{{ old($champ, $valeur) }}" required>
+                        <input id="{{ $champ }}" name="{{ $champ }}" type="{{ $type }}" class="champ" value="{{ old($champ, $type === 'date' ? $edition->{$champ}?->format('Y-m-d') : $edition->{$champ}) }}" required>
                         @error($champ)<p class="erreur-champ">{{ $message }}</p>@enderror
                     </div>
                 @endforeach
@@ -34,8 +32,8 @@
                 </div>
 
                 <div class="formulaire__actions">
-                    <button type="submit" class="btn btn-primaire"><i data-lucide="save"></i>{{ $estNouvelle ? 'Créer l’édition' : 'Enregistrer l’édition' }}</button>
-                    <a href="{{ $estNouvelle ? route('editions.index') : route('editions.show', $edition) }}" class="btn btn-tertiaire">Annuler</a>
+                    <button type="submit" class="btn btn-primaire"><i data-lucide="save"></i>{{ ! $edition->exists ? 'Créer l’édition' : 'Enregistrer l’édition' }}</button>
+                    <a href="{{ ! $edition->exists ? route('editions.index') : route('editions.show', $edition) }}" class="btn btn-tertiaire">Annuler</a>
                 </div>
             </form>
         </div>

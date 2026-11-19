@@ -1,29 +1,4 @@
 @props(['titre', 'ariane' => [], 'actif' => null])
-@php
-    $utilisateur = auth()->user();
-    $menus = array_filter([
-        'Mon espace' => [
-            ['espace', 'house', 'Accueil', route('espace'), true],
-            ...($utilisateur->can('voter') ? [['vote', 'vote', 'Voter', route('vote'), true]] : []),
-            ['palmares', 'trophy', 'Résultats', route('palmares'), true],
-        ],
-        'Pilotage' => array_values(array_filter([
-            ['editions', 'calendar-range', 'Éditions', route('editions.index'), $utilisateur->can('piloter')],
-        ], fn (array $lien): bool => $lien[4])),
-        'Suivi' => array_values(array_filter([
-            ['tableau-de-bord', 'layout-dashboard', 'Tableau de bord', route('tableau-de-bord'), $utilisateur->can('observer') || $utilisateur->can('controler-listes')],
-            ['journal', 'shield-check', 'Journal d’audit', route('journal'), $utilisateur->can('observer')],
-        ], fn (array $lien): bool => $lien[4])),
-        'Administration' => array_values(array_filter([
-            ['agents', 'id-card', $utilisateur->aLeRole(\App\Enums\Acces\CodeRole::Administrateur, \App\Enums\Acces\CodeRole::Comite, \App\Enums\Acces\CodeRole::Observateur) ? 'Agents' : 'Agents de ma structure', route('agents.index'), $utilisateur->can('viewAny', \App\Models\Agent::class)],
-            ['structures', 'building-2', 'Structures', route('structures.index'), $utilisateur->can('viewAny', \App\Models\Structure::class)],
-            ['utilisateurs', 'users', 'Utilisateurs', route('utilisateurs.index'), $utilisateur->can('administrer')],
-            ['taches-echouees', 'rotate-ccw', 'Tâches en échec', route('taches-echouees.index'), $utilisateur->can('administrer')],
-        ], fn (array $lien): bool => $lien[4])),
-    ]);
-    $initiales = collect(preg_split('/\s+/', trim($utilisateur->name)))->take(2)->map(fn ($mot) => mb_substr($mot, 0, 1))->implode('');
-    $profil = $utilisateur->roles->first()?->code->libelle() ?? 'Utilisateur';
-@endphp
 <!DOCTYPE html>
 <html lang="fr" data-theme="clair">
 <head>
@@ -42,14 +17,12 @@
         </div>
         <nav class="sidebar__nav" aria-label="Navigation principale">
             @foreach ($menus as $groupe => $liens)
-                @if ($liens !== [])
-                    <div class="nav-groupe">{{ $groupe }}</div>
-                    @foreach ($liens as $lien)
-                        <a href="{{ $lien[3] }}" @class(['nav-lien', 'est-actif' => $lien[0] === $actif]) @if ($lien[0] === $actif) aria-current="page" @endif>
-                            <i data-lucide="{{ $lien[1] }}"></i>{{ $lien[2] }}
-                        </a>
-                    @endforeach
-                @endif
+                <div class="nav-groupe">{{ $groupe }}</div>
+                @foreach ($liens as $lien)
+                    <a href="{{ $lien['url'] }}" @class(['nav-lien', 'est-actif' => $lien['cle'] === $actif]) @if ($lien['cle'] === $actif) aria-current="page" @endif>
+                        <i data-lucide="{{ $lien['icone'] }}"></i>{{ $lien['libelle'] }}
+                    </a>
+                @endforeach
             @endforeach
         </nav>
         <div class="sidebar__pied">
@@ -72,8 +45,8 @@
                 @endforeach
             </nav>
             <div class="entete__droite">
-                @if ($affectation = $utilisateur->agent?->affectationLe())
-                    <span class="affectation"><i data-lucide="map-pin"></i>Affectation : <strong>{{ $affectation->structure->libelle }}</strong></span>
+                @if ($affectationUtilisateur)
+                    <span class="affectation"><i data-lucide="map-pin"></i>Affectation : <strong>{{ $affectationUtilisateur->structure->libelle }}</strong></span>
                 @endif
                 <button class="icone-bouton" data-basculer-theme title="Basculer le thème clair / sombre"><i data-lucide="moon"></i></button>
                 <div class="profil">

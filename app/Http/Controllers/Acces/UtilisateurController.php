@@ -39,7 +39,7 @@ class UtilisateurController extends Controller
 
     public function create(): View
     {
-        return view('utilisateurs.formulaire', ['utilisateur' => new User, 'structures' => $this->structures()]);
+        return view('utilisateurs.formulaire', ['utilisateur' => new User, 'rolesDuCompte' => [], 'structures' => $this->structures()]);
     }
 
     public function store(Request $request, EnregistrerUtilisateur $enregistrer): RedirectResponse
@@ -51,7 +51,11 @@ class UtilisateurController extends Controller
 
     public function edit(User $utilisateur): View
     {
-        return view('utilisateurs.formulaire', ['utilisateur' => $utilisateur->load(['roles', 'agent']), 'structures' => $this->structures()]);
+        return view('utilisateurs.formulaire', [
+            'utilisateur' => $utilisateur->load(['roles', 'agent']),
+            'rolesDuCompte' => $utilisateur->roles->map(fn ($role) => $role->code->value)->all(),
+            'structures' => $this->structures(),
+        ]);
     }
 
     public function update(Request $request, User $utilisateur, EnregistrerUtilisateur $enregistrer): RedirectResponse

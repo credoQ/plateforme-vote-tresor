@@ -41,7 +41,7 @@ class AgentController extends Controller
         $situation = (string) $request->query('situation', 'en-service');
 
         $agents = Agent::query()
-            ->with(['affectations' => fn ($q) => $q->enCoursLe()->with('structure')])
+            ->with('affectationEnCours.structure')
             ->when($perimetre !== null, fn ($q) => $q->affectesLe(Carbon::today(), $perimetre))
             ->when($structureId !== null, fn ($q) => $q->affectesLe(Carbon::today(), [$structureId]))
             ->when($recherche !== '', fn ($q) => $q->where(fn ($r) => $r
@@ -88,13 +88,14 @@ class AgentController extends Controller
         return redirect()->route('agents.show', $agent)->with('succes', "L’agent {$agent->matricule} est enregistré et affecté à {$structure->code}.");
     }
 
-    public function show(Agent $agent): View
+    public function show(Request $request, Agent $agent): View
     {
         Gate::authorize('view', $agent);
 
         return view('agents.show', [
             'agent' => $agent->load(['affectations.structure', 'compte.roles']),
             'affectation' => $agent->affectationLe(),
+            'peutModifier' => $request->user()->can('update', $agent),
             'structures' => $this->structures(null),
         ]);
     }

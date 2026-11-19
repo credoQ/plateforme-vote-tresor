@@ -126,6 +126,14 @@ class Scrutin extends Model
         ];
     }
 
+    /**
+     * Le scrutin est encore ouvert alors que sa date-heure de fermeture est passée : le comité peut le fermer.
+     */
+    public function fermetureDepassee(): bool
+    {
+        return $this->statut === StatutScrutin::Ouvert && $this->date_heure_fermeture?->isPast();
+    }
+
     public function accepteLesDesistements(): bool
     {
         return in_array($this->statut, [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], true);

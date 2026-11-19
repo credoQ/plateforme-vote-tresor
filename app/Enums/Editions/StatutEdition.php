@@ -19,4 +19,16 @@ enum StatutEdition: string
             self::Cloturee => 'Clôturée',
         };
     }
+
+    /**
+     * Variante du badge qui affiche le statut.
+     */
+    public function badge(): string
+    {
+        return match ($this) {
+            self::EnPreparation => 'badge--info',
+            self::EnCours => 'badge--succes',
+            self::Cloturee => 'badge--accent',
+        };
+    }
 }

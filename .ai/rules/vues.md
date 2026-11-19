@@ -15,6 +15,13 @@ paths:
 - Réutilisez les classes de `resources/css/design/composants.css` et les composants `x-modale-confirmation` et `x-liens-export`.
 - N'ajoutez ni couleur en dur, ni `style` inline pour une couleur, ni police externe.
 
+## Pas de traitement serveur dans les vues
+
+- Une vue affiche des données prêtes : pas de bloc `@php`, pas de requête, pas de calcul ni de filtrage métier, pas d'appel à `auth()` ou `app()`.
+- Préparez les données dans le contrôleur, une méthode ou une relation du modèle (`Structure::estUnService()`, `Agent::affectationEnCours`), ou un view composer pour un gabarit ou un composant partagé (`NavigationComposer` pour `components.layouts.app`, enregistré dans `AppServiceProvider`).
+- La couleur d'un badge de statut vient de l'enum (`$scrutin->statut->badge()`), pas d'un tableau dans la vue.
+- Restent dans la vue : l'affichage conditionnel simple, les directives d'autorisation (`@can`), le formatage (`number_format`, `->format('d/m/Y')`), les messages de session et l'import d'un enum par `@use('App\Enums\…')` pour une comparaison de statut.
+
 ## Textes et accessibilité
 
 - Les textes sont en français.

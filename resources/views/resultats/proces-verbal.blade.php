@@ -1,15 +1,9 @@
-@php
-    /** @var \App\Models\ProcesVerbal $pv */
-    $scrutin = $pv->scrutin;
-    $edition = $scrutin->phase->edition;
-    $fuseau = 'Africa/Porto-Novo';
-@endphp
 <x-pdf.document :titre="'Procès-verbal '.$pv->numero" type="Procès-verbal" :qr="$qr" :edite-le="$pv->date_validation" :edite-par="$pv->validePar?->name">
     <h1>Procès-verbal de dépouillement</h1>
     <p class="sous-titre">{{ $edition->libelle }} · {{ $scrutin->phase->libelle }} · <strong>{{ $scrutin->libelle }}</strong></p>
 
-    <p>Procès-verbal n° <strong>{{ $pv->numero }}</strong>, établi le {{ $pv->date_etablissement->timezone($fuseau)->format('d/m/Y à H:i') }}, validé le {{ $pv->date_validation->timezone($fuseau)->format('d/m/Y à H:i') }}.<br>
-        Scrutin ouvert du {{ $scrutin->date_heure_ouverture?->timezone($fuseau)->format('d/m/Y H:i') }} au {{ $scrutin->date_heure_fermeture?->timezone($fuseau)->format('d/m/Y H:i') }}.</p>
+    <p>Procès-verbal n° <strong>{{ $pv->numero }}</strong>, établi le {{ $pv->date_etablissement->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}, validé le {{ $pv->date_validation->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.<br>
+        Scrutin ouvert du {{ $scrutin->date_heure_ouverture?->timezone('Africa/Porto-Novo')->format('d/m/Y H:i') }} au {{ $scrutin->date_heure_fermeture?->timezone('Africa/Porto-Novo')->format('d/m/Y H:i') }}.</p>
 
     <table class="donnees">
         <tbody>

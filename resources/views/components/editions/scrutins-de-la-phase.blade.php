@@ -1,8 +1,5 @@
 @props(['phase'])
-@php
-    use App\Enums\Editions\StatutPhase;
-    use App\Enums\Scrutins\StatutScrutin;
-@endphp
+@use('App\Enums\Editions\StatutPhase')
 @if ($phase->scrutins->isEmpty())
     <div class="etat-vide">
         <i data-lucide="clipboard-list"></i>
@@ -25,7 +22,7 @@
                         <td class="nombre">{{ number_format($scrutin->inscriptions_count, 0, ',', ' ') }}</td>
                         <td class="nombre">{{ $scrutin->candidates_actives_count }}</td>
                         <td>{{ $scrutin->date_heure_ouverture?->timezone('Africa/Porto-Novo')->format('d/m/Y H:i') ?? 'À planifier' }}</td>
-                        <td><span @class(['badge', 'badge--succes' => $scrutin->statut === StatutScrutin::Ouvert, 'badge--accent' => $scrutin->statut === StatutScrutin::ResultatsPublies, 'badge--erreur' => $scrutin->statut === StatutScrutin::Annule, 'badge--attente' => $scrutin->statut === StatutScrutin::Clos])>{{ $scrutin->statut->libelle() }}</span></td>
+                        <td><span class="badge {{ $scrutin->statut->badge() }}">{{ $scrutin->statut->libelle() }}</span></td>
                         <td class="actions"><a href="{{ route('scrutins.show', $scrutin) }}" class="btn btn-tertiaire btn--sm"><i data-lucide="eye"></i>Ouvrir</a></td>
                     </tr>
                 @endforeach

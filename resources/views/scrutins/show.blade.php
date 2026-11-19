@@ -1,12 +1,3 @@
-@php
-    use App\Enums\Scrutins\StatutScrutin;
-    $utilisateur = auth()->user();
-    $pilote = $utilisateur->can('piloter');
-    $structures = $scrutin->structures->keyBy('id');
-    $enPreparation = $scrutin->statut === StatutScrutin::EnPreparation;
-    $planifiable = in_array($scrutin->statut, [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], true);
-    $participation = $scrutin->participation();
-@endphp
 <x-layouts.app :titre="$scrutin->libelle" :ariane="['Pilotage', 'Édition '.$scrutin->phase->edition->annee, $scrutin->code]" :actif="$pilote ? 'editions' : 'tableau-de-bord'">
     <div class="titre-page">
         <div>
@@ -32,12 +23,12 @@
         <div class="tuile">
             <div class="tuile__haut"><span class="surtitre">Inscrits</span><span class="tuile__icone"><i data-lucide="users"></i></span></div>
             <div class="tuile__valeur">{{ number_format($participation['inscrits'], 0, ',', ' ') }}</div>
-            <div class="tuile__detail">{{ $enPreparation ? 'Listes en préparation' : 'Listes arrêtées' }}</div>
+            <div class="tuile__detail">{{ $scrutin->listesSontModifiables() ? 'Listes en préparation' : 'Listes arrêtées' }}</div>
         </div>
         <div class="tuile">
             <div class="tuile__haut"><span class="surtitre">Candidates actives</span><span class="tuile__icone"><i data-lucide="users-round"></i></span></div>
-            <div class="tuile__valeur">{{ $candidates->filter->estActive()->count() }}</div>
-            <div class="tuile__detail">{{ $candidates->reject->estActive()->count() }} désistement(s)</div>
+            <div class="tuile__valeur">{{ $actives->count() }}</div>
+            <div class="tuile__detail">{{ $candidates->count() - $actives->count() }} désistement(s)</div>
         </div>
         <div class="tuile">
             <div class="tuile__haut"><span class="surtitre">Participation</span><span class="tuile__icone"><i data-lucide="percent"></i></span></div>
@@ -46,7 +37,7 @@
         </div>
     </div>
 
-    @if ($pilote && $planifiable)
+    @if ($pilote && $scrutin->accepteLesDesistements())
         <section class="carte espace-bloc">
             <div class="carte__entete"><h2>Préparation</h2></div>
             <div class="carte__corps">
@@ -66,7 +57,7 @@
                     </div>
                     <button type="submit" class="btn btn-secondaire"><i data-lucide="calendar-clock"></i>Planifier le scrutin</button>
                 </form>
-                @if ($enPreparation)
+                @if ($scrutin->listesSontModifiables())
                     <div class="formulaire__actions">
                         <form method="POST" action="{{ route('scrutins.actualiser', $scrutin) }}">
                             @csrf
@@ -157,13 +148,13 @@
     </section>
 
     <x-slot:modales>
-        @if ($pilote && $enPreparation)
+        @if ($pilote && $scrutin->listesSontModifiables())
             <x-modale-confirmation id="modale-arreter" :titre="'Arrêter les listes de « '.$scrutin->libelle.' » ?'" :action="route('scrutins.arreter', $scrutin)" bouton="Arrêter les listes" icone="lock">
                 Les listes sont actualisées une dernière fois d’après les affectations à la date de gel, puis figées. Seules les désactivations et réactivations de candidates resteront possibles jusqu’à l’ouverture.
             </x-modale-confirmation>
         @endif
         @if ($scrutin->accepteLesDesistements())
-            @foreach ($candidates->filter->estActive() as $candidate)
+            @foreach ($actives as $candidate)
                 @can('desactiver', $candidate)
                     <x-modale-confirmation :id="'modale-desactiver-'.$candidate->id" :titre="'Désactiver '.$candidate->agent->nomComplet().' ?'" :action="route('candidatures.desister', $candidate)" bouton="Désactiver la candidate" icone="user-x" :danger="true">
                         À sa demande, la candidate ne figurera plus sur le bulletin et ne pourra recevoir aucune voix. Elle reste électrice et peut être réactivée jusqu’à l’ouverture.

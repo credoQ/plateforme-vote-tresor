@@ -1,5 +1,4 @@
 @props(['titre', 'type', 'qr' => null, 'editeLe', 'editePar' => null])
-@php $images = app(\App\Actions\Documents\EnteteDocument::class)->images(); @endphp
 <!doctype html>
 <html lang="fr">
 <head>

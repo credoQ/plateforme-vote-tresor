@@ -28,7 +28,7 @@ class VoteController extends Controller
         $inscription = $this->inscription($request);
 
         if ($inscription === null || $inscription->a_vote || ! $this->estOuvert($inscription->scrutin)) {
-            return view('vote.etat', ['inscription' => $inscription]);
+            return view('vote.etat', ['inscription' => $inscription, 'scrutin' => $inscription?->scrutin]);
         }
 
         $recherche = trim((string) $request->query('recherche', ''));

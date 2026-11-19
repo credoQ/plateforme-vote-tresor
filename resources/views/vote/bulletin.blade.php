@@ -1,4 +1,3 @@
-@php $fuseau = 'Africa/Porto-Novo'; @endphp
 <x-layouts.app titre="Voter" :ariane="['Mon espace', 'Voter']" actif="vote">
     <div class="titre-page">
         <div>
@@ -7,7 +6,7 @@
         </div>
         <div class="titre-page__actions">
             <span class="badge badge--succes">Ouvert</span>
-            <span class="etiquette"><i data-lucide="clock"></i>Clôture le {{ $scrutin->date_heure_fermeture->timezone($fuseau)->format('d/m/Y à H:i') }}</span>
+            <span class="etiquette"><i data-lucide="clock"></i>Clôture le {{ $scrutin->date_heure_fermeture->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}</span>
         </div>
     </div>
 

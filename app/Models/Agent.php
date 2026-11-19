@@ -47,6 +47,16 @@ class Agent extends Model
     }
 
     /**
+     * Affectation en cours aujourd'hui, à charger avec la liste des agents (R12, R13).
+     *
+     * @return HasOne<Affectation, $this>
+     */
+    public function affectationEnCours(): HasOne
+    {
+        return $this->hasOne(Affectation::class)->enCoursLe();
+    }
+
+    /**
      * Compte utilisateur de l'agent, au plus un (R3).
      *
      * @return HasOne<User, $this>

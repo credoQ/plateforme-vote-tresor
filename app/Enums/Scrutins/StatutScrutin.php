@@ -35,4 +35,20 @@ enum StatutScrutin: string
     {
         return $this === self::ResultatsPublies || $this === self::Annule;
     }
+
+    /**
+     * Variante du badge qui affiche le statut (aucune pour un scrutin en préparation).
+     */
+    public function badge(): string
+    {
+        return match ($this) {
+            self::EnPreparation => '',
+            self::ListesArretees => 'badge--info',
+            self::Ouvert => 'badge--succes',
+            self::Clos => 'badge--attente',
+            self::ResultatsValides => 'badge--primaire',
+            self::ResultatsPublies => 'badge--accent',
+            self::Annule => 'badge--erreur',
+        };
+    }
 }

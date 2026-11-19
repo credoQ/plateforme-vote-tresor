@@ -1,19 +1,9 @@
-@php
-    use App\Enums\Scrutins\StatutScrutin;
-    $pv = $scrutin->procesVerbal;
-    $voitResultats = $pv !== null && ($scrutin->statut === StatutScrutin::ResultatsPublies || $utilisateur->can('piloter') || $utilisateur->can('observer'));
-    $nonValide = $scrutin->statut === StatutScrutin::Clos;
-    $actives = $candidates->filter->estActive()->sortBy([['rang', 'asc']]);
-    $rangEnBalance = $pv?->egalite_a_departager ? $actives->where('est_laureate', false)->min('rang') : null;
-    $exAequo = $rangEnBalance === null ? collect() : $actives->where('rang', $rangEnBalance);
-    $placesRestantes = $scrutin->phase->nb_qualifiees - $actives->where('est_laureate', true)->count();
-    $fermetureDepassee = $scrutin->statut === StatutScrutin::Ouvert && $scrutin->date_heure_fermeture?->isPast();
-@endphp
-@if ($pilote && ($fermetureDepassee || ($nonValide && $pv === null)))
+@use('App\Enums\Scrutins\StatutScrutin')
+@if ($pilote && ($scrutin->fermetureDepassee() || ($nonValide && $pv === null)))
     <section class="carte espace-bloc" id="resultats">
         <div class="carte__entete"><h2>Dépouillement</h2></div>
         <div class="carte__corps">
-            @if ($fermetureDepassee)
+            @if ($scrutin->fermetureDepassee())
                 <form method="POST" action="{{ route('scrutins.fermer', $scrutin) }}">@csrf<button type="submit" class="btn btn-secondaire"><i data-lucide="lock"></i>Fermer le scrutin maintenant</button></form>
             @else
                 <form method="POST" action="{{ route('resultats.depouiller', $scrutin) }}">@csrf<button type="submit" class="btn btn-primaire"><i data-lucide="calculator"></i>Dépouiller le scrutin</button></form>

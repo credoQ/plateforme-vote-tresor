@@ -1,8 +1,5 @@
-@php
-    use App\Enums\Editions\StatutEdition;
-    use App\Enums\Editions\StatutPhase;
-    $badgePhase = [StatutPhase::Planifiee->value => 'badge--info', StatutPhase::Ouverte->value => 'badge--succes', StatutPhase::Cloturee->value => 'badge--accent'];
-@endphp
+@use('App\Enums\Editions\StatutEdition')
+@use('App\Enums\Editions\StatutPhase')
 <x-layouts.app :titre="'Édition '.$edition->annee" :ariane="['Pilotage', 'Éditions', (string) $edition->annee]" actif="editions">
     <div class="titre-page">
         <div>
@@ -37,7 +34,7 @@
         <section class="carte espace-bloc" id="phase-{{ $phase->numero }}">
             <div class="carte__entete">
                 <h2>{{ $phase->libelle }}</h2>
-                <span class="badge {{ $badgePhase[$phase->statut->value] }}">{{ $phase->statut->libelle() }}</span>
+                <span class="badge {{ $phase->statut->badge() }}">{{ $phase->statut->libelle() }}</span>
             </div>
             <div class="carte__corps">
                 @if ($phase->statut === StatutPhase::Planifiee && $edition->statut !== StatutEdition::Cloturee)

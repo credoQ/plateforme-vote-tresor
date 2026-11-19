@@ -40,7 +40,12 @@ class GenererFichierProcesVerbal implements ShouldBeUnique, ShouldQueue
             return;
         }
 
-        $html = view('resultats.proces-verbal', ['pv' => $pv, 'qr' => $codeQr->dataUri($lien->procesVerbal($pv))])->render();
+        $html = view('resultats.proces-verbal', [
+            'pv' => $pv,
+            'scrutin' => $pv->scrutin,
+            'edition' => $pv->scrutin->phase->edition,
+            'qr' => $codeQr->dataUri($lien->procesVerbal($pv)),
+        ])->render();
         $chemin = "proces-verbaux/{$pv->numero}.pdf";
 
         Storage::disk('local')->put($chemin, Pdf::loadHTML($html)->setPaper('a4')->output());

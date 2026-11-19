@@ -49,6 +49,15 @@ python design/tokens/generer_tokens.py design/tokens/source-kadoo/kadoo-tokens.j
 
 Copiez ensuite les fichiers `.css` générés dans `resources/css/design/` et le `.json` dans `design/tokens/`, puis lancez `npm run build`.
 
+## Documents PDF
+
+Les PDF (procès-verbal, liste électorale, résultats) reprennent l'en-tête et le bas de page de la quittance électronique de la DGTCP, par le composant `resources/views/components/pdf/document.blade.php` :
+
+- en-tête : bloc du ministère, logo ISO 9001 et bloc DGTCP (`resources/images/pdf/`), puis la bande tricolore ;
+- bas de page : QR code de vérification en ligne, mention d'édition (date et auteur), mini-bande tricolore et type de document.
+
+Les couleurs de la bande sont celles du drapeau (vert `#008751`, jaune `#FCD116`, rouge `#E8112D`) ; la police est DejaVu Sans, intégrée à dompdf.
+
 ## Maquettes
 
 Lancez `php artisan serve`, puis ouvrez `/maquettes`. Six pages sont disponibles : connexion, tableau de bord du comité, bulletin de vote, candidates d'office, résultats, tokens. Les données sont fictives. Les routes `/maquettes` sont à retirer avant la mise en production.

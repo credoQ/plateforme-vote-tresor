@@ -8,13 +8,13 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 
 ## Fonctionnalités
 
-- [ ] La génération automatique des scrutins de la phase 1 (12 scrutins départementaux et un scrutin par structure électorale comptant au moins une agent femme en service ; les structures sans agent femme sont signalées au comité), de la phase 2 (deux demi-finales) et de la phase 3 (finale).
-- [ ] La définition de la circonscription de chaque scrutin (ensemble des structures couvertes).
-- [ ] La constitution automatique des listes électorales à partir des affectations à la date de gel.
-- [ ] Le contrôle des listes par les points focaux, les corrections et l’arrêt définitif des listes par le comité.
-- [ ] La constitution automatique de la liste des candidates de chaque scrutin de la phase 1 (agents de sexe féminin en service dans la circonscription) et de la reprise des lauréates qualifiées dans les phases 2 et 3.
-- [ ] La désactivation d’une candidate qui ne souhaite pas concourir (désistement), par le point focal ou le comité à sa demande, et sa réactivation éventuelle avant l’ouverture du scrutin.
-- [ ] La publication et l’export des listes électorales et des listes de candidates.
+- [x] La génération automatique des scrutins de la phase 1 (12 scrutins départementaux et un scrutin par structure électorale comptant au moins une agent femme en service ; les structures sans agent femme sont signalées au comité), de la phase 2 (deux demi-finales) et de la phase 3 (finale).
+- [x] La définition de la circonscription de chaque scrutin (ensemble des structures couvertes).
+- [x] La constitution automatique des listes électorales à partir des affectations à la date de gel.
+- [ ] Le contrôle des listes par les points focaux, les corrections et l’arrêt définitif des listes par le comité. (Fait : contrôle et arrêt ; reste : corrections motivées après l’arrêt.)
+- [x] La constitution automatique de la liste des candidates de chaque scrutin de la phase 1 (agents de sexe féminin en service dans la circonscription) et de la reprise des lauréates qualifiées dans les phases 2 et 3.
+- [x] La désactivation d’une candidate qui ne souhaite pas concourir (désistement), par le point focal ou le comité à sa demande, et sa réactivation éventuelle avant l’ouverture du scrutin.
+- [x] La publication et l’export des listes électorales et des listes de candidates.
 
 ## Avancement
 
@@ -30,7 +30,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [ ] Corrections motivées des listes après l'arrêt (R27)
 - [x] Annulation d'un scrutin dont toutes les candidates sont désactivées (R38), à l'ouverture du scrutin (module 06)
 - [ ] Remplacement d'une lauréate qui se désiste (R36), point à confirmer par le métier
-- [x] Export CSV des listes (module 08)
+- [x] Exports CSV, Excel et PDF des listes, avec QR code de vérification sur le PDF (module 08)
 
 ## Acteurs
 
@@ -43,6 +43,11 @@ SCRUTIN, COUVRIR, INSCRIRE (liste électorale), CANDIDATE, QUALIFIER
 ## Maquette
 
 - `resources/views/maquettes/candidates.blade.php`, consultable à l'adresse `/maquettes/candidates`
+
+## Écrans
+
+- `/editions/{édition}` : génération des scrutins d'une phase (comité)
+- `/scrutins/{scrutin}` : planification, listes, candidates, arrêt, exports (comité ; point focal pour sa structure)
 
 ## Règles de gestion
 

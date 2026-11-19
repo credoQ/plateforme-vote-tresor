@@ -8,11 +8,11 @@ Ce module calcule les résultats à la clôture du scrutin et organise la qualif
 
 ## Fonctionnalités
 
-- [ ] Le décompte automatique des voix, le calcul des pourcentages, du rang et du taux de participation.
-- [ ] La détection des égalités et leur traitement selon la modalité de départage qui sera retenue.
-- [ ] La validation des résultats par le comité, la génération du procès-verbal et la publication.
-- [ ] La qualification automatique des lauréates vers la phase suivante.
-- [ ] La proclamation de la Femme modèle du Trésor et l’édition du palmarès (lauréates départementales, de structure et de pôle).
+- [x] Le décompte automatique des voix, le calcul des pourcentages, du rang et du taux de participation.
+- [x] La détection des égalités et leur traitement selon la modalité de départage qui sera retenue (départage par décision motivée du comité, en attendant la modalité).
+- [x] La validation des résultats par le comité, la génération du procès-verbal et la publication.
+- [x] La qualification automatique des lauréates vers la phase suivante.
+- [x] La proclamation de la Femme modèle du Trésor et l’édition du palmarès (lauréates départementales, de structure et de pôle).
 
 ## Avancement
 
@@ -20,11 +20,11 @@ Ce module calcule les résultats à la clôture du scrutin et organise la qualif
 - [x] Action `DepouillerScrutin` : contrôle de la chaîne des bulletins (R44) et de sa cohérence avec l'émargement, voix, pourcentage des exprimés, rang partagé en cas d'égalité, lauréates selon le nombre de qualifiées de la phase, quorum (R47, R48, R50, R52)
 - [x] Égalité à la limite des places qualificatives signalée et action `TrancherEgalite` : décision motivée du comité, portée au procès-verbal ; la modalité de départage reste à préciser (R49)
 - [x] Action `ProlongerScrutin` quand le quorum n'est pas atteint (R50)
-- [x] Action `ValiderResultats` : numéro du procès-verbal (`PV-2026-P1-001`) et job `GenererFichierProcesVerbal` (HTML imprimable) (R51)
+- [x] Action `ValiderResultats` : numéro du procès-verbal (`PV-2026-P1-001`) et job `GenererFichierProcesVerbal` (PDF) (R51)
 - [x] Action `PublierResultats` : après génération du procès-verbal ; les lauréates publiées sont reprises en phase suivante (R52, R54)
 - [x] Femme modèle du Trésor (`Edition::femmeModele()`) et palmarès de l'édition (`EtablirPalmares`) (R53)
 - [x] Tests des règles R44, R47 à R55
-- [x] Procès-verbal en PDF (dompdf), archivé comme fichier du procès-verbal, avec une copie HTML pour l'affichage
+- [x] Procès-verbal en PDF (dompdf) aux en-tête et bas de page de la DGTCP, avec QR code de vérification ; affiché dans le navigateur ou téléchargé ; génération relançable
 - [x] Écrans : fermeture manuelle si l'heure est passée, dépouillement, résultats provisoires réservés au comité et à l'observateur, départage des ex-æquo, prolongation, validation, publication, procès-verbal, palmarès pour tous
 - [x] Journalisation de la validation et de la publication (R56, module 08)
 
@@ -39,6 +39,12 @@ CANDIDATE (résultat), PROCES_VERBAL, BULLETIN
 ## Maquette
 
 - `resources/views/maquettes/resultats.blade.php`, consultable à l'adresse `/maquettes/resultats`
+
+## Écrans
+
+- `/scrutins/{scrutin}` : dépouillement, départage, prolongation, validation, publication, procès-verbal (comité)
+- `/palmares` : lauréates publiées et Femme modèle du Trésor (tous)
+- `/verification/…` : page publique ouverte par le QR code des PDF
 
 ## Règles de gestion
 

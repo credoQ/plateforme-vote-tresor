@@ -20,7 +20,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 
 ## Gestion des utilisateurs et des rôles
 
-- **R1** · Un utilisateur est identifié par un id et possède un login, un mot de passe chiffré, un statut (actif/inactif) et une date de dernière connexion.
+- **R1** · Un utilisateur est identifié par un id et possède un login (le matricule pour un agent), une adresse e-mail (la sienne ou celle de sa fiche agent) qui reçoit ses codes de connexion, un statut (actif/inactif) et une date de dernière connexion. Il n’a pas de mot de passe.
 - **R2** · Un utilisateur possède un ou plusieurs rôles parmi : Administrateur, Comité d’organisation, Point focal, Électeur, Observateur.
 - **R3** · Un agent dispose d’au plus un compte utilisateur ; un compte peut ne pas être lié à un agent (administrateur technique, observateur externe).
 - **R4** · Le point focal n’intervient que sur les agents et la liste électorale de la structure à laquelle il est rattaché.
@@ -104,26 +104,26 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 
 ## Sécurité et traçabilité
 
-- **R56** · Toutes les opérations sensibles (connexion, import, modification de liste, désactivation ou réactivation de candidate, ouverture/clôture, validation et publication des résultats) sont enregistrées dans un journal d’audit non modifiable (utilisateur, date-heure, action, entité, adresse IP).
+- **R56** · Toutes les opérations sensibles (demande de code et connexion, gestion des comptes et des agents, import, génération et arrêt des listes, désactivation ou réactivation de candidate, ouverture/clôture, dépouillement, départage, validation et publication des résultats, relance des tâches en échec) sont enregistrées dans un journal d’audit non modifiable (utilisateur, date-heure, action, entité, adresse IP). Le vote lui-même n’y figure jamais.
 - **R57** · Aucun utilisateur, y compris l’administrateur, ne peut consulter le choix d’un électeur ni modifier un bulletin.
 
 ## Points à valider et questions à éclaircir
 
-Ces points ont fait l'objet d'une proposition. Ils ne doivent pas être codés en dur tant qu'ils ne sont pas tranchés.
+Ces points ont fait l'objet d'une proposition. Ils ne doivent pas être codés en dur tant qu'ils ne sont pas tranchés. Entre parenthèses : le traitement actuel dans la plateforme.
 
 ### Points à confirmer par le métier
 
-- Le traitement des TMIE (une circonscription par TMIE).
-- Les catégories d’agents admis à voter (fonctionnaires, contractuels, stagiaires, agents en détachement ou en congé).
-- Le nombre de lauréates qualifiées par scrutin pour la phase suivante (une par défaut).
-- L’autorisation du vote blanc et l’existence d’un quorum.
-- La possibilité pour une candidate de voter pour elle-même.
-- Le remplacement d’une lauréate qui se désiste par la candidate classée immédiatement après elle.
-- La composition du comité d’organisation.
+- Le traitement des TMIE (une circonscription par TMIE). *(Prévu ainsi ; la liste des TMIE reste à importer.)*
+- Les catégories d’agents admis à voter (fonctionnaires, contractuels, stagiaires, agents en détachement ou en congé). *(Tout agent en service à la date de gel vote.)*
+- Le nombre de lauréates qualifiées par scrutin pour la phase suivante (une par défaut). *(Paramètre de chaque phase.)*
+- L’autorisation du vote blanc et l’existence d’un quorum. *(Paramètres de l’édition : vote blanc refusé et aucun quorum par défaut.)*
+- La possibilité pour une candidate de voter pour elle-même. *(Paramètre de l’édition, autorisé par défaut.)*
+- Le remplacement d’une lauréate qui se désiste par la candidate classée immédiatement après elle. *(Non développé.)*
+- La composition du comité d’organisation. *(Les membres sont les comptes ayant le rôle Comité.)*
 
 ### Questions à éclaircir
 
-- Les structures rattachées au Cabinet (Inspection générale des services, Cellule des réformes et de la démarche qualité, Cellule de sécurité des systèmes d’information) auront-elles chacune leur propre scrutin, ou seront-elles incluses dans le scrutin du Cabinet du Directeur général ?
-- Comment départager les ex-æquo en cas d’égalité en tête d’un scrutin : second tour limité aux ex-æquo, ou un autre critère ?
-- Quel type de structure attribuer au Cabinet du Directeur général et à l’Inspection générale des services (proposition : Direction centrale pour le Cabinet, Cellule pour l’IGS) ?
-- Lorsqu’une structure ne compte qu’une seule agent femme en service, le scrutin est-il maintenu ou l’agent est-elle désignée lauréate d’office ?
+- Les structures rattachées au Cabinet (Inspection générale des services, Cellule des réformes et de la démarche qualité, Cellule de sécurité des systèmes d’information) auront-elles chacune leur propre scrutin, ou seront-elles incluses dans le scrutin du Cabinet du Directeur général ? *(Chacune a son propre scrutin.)*
+- Comment départager les ex-æquo en cas d’égalité en tête d’un scrutin : second tour limité aux ex-æquo, ou un autre critère ? *(Le comité retient les lauréates parmi les ex-æquo par une décision motivée, portée au procès-verbal.)*
+- Quel type de structure attribuer au Cabinet du Directeur général et à l’Inspection générale des services (proposition : Direction centrale pour le Cabinet, Cellule pour l’IGS) ? *(Appliqué ainsi.)*
+- Lorsqu’une structure ne compte qu’une seule agent femme en service, le scrutin est-il maintenu ou l’agent est-elle désignée lauréate d’office ? *(Le scrutin est maintenu.)*

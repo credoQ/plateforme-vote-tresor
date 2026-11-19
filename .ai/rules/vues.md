@@ -8,11 +8,11 @@ paths:
 
 ## Gabarit et composants
 
-- Partez du gabarit `x-layouts.maquette` et des maquettes de `resources/views/maquettes/`, qui fixent la structure d'écran :
+- Les écrans connectés utilisent le gabarit `x-layouts.app`, les écrans hors connexion (connexion, vérification d'un document) `x-layouts.invite`. Les maquettes de `resources/views/maquettes/` (gabarit `x-layouts.maquette`) fixent la structure d'écran :
   - sidebar de 264 px ;
   - en-tête de 64 px qui affiche l'affectation ;
   - contenu à 28 px des bords.
-- Réutilisez les classes de `resources/css/design/composants.css`.
+- Réutilisez les classes de `resources/css/design/composants.css` et les composants `x-modale-confirmation` et `x-liens-export`.
 - N'ajoutez ni couleur en dur, ni `style` inline pour une couleur, ni police externe.
 
 ## Textes et accessibilité

@@ -40,6 +40,7 @@ class AppServiceProvider extends ServiceProvider
 
         // En développement (« composer run dev »), le processus de file traite aussi les files des e-mails, par priorité.
         DevCommands::artisan('queue:listen --queue=urgent,mails,default --tries=1 --timeout=0', 'queue');
+        DevCommands::artisan('schedule:work', 'planificateur');
     }
 
     /**

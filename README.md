@@ -1,58 +1,74 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Plateforme de vote de la Femme modèle du Trésor
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Plateforme de vote électronique de la Direction générale du Trésor et de la Comptabilité publique (DGTCP, Bénin). Chaque édition désigne la Femme modèle du Trésor en trois phases : primaires par département et par structure, demi-finales par pôle, finale ouverte à tous les agents.
 
-## About Laravel
+Monolithe Laravel 13 (PHP 8.5), PostgreSQL, Blade, Tailwind CSS 4 et Vite.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Documentation
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+| Sujet | Fichier |
+| --- | --- |
+| Règles de gestion R1 à R57, points à valider | [docs/fonctionnel/regles-de-gestion.md](docs/fonctionnel/regles-de-gestion.md) |
+| Modules, fonctionnalités, écrans et avancement | [docs/fonctionnel/README.md](docs/fonctionnel/README.md) |
+| Charte graphique et tokens | [design/README.md](design/README.md) |
+| Conventions du projet (architecture, git, vues, base) | [.ai/guidelines](.ai/guidelines) et [.ai/rules](.ai/rules) |
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Installation
 
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
-
-## Agentic Development
-
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+Prérequis : PHP 8.5 avec `pdo_pgsql`, Composer, Node.js, PostgreSQL.
 
 ```bash
-composer require laravel/boost --dev
-
-php artisan boost:install
+composer install
+npm install
+cp .env.example .env
+php artisan key:generate
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Renseignez dans `.env` la base PostgreSQL (`DB_*`), l'adresse publique (`APP_URL`, reprise dans les QR codes des PDF) et le serveur de messagerie (`MAIL_*`) : la connexion se fait par un code envoyé par e-mail. Puis :
 
-## Contributing
+```bash
+php artisan migrate --seed
+php artisan acces:creer-administrateur admin "Nom de l'administrateur" admin@exemple.bj
+```
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## Lancer en développement
 
-## Code of Conduct
+```bash
+composer run dev
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+La commande lance le serveur, Vite, le processus de file d’attente (files `urgent`, `mails`, `default`) et le planificateur.
 
-## Security Vulnerabilities
+## Production
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Trois processus doivent tourner en permanence :
 
-## License
+| Processus | Commande | Rôle |
+| --- | --- | --- |
+| Serveur web | PHP-FPM derrière Nginx ou Apache | Écrans |
+| File d'attente | `php artisan queue:work --queue=urgent,mails,default` | E-mails (codes de connexion, annonces) et procès-verbaux |
+| Planificateur | `php artisan schedule:run` chaque minute (cron) | Ouverture et fermeture des scrutins à leur date-heure |
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Sans le processus de file, aucun e-mail ne part et personne ne peut se connecter. Les tâches en échec se relancent depuis l'écran « Tâches en échec » (administrateur).
+
+## Commandes utiles
+
+| Commande | Usage |
+| --- | --- |
+| `php artisan agents:importer agents.xlsx` | Importe ou met à jour les agents et leurs affectations (Excel ou CSV) |
+| `php artisan acces:generer-comptes` | Crée les comptes électeurs des agents en service et liste ceux sans adresse e-mail |
+| `php artisan acces:creer-administrateur login nom email` | Crée un compte administrateur |
+| `php artisan scrutins:basculer` | Ouvre et ferme les scrutins arrivés à échéance (lancée par le planificateur) |
+
+## Tests
+
+Les tests tournent sur une base PostgreSQL dédiée, `vote_femme_modele_test` (voir `phpunit.xml`) :
+
+```bash
+php artisan test
+```
+
+## Organisation du travail
+
+- `main` : version stable ; `dev` : intégration ; une branche `module/NN-nom` par module, fusionnée dans `dev` (voir [.ai/guidelines/git.md](.ai/guidelines/git.md)).
+- Messages de commit : une ligne courte, en français.

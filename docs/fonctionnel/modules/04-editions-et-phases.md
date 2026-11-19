@@ -37,6 +37,10 @@ EDITION, PHASE, SCRUTIN
 
 - `resources/views/maquettes/tableau-de-bord.blade.php`, consultable à l'adresse `/maquettes/tableau-de-bord`
 
+## Écrans
+
+- `/editions` : liste, création et paramétrage des éditions, planification, lancement, ouverture et clôture des phases (comité)
+
 ## Règles de gestion
 
 Règles R16 à R23, extraites de [regles-de-gestion.md](../regles-de-gestion.md) :

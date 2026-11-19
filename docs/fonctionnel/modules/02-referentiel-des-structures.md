@@ -31,6 +31,10 @@ Administrateur.
 
 POLE_ELECTORAL, TYPE_STRUCTURE, STRUCTURE, DEPARTEMENT
 
+## Écrans
+
+- Aucun pour l'instant : le référentiel est chargé par `ReferentielSeeder`
+
 ## Règles de gestion
 
 Règles R5 à R10, extraites de [regles-de-gestion.md](../regles-de-gestion.md) :

@@ -22,6 +22,10 @@ paths:
 - Elle porte `origine` (automatique ou qualification), `statut` (active ou désactivée), `date_desistement`, `motif_desistement` et le résultat (`nb_voix`, `rang`, `est_laureate`).
 - `candidate_source_id` (auto-référence nullable) relie une candidate qualifiée à sa candidate de la phase précédente.
 
+## Connexion
+
+- `codes_connexion` garde l'empreinte HMAC du code envoyé par e-mail, jamais le code. Pas de mot de passe sur `users`.
+
 ## Traçabilité
 
 - `journal_audit` est en ajout seul : aucune mise à jour, aucune suppression.

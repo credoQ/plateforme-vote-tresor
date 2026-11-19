@@ -38,6 +38,11 @@ INSCRIRE (émargement), BULLETIN, CANDIDATE
 
 - `resources/views/maquettes/vote.blade.php`, consultable à l'adresse `/maquettes/vote`
 
+## Écrans
+
+- `/vote` : bulletin, confirmation, accusé de vote (électeur)
+- `/espace` : retrait et réactivation de sa candidature
+
 ## Règles de gestion
 
 Règles R39 à R46, extraites de [regles-de-gestion.md](../regles-de-gestion.md) :

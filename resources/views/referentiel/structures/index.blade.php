@@ -40,14 +40,14 @@
 
         <div class="tableau-defilant">
             <table class="tableau">
-                <thead><tr><th>Code</th><th>Structure</th><th>Type</th><th>Rattachement</th><th class="nombre">Agents en service</th><th>Statut</th><th class="actions"></th></tr></thead>
+                <thead><tr><th>Code</th><th>Structure</th><th>Type</th><th>Département</th><th class="nombre">Agents en service</th><th>Statut</th><th class="actions"></th></tr></thead>
                 <tbody>
                     @forelse ($structures as $structure)
                         <tr>
                             <td class="reference">{{ $structure->code }}</td>
-                            <td>{{ $structure->libelle }}@if ($structure->estUnService())<div class="aide">Service</div>@endif</td>
-                            <td>{{ $structure->typeStructure->code->libelle() }}@if ($structure->departement)<div class="aide">{{ $structure->departement->libelle }}</div>@endif</td>
-                            <td>{{ $structure->structureParente?->code }}</td>
+                            <td>{{ $structure->libelle }}@if ($structure->estUnService())<div class="aide">Service de {{ $structure->structureParente?->code }}</div>@endif</td>
+                            <td>{{ $structure->typeStructure->code->libelle() }}</td>
+                            <td>{{ $structure->departement?->libelle }}</td>
                             <td class="nombre">{{ number_format($structure->agents_en_service_count, 0, ',', ' ') }}</td>
                             <td>
                                 @if ($structure->actif)

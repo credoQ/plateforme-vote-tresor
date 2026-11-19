@@ -19,7 +19,7 @@ Ce module permet de décrire l’organisation de la DGTCP.
 - [x] Modèles `PoleElectoral`, `TypeStructure`, `Departement`, `Structure`, avec les portées `electorales()` et `duPole()`
 - [x] Action `EnregistrerStructure` : règles R5, R8 et R9, messages d'erreur en français
 - [x] `ReferentielSeeder` : 2 pôles, 6 types et 12 départements
-- [x] `StructuresCentralesSeeder` : Cabinet, IGS et cellules rattachées, directions techniques, dont la DPCP et la TGE (directions du pôle structures), selon l'AOF de 2022
+- [x] `StructuresCentralesSeeder` : Cabinet, IGS et cellules (autonomes, non rattachées au Cabinet), directions techniques, dont la DPCP et la TGE (directions du pôle structures), selon l'AOF de 2022
 - [x] `StructuresDeconcentreesSeeder` : réseau comptable des services extérieurs (AOF, section 5) : 12 TD, 77 Trésoreries communales (une par commune, rattachée à la TD de son département), 37 TMIE de l'export SIGFP et l'ACD
 - [x] Tests des règles R7 à R10
 - [x] Écrans d'administration du référentiel : liste filtrable (type, département, statut), fiche avec structures rattachées et agents en service, création, modification, désactivation et réactivation par l'administrateur, tracées au journal ; consultation par le comité et l'observateur. Les types, pôles et départements sont consultables (onglet « Types et départements ») ; leurs codes sont fixés par R6, R7 et R9
@@ -50,4 +50,4 @@ Règles R5 à R10, extraites de [regles-de-gestion.md](../regles-de-gestion.md) 
 - **R7** · Un type de structure est défini par un code et un libellé, et il est classé dans un et un seul pôle électoral ; un pôle regroupe un ou plusieurs types. Les types sont : Cellule, Direction centrale, TMIE et Agence comptable de la Dette (ACD), classés dans le pôle structures ; Trésorerie départementale (TD) et Trésorerie communale (TC), classées dans le pôle départemental.
 - **R8** · Une structure peut être rattachée à une structure mère (un service à sa direction, une Trésorerie communale à sa Trésorerie départementale).
 - **R9** · Chaque Trésorerie départementale et chaque Trésorerie communale est située dans l’un des 12 départements.
-- **R10** · Chaque structure est autonome et constitue sa propre structure électorale (directions, cellules, TMIE, ACD). Le Cabinet du Directeur général regroupe le Directeur général, son adjoint, l’Assistant du Directeur général et les secrétariats ; les cellules et l’Inspection générale des services sont des structures autonomes rattachées au Cabinet.
+- **R10** · Chaque structure est autonome et constitue sa propre structure électorale (directions, cellules, TMIE, ACD). Le Cabinet du Directeur général regroupe le Directeur général, son adjoint, l’Assistant du Directeur général et les secrétariats ; les cellules et l’Inspection générale des services sont des structures autonomes, non rattachées au Cabinet, avec leur propre point focal.

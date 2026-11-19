@@ -32,7 +32,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 - **R7** · Un type de structure est défini par un code et un libellé, et il est classé dans un et un seul pôle électoral ; un pôle regroupe un ou plusieurs types. Les types sont : Cellule, Direction centrale, TMIE et Agence comptable de la Dette (ACD), classés dans le pôle structures ; Trésorerie départementale (TD) et Trésorerie communale (TC), classées dans le pôle départemental.
 - **R8** · Une structure peut être rattachée à une structure mère (un service à sa direction, une Trésorerie communale à sa Trésorerie départementale).
 - **R9** · Chaque Trésorerie départementale et chaque Trésorerie communale est située dans l’un des 12 départements.
-- **R10** · Chaque structure est autonome et constitue sa propre structure électorale (directions, cellules, TMIE, ACD). Le Cabinet du Directeur général regroupe le Directeur général, son adjoint, l’Assistant du Directeur général et les secrétariats ; les cellules et l’Inspection générale des services sont des structures autonomes rattachées au Cabinet.
+- **R10** · Chaque structure est autonome et constitue sa propre structure électorale (directions, cellules, TMIE, ACD). Le Cabinet du Directeur général regroupe le Directeur général, son adjoint, l’Assistant du Directeur général et les secrétariats ; les cellules et l’Inspection générale des services sont des structures autonomes, non rattachées au Cabinet, avec leur propre point focal.
 
 ## Gestion des agents et des affectations
 
@@ -123,7 +123,7 @@ Ces points ont fait l'objet d'une proposition. Ils ne doivent pas être codés e
 
 ### Questions à éclaircir
 
-- Les structures rattachées au Cabinet (Inspection générale des services, Cellule des réformes et de la démarche qualité, Cellule de sécurité des systèmes d’information) auront-elles chacune leur propre scrutin, ou seront-elles incluses dans le scrutin du Cabinet du Directeur général ? *(Chacune a son propre scrutin.)*
+- L’Inspection générale des services, la Cellule des réformes et de la démarche qualité et la Cellule de sécurité des systèmes d’information auront-elles chacune leur propre scrutin, ou seront-elles incluses dans le scrutin du Cabinet du Directeur général ? *(Chacune a son propre scrutin.)*
 - Comment départager les ex-æquo en cas d’égalité en tête d’un scrutin : second tour limité aux ex-æquo, ou un autre critère ? *(Le comité retient les lauréates parmi les ex-æquo par une décision motivée, portée au procès-verbal.)*
 - Quel type de structure attribuer au Cabinet du Directeur général et à l’Inspection générale des services (proposition : Direction centrale pour le Cabinet, Cellule pour l’IGS) ? *(Appliqué ainsi.)*
 - Lorsqu’une structure ne compte qu’une seule agent femme en service, le scrutin est-il maintenu ou l’agent est-elle désignée lauréate d’office ? *(Le scrutin est maintenu.)*

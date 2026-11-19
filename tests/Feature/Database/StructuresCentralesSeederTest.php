@@ -4,6 +4,7 @@ namespace Tests\Feature\Database;
 
 use App\Enums\Referentiel\CodePoleElectoral;
 use App\Models\Structure;
+use App\Models\User;
 use Database\Seeders\StructuresCentralesSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -13,16 +14,19 @@ class StructuresCentralesSeederTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * R10 : les cellules et l'IGS sont des structures autonomes rattachées au Cabinet.
+     * R4, R10 : l'IGS et les cellules sont des structures électorales autonomes, hors du périmètre du point focal du Cabinet.
      */
-    public function test_r10_rattache_les_cellules_et_l_igs_au_cabinet_comme_structures_autonomes(): void
+    public function test_r10_l_igs_et_les_cellules_ne_sont_pas_rattachees_au_cabinet(): void
     {
+        $cabinet = Structure::where('code', 'CAB')->firstOrFail();
+        Structure::whereIn('code', ['IGS', 'CRDQ', 'CSSI'])->update(['structure_parente_id' => $cabinet->id]);
+
         $this->seed(StructuresCentralesSeeder::class);
 
-        $rattachees = Structure::where('code', 'CAB')->firstOrFail()->structuresFilles;
-
-        $this->assertEqualsCanonicalizing(['IGS', 'CRDQ', 'CSSI'], $rattachees->pluck('code')->all());
-        $this->assertTrue($rattachees->every(fn (Structure $s) => $s->niveau === Structure::NIVEAU_STRUCTURE_ELECTORALE));
+        $this->assertSame(0, $cabinet->structuresFilles()->count(), 'Une base chargée avec l’ancien rattachement est corrigée.');
+        $this->assertSame([$cabinet->id], User::factory()->pointFocalDe($cabinet)->create()->perimetre());
+        $this->assertTrue(Structure::whereIn('code', ['IGS', 'CRDQ', 'CSSI'])->get()
+            ->every(fn (Structure $s) => $s->niveau === Structure::NIVEAU_STRUCTURE_ELECTORALE));
     }
 
     /**

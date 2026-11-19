@@ -40,7 +40,10 @@ class ListeAgents extends Component
     #[Url]
     public string $situation = 'en-service';
 
-    public function mount(): void
+    /**
+     * Contrôle des droits à chaque requête du composant, mises à jour comprises (pas seulement à l'affichage).
+     */
+    public function boot(): void
     {
         Gate::authorize('viewAny', Agent::class);
     }

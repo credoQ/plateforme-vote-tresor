@@ -49,6 +49,27 @@ window.matchMedia('(min-width: 901px)').addEventListener('change', (e) => {
     }
 });
 
+// Tableaux en fiches sur téléphone (.tableau--fiches) : chaque cellule reçoit le libellé de sa colonne,
+// repris de l'en-tête, pour l'afficher devant la valeur ; son contenu est regroupé dans un seul bloc
+// (.tableau__valeur) pour que badge, texte et aide s'enchaînent normalement (voir composants.css).
+document.querySelectorAll('table.tableau--fiches').forEach((tableau) => {
+    const libelles = [...tableau.querySelectorAll('thead th')].flatMap((th) => Array(th.colSpan).fill(th.textContent.trim()));
+    tableau.querySelectorAll('tbody tr').forEach((ligne) => {
+        let colonne = 0;
+        [...ligne.cells].forEach((cellule) => {
+            if (cellule.colSpan === 1 && libelles[colonne]) {
+                cellule.dataset.libelle = libelles[colonne];
+                if (cellule.textContent.trim() === '' && !cellule.querySelector('svg, i, img, button, a, form')) cellule.dataset.vide = '';
+                const valeur = document.createElement('div');
+                valeur.className = 'tableau__valeur';
+                valeur.append(...cellule.childNodes);
+                cellule.append(valeur);
+            }
+            colonne += cellule.colSpan;
+        });
+    });
+});
+
 // Impression (accusé de vote) : data-imprimer
 document.addEventListener('click', (e) => {
     if (e.target.closest('[data-imprimer]')) window.print();

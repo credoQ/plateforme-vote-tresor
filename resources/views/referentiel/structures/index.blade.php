@@ -39,7 +39,7 @@
         </form>
 
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Code</th><th>Structure</th><th>Type</th><th>Département</th><th class="nombre">Agents en service</th><th>Statut</th><th class="actions"></th></tr></thead>
                 <tbody>
                     @forelse ($structures as $structure)

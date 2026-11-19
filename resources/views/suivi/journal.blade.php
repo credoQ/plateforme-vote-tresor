@@ -20,7 +20,7 @@
         </form>
 
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Date et heure</th><th>Utilisateur</th><th>Opération</th><th>Objet</th><th>Détails</th><th>Adresse IP</th></tr></thead>
                 <tbody>
                     @forelse ($entrees as $entree)

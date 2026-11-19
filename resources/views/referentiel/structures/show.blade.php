@@ -70,7 +70,7 @@
                 @endcan
             </div>
             <div class="tableau-defilant">
-                <table class="tableau">
+                <table class="tableau tableau--fiches">
                     <thead><tr><th>Code</th><th>Structure</th><th class="nombre">Agents</th><th>Statut</th></tr></thead>
                     <tbody>
                         @forelse ($structuresFilles as $fille)

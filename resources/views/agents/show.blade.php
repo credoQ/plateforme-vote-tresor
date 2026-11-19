@@ -71,7 +71,7 @@
     <section class="carte">
         <div class="carte__entete"><h2>Historique des affectations</h2></div>
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Structure</th><th>Du</th><th>Au</th><th></th></tr></thead>
                 <tbody>
                     @forelse ($agent->affectations as $ligne)

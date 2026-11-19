@@ -75,7 +75,7 @@
     <section class="carte espace-bloc">
         <div class="carte__entete"><h2>Candidates</h2></div>
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Candidate</th><th>Structure</th><th>Origine</th><th>Statut</th><th class="actions">Actions</th></tr></thead>
                 <tbody>
                     @forelse ($candidates as $candidate)
@@ -123,7 +123,7 @@
             <button type="submit" class="btn btn-secondaire"><i data-lucide="filter"></i>Rechercher</button>
         </form>
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Matricule</th><th>Agent</th><th>Sexe</th><th>Structure à la date de gel</th></tr></thead>
                 <tbody>
                     @forelse ($inscriptions as $inscription)

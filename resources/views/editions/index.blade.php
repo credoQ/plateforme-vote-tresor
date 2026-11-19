@@ -10,7 +10,7 @@
 
     <div class="carte">
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Année</th><th>Libellé</th><th>Calendrier</th><th>Gel des listes</th><th class="nombre">Scrutins</th><th>Statut</th><th class="actions"></th></tr></thead>
                 <tbody>
                     @forelse ($editions as $edition)

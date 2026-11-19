@@ -13,7 +13,7 @@
     </div>
 @else
     <div class="tableau-defilant espace-bloc">
-        <table class="tableau">
+        <table class="tableau tableau--fiches">
             <thead><tr><th>Scrutin</th><th class="nombre">Inscrits</th><th class="nombre">Candidates</th><th>Ouverture</th><th>Statut</th><th class="actions"></th></tr></thead>
             <tbody>
                 @foreach ($phase->scrutins as $scrutin)

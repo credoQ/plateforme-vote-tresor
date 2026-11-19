@@ -35,7 +35,7 @@
         </form>
 
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Matricule</th><th>Agent</th><th>Sexe</th><th>Affectation en cours</th><th>Depuis</th><th class="actions"></th></tr></thead>
                 <tbody>
                     @forelse ($agents as $agent)

@@ -32,7 +32,7 @@
         <section class="carte espace-bloc">
             <div class="carte__entete"><h2>Suivi des scrutins</h2></div>
             <div class="tableau-defilant">
-                <table class="tableau">
+                <table class="tableau tableau--fiches">
                     <thead><tr><th>Scrutin</th><th>Pôle</th><th class="nombre">Inscrits</th><th class="nombre">Votants</th><th>Participation</th><th>Statut</th><th class="actions">Exports</th></tr></thead>
                     <tbody>
                         @forelse ($scrutins as $ligne)
@@ -61,7 +61,7 @@
                 <section class="carte">
                     <div class="carte__entete"><h2>{{ $titre }}</h2></div>
                     <div class="tableau-defilant">
-                        <table class="tableau">
+                        <table class="tableau tableau--fiches">
                             <thead><tr><th>{{ $cle === 'code' ? 'Structure' : 'Département' }}</th><th class="nombre">Inscrits</th><th>Participation</th></tr></thead>
                             <tbody>
                                 @forelse ($lignes as $ligne)

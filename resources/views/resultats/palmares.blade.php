@@ -21,7 +21,7 @@
             <section class="carte espace-bloc">
                 <div class="carte__entete"><h2>{{ $phase['phase'] }}</h2></div>
                 <div class="tableau-defilant">
-                    <table class="tableau">
+                    <table class="tableau tableau--fiches">
                         <thead><tr><th>Scrutin</th><th>Lauréate</th><th>Matricule</th><th class="nombre">Voix</th></tr></thead>
                         <tbody>
                             @forelse ($phase['laureates'] as $laureate)

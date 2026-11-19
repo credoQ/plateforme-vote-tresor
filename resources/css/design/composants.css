@@ -306,6 +306,21 @@
     .barre-vote { margin: 24px -16px -20px; padding: 12px 16px; }
   }
   @media (max-width: 600px) { .grille-tuiles { grid-template-columns: 1fr; } .barre { grid-template-columns: 100px 1fr 48px; } .tableau-defilant { overflow-x: auto; } }
+  /* tableaux de liste sur téléphone : chaque ligne devient une fiche « libellé : valeur », actions en bas.
+     Le libellé de chaque cellule (data-libelle) est repris de l'en-tête du tableau par app.js. */
+  @media (max-width: 600px) {
+    .tableau--fiches thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+    .tableau--fiches, .tableau--fiches tbody, .tableau--fiches tr, .tableau--fiches td { display: block; width: 100%; }
+    .tableau--fiches tr { padding: 10px 16px; border-bottom: 1px solid var(--tr-bordure); }
+    .tableau--fiches td { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; height: auto; min-height: 28px; padding: 4px 0; border: 0; text-align: right; }
+    .tableau--fiches td::before { content: attr(data-libelle); flex: 0 0 38%; text-align: left; font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--tr-texte-3); }
+    .tableau--fiches td:not([data-libelle])::before, .tableau--fiches td[data-libelle=""]::before { content: none; }
+    .tableau--fiches .tableau__valeur { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .tableau--fiches td[data-vide] { display: none; }
+    .tableau--fiches td.actions { justify-content: flex-end; flex-wrap: wrap; padding-top: 8px; }
+    .tableau--fiches td[colspan] { display: block; text-align: center; }
+    .tableau--fiches .cellule-progression { min-width: 0; flex: 1; justify-content: flex-end; }
+  }
   @media (prefers-reduced-motion: reduce) { .sidebar { transition: none; } }
 }
 

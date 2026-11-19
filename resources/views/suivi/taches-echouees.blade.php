@@ -23,7 +23,7 @@
 
     <div class="carte">
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Échec</th><th>Tâche</th><th>Erreur</th><th class="actions">Actions</th></tr></thead>
                 <tbody>
                     @forelse ($taches as $tache)

@@ -21,7 +21,7 @@
         </form>
 
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Identifiant</th><th>Nom</th><th>Rôles</th><th>Structure</th><th>Statut</th><th class="actions">Actions</th></tr></thead>
                 <tbody>
                     @forelse ($utilisateurs as $utilisateur)

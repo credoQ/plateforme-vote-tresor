@@ -27,7 +27,7 @@
             @if ($pv->motif_departage)<p class="aide">Départage par le comité : {{ $pv->motif_departage }}</p>@endif
         </div>
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th class="nombre">Rang</th><th>Candidate</th><th class="nombre">Voix</th><th class="nombre">%</th><th>Résultat</th></tr></thead>
                 <tbody>
                     @foreach ($actives as $candidate)

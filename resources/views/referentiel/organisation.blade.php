@@ -11,7 +11,7 @@
             <a href="{{ route('structures.organisation') }}" class="onglet est-actif">Types et départements</a>
         </div>
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Pôle électoral</th><th>Type de structure</th><th>Code</th><th class="nombre">Structures actives</th></tr></thead>
                 <tbody>
                     @foreach ($poles as $pole)
@@ -32,7 +32,7 @@
     <section class="carte">
         <div class="carte__entete"><h2>Départements</h2></div>
         <div class="tableau-defilant">
-            <table class="tableau">
+            <table class="tableau tableau--fiches">
                 <thead><tr><th>Code</th><th>Département</th><th>Trésorerie départementale</th><th class="nombre">Trésoreries communales</th></tr></thead>
                 <tbody>
                     @foreach ($departements as $departement)

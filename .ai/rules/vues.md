@@ -13,6 +13,7 @@ paths:
   - en-tête de 64 px qui affiche l'affectation ;
   - contenu à 28 px des bords.
 - Réutilisez les classes de `resources/css/design/composants.css` et les composants `x-modale-confirmation` et `x-liens-export`.
+- Un tableau de liste (avec un `<thead>`) porte la classe `tableau tableau--fiches` : sur téléphone, chaque ligne devient une fiche « libellé : valeur », les libellés étant repris de l'en-tête par `app.js`. Un tableau « clé : valeur » d'une fiche garde la seule classe `tableau`.
 - N'ajoutez ni couleur en dur, ni `style` inline pour une couleur, ni police externe.
 
 ## Pas de traitement serveur dans les vues

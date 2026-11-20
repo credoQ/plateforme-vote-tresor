@@ -2,7 +2,7 @@
 
 Le serveur de production (12 Go de RAM, 6 CPU, 200 Go de disque) est **partagé avec une autre application**.
 Une seule pile peut publier les ports 80 et 443 : c'est le Caddy principal du serveur qui reçoit tout le trafic HTTPS et passe
-le site de vote au conteneur `web` de la plateforme de vote, par un réseau Docker commun nommé `entree`.
+le site de vote au conteneur `femme-modele-web` de la plateforme de vote, par un réseau Docker commun nommé `entree`.
 
 ```
 Internet ──443──> Caddy principal ──┬──> autre application
@@ -13,7 +13,7 @@ La plateforme de vote tourne dans sept conteneurs décrits par `compose.yaml` :
 
 | Service | Rôle |
 |---|---|
-| `web` | Nginx : sert les fichiers publics (CSS, JS, polices, images) et passe le reste à PHP. Joignable par le Caddy principal sous le nom `femme-modele-web` |
+| `femme-modele-web` | Nginx : sert les fichiers publics (CSS, JS, polices, images) et passe le reste à PHP. Joignable par le Caddy principal sous ce nom. Ne jamais le renommer `web` : sur le réseau `entree`, il détournerait le trafic que le Caddy principal envoie à son propre `web` |
 | `app` | PHP-FPM : exécute Laravel. Migre la base à chaque démarrage |
 | `worker-codes` | File `urgent` seule : les codes de connexion partent en quelques secondes, quoi qu'il arrive |
 | `worker` | Toutes les files (`urgent`, `mails`, `default`) : annonces, accusés de vote, qualifications, procès-verbaux |
@@ -48,10 +48,11 @@ Remplir le `.env` (`nano .env`) :
 - `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` : le serveur d'envoi des e-mails. Sans lui,
   aucun code de connexion ne part et personne ne peut se connecter.
 
-Créer le réseau commun (une seule fois sur le serveur), puis y brancher le Caddy principal (section suivante) :
+Le réseau commun `entree` est créé par la pile du Caddy principal : elle doit être déployée **avant** celle-ci,
+avec le domaine du site de vote déclaré (section suivante). Vérifier qu'il existe :
 
 ```bash
-docker network create entree
+docker network ls --filter name=entree
 ```
 
 Construire les images, puis générer la clé de l'application :
@@ -81,23 +82,11 @@ docker compose exec app php artisan acces:generer-comptes
 
 ## Brancher le site de vote sur le Caddy principal
 
-Deux modifications dans la configuration du Caddy principal du serveur, une seule fois.
+Ce que la pile du Caddy principal du serveur doit faire, une fois configurée :
 
-Son `compose.yaml`, service `caddy` : le brancher aussi sur le réseau `entree`, et déclarer ce réseau :
-
-```yaml
-  caddy:
-    # … réglages existants …
-    networks:
-      - default
-      - entree
-
-networks:
-  entree:
-    external: true
-```
-
-Son `Caddyfile` : ajouter un bloc pour le domaine du site de vote, à la suite du bloc existant :
+- créer le réseau Docker `entree`, sous ce nom fixe, et y brancher son Caddy. La présente pile le déclare comme
+  externe : elle ne démarre pas tant qu'il n'existe pas ;
+- servir le domaine du site de vote vers `femme-modele-web:80`, avec un bloc de ce type dans son Caddyfile :
 
 ```
 vote.exemple.bj {
@@ -107,9 +96,12 @@ vote.exemple.bj {
 }
 ```
 
-Puis, dans le dossier de ce Caddy : `docker compose up -d caddy`. Caddy obtient seul le certificat du nouveau domaine.
-L'ordre de démarrage des deux piles n'a pas d'importance : tant que `femme-modele-web` ne répond pas, Caddy renvoie
-une erreur 502 pour ce domaine, sans gêner l'autre application.
+Le domaine se renseigne dans le `.env` de cette pile (`VOTE_DOMAIN`), puis `docker compose up -d caddy` dans son
+dossier : Caddy obtient seul le certificat du nouveau domaine. Tant que `femme-modele-web` ne répond pas, Caddy
+renvoie une erreur 502 pour ce domaine, sans gêner l'autre application.
+
+Aucun service de la présente pile branché sur `entree` ne doit porter un nom déjà utilisé par l'autre pile
+(`web`, `app`…) : sur ce réseau, le nom d'un service sert d'adresse, et un doublon détournerait le trafic.
 
 ## Mettre à jour
 
@@ -257,7 +249,7 @@ Puis se connecter à `localhost:5434`, base `femme_modele`, utilisateur `femme_m
   urnes invérifiables. La conserver hors du serveur, avec les sauvegardes.
 - Docker contourne le pare-feu UFW pour les ports publiés : aucun conteneur de la plateforme de vote ne publie de
   port public (le Caddy principal s'en charge), et `db` n'est publié que sur `127.0.0.1`. Ne jamais retirer ce `127.0.0.1`.
-- Laravel fait confiance aux en-têtes `X-Forwarded` (`bootstrap/app.php`), posés par Caddy : `app` et `web` ne
+- Laravel fait confiance aux en-têtes `X-Forwarded` (`bootstrap/app.php`), posés par Caddy : `app` et `femme-modele-web` ne
   doivent jamais publier de port, sinon un visiteur pourrait se faire passer pour Caddy.
 - Les limites de tentatives (code de connexion, vote) comptent par matricule ou par compte, pas par adresse IP :
   les agents qui sortent par la même adresse du réseau de la DGTCP ne se bloquent pas entre eux.

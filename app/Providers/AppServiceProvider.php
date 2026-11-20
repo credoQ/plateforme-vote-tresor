@@ -50,7 +50,7 @@ class AppServiceProvider extends ServiceProvider
         View::composer('components.layouts.electeur', EspaceElecteurComposer::class);
         View::composer('components.barre-filtres', FiltresComposer::class);
         View::composer('components.pdf.document', fn (Vue $vue) => $vue->with('images', app(EnteteDocument::class)->images()));
-        View::composer('mail::message', fn (Vue $vue) => $vue->with('editionEnCours', Edition::enCours()->value('annee')));
+        View::composer('mail::message', fn (Vue $vue) => $vue->with('editionEnCours', Edition::anneeEnCours()));
 
         // En développement (« composer run dev »), le processus de file traite aussi les files des e-mails, par priorité,
         // avec une pause de 2 secondes entre deux tâches : la boîte de test Mailtrap refuse plusieurs e-mails par seconde.

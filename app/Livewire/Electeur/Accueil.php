@@ -107,9 +107,28 @@ class Accueil extends Component
             'nbCandidates' => $scrutin?->statut === StatutScrutin::Ouvert ? $scrutin->candidates()->actives()->count() : null,
             'resultatsPublies' => $this->resultatsPublies(),
             'candidatures' => $this->candidatures,
-            // Rafraîchissement automatique seulement quand l'état peut changer : un scrutin de la phase ouverte.
-            'rafraichir' => $scrutin !== null && ! $this->inscription->a_vote,
+            'echeance' => $this->prochaineEcheance($scrutin),
         ]);
+    }
+
+    /**
+     * Prochain changement prévu de l'état du scrutin (ouverture, puis fermeture) tant que l'électeur n'a pas voté :
+     * la page se rafraîchit une seule fois à ce moment-là, au lieu d'interroger le serveur chaque minute. Le délai est
+     * calculé par le serveur (l'horloge du téléphone peut être fausse) ; null s'il n'y a rien à attendre.
+     *
+     * @return array{horodatage: int, secondes: int}|null
+     */
+    private function prochaineEcheance(?Scrutin $scrutin): ?array
+    {
+        if ($scrutin === null || $this->inscription->a_vote) {
+            return null;
+        }
+
+        $echeance = collect([$scrutin->date_heure_ouverture, $scrutin->date_heure_fermeture])
+            ->filter(fn ($date): bool => $date !== null && $date->isFuture())
+            ->min();
+
+        return $echeance === null ? null : ['horodatage' => $echeance->getTimestamp(), 'secondes' => (int) now()->diffInSeconds($echeance)];
     }
 
     private function utilisateur(): User

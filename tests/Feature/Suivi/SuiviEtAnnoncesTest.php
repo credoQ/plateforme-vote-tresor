@@ -10,6 +10,7 @@ use App\Actions\Vote\DeposerBulletin;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Livewire\Suivi\TableauDeBord;
 use App\Models\Agent;
 use App\Models\Edition;
 use App\Models\JournalAudit;
@@ -22,6 +23,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
+use Livewire\Livewire;
 use OpenSpout\Reader\XLSX\Reader;
 use Tests\TestCase;
 
@@ -93,6 +95,18 @@ class SuiviEtAnnoncesTest extends TestCase
         $this->get(route('tableau-de-bord', ['statut' => StatutScrutin::Ouvert->value]))
             ->assertSee('Scrutin départemental · Atlantique')->assertSee('Réinitialiser');
         $this->get(route('tableau-de-bord', ['statut' => StatutScrutin::Clos->value]))
+            ->assertDontSee('Scrutin départemental · Atlantique')->assertSee('Aucun scrutin ne correspond.');
+    }
+
+    /**
+     * R46 : changer un filtre recalcule le tableau des scrutins, placé dans l'îlot rafraîchi du tableau de bord.
+     */
+    public function test_r46_un_filtre_recalcule_le_tableau_place_dans_l_ilot(): void
+    {
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Comite)->create())
+            ->test(TableauDeBord::class)
+            ->assertSee('Scrutin départemental · Atlantique')
+            ->set('statut', StatutScrutin::Clos->value)
             ->assertDontSee('Scrutin départemental · Atlantique')->assertSee('Aucun scrutin ne correspond.');
     }
 
@@ -171,6 +185,13 @@ class SuiviEtAnnoncesTest extends TestCase
         $electrice = User::factory()->pourAgent($this->electriceAtl)->avecRoles(CodeRole::Electeur)->create();
 
         $this->actingAs($electrice)->get(route('espace'))->assertOk()
-            ->assertSee('Scrutin départemental · Atlantique')->assertSee('Ouvert')->assertSee('Voter maintenant');
+            ->assertSee('Scrutin départemental · Atlantique')->assertSee('Ouvert')->assertSee('Voter maintenant')
+            // Une seule actualisation, peu après la fermeture prévue dans 6 heures, au lieu d'une par minute.
+            ->assertSee('echeance-'.$this->scrutinAtl->fresh()->date_heure_fermeture->getTimestamp(), false)
+            ->assertSee('(21600 + 70) * 1000', false)
+            ->assertDontSee('wire:poll', false);
+
+        app(DeposerBulletin::class)->handle($this->electriceAtl, $this->scrutinAtl, $this->scrutinAtl->candidates()->sole());
+        $this->get(route('espace'))->assertSee('Vous avez voté')->assertDontSee('minuteur', false);
     }
 }

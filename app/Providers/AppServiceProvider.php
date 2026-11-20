@@ -14,10 +14,13 @@ use App\View\Composers\NavigationComposer;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View as Vue;
@@ -37,6 +40,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Saisie du code de connexion : 10 essais par minute pour un matricule et une adresse IP. Compter par IP
+        // seule bloquerait tous les agents qui sortent par la même adresse du réseau de la DGTCP.
+        RateLimiter::for('saisie-code', fn (Request $request): Limit => Limit::perMinute(10)
+            ->by($request->session()->get('connexion.login', '').'|'.$request->ip()));
+
         Gate::define('administrer', fn (User $user): bool => $user->aLeRole(CodeRole::Administrateur));
         Gate::define('piloter', fn (User $user): bool => $user->aLeRole(CodeRole::Comite));
         Gate::define('controler-listes', fn (User $user): bool => $user->aLeRole(CodeRole::Comite, CodeRole::PointFocal));

@@ -27,3 +27,6 @@ Homestead.yaml
 Thumbs.db
 /database/creer-base-locale.sql
 /database/database.sqlite
+
+/sauvegardes
+/.env.docker

@@ -41,15 +41,9 @@ La commande lance le serveur, Vite, le processus de file d’attente (files `urg
 
 ## Production
 
-Trois processus doivent tourner en permanence :
+Le déploiement se fait avec Docker : voir [docs/DEPLOIEMENT_DOCKER.md](docs/DEPLOIEMENT_DOCKER.md) (modèle de configuration : `.env.production.example`).
 
-| Processus | Commande | Rôle |
-| --- | --- | --- |
-| Serveur web | PHP-FPM derrière Nginx ou Apache | Écrans |
-| File d'attente | `php artisan queue:work --queue=urgent,mails,default` | E-mails (codes de connexion, annonces) et procès-verbaux |
-| Planificateur | `php artisan schedule:run` chaque minute (cron) | Ouverture et fermeture des scrutins à leur date-heure |
-
-Sans le processus de file, aucun e-mail ne part et personne ne peut se connecter. Les tâches en échec se relancent depuis l'écran « Tâches en échec » (administrateur).
+En plus du serveur web, trois processus tournent en permanence : deux processus de file d'attente (l'un réservé aux codes de connexion, l'autre pour les files `urgent`, `mails` et `default`) et le planificateur, qui ouvre et ferme les scrutins à leur date-heure. Sans processus de file, aucun e-mail ne part et personne ne peut se connecter. Les tâches en échec se relancent depuis l'écran « Tâches en échec » (administrateur).
 
 ## Commandes utiles
 

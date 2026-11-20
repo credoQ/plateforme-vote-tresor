@@ -34,7 +34,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/connexion', [ConnexionController::class, 'create'])->name('login');
     Route::post('/connexion', [ConnexionController::class, 'envoyer'])->name('login.store');
     Route::get('/connexion/code', [ConnexionController::class, 'code'])->name('login.code');
-    Route::post('/connexion/code', [ConnexionController::class, 'verifier'])->middleware('throttle:10,1')->name('login.verifier');
+    Route::post('/connexion/code', [ConnexionController::class, 'verifier'])->middleware('throttle:saisie-code')->name('login.verifier');
     Route::post('/connexion/code/renvoyer', [ConnexionController::class, 'renvoyer'])->name('login.renvoyer');
 });
 

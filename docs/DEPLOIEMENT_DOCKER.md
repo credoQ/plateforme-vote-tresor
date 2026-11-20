@@ -1,24 +1,24 @@
 # Déploiement avec Docker
 
-Le serveur de production (12 Go de RAM, 6 CPU, 200 Go de disque) est **partagé avec la plateforme TGE**.
-Une seule pile peut publier les ports 80 et 443 : c'est le Caddy de TGE qui reçoit tout le trafic HTTPS et passe
+Le serveur de production (12 Go de RAM, 6 CPU, 200 Go de disque) est **partagé avec une autre application**.
+Une seule pile peut publier les ports 80 et 443 : c'est le Caddy principal du serveur qui reçoit tout le trafic HTTPS et passe
 le site de vote au conteneur `web` de la plateforme de vote, par un réseau Docker commun nommé `entree`.
 
 ```
-Internet ──443──> caddy (pile TGE) ──┬──> web de TGE
-                                     └──> femme-modele-web (pile vote, réseau « entree »)
+Internet ──443──> Caddy principal ──┬──> autre application
+                                    └──> femme-modele-web (pile vote, réseau « entree »)
 ```
 
 La plateforme de vote tourne dans sept conteneurs décrits par `compose.yaml` :
 
 | Service | Rôle |
 |---|---|
-| `web` | Nginx : sert les fichiers publics (CSS, JS, polices, images) et passe le reste à PHP. Joignable par le Caddy de TGE sous le nom `femme-modele-web` |
+| `web` | Nginx : sert les fichiers publics (CSS, JS, polices, images) et passe le reste à PHP. Joignable par le Caddy principal sous le nom `femme-modele-web` |
 | `app` | PHP-FPM : exécute Laravel. Migre la base à chaque démarrage |
 | `worker-codes` | File `urgent` seule : les codes de connexion partent en quelques secondes, quoi qu'il arrive |
 | `worker` | Toutes les files (`urgent`, `mails`, `default`) : annonces, accusés de vote, qualifications, procès-verbaux |
 | `scheduler` | Planificateur (`schedule:work`) : ouvre et ferme les scrutins à leur date-heure, chaque minute |
-| `db` | PostgreSQL 18. Publié seulement sur `127.0.0.1:5434` du serveur (5433 est pris par TGE), jamais sur Internet |
+| `db` | PostgreSQL 18. Publié seulement sur `127.0.0.1:5434` du serveur (5433 est déjà pris sur le serveur), jamais sur Internet |
 | `sauvegarde` | Copie de la base toutes les 6 heures dans `./sauvegardes`, gardée 30 jours |
 
 Un huitième service, `caddy`, ne démarre que sur un serveur dédié (voir « Serveur dédié » en fin de guide).
@@ -43,12 +43,12 @@ cp .env.production.example .env
 
 Remplir le `.env` (`nano .env`) :
 
-- `APP_URL=https://` suivi du domaine du site de vote (son enregistrement DNS `A` pointe vers le serveur, comme celui de TGE) ;
+- `APP_URL=https://` suivi du domaine du site de vote (son enregistrement DNS `A` pointe vers le serveur) ;
 - `DB_PASSWORD`, tiré au sort : `openssl rand -base64 32` ;
 - `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` : le serveur d'envoi des e-mails. Sans lui,
   aucun code de connexion ne part et personne ne peut se connecter.
 
-Créer le réseau commun (une seule fois sur le serveur), puis y brancher le Caddy de TGE (section suivante) :
+Créer le réseau commun (une seule fois sur le serveur), puis y brancher le Caddy principal (section suivante) :
 
 ```bash
 docker network create entree
@@ -79,11 +79,11 @@ docker compose exec app php artisan agents:importer /tmp/agents.xlsx
 docker compose exec app php artisan acces:generer-comptes
 ```
 
-## Brancher le site de vote sur le Caddy de TGE
+## Brancher le site de vote sur le Caddy principal
 
-Deux modifications dans le dépôt de TGE, une seule fois.
+Deux modifications dans la configuration du Caddy principal du serveur, une seule fois.
 
-`compose.yaml` de TGE, service `caddy` : le brancher aussi sur le réseau `entree`, et déclarer ce réseau :
+Son `compose.yaml`, service `caddy` : le brancher aussi sur le réseau `entree`, et déclarer ce réseau :
 
 ```yaml
   caddy:
@@ -97,7 +97,7 @@ networks:
     external: true
 ```
 
-`docker/Caddyfile` de TGE : ajouter un bloc pour le domaine du site de vote, à la suite du bloc existant :
+Son `Caddyfile` : ajouter un bloc pour le domaine du site de vote, à la suite du bloc existant :
 
 ```
 vote.exemple.bj {
@@ -107,9 +107,9 @@ vote.exemple.bj {
 }
 ```
 
-Puis, dans le dossier de TGE : `docker compose up -d caddy`. Caddy obtient seul le certificat du nouveau domaine.
+Puis, dans le dossier de ce Caddy : `docker compose up -d caddy`. Caddy obtient seul le certificat du nouveau domaine.
 L'ordre de démarrage des deux piles n'a pas d'importance : tant que `femme-modele-web` ne répond pas, Caddy renvoie
-une erreur 502 pour ce domaine, sans gêner TGE.
+une erreur 502 pour ce domaine, sans gêner l'autre application.
 
 ## Mettre à jour
 
@@ -162,11 +162,11 @@ La chaîne des empreintes d'une base restaurée ne se vérifie qu'avec la même 
 
 ## Performances
 
-Le serveur de 12 Go et 6 CPU est partagé avec TGE. Répartition prévue de la mémoire :
+Le serveur de 12 Go et 6 CPU est partagé avec une autre application. Répartition prévue de la mémoire :
 
 | Usage | Mémoire |
 |---|---|
-| TGE : PHP (50 processus) et PostgreSQL (`shared_buffers` 3 Go) | environ 6 Go |
+| Autre application : PHP (50 processus) et PostgreSQL (`shared_buffers` 3 Go) | environ 6 Go |
 | Vote : PHP (20 processus) et PostgreSQL (`shared_buffers` 512 Mo) | environ 1,5 Go, 2 Go au plus |
 | Workers, planificateurs, Nginx et Caddy des deux piles | environ 1 Go |
 | Système et cache disque, utiles aux deux bases | le reste, environ 3,5 Go |
@@ -205,7 +205,7 @@ Réglables dans le `.env`, sans toucher `compose.yaml` :
 | Variable | Défaut | Règle |
 |---|---|---|
 | `PG_SHARED_BUFFERS` | `512MB` | La base de vote ne pèse que quelques dizaines de Mo : elle tient entière en cache |
-| `PG_EFFECTIVE_CACHE_SIZE` | `2GB` | Part estimée du cache disque, partagé avec TGE |
+| `PG_EFFECTIVE_CACHE_SIZE` | `2GB` | Part estimée du cache disque, partagé avec l'autre application |
 | `PG_WORK_MEM` | `8MB` | Mémoire par tri ou regroupement |
 | `PG_MAINTENANCE_WORK_MEM` | `256MB` | Index, `VACUUM`, migrations |
 
@@ -231,7 +231,7 @@ docker compose exec db dropdb -U femme_modele femme_modele_charge
 ## Serveur sans accès à Internet
 
 Let's Encrypt doit joindre le serveur depuis Internet. Si le serveur n'est accessible que depuis le réseau
-de la DGTCP, ajouter dans le bloc du site de vote du Caddyfile de TGE, avant `reverse_proxy` :
+de la DGTCP, ajouter dans le bloc du site de vote du Caddyfile principal, avant `reverse_proxy` :
 
 ```
 	tls internal
@@ -256,7 +256,7 @@ Puis se connecter à `localhost:5434`, base `femme_modele`, utilisateur `femme_m
   bulletins, les codes de connexion, les liens de vérification et les tâches chiffrées. Une autre clé rend les
   urnes invérifiables. La conserver hors du serveur, avec les sauvegardes.
 - Docker contourne le pare-feu UFW pour les ports publiés : aucun conteneur de la plateforme de vote ne publie de
-  port public (le Caddy de TGE s'en charge), et `db` n'est publié que sur `127.0.0.1`. Ne jamais retirer ce `127.0.0.1`.
+  port public (le Caddy principal s'en charge), et `db` n'est publié que sur `127.0.0.1`. Ne jamais retirer ce `127.0.0.1`.
 - Laravel fait confiance aux en-têtes `X-Forwarded` (`bootstrap/app.php`), posés par Caddy : `app` et `web` ne
   doivent jamais publier de port, sinon un visiteur pourrait se faire passer pour Caddy.
 - Les limites de tentatives (code de connexion, vote) comptent par matricule ou par compte, pas par adresse IP :

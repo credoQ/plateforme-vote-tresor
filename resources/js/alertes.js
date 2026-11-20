@@ -1,4 +1,4 @@
-// SweetAlert2 aux couleurs de la charte (repris du projet TGE) : notifier(message, ton) pour les messages passagers,
+// SweetAlert2 aux couleurs de la charte : notifier(message, ton) pour les messages passagers,
 // confirmer({ titre, texte, bouton, danger }) pour une question, et les confirmations des actions sensibles.
 // Tons : succes, erreur, attente, info.
 import Swal from 'sweetalert2';

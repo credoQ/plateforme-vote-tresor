@@ -1,4 +1,4 @@
-# Voir docs/DEPLOIEMENT_DOCKER.md. Serveur partagé avec TGE : c'est le Caddy de TGE qui publie les ports 80 et 443
+# Voir docs/DEPLOIEMENT_DOCKER.md. Serveur partagé : c'est le Caddy principal du serveur qui publie les ports 80 et 443
 # et passe le site de vote au conteneur web par le réseau Docker « entree ». Notre caddy ne démarre que sur un
 # serveur dédié (COMPOSE_PROFILES=entree). Docker contourne UFW : db n'est publié que sur 127.0.0.1.
 name: femme-modele
@@ -70,7 +70,7 @@ services:
       target: web
     image: femme-modele-web
     restart: unless-stopped
-    # Joignable par le Caddy de TGE sous le nom femme-modele-web, sans publier de port.
+    # Joignable par le Caddy principal du serveur sous le nom femme-modele-web, sans publier de port.
     networks:
       default:
       entree:
@@ -80,7 +80,7 @@ services:
       - app
 
   # Entrée publique d'un serveur dédié seulement : HTTPS avec certificat Let's Encrypt pour SITE_DOMAIN.
-  # Sur le serveur partagé, le Caddy de TGE tient ce rôle (profil non activé).
+  # Sur le serveur partagé, le Caddy principal du serveur tient ce rôle (profil non activé).
   caddy:
     image: caddy:2.8-alpine
     profiles: ["entree"]
@@ -101,7 +101,7 @@ services:
   db:
     image: postgres:18-alpine
     restart: unless-stopped
-    # Part de la plateforme de vote sur le serveur de 12 Go partagé avec TGE, réglable dans le .env (voir Performances).
+    # Part de la plateforme de vote sur le serveur partagé de 12 Go, réglable dans le .env (voir Performances).
     # synchronous_commit reste à on : un vote confirmé à l'électeur doit être écrit sur disque.
     command:
       - postgres
@@ -122,7 +122,7 @@ services:
       POSTGRES_DB: ${DB_DATABASE}
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
-    # Jamais sans 127.0.0.1 : le port serait ouvert sur Internet malgré UFW. 5434 : TGE occupe déjà 5433.
+    # Jamais sans 127.0.0.1 : le port serait ouvert sur Internet malgré UFW. 5434 : 5433 est déjà pris sur le serveur.
     ports:
       - "127.0.0.1:${DB_FORWARD_PORT:-5434}:5432"
     # PostgreSQL 18 range ses données sous /var/lib/postgresql/18 : le volume se monte au-dessus.
@@ -156,7 +156,7 @@ services:
         condition: service_healthy
 
 networks:
-  # Réseau partagé avec le Caddy de TGE, créé une fois sur le serveur : docker network create entree
+  # Réseau partagé avec le Caddy principal du serveur, créé une fois sur le serveur : docker network create entree
   entree:
     external: true
 

@@ -1,4 +1,4 @@
-// Liste déroulante avec recherche (composant Alpine, repris du composant x-ui.select-recherche du projet TGE).
+// Liste déroulante avec recherche (composant Alpine).
 // Il enrichit le <select> natif placé dans <x-select-recherche> : le formulaire envoie toujours ce <select>,
 // qui reste utilisable sans JavaScript. Les options, leurs groupes (<optgroup>) et un détail facultatif
 // (data-detail sur <option>) sont lus dans le <select> ; la recherche ignore les accents et la casse.

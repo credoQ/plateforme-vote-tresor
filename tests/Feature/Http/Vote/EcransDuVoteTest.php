@@ -161,9 +161,10 @@ class EcransDuVoteTest extends TestCase
         $this->actingAs($this->electeur)->post(route('vote.confirmer'), ['candidate' => Candidate::factory()->create()->id])
             ->assertRedirect(route('vote'))->assertSessionHasErrors('candidate');
         $this->post(route('vote.store'), ['candidate' => 'blanc'])->assertSessionHasErrors('candidate');
+        $this->get(route('vote'))->assertSee('Le vote blanc n’est pas autorisé')->assertDontSee('Vote blanc');
 
         $this->edition->update(['vote_blanc_autorise' => true]);
-        $this->get(route('vote'))->assertSee('Vote blanc');
+        $this->get(route('vote'))->assertSee('Vote blanc')->assertDontSee('Le vote blanc n’est pas autorisé');
         $this->post(route('vote.store'), ['candidate' => 'blanc'])->assertRedirect(route('vote'));
         $this->assertTrue(Bulletin::sole()->est_blanc);
     }

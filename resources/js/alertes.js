@@ -53,6 +53,20 @@ export function confirmer({ titre, texte = '', html = null, bouton = 'Confirmer'
 }
 
 /**
+ * Avertissement à un seul bouton : l'utilisateur doit corriger sa saisie avant de continuer.
+ */
+export function avertir({ titre, texte = '', bouton = 'J’ai compris' } = {}) {
+    return Swal.fire({
+        icon: 'warning',
+        title: titre,
+        text: texte,
+        confirmButtonText: bouton,
+        buttonsStyling: false,
+        customClass: classes(),
+    });
+}
+
+/**
  * Confirmation avec un motif facultatif (au plus 500 caractères) : renvoie { confirme, motif }.
  */
 export async function demanderMotif({ titre, texte = '', bouton = 'Confirmer', annuler = 'Annuler', danger = true } = {}) {
@@ -76,6 +90,7 @@ export async function demanderMotif({ titre, texte = '', bouton = 'Confirmer', a
 }
 
 window.notifier = notifier;
+window.avertir = avertir;
 window.confirmer = confirmer;
 window.demanderMotif = demanderMotif;
 
@@ -128,3 +143,12 @@ document.addEventListener('click', (e) => {
         demanderConfirmation(cible);
     }
 });
+
+// Choix obligatoire (bulletin de vote) : un formulaire data-choix-requis="nom" ne part pas sans une case « nom » cochée ;
+// la fenêtre reprend data-choix-titre et data-choix-texte, au lieu de la bulle du navigateur.
+document.addEventListener('submit', (e) => {
+    const formulaire = e.target.closest('form[data-choix-requis]');
+    if (!formulaire || formulaire.querySelector(`input[name="${formulaire.dataset.choixRequis}"]:checked`)) return;
+    e.preventDefault();
+    avertir({ titre: formulaire.dataset.choixTitre, texte: formulaire.dataset.choixTexte });
+}, true);

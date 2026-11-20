@@ -7,6 +7,7 @@ use App\Actions\Editions\LancerEdition;
 use App\Actions\Scrutins\DesactiverCandidate;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
+use App\Livewire\Acces\Connexion;
 use App\Models\Agent;
 use App\Models\Candidate;
 use App\Models\Edition;
@@ -18,6 +19,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Validation\ValidationException;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class JournalAuditTest extends TestCase
@@ -58,15 +60,15 @@ class JournalAuditTest extends TestCase
         Notification::fake();
         $utilisateur = User::factory()->create(['login' => '102345', 'email' => 'clarisse@example.test']);
 
-        $this->post(route('login.store'), ['login' => '102345']);
+        $connexion = Livewire::test(Connexion::class)->set('login', '102345')->call('envoyer');
         $code = null;
         Notification::assertSentOnDemand(CodeDeConnexion::class, function (CodeDeConnexion $notification) use (&$code): bool {
             $code = $notification->code;
 
             return true;
         });
-        $this->post(route('login.verifier'), ['code' => '000000']);
-        $this->post(route('login.verifier'), ['code' => $code]);
+        $connexion->set('code', '000000')->call('verifier');
+        $connexion->set('code', $code)->call('verifier');
         $this->post(route('logout'));
 
         $this->assertSame(['CODE_CONNEXION_ENVOYE', 'CONNEXION_ECHOUEE', 'CONNEXION', 'DECONNEXION'], JournalAudit::orderBy('id')->pluck('action')->map->value->all());

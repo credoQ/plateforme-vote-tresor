@@ -36,10 +36,6 @@ Route::post('/csp-rapport', RapportCspController::class)->middleware('throttle:3
 // Connexion sans mot de passe : matricule, puis code reçu par e-mail (R42).
 Route::middleware('guest')->group(function () {
     Route::get('/connexion', [ConnexionController::class, 'create'])->name('login');
-    Route::post('/connexion', [ConnexionController::class, 'envoyer'])->name('login.store');
-    Route::get('/connexion/code', [ConnexionController::class, 'code'])->name('login.code');
-    Route::post('/connexion/code', [ConnexionController::class, 'verifier'])->middleware('throttle:saisie-code')->name('login.verifier');
-    Route::post('/connexion/code/renvoyer', [ConnexionController::class, 'renvoyer'])->name('login.renvoyer');
 });
 
 Route::middleware('auth')->group(function () {

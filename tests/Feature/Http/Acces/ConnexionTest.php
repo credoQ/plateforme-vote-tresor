@@ -4,6 +4,7 @@ namespace Tests\Feature\Http\Acces;
 
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
+use App\Livewire\Acces\Connexion;
 use App\Models\Agent;
 use App\Models\CodeConnexion;
 use App\Models\JournalAudit;
@@ -12,6 +13,7 @@ use App\Notifications\CodeDeConnexion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Facades\Notification;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 /**
@@ -42,21 +44,18 @@ class ConnexionTest extends TestCase
             ->assertSee('<meta name="robots" content="index, follow">', false)
             ->assertSee('<meta property="og:image" content="'.asset('images/partage.png').'">', false)
             ->assertSee('<meta name="twitter:card" content="summary_large_image">', false)
-            ->assertSee('<link rel="icon" href="'.asset('favicon.ico').'" sizes="48x48">', false);
-
-        $this->post(route('login.store'), ['login' => '000000']);
-
-        $this->get(route('login.code'))->assertSee('<meta name="robots" content="noindex, nofollow">', false);
+            ->assertSee('<link rel="icon" href="'.asset('favicon.ico').'" sizes="48x48">', false)
+            ->assertSeeLivewire(Connexion::class);
     }
 
     public function test_un_profil_de_gestion_arrive_sur_la_console_apres_la_connexion(): void
     {
         User::factory()->avecRoles(CodeRole::Comite)->create(['login' => 'COMITE01', 'email' => 'comite@example.test']);
 
-        $this->post(route('login.store'), ['login' => 'COMITE01']);
+        $connexion = Livewire::test(Connexion::class)->set('login', 'COMITE01')->call('envoyer');
         $code = $this->codeEnvoyeA('comite@example.test');
 
-        $this->post(route('login.verifier'), ['code' => $code])->assertRedirect(route('tableau-de-bord'));
+        $connexion->set('code', $code)->call('verifier')->assertRedirect(route('tableau-de-bord'));
     }
 
     /**
@@ -66,19 +65,19 @@ class ConnexionTest extends TestCase
     {
         $utilisateur = User::factory()->avecRoles(CodeRole::Electeur)->create(['login' => '102345', 'email' => 'clarisse@example.test']);
 
-        $this->post(route('login.store'), ['login' => '102345'])->assertRedirect(route('login.code'));
+        $connexion = Livewire::test(Connexion::class)->set('login', '102345')->call('envoyer')
+            ->assertHasNoErrors()->assertSet('etape', 'code')->assertSee('(matricule 102345)');
         $code = $this->codeEnvoyeA('clarisse@example.test');
-        $this->get(route('login.code'))->assertOk()->assertSee('(matricule 102345)');
 
-        $this->post(route('login.verifier'), ['code' => $code])->assertRedirect(route('espace'));
+        $connexion->set('code', $code)->call('verifier')->assertRedirect(route('espace'));
 
         $this->assertAuthenticatedAs($utilisateur);
         $this->assertNotNull($utilisateur->fresh()->derniere_connexion);
         $this->assertNotSame($code, CodeConnexion::sole()->empreinte, 'Le code n’est stocké que sous forme d’empreinte.');
 
         $this->post(route('logout'))->assertRedirect(route('login'));
-        $this->post(route('login.store'), ['login' => '102345']);
-        $this->post(route('login.verifier'), ['code' => $code])->assertSessionHasErrors('code');
+        Livewire::test(Connexion::class)->set('login', '102345')->call('envoyer')
+            ->set('code', $code)->call('verifier')->assertHasErrors('code');
         $this->assertGuest();
     }
 
@@ -90,7 +89,7 @@ class ConnexionTest extends TestCase
         $agent = Agent::factory()->create(['matricule' => '300001', 'email' => 'agent@example.test']);
         User::factory()->pourAgent($agent)->create(['email' => null]);
 
-        $this->post(route('login.store'), ['login' => '300001']);
+        Livewire::test(Connexion::class)->set('login', '300001')->call('envoyer');
 
         $this->codeEnvoyeA('agent@example.test');
     }
@@ -104,7 +103,8 @@ class ConnexionTest extends TestCase
         User::factory()->create(['login' => '200001', 'email' => null]);
 
         foreach (['999999', '200000', '200001'] as $login) {
-            $this->post(route('login.store'), ['login' => $login])->assertRedirect(route('login.code'));
+            Livewire::test(Connexion::class)->call('changerDeMatricule')->set('login', $login)->call('envoyer')
+                ->assertHasNoErrors()->assertSet('etape', 'code');
         }
 
         Notification::assertNothingSent();
@@ -114,48 +114,48 @@ class ConnexionTest extends TestCase
     public function test_refuse_un_code_faux_ou_expire_et_bloque_apres_cinq_essais(): void
     {
         User::factory()->create(['login' => '102345', 'email' => 'clarisse@example.test']);
-        $this->post(route('login.store'), ['login' => '102345']);
+        $connexion = Livewire::test(Connexion::class)->set('login', '102345')->call('envoyer');
         $code = $this->codeEnvoyeA('clarisse@example.test');
 
         foreach (range(1, 5) as $essai) {
-            $this->post(route('login.verifier'), ['code' => '000000'])->assertSessionHasErrors('code');
+            $connexion->set('code', '000000')->call('verifier')->assertHasErrors('code');
         }
-        $this->post(route('login.verifier'), ['code' => $code])->assertSessionHasErrors('code');
+        $connexion->set('code', $code)->call('verifier')->assertHasErrors('code');
         $this->assertGuest();
 
         $this->travel(1)->minutes();
-        $this->post(route('login.renvoyer'))->assertSessionHas('status');
+        $connexion->call('renvoyer')->assertHasNoErrors()->assertDispatched('notifier');
         $nouveau = $this->codeEnvoyeA('clarisse@example.test', 2);
         $this->travel(11)->minutes();
-        $this->post(route('login.verifier'), ['code' => $nouveau])->assertSessionHasErrors('code');
+        $connexion->set('code', $nouveau)->call('verifier')->assertHasErrors('code');
         $this->assertGuest();
     }
 
     public function test_un_nouveau_code_ne_se_demande_qu_une_minute_apres_le_precedent(): void
     {
         User::factory()->create(['login' => '102345', 'email' => 'clarisse@example.test']);
-        $this->post(route('login.store'), ['login' => '102345']);
+        $connexion = Livewire::test(Connexion::class)->set('login', '102345')->call('envoyer')
+            ->assertDispatched('code-envoye', attente: Connexion::DELAI_RENVOI);
 
-        $this->get(route('login.code'))->assertOk()->assertSee('attente: 60', false);
         $this->travel(20)->seconds();
-        $this->post(route('login.renvoyer'))->assertRedirect(route('login.code'))
-            ->assertSessionHasErrors(['code' => 'Patientez encore 40 seconde(s) avant de demander un nouveau code.']);
+        $connexion->call('renvoyer')->assertHasErrors(['code' => 'Patientez encore 40 seconde(s) avant de demander un nouveau code.']);
         $this->codeEnvoyeA('clarisse@example.test', 1);
 
         $this->travel(40)->seconds();
-        $this->post(route('login.renvoyer'))->assertSessionHas('status');
+        $connexion->call('renvoyer')->assertHasNoErrors()->assertDispatched('notifier');
         $this->codeEnvoyeA('clarisse@example.test', 2);
     }
 
     public function test_limite_les_demandes_de_code(): void
     {
         User::factory()->create(['login' => '102345', 'email' => 'clarisse@example.test']);
+        $connexion = Livewire::test(Connexion::class);
 
         foreach (range(1, 3) as $demande) {
-            $this->post(route('login.store'), ['login' => '102345'])->assertSessionHasNoErrors();
+            $connexion->call('changerDeMatricule')->set('login', '102345')->call('envoyer')->assertHasNoErrors();
         }
 
-        $this->post(route('login.store'), ['login' => '102345'])->assertSessionHasErrors('login');
+        $connexion->call('changerDeMatricule')->set('login', '102345')->call('envoyer')->assertHasErrors('login')->assertSet('etape', 'matricule');
         Notification::assertSentTimes(CodeDeConnexion::class, 3);
     }
 
@@ -164,18 +164,24 @@ class ConnexionTest extends TestCase
      */
     public function test_r42_limite_la_saisie_du_code_par_matricule_et_non_par_adresse_ip(): void
     {
+        session(['connexion.login' => '102345']);
+        $connexion = Livewire::test(Connexion::class)->assertSet('etape', 'code');
         foreach (range(1, 10) as $essai) {
-            $this->withSession(['connexion.login' => '102345'])->post(route('login.verifier'), ['code' => '000000'])->assertRedirect();
+            $connexion->set('code', '000000')->call('verifier')->assertHasErrors(['code' => 'Code incorrect ou expiré. Demandez un nouveau code si besoin.']);
         }
+        $connexion->set('code', '000000')->call('verifier')->assertHasErrors(['code' => 'Trop d’essais. Réessayez dans une minute.']);
 
-        $this->withSession(['connexion.login' => '102345'])->post(route('login.verifier'), ['code' => '000000'])->assertTooManyRequests();
-        $this->withSession(['connexion.login' => '106789'])->post(route('login.verifier'), ['code' => '000000'])->assertRedirect();
+        session(['connexion.login' => '106789']);
+        Livewire::test(Connexion::class)->set('code', '000000')->call('verifier')
+            ->assertHasErrors(['code' => 'Code incorrect ou expiré. Demandez un nouveau code si besoin.']);
     }
 
-    public function test_la_page_du_code_exige_d_avoir_saisi_un_matricule(): void
+    public function test_la_saisie_du_code_exige_d_avoir_saisi_un_matricule(): void
     {
-        $this->get(route('login.code'))->assertRedirect(route('login'));
-        $this->post(route('login.verifier'), ['code' => '123456'])->assertRedirect(route('login'));
+        Livewire::test(Connexion::class)->assertSet('etape', 'matricule')
+            ->set('etape', 'code')->set('code', '123456')->call('verifier')
+            ->assertSet('etape', 'matricule');
+        $this->assertGuest();
     }
 
     /**

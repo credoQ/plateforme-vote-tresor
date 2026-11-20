@@ -159,6 +159,19 @@ class ConnexionTest extends TestCase
         Notification::assertSentTimes(CodeDeConnexion::class, 3);
     }
 
+    /**
+     * R42 : la saisie du code est limitée par matricule ; des agents qui partagent une adresse IP ne se bloquent pas.
+     */
+    public function test_r42_limite_la_saisie_du_code_par_matricule_et_non_par_adresse_ip(): void
+    {
+        foreach (range(1, 10) as $essai) {
+            $this->withSession(['connexion.login' => '102345'])->post(route('login.verifier'), ['code' => '000000'])->assertRedirect();
+        }
+
+        $this->withSession(['connexion.login' => '102345'])->post(route('login.verifier'), ['code' => '000000'])->assertTooManyRequests();
+        $this->withSession(['connexion.login' => '106789'])->post(route('login.verifier'), ['code' => '000000'])->assertRedirect();
+    }
+
     public function test_la_page_du_code_exige_d_avoir_saisi_un_matricule(): void
     {
         $this->get(route('login.code'))->assertRedirect(route('login'));

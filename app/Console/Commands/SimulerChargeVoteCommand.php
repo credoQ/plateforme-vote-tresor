@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Actions\Editions\OrganiserPhases;
 use App\Actions\Resultats\DepouillerScrutin;
 use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\FermerScrutin;
@@ -10,6 +11,8 @@ use App\Actions\Scrutins\OuvrirScrutin;
 use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Vote\DeposerBulletin;
 use App\Actions\Vote\EmpreinteBulletin;
+use App\Enums\Agents\Sexe;
+use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
 use App\Models\Agent;
 use App\Models\Candidate;
@@ -21,7 +24,6 @@ use App\Models\Structure;
 use Illuminate\Console\Attributes\Description;
 use Illuminate\Console\Attributes\Signature;
 use Illuminate\Console\Command;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Concurrency;
 use Illuminate\Support\Facades\DB;
@@ -116,25 +118,42 @@ class SimulerChargeVoteCommand extends Command
 
     /**
      * Édition en cours, agents de la DIA (femmes candidates d'office, hommes électeurs), scrutin de structure
-     * généré, listes arrêtées et scrutin ouvert, par les actions réelles.
+     * généré, listes arrêtées et scrutin ouvert, par les actions réelles. Sans factory : Faker n'est pas installé
+     * sur le serveur (composer install --no-dev), où la simulation doit aussi pouvoir tourner.
      */
     private function preparerScrutin(int $electeurs, int $candidates): Scrutin
     {
         $dia = Structure::where('code', 'DIA')->first()
             ?? throw new \RuntimeException('Structure DIA absente : chargez le référentiel (db:seed).');
-        $depuis = Carbon::parse('2020-01-01');
 
-        $this->components->task("Création de {$electeurs} agents", function () use ($dia, $depuis, $electeurs, $candidates): void {
-            DB::transaction(function () use ($dia, $depuis, $electeurs, $candidates): void {
-                Agent::factory()->count($candidates)->femme()->affecteA($dia, $depuis)->create();
-                Agent::factory()->count($electeurs - $candidates)->homme()->affecteA($dia, $depuis)->create();
+        $this->components->task("Création de {$electeurs} agents", function () use ($dia, $electeurs, $candidates): void {
+            DB::transaction(function () use ($dia, $electeurs, $candidates): void {
+                $maintenant = now();
+                foreach (array_chunk(range(1, $electeurs), 500) as $numeros) {
+                    DB::table('agents')->insert(array_map(fn (int $numero): array => [
+                        'matricule' => sprintf('CHARGE%06d', $numero),
+                        'nom' => 'SIMULATION',
+                        'prenoms' => "Électeur {$numero}",
+                        'sexe' => ($numero <= $candidates ? Sexe::Feminin : Sexe::Masculin)->value,
+                        'created_at' => $maintenant,
+                        'updated_at' => $maintenant,
+                    ], $numeros));
+                }
+
+                DB::statement(
+                    "INSERT INTO affectations (agent_id, structure_id, date_debut, created_at, updated_at)
+                     SELECT id, ?, '2020-01-01', ?, ? FROM agents WHERE matricule LIKE 'CHARGE%'",
+                    [$dia->id, $maintenant, $maintenant],
+                );
             });
         });
 
-        $edition = Edition::factory()->avecPhases()->enCours()->create([
-            'annee' => now()->year, 'libelle' => 'Simulation de charge',
+        $edition = Edition::create([
+            'annee' => now()->year, 'libelle' => 'Simulation de charge', 'statut' => StatutEdition::EnPreparation,
             'date_debut' => now()->subDay()->toDateString(), 'date_fin' => now()->addMonth()->toDateString(), 'date_gel' => now()->subDay()->toDateString(),
         ]);
+        app(OrganiserPhases::class)->handle($edition, Phase::ORGANISATION_PAR_DEFAUT);
+        $edition->update(['statut' => StatutEdition::EnCours]);
         $phase = $edition->phase(Phase::PRIMAIRES);
         app(GenererScrutins::class)->handle($phase);
         $phase->update(['statut' => StatutPhase::Ouverte]);

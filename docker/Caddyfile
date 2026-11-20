@@ -1,0 +1,8 @@
+# SITE_DOMAIN renseigné : certificat Let's Encrypt et redirection vers HTTPS.
+# Sans domaine, compose.yaml donne « :80 » : le site reste en HTTP simple.
+# Serveur joignable seulement depuis le réseau interne (Let's Encrypt impossible) : voir docs/DEPLOIEMENT_DOCKER.md.
+{$SITE_DOMAIN} {
+	encode zstd gzip
+	header Strict-Transport-Security "max-age=31536000"
+	reverse_proxy web:80
+}

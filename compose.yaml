@@ -1,0 +1,154 @@
+# Voir docs/DEPLOIEMENT_DOCKER.md. Seul caddy publie des ports publics : Docker contourne UFW,
+# donc db n'est publié que sur 127.0.0.1, joignable par tunnel SSH.
+name: femme-modele
+
+x-application: &application
+  image: femme-modele-app
+  restart: unless-stopped
+  # ENV_FILE ne sert qu'aux essais en local, avec un autre fichier que le .env de développement.
+  env_file: ${ENV_FILE:-.env}
+  environment:
+    DB_CONNECTION: pgsql
+    DB_HOST: db
+    DB_PORT: 5432
+  # Un seul volume pour app, les workers et le planificateur : procès-verbaux, sessions, et surtout le cache
+  # fichier, qui doit être partagé (une édition enregistrée dans app efface le cache lu par les autres).
+  volumes:
+    - stockage:/var/www/html/storage
+  depends_on:
+    db:
+      condition: service_healthy
+
+services:
+  app:
+    <<: *application
+    build:
+      context: .
+      target: app
+    environment:
+      DB_CONNECTION: pgsql
+      DB_HOST: db
+      DB_PORT: 5432
+      RUN_MIGRATIONS: "1"
+
+  # Codes de connexion seuls : un électeur reçoit son code en quelques secondes, même quand des centaines
+  # d'annonces et d'accusés de vote (avec leur PDF) attendent dans la file mails.
+  worker-codes:
+    <<: *application
+    command: ["php", "artisan", "queue:work", "--queue=urgent", "--sleep=1", "--timeout=60"]
+    depends_on:
+      app:
+        condition: service_started
+      db:
+        condition: service_healthy
+
+  # Toutes les files, codes en premier : annonces, accusés de vote, qualifications, procès-verbaux.
+  # Les tentatives et délais de reprise sont fixés par chaque tâche (pas de --tries ici).
+  worker:
+    <<: *application
+    command: ["php", "artisan", "queue:work", "--queue=urgent,mails,default", "--sleep=3", "--timeout=120"]
+    depends_on:
+      app:
+        condition: service_started
+      db:
+        condition: service_healthy
+
+  # Planificateur : ouvre et ferme les scrutins à leur date-heure (scrutins:basculer, chaque minute).
+  scheduler:
+    <<: *application
+    command: ["php", "artisan", "schedule:work"]
+    depends_on:
+      app:
+        condition: service_started
+      db:
+        condition: service_healthy
+
+  web:
+    build:
+      context: .
+      target: web
+    image: femme-modele-web
+    restart: unless-stopped
+    depends_on:
+      - app
+
+  # Entrée publique : HTTPS avec certificat Let's Encrypt automatique pour SITE_DOMAIN.
+  caddy:
+    image: caddy:2.8-alpine
+    restart: unless-stopped
+    environment:
+      SITE_DOMAIN: ${SITE_DOMAIN:-:80}
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+      - "${HTTPS_PORT:-443}:443/udp"
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    # Valeurs par défaut pour un serveur de 4 Go partagé avec PHP, réglables dans le .env (voir Performances).
+    # synchronous_commit reste à on : un vote confirmé à l'électeur doit être écrit sur disque.
+    command:
+      - postgres
+      - -c
+      - shared_buffers=${PG_SHARED_BUFFERS:-1GB}
+      - -c
+      - effective_cache_size=${PG_EFFECTIVE_CACHE_SIZE:-2GB}
+      - -c
+      - work_mem=${PG_WORK_MEM:-8MB}
+      - -c
+      - maintenance_work_mem=${PG_MAINTENANCE_WORK_MEM:-256MB}
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
+    shm_size: 256mb
+    environment:
+      POSTGRES_DB: ${DB_DATABASE}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    # Jamais sans 127.0.0.1 : le port serait ouvert sur Internet malgré UFW.
+    ports:
+      - "127.0.0.1:${DB_FORWARD_PORT:-5433}:5432"
+    # PostgreSQL 18 range ses données sous /var/lib/postgresql/18 : le volume se monte au-dessus.
+    volumes:
+      - postgres:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # Sauvegarde de la base toutes les SAUVEGARDE_INTERVALLE secondes (6 h par défaut) dans ./sauvegardes,
+  # gardée SAUVEGARDE_JOURS jours. Les bulletins ne se reconstituent pas : sans sauvegarde, une panne de disque
+  # pendant un scrutin le rendrait impossible à dépouiller.
+  sauvegarde:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    entrypoint: ["/bin/sh", "/usr/local/bin/sauvegarder"]
+    environment:
+      PGHOST: db
+      PGDATABASE: ${DB_DATABASE}
+      PGUSER: ${DB_USERNAME}
+      PGPASSWORD: ${DB_PASSWORD}
+      SAUVEGARDE_INTERVALLE: ${SAUVEGARDE_INTERVALLE:-21600}
+      SAUVEGARDE_JOURS: ${SAUVEGARDE_JOURS:-30}
+    volumes:
+      - ./docker/sauvegarder.sh:/usr/local/bin/sauvegarder:ro
+      - ./sauvegardes:/sauvegardes
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres:
+  stockage:
+  # Certificats Caddy : à garder, sinon Let's Encrypt les redélivre et peut limiter les demandes.
+  caddy_data:
+  caddy_config:

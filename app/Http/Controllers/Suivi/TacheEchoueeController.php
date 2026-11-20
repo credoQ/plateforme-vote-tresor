@@ -37,7 +37,7 @@ class TacheEchoueeController extends Controller
                 $jour->copy()->shiftTimezone(self::FUSEAU)->endOfDay()->utc(),
             ]))
             ->orderByDesc('failed_at')
-            ->paginate(25)
+            ->paginate(config('app.lignes_par_page'))
             ->through(function (object $ligne): object {
                 $charge = json_decode($ligne->payload, true) ?? [];
 

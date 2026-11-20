@@ -26,8 +26,6 @@ class ListeAgents extends Component
 {
     use WithPagination;
 
-    private const PAR_PAGE = 50;
-
     #[Url]
     public string $recherche = '';
 
@@ -90,7 +88,7 @@ class ListeAgents extends Component
             ->when($this->situation === 'en-service', fn ($q) => $q->enServiceLe())
             ->when($this->situation === 'hors-service', fn ($q) => $q->whereDoesntHave('affectations', fn ($a) => $a->enCoursLe()))
             ->orderBy('nom')->orderBy('prenoms')
-            ->paginate(self::PAR_PAGE);
+            ->paginate(config('app.lignes_par_page'));
     }
 
     /**

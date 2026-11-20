@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Editions;
 
-use App\Actions\Editions\ImporterFemmesModeles;
+use App\Actions\Editions\AjouterFemmeModele;
 use App\Actions\Editions\SupprimerFemmeModele;
 use App\Http\Controllers\Controller;
 use App\Models\Edition;
@@ -10,11 +10,10 @@ use App\Models\FemmeModele;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use InvalidArgumentException;
 
 /**
- * Historique des femmes modèles qui fonde l'inéligibilité (R59) : consultation, import des éditions antérieures,
- * suppression d'une ligne importée par erreur (comité).
+ * Historique des femmes modèles qui fonde l'inéligibilité (R59) : consultation, ajout par le comité des femmes
+ * modèles des éditions antérieures, retrait d'une ligne saisie par erreur.
  */
 class FemmeModeleController extends Controller
 {
@@ -30,7 +29,7 @@ class FemmeModeleController extends Controller
                 ->whereLike('nom_complet', "%{$recherche}%")->orWhereLike('matricule', "%{$recherche}%")))
             ->when($annee !== null, fn ($q) => $q->where('annee', $annee))
             ->orderByDesc('annee')->orderBy('nom_complet')
-            ->paginate(25)
+            ->paginate(config('app.lignes_par_page'))
             ->withQueryString();
 
         return view('femmes-modeles.index', [
@@ -43,29 +42,21 @@ class FemmeModeleController extends Controller
         ]);
     }
 
-    public function importer(Request $request, ImporterFemmesModeles $importer): RedirectResponse
+    public function create(): View
     {
-        $request->validate(['fichier' => ['required', 'file', 'max:2048', 'extensions:csv,txt,xlsx']], [
-            'fichier.required' => 'Choisissez le fichier à importer.',
-            'fichier.extensions' => 'Le fichier est un classeur Excel (.xlsx) ou un fichier CSV.',
-            'fichier.max' => 'Le fichier ne dépasse pas 2 Mo.',
+        return view('femmes-modeles.formulaire', ['anneeMaximale' => now()->year, 'anneeMinimale' => AjouterFemmeModele::ANNEE_MINIMALE]);
+    }
+
+    public function store(Request $request, AjouterFemmeModele $ajouter): RedirectResponse
+    {
+        $femmeModele = $ajouter->handle([
+            'matricule' => (string) $request->input('matricule', ''),
+            'annee' => $request->input('annee'),
+            'nom' => $request->input('nom'),
+            'scrutin' => $request->input('scrutin'),
         ]);
 
-        $fichier = $request->file('fichier');
-        $chemin = $fichier->getRealPath().'.'.mb_strtolower($fichier->getClientOriginalExtension());
-        copy($fichier->getRealPath(), $chemin);
-
-        try {
-            $rapport = $importer->handle($chemin);
-        } catch (InvalidArgumentException $exception) {
-            return redirect()->route('femmes-modeles.index')->withErrors(['fichier' => $exception->getMessage()]);
-        } finally {
-            @unlink($chemin);
-        }
-
-        return redirect()->route('femmes-modeles.index')
-            ->with('succes', "{$rapport->enregistrees} femme(s) modèle(s) enregistrée(s).")
-            ->with('rejets', $rapport->rejets);
+        return redirect()->route('femmes-modeles.index')->with('succes', "{$femmeModele->nom_complet} ({$femmeModele->annee}) est ajoutée à l’historique.");
     }
 
     public function destroy(FemmeModele $femmeModele, SupprimerFemmeModele $supprimer): RedirectResponse

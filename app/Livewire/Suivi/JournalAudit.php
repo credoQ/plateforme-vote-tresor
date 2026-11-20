@@ -21,8 +21,6 @@ class JournalAudit extends Component
 {
     use WithPagination;
 
-    private const PAR_PAGE = 50;
-
     private const FUSEAU = 'Africa/Porto-Novo';
 
     #[Url]
@@ -68,7 +66,7 @@ class JournalAudit extends Component
             ->when($au !== null, fn ($q) => $q->where('date_heure', '<=', $au->copy()->endOfDay()->utc()))
             ->orderByDesc('date_heure')
             ->orderByDesc('id')
-            ->paginate(self::PAR_PAGE);
+            ->paginate(config('app.lignes_par_page'));
     }
 
     #[Computed]

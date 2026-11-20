@@ -19,8 +19,6 @@ class ListeUtilisateurs extends Component
 {
     use WithPagination;
 
-    private const PAR_PAGE = 25;
-
     #[Url]
     public string $recherche = '';
 
@@ -56,7 +54,7 @@ class ListeUtilisateurs extends Component
                 ->orWhereLike('name', "%{$recherche}%")))
             ->when($role !== null, fn ($query) => $query->whereRelation('roles', 'code', $role->value))
             ->orderBy('name')
-            ->paginate(self::PAR_PAGE);
+            ->paginate(config('app.lignes_par_page'));
     }
 
     #[Computed]

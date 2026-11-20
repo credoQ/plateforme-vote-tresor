@@ -84,7 +84,7 @@ class EditionController extends Controller
             ->when(CodePoleElectoral::tryFrom($college) !== null, fn ($q) => $q->whereHas('poleElectoral', fn ($p) => $p->where('code', $college)))
             ->when($statut !== null, fn ($q) => $q->where('statut', $statut->value))
             ->orderBy('code')
-            ->paginate(25)
+            ->paginate(config('app.lignes_par_page'))
             ->withQueryString()
             ->through(fn (Scrutin $scrutin): array => [
                 'scrutin' => $scrutin,

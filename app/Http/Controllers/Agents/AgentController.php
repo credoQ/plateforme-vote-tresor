@@ -77,7 +77,7 @@ class AgentController extends Controller
                     ->whereLike('code', "%{$recherche}%")->orWhereLike('libelle', "%{$recherche}%")))
                 ->when($periode === 'en-cours', fn ($q) => $q->whereNull('date_fin'))
                 ->when($periode === 'terminees', fn ($q) => $q->whereNotNull('date_fin'))
-                ->paginate(10)
+                ->paginate(config('app.lignes_par_page'))
                 ->withQueryString(),
             'recherche' => $recherche,
             'periode' => $periode,

@@ -19,8 +19,6 @@ class ListeEditions extends Component
 {
     use WithPagination;
 
-    private const PAR_PAGE = 25;
-
     #[Url]
     public string $recherche = '';
 
@@ -55,7 +53,7 @@ class ListeEditions extends Component
                 ->when(ctype_digit($recherche), fn ($a) => $a->orWhere('annee', (int) $recherche))))
             ->when($statut !== null, fn ($q) => $q->where('statut', $statut->value))
             ->orderByDesc('annee')
-            ->paginate(self::PAR_PAGE);
+            ->paginate(config('app.lignes_par_page'));
     }
 
     #[Computed]

@@ -116,7 +116,7 @@ class StructureController extends Controller
                 ->when($statut === 'actives', fn ($q) => $q->where('actif', true))
                 ->when($statut === 'desactivees', fn ($q) => $q->where('actif', false))
                 ->orderBy('code')
-                ->paginate(25)
+                ->paginate(config('app.lignes_par_page'))
                 ->withQueryString(),
             'recherche' => $recherche,
             'statut' => $statut,

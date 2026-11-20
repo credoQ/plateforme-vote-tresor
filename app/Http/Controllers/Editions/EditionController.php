@@ -132,10 +132,13 @@ class EditionController extends Controller
      */
     private function formulaire(Edition $edition): View
     {
+        $organisation = $this->organisation($edition);
+
         return view('editions.formulaire', [
             'edition' => $edition,
             'organisationModifiable' => ! $edition->exists || $edition->organisationEstModifiable(),
-            'organisation' => $this->organisation($edition),
+            'organisation' => $organisation,
+            'phasesAffichees' => $this->phasesAffichees($edition, $organisation),
             'colleges' => [
                 'DEPARTEMENTAL' => CodePoleElectoral::Departemental->libelle(),
                 'STRUCTURES' => CodePoleElectoral::Structures->libelle(),
@@ -180,7 +183,24 @@ class EditionController extends Controller
     }
 
     /**
-     * Phases cochées et collèges qui ont des scrutins, au format attendu par OrganiserPhases ; null si le formulaire ne les présente pas.
+     * Nombre de phases ouvertes dans le formulaire : une seule pour une nouvelle édition, celles de l'édition sinon,
+     * ou celles de la saisie renvoyée après une erreur. Les suivantes s'ajoutent par le bouton « Ajouter une phase ».
+     *
+     * @param  array<int, array{active: bool}>  $organisation
+     */
+    private function phasesAffichees(Edition $edition, array $organisation): int
+    {
+        if (old('annee') !== null) {
+            $actives = collect((array) old('phases', []))->filter(fn ($phase, $numero): bool => (int) $numero === 1 || ! empty($phase['active']));
+
+            return max(1, (int) $actives->keys()->max());
+        }
+
+        return $edition->exists ? max(1, count(array_filter($organisation, fn (array $phase): bool => $phase['active']))) : 1;
+    }
+
+    /**
+     * Phases retenues et collèges qui ont des scrutins, au format attendu par OrganiserPhases ; null si le formulaire ne les présente pas.
      *
      * @return array<int, array{libelle: mixed, colleges: array<string, mixed>}>|null
      */

@@ -33,7 +33,12 @@
                                 <span class="badge badge--erreur">Désactivé</span>
                             @endif
                         </td>
-                        <td class="actions"><a href="{{ route('utilisateurs.edit', $utilisateur) }}" class="btn btn-tertiaire btn--sm" wire:navigate><i data-lucide="pencil"></i>Modifier</a></td>
+                        <td class="actions">
+                            <a href="{{ route('utilisateurs.edit', $utilisateur) }}" class="btn btn-tertiaire btn--sm" wire:navigate><i data-lucide="pencil"></i>Modifier</a>
+                            @if ($utilisateur->agent_id === null)
+                                <button type="button" class="btn btn-tertiaire btn--sm" data-ouvrir="modale-lier-agent" data-action="{{ route('utilisateurs.lier-agent', $utilisateur) }}" data-titre="Lier le compte {{ $utilisateur->login }} à un agent ?"><i data-lucide="link"></i>Lier à un agent</button>
+                            @endif
+                        </td>
                     </tr>
                 @empty
                     <tr><td colspan="6"><div class="etat-vide"><i data-lucide="users"></i><p>Aucun utilisateur ne correspond à la recherche.</p></div></td></tr>

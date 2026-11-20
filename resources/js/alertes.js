@@ -122,6 +122,9 @@ document.addEventListener('click', (e) => {
     const cible = declencheur ? document.getElementById(declencheur.dataset.ouvrir) : null;
     if (cible?.matches('form.confirmation')) {
         e.preventDefault();
+        // Une seule fenêtre pour toutes les lignes d'une liste : le bouton donne l'adresse et le titre de sa ligne.
+        if (declencheur.dataset.action) cible.action = declencheur.dataset.action;
+        if (declencheur.dataset.titre) cible.dataset.titre = declencheur.dataset.titre;
         demanderConfirmation(cible);
     }
 });

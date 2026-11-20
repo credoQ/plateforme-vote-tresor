@@ -253,6 +253,10 @@ Puis se connecter à `localhost:5434`, base `femme_modele`, utilisateur `femme_m
 - Les limites de tentatives (code de connexion, vote) comptent par matricule ou par compte, pas par adresse IP :
   les agents qui sortent par la même adresse du réseau de la DGTCP ne se bloquent pas entre eux.
 - Le `.env` du serveur n'est jamais versionné ni copié dans l'image (voir `.dockerignore`).
+- Politique de sécurité du contenu (`CSP_MODE`) : en `rapport`, les navigateurs signalent les violations sans rien
+  bloquer (`docker compose logs app | grep "politique de sécurité"`). Une fois tous les écrans parcourus sans
+  violation, passer à `bloquant` puis `docker compose up -d`.
+- `public/.well-known/security.txt` indique le contact pour signaler une faille ; renouveler sa date `Expires` chaque année.
 
 ## Serveur dédié
 

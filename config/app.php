@@ -33,6 +33,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Politique de sécurité du contenu
+    |--------------------------------------------------------------------------
+    |
+    | « rapport » : le navigateur signale les violations sans rien bloquer ;
+    | « bloquant » : il les bloque ; « aucune » : pas d'en-tête.
+    |
+    */
+
+    'csp' => env('CSP_MODE', 'rapport'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Premier administrateur
     |--------------------------------------------------------------------------
     |

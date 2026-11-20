@@ -3,13 +3,11 @@
 namespace App\Http\Controllers\Resultats;
 
 use App\Actions\Resultats\DepouillerScrutin;
-use App\Actions\Resultats\EtablirPalmares;
 use App\Actions\Resultats\ProlongerScrutin;
 use App\Actions\Resultats\PublierResultats;
 use App\Actions\Resultats\TrancherEgalite;
 use App\Actions\Resultats\ValiderResultats;
 use App\Actions\Scrutins\FermerScrutin;
-use App\Enums\Editions\StatutEdition;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Scrutins\ScrutinController;
@@ -108,34 +106,12 @@ class ResultatController extends Controller
     /**
      * Palmarès de l'édition en cours ou de la dernière édition (R53), à partir des seuls résultats publiés.
      */
-    public function palmares(Request $request, EtablirPalmares $etablir, ?Edition $edition = null): View
+    public function palmares(Request $request, ?Edition $edition = null): View
     {
-        $edition ??= ($request->integer('annee') ? Edition::where('annee', $request->integer('annee'))->first() : null)
-            ?? Edition::where('statut', StatutEdition::EnCours->value)->first()
-            ?? Edition::orderByDesc('annee')->first();
-
-        $recherche = trim((string) $request->query('recherche', ''));
-        $phase = $request->integer('phase') ?: null;
-        $palmares = $edition === null ? null : $etablir->handle($edition);
-
-        if ($palmares !== null) {
-            $terme = mb_strtolower($recherche);
-            $palmares['phases'] = $palmares['phases']
-                ->filter(fn (array $ligne): bool => $phase === null || $ligne['numero'] === $phase)
-                ->map(fn (array $ligne): array => [...$ligne, 'laureates' => $ligne['laureates']
-                    ->filter(fn (array $l): bool => $terme === '' || str_contains(mb_strtolower($l['agent'].' '.$l['matricule'].' '.$l['scrutin']), $terme))
-                    ->values()])
-                ->values();
-        }
-
+        // Le palmarès et ses filtres sont dans le composant Livewire Resultats\Palmares.
         return view('resultats.palmares', [
             'gabarit' => $request->user()->aAccesALaGestion() ? 'layouts.app' : 'layouts.electeur',
-            'edition' => $edition,
-            'palmares' => $palmares,
-            'annees' => Edition::orderByDesc('annee')->pluck('annee'),
-            'phases' => $edition?->phases()->orderBy('numero')->get(['numero', 'libelle']) ?? collect(),
-            'recherche' => $recherche,
-            'phase' => $phase,
+            'editionId' => $edition?->id,
         ]);
     }
 

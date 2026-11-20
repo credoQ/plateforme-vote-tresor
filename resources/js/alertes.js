@@ -52,8 +52,35 @@ export function confirmer({ titre, texte = '', html = null, bouton = 'Confirmer'
     }).then((resultat) => resultat.isConfirmed);
 }
 
+/**
+ * Confirmation avec un motif facultatif (au plus 500 caractères) : renvoie { confirme, motif }.
+ */
+export async function demanderMotif({ titre, texte = '', bouton = 'Confirmer', annuler = 'Annuler', danger = true } = {}) {
+    const resultat = await Swal.fire({
+        icon: danger ? 'warning' : 'question',
+        title: titre,
+        text: texte,
+        input: 'textarea',
+        inputLabel: 'Motif (facultatif)',
+        inputAttributes: { maxlength: '500' },
+        showCancelButton: true,
+        confirmButtonText: bouton,
+        cancelButtonText: annuler,
+        reverseButtons: true,
+        focusCancel: danger,
+        buttonsStyling: false,
+        customClass: { ...classes(danger), input: 'champ', inputLabel: 'libelle' },
+    });
+
+    return { confirme: resultat.isConfirmed, motif: resultat.isConfirmed ? resultat.value : null };
+}
+
 window.notifier = notifier;
 window.confirmer = confirmer;
+window.demanderMotif = demanderMotif;
+
+// Message envoyé par un composant Livewire : $this->dispatch('notifier', message: '…', ton: 'succes').
+window.addEventListener('notifier', (e) => notifier(e.detail?.message, e.detail?.ton));
 
 /**
  * Actions sensibles : <x-modale-confirmation> produit un formulaire masqué (form.confirmation) que le bouton

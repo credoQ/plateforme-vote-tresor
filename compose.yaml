@@ -45,9 +45,10 @@ services:
 
   # Toutes les files, codes en premier : annonces, accusés de vote, qualifications, procès-verbaux.
   # Les tentatives et délais de reprise sont fixés par chaque tâche (pas de --tries ici).
+  # WORKER_PAUSE : secondes entre deux tâches, pour un serveur SMTP qui limite le nombre d'e-mails par seconde.
   worker:
     <<: *application
-    command: ["php", "artisan", "queue:work", "--queue=urgent,mails,default", "--sleep=3", "--timeout=120"]
+    command: ["php", "artisan", "queue:work", "--queue=urgent,mails,default", "--sleep=3", "--timeout=120", "--rest=${WORKER_PAUSE:-0}"]
     depends_on:
       app:
         condition: service_started

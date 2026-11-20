@@ -4,6 +4,8 @@
 <head>
     <meta charset="utf-8">
     <title>{{ $titre }}</title>
+    {{-- Dompdf ne lit pas les variables CSS : valeurs de la charte (bleu-50, bleu-200, bleu-600, bleu-700) recopiées ici ;
+         le vert, le jaune et le rouge ne servent qu'à la bande tricolore du drapeau. --}}
     <style>
         @page { margin: 112px 42px 150px 42px; }
         body { font-family: "DejaVu Sans", Arial, sans-serif; font-size: 9.5pt; color: #1f2a37; }
@@ -28,12 +30,12 @@
         .edition strong { color: #1f2a37; }
         .mini-tricolore { width: 72px; border-collapse: collapse; margin: 0 auto; }
         .mini-tricolore td { height: 3px; padding: 0; }
-        .badge { display: inline-block; padding: 3px 10px; border: 1px solid #9fd3b5; border-radius: 10px; background: #e8f5ee; color: #0b5d2e; font-size: 7.5pt; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
+        .badge { display: inline-block; padding: 3px 10px; border: 1px solid #C2D6E8; border-radius: 10px; background: #EFF5F9; color: #004788; font-size: 7.5pt; font-weight: bold; letter-spacing: 1px; text-transform: uppercase; }
         h1 { font-size: 14pt; margin: 6px 0 2px; text-transform: uppercase; }
         .sous-titre { margin: 0 0 12px; color: #5b6573; }
         table.donnees { width: 100%; border-collapse: collapse; margin: 10px 0; }
         table.donnees th, table.donnees td { border: 1px solid #d8dde3; padding: 4px 6px; text-align: left; }
-        table.donnees thead th { background: #0b4f2a; color: #ffffff; font-size: 8pt; text-transform: uppercase; }
+        table.donnees thead th { background: #0054A0; color: #ffffff; font-size: 8pt; text-transform: uppercase; }
         table.donnees .nombre { text-align: right; }
         .empreinte { font-family: monospace; font-size: 7.5pt; word-break: break-all; }
     </style>

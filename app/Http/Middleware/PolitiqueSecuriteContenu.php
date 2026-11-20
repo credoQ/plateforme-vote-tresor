@@ -38,7 +38,9 @@ class PolitiqueSecuriteContenu
         $response = $next($request);
 
         $mode = config('app.csp');
-        if (! in_array($mode, ['rapport', 'bloquant'], true) || $response->headers->has('Content-Security-Policy')) {
+        // Pages HTML seulement : sur un PDF, « object-src 'none' » empêcherait Chrome de l'afficher dans l'onglet.
+        $html = str_starts_with((string) $response->headers->get('Content-Type', 'text/html'), 'text/html');
+        if (! $html || ! in_array($mode, ['rapport', 'bloquant'], true) || $response->headers->has('Content-Security-Policy')) {
             return $response;
         }
 

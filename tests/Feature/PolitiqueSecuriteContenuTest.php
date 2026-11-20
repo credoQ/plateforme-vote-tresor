@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
 use Tests\TestCase;
 
 class PolitiqueSecuriteContenuTest extends TestCase
@@ -23,6 +24,9 @@ class PolitiqueSecuriteContenuTest extends TestCase
 
         config(['app.csp' => 'bloquant']);
         $this->get(route('login'))->assertHeader('Content-Security-Policy')->assertHeaderMissing('Content-Security-Policy-Report-Only');
+
+        Route::get('/essai-pdf', fn () => response('%PDF', 200, ['Content-Type' => 'application/pdf']))->middleware('web');
+        $this->get('/essai-pdf')->assertHeaderMissing('Content-Security-Policy');
 
         config(['app.csp' => 'aucune']);
         $this->get(route('login'))->assertHeaderMissing('Content-Security-Policy')->assertHeaderMissing('Content-Security-Policy-Report-Only');

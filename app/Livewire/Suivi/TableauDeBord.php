@@ -31,8 +31,6 @@ class TableauDeBord extends Component
 {
     use WithPagination;
 
-    private const SCRUTINS_PAR_PAGE = 10;
-
     #[Url]
     public string $phase = '';
 
@@ -208,9 +206,9 @@ class TableauDeBord extends Component
         $page = $this->getPage();
 
         return new LengthAwarePaginator(
-            $scrutins->forPage($page, self::SCRUTINS_PAR_PAGE)->values(),
+            $scrutins->forPage($page, config('app.lignes_par_page'))->values(),
             $scrutins->count(),
-            self::SCRUTINS_PAR_PAGE,
+            config('app.lignes_par_page'),
             $page,
         );
     }

@@ -22,8 +22,6 @@ class ListeStructures extends Component
 {
     use WithPagination;
 
-    private const PAR_PAGE = 50;
-
     #[Url]
     public string $recherche = '';
 
@@ -67,7 +65,7 @@ class ListeStructures extends Component
             ->when($this->statut === 'actives', fn (Builder $q) => $q->where('actif', true))
             ->when($this->statut === 'desactivees', fn (Builder $q) => $q->where('actif', false))
             ->orderBy('code')
-            ->paginate(self::PAR_PAGE);
+            ->paginate(config('app.lignes_par_page'));
     }
 
     /**

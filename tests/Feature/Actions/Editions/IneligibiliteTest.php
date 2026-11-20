@@ -2,9 +2,9 @@
 
 namespace Tests\Feature\Actions\Editions;
 
+use App\Actions\Editions\AjouterFemmeModele;
 use App\Actions\Editions\CloturerPhase;
 use App\Actions\Editions\EnregistrerEdition;
-use App\Actions\Editions\ImporterFemmesModeles;
 use App\Actions\Editions\SupprimerFemmeModele;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\NominerCandidate;
@@ -26,6 +26,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Validation\ValidationException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\TestCase;
 
 /**
@@ -105,22 +106,49 @@ class IneligibiliteTest extends TestCase
     }
 
     /**
-     * R59 : import des éditions antérieures ; les lignes incomplètes ou déjà proclamées par la plateforme sont rejetées.
+     * R59 : le comité ajoute une femme modèle d'une édition antérieure ; sans nom, celui de la fiche agent est repris.
      */
-    public function test_r59_importe_l_historique_des_editions_anterieures(): void
+    public function test_r59_ajoute_une_femme_modele_d_une_edition_anterieure(): void
     {
         Agent::factory()->femme()->create(['matricule' => '104876', 'nom' => 'AHOUANSOU', 'prenoms' => 'Clarisse']);
-        FemmeModele::factory()->create(['matricule' => '300000', 'annee' => 2025, 'source' => SourceFemmeModele::Plateforme]);
-        $chemin = $this->fichier("matricule;annee;nom;scrutin\n104876;2024;;Finale\n200001;2023;DOSSOU Prisca;\n200002;2023;;\n200003;23;KPADE Inès;\n300000;2025;HOUNSOU Afiavi;\n");
 
-        $rapport = app(ImporterFemmesModeles::class)->handle($chemin);
+        $clarisse = app(AjouterFemmeModele::class)->handle(['matricule' => '104876', 'annee' => 2024, 'scrutin' => 'Finale']);
+        $dossou = app(AjouterFemmeModele::class)->handle(['matricule' => '200001', 'annee' => '2023', 'nom' => 'DOSSOU Prisca']);
 
-        $this->assertSame(2, $rapport->enregistrees);
-        $this->assertSame([4, 5, 6], array_keys($rapport->rejets));
-        $clarisse = FemmeModele::where('matricule', '104876')->sole();
-        $this->assertSame(['AHOUANSOU Clarisse', 2024, 'Finale', SourceFemmeModele::Import], [$clarisse->nom_complet, $clarisse->annee, $clarisse->scrutin, $clarisse->source]);
+        $this->assertSame(['AHOUANSOU Clarisse', 2024, 'Finale', SourceFemmeModele::Saisie], [$clarisse->nom_complet, $clarisse->annee, $clarisse->scrutin, $clarisse->source]);
         $this->assertNotNull($clarisse->agent_id);
-        $this->assertSame(1, JournalAudit::where('action', ActionAuditee::ImportFemmesModeles->value)->count());
+        $this->assertNull($dossou->agent_id);
+        $this->assertSame(2, JournalAudit::where('action', ActionAuditee::FemmeModeleAjoutee->value)->count());
+    }
+
+    /**
+     * R59 : une année hors bornes, un nom introuvable ou une femme modèle déjà proclamée par la plateforme sont refusés.
+     *
+     * @param  array{matricule: string, annee: int|string}  $donnees
+     */
+    #[DataProvider('saisiesRefusees')]
+    public function test_r59_refuse_une_saisie_invalide(array $donnees, string $champ, string $message): void
+    {
+        FemmeModele::factory()->create(['matricule' => '300000', 'annee' => 2025, 'source' => SourceFemmeModele::Plateforme]);
+
+        try {
+            app(AjouterFemmeModele::class)->handle($donnees);
+            $this->fail('La saisie aurait dû être refusée.');
+        } catch (ValidationException $exception) {
+            $this->assertSame($message, $exception->errors()[$champ][0]);
+        }
+    }
+
+    /**
+     * @return array<string, array{0: array<string, mixed>, 1: string, 2: string}>
+     */
+    public static function saisiesRefusees(): array
+    {
+        return [
+            'année hors bornes' => [['matricule' => '200003', 'annee' => '23', 'nom' => 'KPADE Inès'], 'annee', 'Saisissez une année entre 1990 et '.date('Y').'.'],
+            'nom introuvable' => [['matricule' => '200002', 'annee' => 2023], 'nom', 'Aucune agent de matricule « 200002 » dans la liste des agents : saisissez son nom.'],
+            'déjà proclamée' => [['matricule' => '300000', 'annee' => 2025, 'nom' => 'HOUNSOU Afiavi'], 'matricule', 'Cette agent est déjà femme modèle 2025, proclamée par la plateforme.'],
+        ];
     }
 
     public function test_r59_retire_une_ligne_importee_mais_pas_une_femme_modele_proclamee(): void
@@ -144,13 +172,5 @@ class IneligibiliteTest extends TestCase
 
         $this->expectException(ValidationException::class);
         app(EnregistrerEdition::class)->handle(['annee' => 2028, 'libelle' => 'Édition 2028', 'date_debut' => '2028-03-01', 'date_fin' => '2028-04-30', 'date_gel' => '2028-02-15', 'delai_reeligibilite' => 21]);
-    }
-
-    private function fichier(string $contenu): string
-    {
-        $chemin = tempnam(sys_get_temp_dir(), 'fm').'.csv';
-        file_put_contents($chemin, $contenu);
-
-        return $chemin;
     }
 }

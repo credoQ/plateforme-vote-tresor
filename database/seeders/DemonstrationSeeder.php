@@ -68,7 +68,7 @@ class DemonstrationSeeder extends Seeder
 
             // Femme modèle il y a deux ans, importée : inéligible cette année avec le délai par défaut de 3 ans.
             $florence = $agents['GBAGUIDI Florence'];
-            FemmeModele::create(['matricule' => $florence->matricule, 'agent_id' => $florence->id, 'nom_complet' => $florence->nomComplet(), 'annee' => $annee - 2, 'scrutin' => 'Finale', 'source' => SourceFemmeModele::Import]);
+            FemmeModele::create(['matricule' => $florence->matricule, 'agent_id' => $florence->id, 'nom_complet' => $florence->nomComplet(), 'annee' => $annee - 2, 'scrutin' => 'Finale', 'source' => SourceFemmeModele::Saisie]);
 
             return [$comptes, $this->ouvrirLEdition($annee)];
         });

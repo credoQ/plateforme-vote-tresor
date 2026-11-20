@@ -33,8 +33,6 @@ class ScrutinController extends Controller
 {
     public const FUSEAU = 'Africa/Porto-Novo';
 
-    private const CANDIDATES_PAR_PAGE = 25;
-
     private const PAGE_CANDIDATES = 'page_candidates';
 
     public function generer(Phase $phase, GenererScrutins $generer): RedirectResponse
@@ -76,7 +74,7 @@ class ScrutinController extends Controller
             ->join('agents', 'agents.id', '=', 'inscriptions.agent_id')
             ->orderBy('agents.nom')->orderBy('agents.prenoms')
             ->select('inscriptions.*')
-            ->paginate(50)
+            ->paginate(config('app.lignes_par_page'))
             ->withQueryString();
 
         return view('scrutins.show', [
@@ -116,9 +114,9 @@ class ScrutinController extends Controller
         $page = LengthAwarePaginator::resolveCurrentPage(self::PAGE_CANDIDATES);
 
         return (new LengthAwarePaginator(
-            $filtrees->forPage($page, self::CANDIDATES_PAR_PAGE)->values(),
+            $filtrees->forPage($page, config('app.lignes_par_page'))->values(),
             $filtrees->count(),
-            self::CANDIDATES_PAR_PAGE,
+            config('app.lignes_par_page'),
             $page,
             ['path' => $request->url(), 'query' => $request->query(), 'pageName' => self::PAGE_CANDIDATES],
         ))->fragment('candidates');

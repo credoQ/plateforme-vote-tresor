@@ -4,13 +4,12 @@ namespace App\Actions\Editions;
 
 use App\Actions\Audit\Journaliser;
 use App\Enums\Audit\ActionAuditee;
-use App\Enums\Editions\SourceFemmeModele;
 use App\Models\FemmeModele;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Supprime de l'historique une ligne importée par erreur (R59). Une femme modèle proclamée par la plateforme reste.
+ * Supprime de l'historique une ligne saisie ou importée par erreur (R59). Une femme modèle proclamée par la plateforme reste.
  * La suppression est tracée.
  */
 class SupprimerFemmeModele
@@ -22,7 +21,7 @@ class SupprimerFemmeModele
      */
     public function handle(FemmeModele $femmeModele): void
     {
-        if ($femmeModele->source !== SourceFemmeModele::Import) {
+        if (! $femmeModele->source->estRetirable()) {
             throw ValidationException::withMessages(['femme_modele' => 'Une femme modèle proclamée par la plateforme ne se supprime pas de l’historique.']);
         }
 

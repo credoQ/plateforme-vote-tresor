@@ -31,7 +31,7 @@
     <section class="connexion__formulaire">
         <div class="connexion__boite">
             @if (session('status'))
-                <div class="alerte alerte--succes espace-bloc" role="status"><i data-lucide="circle-check"></i><div>{{ session('status') }}</div></div>
+                <x-notification :message="session('status')" />
             @endif
             @if ($errors->any())
                 <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $errors->first() }}</div></div>

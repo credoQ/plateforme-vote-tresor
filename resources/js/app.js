@@ -1,4 +1,5 @@
 import { createIcons, icons } from 'lucide';
+import './alertes';
 import formulaireEtapes from './formulaire-etapes';
 import saisieCode from './saisie-code';
 import selectRecherche from './select-recherche';
@@ -35,12 +36,14 @@ document.addEventListener('click', (e) => {
     ecrire(THEME, sombre ? 'sombre' : 'clair');
 });
 
-// Modales : data-ouvrir="id" / data-fermer
+// Modales des maquettes : data-ouvrir="id" / data-fermer. Les confirmations des actions sensibles
+// (form.confirmation) s'ouvrent dans SweetAlert (resources/js/alertes.js).
 document.addEventListener('click', (e) => {
     const fermer = e.target.closest('[data-fermer]');
     if (fermer || e.target.classList.contains('voile')) e.target.closest('.voile')?.setAttribute('hidden', '');
     const ouvrir = e.target.closest('[data-ouvrir]');
-    if (ouvrir) document.getElementById(ouvrir.dataset.ouvrir)?.removeAttribute('hidden');
+    const cible = ouvrir ? document.getElementById(ouvrir.dataset.ouvrir) : null;
+    if (cible && !cible.matches('form.confirmation')) cible.removeAttribute('hidden');
 });
 
 // Bouton de menu de l'en-tête (data-basculer-menu) : sur grand écran, il replie la barre latérale en icônes ;

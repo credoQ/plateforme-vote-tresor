@@ -20,7 +20,7 @@ class FemmeModeleFactory extends Factory
             'matricule' => fake()->unique()->numerify('######'),
             'nom_complet' => fake()->lastName().' '.fake()->firstNameFemale(),
             'annee' => 2024,
-            'source' => SourceFemmeModele::Import,
+            'source' => SourceFemmeModele::Saisie,
         ];
     }
 }

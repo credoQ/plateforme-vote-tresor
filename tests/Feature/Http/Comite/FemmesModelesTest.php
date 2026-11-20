@@ -3,12 +3,12 @@
 namespace Tests\Feature\Http\Comite;
 
 use App\Enums\Acces\CodeRole;
+use App\Enums\Editions\SourceFemmeModele;
 use App\Models\Edition;
 use App\Models\FemmeModele;
 use App\Models\Structure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Http\UploadedFile;
 use Tests\TestCase;
 
 /**
@@ -25,19 +25,23 @@ class FemmesModelesTest extends TestCase
         $this->withoutVite();
     }
 
-    public function test_r59_le_comite_importe_et_consulte_l_historique(): void
+    public function test_r59_le_comite_ajoute_et_consulte_l_historique(): void
     {
         Edition::factory()->create(['annee' => 2026, 'delai_reeligibilite' => 3]);
         $comite = User::factory()->avecRoles(CodeRole::Comite)->create();
 
         $this->actingAs($comite)->get(route('femmes-modeles.index'))->assertOk()
-            ->assertSee('Aucune femme modèle enregistrée')->assertSee('délai de rééligibilité de 3 an(s)');
+            ->assertSee('Aucune femme modèle enregistrée')->assertSee('délai de rééligibilité de 3 an(s)')
+            ->assertSee('Ajouter une femme modèle')->assertDontSee('Importer');
 
-        $fichier = UploadedFile::fake()->createWithContent('historique.csv', "matricule;annee;nom\n104876;2024;AHOUANSOU Clarisse\n104877;2021;KPADE Inès\n;2022;Sans matricule\n");
-        $this->post(route('femmes-modeles.importer'), ['fichier' => $fichier])
-            ->assertSessionHas('succes', '2 femme(s) modèle(s) enregistrée(s).')->assertSessionHas('rejets', [4 => 'Matricule absent.']);
+        $this->get(route('femmes-modeles.create'))->assertOk()->assertSee('Ajouter à l’historique');
+        $this->post(route('femmes-modeles.store'), ['matricule' => '104876', 'annee' => '2024', 'nom' => 'AHOUANSOU Clarisse'])
+            ->assertRedirect(route('femmes-modeles.index'))->assertSessionHas('succes', 'AHOUANSOU Clarisse (2024) est ajoutée à l’historique.');
+        $this->post(route('femmes-modeles.store'), ['matricule' => '104877', 'annee' => '2021', 'nom' => 'KPADE Inès', 'scrutin' => 'Finale']);
+        $this->post(route('femmes-modeles.store'), ['matricule' => '', 'annee' => '1950'])->assertSessionHasErrors(['matricule', 'annee']);
 
         $this->get(route('femmes-modeles.index'))->assertSee('AHOUANSOU Clarisse')->assertSee('Inéligible jusqu’en 2027')->assertSee('KPADE Inès');
+        $this->assertSame(SourceFemmeModele::Saisie, FemmeModele::where('matricule', '104876')->sole()->source);
 
         $ligne = FemmeModele::where('matricule', '104877')->sole();
         $this->post(route('femmes-modeles.destroy', $ligne))->assertSessionHas('succes');
@@ -61,14 +65,7 @@ class FemmesModelesTest extends TestCase
         $pointFocal = User::factory()->pointFocalDe(Structure::where('code', 'DIA')->firstOrFail())->create();
 
         $this->actingAs($pointFocal)->get(route('femmes-modeles.index'))->assertForbidden();
-        $this->post(route('femmes-modeles.importer'))->assertForbidden();
-    }
-
-    public function test_un_fichier_sans_les_colonnes_attendues_est_refuse(): void
-    {
-        $this->actingAs(User::factory()->avecRoles(CodeRole::Comite)->create());
-
-        $fichier = UploadedFile::fake()->createWithContent('historique.csv', "nom;prenoms\nAHOUANSOU;Clarisse\n");
-        $this->post(route('femmes-modeles.importer'), ['fichier' => $fichier])->assertSessionHasErrors('fichier');
+        $this->get(route('femmes-modeles.create'))->assertForbidden();
+        $this->post(route('femmes-modeles.store'), ['matricule' => '104876', 'annee' => '2024'])->assertForbidden();
     }
 }

@@ -177,7 +177,8 @@ class GestionDuReferentielTest extends TestCase
         $zou = Departement::where('code', 'ZOU')->firstOrFail();
 
         $this->actingAs($this->admin)->get(route('structures.index', ['type' => $this->type(CodeTypeStructure::TresorerieDepartementale)]))
-            ->assertOk()->assertSee('TD-ZOU')->assertDontSee('<td class="reference">DIA</td>', false);
+            ->assertOk()->assertSee('<b class="chiffres">12</b> structure(s)', false)->assertSee('TD-ALI')
+            ->assertDontSee('<td class="reference">DIA</td>', false);
         $this->get(route('structures.index', ['departement' => $zou->id]))->assertSee('TD-ZOU')->assertDontSee('TD-ATL');
         $this->get(route('structures.index', ['recherche' => 'td-zou']))->assertSee('TD-ZOU')->assertDontSee('TD-ATL');
     }

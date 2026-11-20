@@ -41,7 +41,7 @@
 
     <main class="portail__contenu">
         @if (session('succes'))
-            <div class="alerte alerte--succes" role="status"><i data-lucide="circle-check"></i><div>{{ session('succes') }}</div></div>
+            <x-notification :message="session('succes')" />
         @endif
         @foreach (['candidate', 'scrutin', 'motif'] as $cleErreur)
             @error($cleErreur)

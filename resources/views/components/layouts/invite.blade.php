@@ -8,8 +8,6 @@
     <title>{{ $titre }} · Femme modèle du Trésor</title>
     <x-meta :titre="$titre.' · Femme modèle du Trésor'" :indexer="$indexer" />
     <script>try { const t = localStorage.getItem('fm-theme'); if (t) { document.documentElement.dataset.theme = t; } } catch (e) {}</script>
-    {{-- Transition animée entre deux pages de ce gabarit (matricule, puis code) : voir .connexion__boite. --}}
-    <style>@view-transition { navigation: auto; }</style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>

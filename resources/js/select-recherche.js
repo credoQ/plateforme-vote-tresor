@@ -13,6 +13,9 @@ function plier(texte) {
 
 export default function selectRecherche({ placeholder = 'Choisir…', soumettre = false } = {}) {
     return {
+        // Déclaré ici : une propriété créée seulement dans init() serait rangée par Alpine sur le composant parent
+        // le plus extérieur, et toutes les listes d'un même formulaire partageraient alors le même <select>.
+        select: null,
         placeholder,
         options: [],
         resultats: [],

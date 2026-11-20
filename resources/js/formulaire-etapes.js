@@ -12,6 +12,7 @@ export default function formulaireEtapes() {
     return {
         etape: 1,
         nombre: 1,
+        panneaux: [],
         version: 0,
 
         init() {

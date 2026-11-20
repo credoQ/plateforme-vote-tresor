@@ -1,6 +1,6 @@
 // Saisie du code de connexion en six cases (composant Alpine). Le champ « code » d'origine reste dans le
-// formulaire, masqué, et reçoit les six chiffres (événement input : wire:model le suit). Coller le code remplit
-// les cases. Les cases ne prennent la main que si l'étape du code est affichée.
+// formulaire, masqué dès le HTML (une mise à jour Livewire le réécrit), et reçoit les six chiffres : l'événement
+// input le signale à wire:model. Coller le code remplit les cases, qui ne prennent la main que si l'étape est affichée.
 
 const LONGUEUR = 6;
 

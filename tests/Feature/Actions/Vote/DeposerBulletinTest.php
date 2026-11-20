@@ -16,6 +16,7 @@ use App\Models\Agent;
 use App\Models\Bulletin;
 use App\Models\Candidate;
 use App\Models\Edition;
+use App\Models\Inscription;
 use App\Models\Phase;
 use App\Models\Scrutin;
 use App\Models\Structure;
@@ -171,6 +172,33 @@ class DeposerBulletinTest extends TestCase
             'est_blanc' => false, 'date_heure' => now()->startOfHour(), 'empreinte' => str_repeat('a', 64), 'empreinte_precedente' => str_repeat('b', 64),
         ]);
         $this->assertFalse($empreinte->chaineEstIntacte($this->scrutin->id));
+    }
+
+    /**
+     * R44 : le scrutin garde la fin de sa chaîne, sans toucher son updated_at (R43) ; une fin de chaîne périmée
+     * fait échouer le vote au lieu de créer un embranchement, et une fin qui ne correspond plus est détectée.
+     */
+    public function test_r44_le_scrutin_garde_la_fin_de_sa_chaine(): void
+    {
+        $modifieLe = $this->scrutin->fresh()->updated_at;
+        $this->voter($this->marc, $this->candidate($this->clarisse));
+        $premiere = Bulletin::sole()->empreinte;
+        $this->voter($this->clarisse, $this->candidate($this->ines));
+
+        $fin = Bulletin::where('empreinte_precedente', $premiere)->sole()->empreinte;
+        $this->assertSame($fin, $this->scrutin->fresh()->derniere_empreinte);
+        $this->assertEquals($modifieLe, $this->scrutin->fresh()->updated_at);
+
+        DB::table('scrutins')->where('id', $this->scrutin->id)->update(['derniere_empreinte' => $premiere]);
+        $this->assertFalse(app(EmpreinteBulletin::class)->chaineEstIntacte($this->scrutin->id));
+
+        try {
+            $this->voter($this->ines, $this->candidate($this->clarisse));
+            $this->fail('Un bulletin chaîné sur une fin périmée aurait dû être refusé.');
+        } catch (QueryException) {
+            $this->assertSame(2, Bulletin::count());
+            $this->assertFalse(Inscription::where('agent_id', $this->ines->id)->sole()->a_vote);
+        }
     }
 
     /**

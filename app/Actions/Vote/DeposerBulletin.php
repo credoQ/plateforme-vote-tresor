@@ -74,6 +74,7 @@ class DeposerBulletin
             $bulletin->id = $bulletin->newUniqueId();
             $bulletin->empreinte = $this->empreinte->calculer($bulletin);
             $bulletin->save();
+            $this->empreinte->avancer($scrutin->id, $bulletin->empreinte);
 
             return new AccuseDeVote($numero, $scrutin->libelle, $heure->toImmutable());
         });

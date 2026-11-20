@@ -69,12 +69,11 @@ docker compose up -d
 docker compose logs -f app
 ```
 
-Au premier démarrage, `app` migre la base. Il reste à charger le référentiel (structures, pôles, rôles),
-à créer le premier administrateur, puis à importer les agents :
+Au premier démarrage, `app` migre la base. Il reste à charger le référentiel (structures, pôles, rôles)
+avec le premier administrateur décrit par `PREMIER_ADMIN_*` dans le `.env`, puis à importer les agents :
 
 ```bash
 docker compose exec app php artisan db:seed --force
-docker compose exec app php artisan acces:creer-administrateur <login> "<Nom affiché>" <email>
 docker compose cp agents.xlsx app:/tmp/agents.xlsx
 docker compose exec app php artisan agents:importer /tmp/agents.xlsx
 docker compose exec app php artisan acces:generer-comptes

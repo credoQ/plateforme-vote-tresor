@@ -27,7 +27,13 @@
             <span class="aide"><b class="chiffres">{{ $candidates->count() }}</b> candidate(s) sur {{ $total }}</span>
         </form>
 
-        <form method="POST" action="{{ route('vote.confirmer') }}">
+        <form method="POST" action="{{ route('vote.confirmer') }}" novalidate data-choix-requis="candidate"
+              @if ($blancAutorise)
+                  data-choix-titre="Aucun choix" data-choix-texte="Choisissez une candidate, ou le vote blanc, avant de continuer."
+              @else
+                  data-choix-titre="Le vote blanc n’est pas autorisé" data-choix-texte="Pour ce scrutin, vous devez choisir une candidate avant de continuer."
+              @endif
+        >
             @csrf
             <div class="carte__corps">
                 <fieldset class="grille-candidates">

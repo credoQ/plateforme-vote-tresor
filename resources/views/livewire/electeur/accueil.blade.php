@@ -1,7 +1,13 @@
 @use('App\Enums\Scrutins\StatutScrutin')
-{{-- Accueil de l'espace électeur. Rafraîchi chaque minute tant qu'un scrutin attend son vote (Livewire suspend le
-     rafraîchissement quand l'onglet est masqué). Aucun choix de vote ne passe par ce composant. --}}
-<div class="portail__accueil" @if ($rafraichir) wire:poll.60s @endif>
+{{-- Accueil de l'espace électeur. Aucun choix de vote ne passe par ce composant.
+     Pas de rafraîchissement périodique : la page se rafraîchit une seule fois, peu après la prochaine échéance du
+     scrutin (ouverture ou fermeture), le temps que le planificateur change son statut. La minuterie est reprogrammée
+     à chaque nouvelle échéance (clé wire:key) et annulée quand on quitte la page. --}}
+<div class="portail__accueil">
+    @if ($echeance)
+        <div hidden wire:key="echeance-{{ $echeance['horodatage'] }}"
+             x-data="{ minuteur: null, init() { this.minuteur = setTimeout(() => $wire.$refresh(), Math.min(({{ $echeance['secondes'] }} + 70) * 1000, 2147483647)) }, destroy() { clearTimeout(this.minuteur) } }"></div>
+    @endif
     <div class="portail__bonjour">
         <h1>Bonjour {{ $prenom }}</h1>
         @if ($affectation)<p>{{ $affectation->structure->libelle }}</p>@endif

@@ -21,7 +21,7 @@ class EspaceElecteurComposer
         $view->with([
             'utilisateur' => $utilisateur,
             'initiales' => $utilisateur->initiales(),
-            'editionEnCours' => Edition::enCours()->value('annee'),
+            'editionEnCours' => Edition::anneeEnCours(),
             'consoleDeGestion' => $utilisateur->aAccesALaGestion() ? route('tableau-de-bord') : null,
         ]);
     }

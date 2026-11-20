@@ -30,7 +30,7 @@ class ConnexionController extends Controller
 
     public function create(): View
     {
-        return view('acces.connexion', ['editionEnCours' => Edition::enCours()->value('annee')]);
+        return view('acces.connexion', ['editionEnCours' => Edition::anneeEnCours()]);
     }
 
     public function envoyer(Request $request, DemanderCodeConnexion $demander): RedirectResponse
@@ -57,7 +57,7 @@ class ConnexionController extends Controller
             'login' => $request->session()->get('connexion.login'),
             'attenteRenvoi' => $this->attenteRenvoi($request),
             'validiteMinutes' => DemanderCodeConnexion::VALIDITE_MINUTES,
-            'editionEnCours' => Edition::enCours()->value('annee'),
+            'editionEnCours' => Edition::anneeEnCours(),
         ]);
     }
 

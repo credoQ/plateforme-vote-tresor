@@ -395,6 +395,9 @@
   .progression--heros { background: rgba(255,255,255,.18); }
   .progression--heros > span { background: var(--tr-accent-sur-primaire); }
   .carte__aide { margin: 0 0 0 auto; }
+  /* carte coupée en deux (îlot Livewire entre les deux) : la partie haute porte l'en-tête et les filtres */
+  .carte--haut { border-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0; box-shadow: none; }
+  .carte--bas { border-top-left-radius: 0; border-top-right-radius: 0; }
   .segment__lien { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--tr-texte-2); text-decoration: none; }
   .segment__lien.est-actif { background: var(--tr-surface); color: var(--tr-texte); box-shadow: var(--tr-ombre-1); }
   [data-theme="sombre"] .barre-horizontale__piste { background: var(--tr-bordure); }

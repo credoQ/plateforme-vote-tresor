@@ -110,24 +110,41 @@ class TableauDeBord extends Component
         return 'pagination.tresor-livewire';
     }
 
+    /**
+     * Données de l'îlot « donnees » (indicateurs, graphiques, tableaux), seul rafraîchi chaque minute : un îlot ne voit
+     * pas les variables passées par render(), il lit cette propriété calculée.
+     *
+     * @return array<string, mixed>|null
+     */
+    #[Computed]
+    public function donnees(): ?array
+    {
+        if ($this->participation === null) {
+            return null;
+        }
+
+        $scrutins = $this->participation['scrutins'];
+
+        return [
+            'global' => $this->participation['global'],
+            'indicateurs' => $this->indicateurs($scrutins),
+            'heures' => $this->heures(app(MesurerParticipation::class)->votesParHeure($this->phaseAffichee, $this->limite)),
+            'departements' => $this->participation['departements']->sortByDesc('taux')->values(),
+            'structures' => $this->participation['structures'],
+            'scrutins' => $this->paginer($this->filtrer($scrutins)),
+            'misAJourLe' => now()->timezone('Africa/Porto-Novo'),
+        ];
+    }
+
     public function render(): View
     {
-        $mesurer = app(MesurerParticipation::class);
-        $scrutins = $this->participation['scrutins'] ?? collect();
-
         return view('livewire.suivi.tableau-de-bord', [
             'edition' => $this->edition,
             'phaseAffichee' => $this->phaseAffichee,
-            'participation' => $this->participation,
-            'global' => $this->participation['global'] ?? null,
-            'indicateurs' => $this->indicateurs($scrutins),
-            'heures' => $this->phaseAffichee === null ? null : $this->heures($mesurer->votesParHeure($this->phaseAffichee, $this->limite)),
-            'departements' => ($this->participation['departements'] ?? collect())->sortByDesc('taux')->values(),
-            'scrutins' => $this->paginer($this->filtrer($scrutins)),
             'poles' => $this->poles(),
             'filtresActifs' => trim($this->recherche) !== '' || $this->pole !== '' || $this->statut !== '',
+            'totalScrutins' => $this->donnees === null ? 0 : $this->donnees['scrutins']->total(),
             'restreint' => $this->limite !== null,
-            'misAJourLe' => now()->timezone('Africa/Porto-Novo'),
         ]);
     }
 

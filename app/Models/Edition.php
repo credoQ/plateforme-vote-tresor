@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Support\Collection as SupportCollection;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Édition annuelle du concours (R16). Le vote blanc et le quorum sont des paramètres de l'édition,
@@ -26,6 +28,8 @@ class Edition extends Model
 {
     /** @use HasFactory<EditionFactory> */
     use HasFactory;
+
+    public const CLE_CACHE_EN_COURS = 'edition.en-cours';
 
     /**
      * @var array<string, mixed>
@@ -100,6 +104,35 @@ class Edition extends Model
      * Édition qui s'organise ou se déroule (la plus récente en préparation ou en cours) : celle dont le délai
      * de rééligibilité s'applique aujourd'hui (R59).
      */
+    /**
+     * Année de l'édition en cours, lue à chaque page (en-tête de l'espace électeur, connexion, e-mails) : gardée en
+     * cache cinq minutes, et oubliée dès qu'une édition est enregistrée ou supprimée. memo() évite de relire le cache
+     * plusieurs fois dans une même requête. Un tableau est mis en cache pour qu'une absence d'édition le soit aussi.
+     */
+    public static function anneeEnCours(): ?int
+    {
+        return Cache::memo()->remember(self::CLE_CACHE_EN_COURS, now()->addMinutes(5), fn (): array => [
+            'annee' => self::query()->enCours()->value('annee'),
+        ])['annee'];
+    }
+
+    public static function oublierEnCours(): void
+    {
+        Cache::memo()->forget(self::CLE_CACHE_EN_COURS);
+    }
+
+    protected static function booted(): void
+    {
+        // Oubli immédiat, puis après la validation de la transaction : une lecture concurrente ne garde pas l'ancienne valeur.
+        $oublier = function (): void {
+            self::oublierEnCours();
+            DB::afterCommit(fn () => self::oublierEnCours());
+        };
+
+        static::saved($oublier);
+        static::deleted($oublier);
+    }
+
     public static function courante(): ?self
     {
         return self::whereIn('statut', [StatutEdition::EnPreparation->value, StatutEdition::EnCours->value])->orderByDesc('annee')->first();

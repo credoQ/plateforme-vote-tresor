@@ -34,9 +34,9 @@
             <p>Un code à 6 chiffres a été envoyé à l’adresse e-mail de votre compte (matricule {{ $login }}).</p>
 
             <div class="formulaire__groupe espace-bloc" x-data="saisieCode" x-on:code-efface.window="vider()">
-                <label class="libelle" for="code">Code reçu par e-mail <span class="requis">*</span></label>
-                <div class="champ-icone" x-ref="natif"><i data-lucide="key-round"></i><input id="code" x-ref="code" wire:model="code" class="champ" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 chiffres" required></div>
-                <div class="saisie-code" role="group" aria-label="Code reçu par e-mail, 6 chiffres" x-cloak>
+                <p class="libelle">Code reçu par e-mail <span class="requis">*</span></p>
+                <div class="champ-icone" x-ref="natif" hidden><i data-lucide="key-round"></i><input id="code" x-ref="code" wire:model="code" class="champ" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 chiffres" required></div>
+                <div class="saisie-code" role="group" aria-label="Code reçu par e-mail, 6 chiffres">
                     <template x-for="(chiffre, i) in chiffres" x-bind:key="i">
                         <input type="text" class="saisie-code__case" inputmode="numeric" maxlength="1" x-bind:autocomplete="i === 0 ? 'one-time-code' : 'off'"
                                x-bind:aria-label="'Chiffre ' + (i + 1) + ' sur 6'" x-bind:value="chiffre" x-bind:class="{ 'est-remplie': chiffre !== '' }"

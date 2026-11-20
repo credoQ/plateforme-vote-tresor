@@ -7,6 +7,7 @@ use App\Http\Controllers\Editions\EditionController;
 use App\Http\Controllers\Editions\FemmeModeleController;
 use App\Http\Controllers\Editions\PhaseController;
 use App\Http\Controllers\EspaceController;
+use App\Http\Controllers\RapportCspController;
 use App\Http\Controllers\Referentiel\StructureController;
 use App\Http\Controllers\Resultats\ResultatController;
 use App\Http\Controllers\Scrutins\NominationController;
@@ -28,6 +29,9 @@ Route::middleware(['signed', 'throttle:30,1'])->prefix('verification')->name('ve
     Route::get('/accuse-de-vote/{numero}', [VerificationController::class, 'accuseDeVote'])->name('accuse-de-vote');
     Route::get('/export', [VerificationController::class, 'export'])->name('export');
 });
+
+// Rapports de violation de la politique de sécurité du contenu, envoyés par les navigateurs.
+Route::post('/csp-rapport', RapportCspController::class)->middleware('throttle:30,1')->name('csp.rapport');
 
 // Connexion sans mot de passe : matricule, puis code reçu par e-mail (R42).
 Route::middleware('guest')->group(function () {

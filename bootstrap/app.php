@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\PolitiqueSecuriteContenu;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,6 +18,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('espace'));
+        $middleware->web(append: [PolitiqueSecuriteContenu::class]);
+        // Les navigateurs envoient les rapports de violation sans jeton CSRF.
+        $middleware->preventRequestForgery(except: ['csp-rapport']);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

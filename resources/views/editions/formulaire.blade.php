@@ -33,6 +33,9 @@
                         <div class="formulaire__groupe">
                             <label class="libelle" for="{{ $champ }}">{{ $libelle }} <span class="requis">*</span></label>
                             <input id="{{ $champ }}" name="{{ $champ }}" type="{{ $type }}" class="champ" value="{{ old($champ, $type === 'date' ? $edition->{$champ}?->format('Y-m-d') : $edition->{$champ}) }}" required>
+                            @if ($champ === 'date_gel')
+                                <p class="aide">Les agents en service à cette date forment les listes électorales et les candidates d’office. Une mutation après cette date n’y change rien.</p>
+                            @endif
                             @error($champ)<p class="erreur-champ">{{ $message }}</p>@enderror
                         </div>
                     @endforeach
@@ -45,6 +48,7 @@
                     <fieldset class="formulaire__groupe">
                         <legend class="libelle">Bulletin</legend>
                         <label class="case"><input type="checkbox" name="vote_blanc_autorise" value="1" @checked(old('vote_blanc_autorise', $edition->vote_blanc_autorise))> Autoriser le vote blanc</label>
+                        <p class="aide">L’électeur peut valider un bulletin sans choisir de candidate. Il compte comme votant, mais pas comme suffrage exprimé.</p>
                         <label class="case"><input type="checkbox" name="vote_pour_soi_autorise" value="1" @checked(old('vote_pour_soi_autorise', $edition->exists ? $edition->vote_pour_soi_autorise : true))> Autoriser une candidate à voter pour elle-même</label>
                     </fieldset>
 
@@ -58,6 +62,7 @@
                     <div class="formulaire__groupe">
                         <label class="libelle" for="quorum">Quorum de participation (%)</label>
                         <input id="quorum" name="quorum" type="number" min="1" max="100" step="0.01" class="champ champ--moyen" value="{{ old('quorum', $edition->quorum) }}" placeholder="Aucun quorum">
+                        <p class="aide">Participation minimale de chaque scrutin. Si elle n’est pas atteinte à la clôture, le comité peut prolonger le scrutin. Laisser vide pour n’en fixer aucun.</p>
                         @error('quorum')<p class="erreur-champ">{{ $message }}</p>@enderror
                     </div>
                 </div>
@@ -74,12 +79,12 @@
                             <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $errors->first('phases.*') }}</div></div>
                         @endif
 
-                        <div class="organisation-phases">
+                        <div class="organisation-phases" x-data="{ phases: {{ $phasesAffichees }} }">
                             @foreach ($organisation as $numero => $phase)
-                                <fieldset class="organisation-phase">
+                                <fieldset class="organisation-phase" @if ($numero > 1) x-show="phases >= {{ $numero }}" @if ($numero > $phasesAffichees) x-cloak @endif @endif>
                                     <legend class="organisation-phase__titre"><span class="organisation-phase__numero">{{ $numero }}</span>Phase {{ $numero }}</legend>
                                     @if ($numero > 1)
-                                        <label class="case"><input type="checkbox" name="phases[{{ $numero }}][active]" value="1" @checked(old('annee') !== null ? old("phases.$numero.active") : $phase['active'])> Organiser cette phase</label>
+                                        <input type="hidden" name="phases[{{ $numero }}][active]" value="{{ $numero <= $phasesAffichees ? '1' : '' }}" x-bind:value="phases >= {{ $numero }} ? '1' : ''">
                                     @endif
                                     <div class="formulaire__groupe">
                                         <label class="libelle" for="phase-{{ $numero }}-libelle">Libellé</label>
@@ -121,8 +126,14 @@
                                             </tbody>
                                         </table>
                                     </div>
+                                    @if ($numero > 1)
+                                        <button type="button" class="btn btn-tertiaire organisation-phase__retirer" x-show="phases === {{ $numero }}" x-on:click="phases--"><i data-lucide="x"></i>Retirer la phase {{ $numero }}</button>
+                                    @endif
                                 </fieldset>
                             @endforeach
+                            <div x-show="phases < {{ count($organisation) }}" @if ($phasesAffichees >= count($organisation)) x-cloak @endif>
+                                <button type="button" class="btn btn-secondaire" x-on:click="phases++"><i data-lucide="plus"></i>Ajouter une phase</button>
+                            </div>
                         </div>
                     @endif
                 </div>
@@ -146,7 +157,7 @@
                         <h3 class="recapitulatif__titre">Phases et collèges</h3>
                         <div class="recapitulatif__phases">
                             @foreach ($organisation as $numero => $phase)
-                                <div class="recapitulatif__phase" @if ($numero > 1) x-show="coche('phases[{{ $numero }}][active]')" @endif>
+                                <div class="recapitulatif__phase" @if ($numero > 1) x-show="brut('phases[{{ $numero }}][active]') === '1'" @endif>
                                     <p><span class="organisation-phase__numero">{{ $numero }}</span><strong x-text="valeur('phases[{{ $numero }}][libelle]')"></strong></p>
                                     <ul>
                                         @foreach ($colleges as $cle => $libelleCollege)

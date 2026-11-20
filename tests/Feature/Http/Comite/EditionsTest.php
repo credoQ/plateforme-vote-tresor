@@ -70,13 +70,14 @@ class EditionsTest extends TestCase
     }
 
     /**
-     * R17, R20, R28, R52 : le formulaire paramètre les phases et leurs collèges ; une phase décochée et un collège sans scrutin sont ignorés.
+     * R17, R20, R28, R52 : le formulaire paramètre les phases et leurs collèges ; une phase retirée et un collège sans scrutin sont ignorés.
      */
     public function test_r17_cree_une_edition_en_deux_phases_depuis_le_formulaire(): void
     {
         $college = fn (string $decoupage, string $origine = 'NOMINATION', int $elues = 1): array => ['decoupage' => $decoupage, 'origine' => $origine, 'nb_elues' => $elues];
 
-        $this->actingAs($this->comite)->get(route('editions.create'))->assertOk()->assertSee('Phases et collèges')->assertSee('Phase 3 · finale', false);
+        $this->actingAs($this->comite)->get(route('editions.create'))->assertOk()->assertSee('Phases et collèges')->assertSee('Phase 3 · finale', false)
+            ->assertSee('Ajouter une phase')->assertViewHas('phasesAffichees', 1);
         $this->post(route('editions.store'), [
             'annee' => 2027, 'libelle' => 'Femme modèle du Trésor 2027', 'date_debut' => '2027-03-01', 'date_fin' => '2027-04-30', 'date_gel' => '2027-02-15',
             'phases' => [
@@ -88,6 +89,7 @@ class EditionsTest extends TestCase
 
         $edition = Edition::where('annee', 2027)->firstOrFail();
         $this->assertSame([1, 2], $edition->phases->pluck('numero')->all());
+        $this->get(route('editions.edit', $edition))->assertOk()->assertViewHas('phasesAffichees', 2);
         $this->get(route('editions.show', $edition))->assertOk()->assertSee('Élections finales');
         $this->get(route('editions.show', [$edition, 'phase' => 2, 'onglet' => 'colleges']))->assertOk()
             ->assertSee('Pôle structures · Un seul scrutin · Nomination par le comité · 3 élue(s) par scrutin');

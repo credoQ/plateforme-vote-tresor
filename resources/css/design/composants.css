@@ -485,6 +485,7 @@
   .organisation-phase__numero { display: inline-grid; place-items: center; width: 26px; height: 26px; flex: none; border-radius: 50%; background: var(--tr-primaire); color: var(--tr-sur-primaire); font-size: 12px; font-weight: 700; }
   .organisation-phase .tableau td { height: 60px; }
   .organisation-phase .select-recherche { min-width: 200px; }
+  .organisation-phase__retirer { justify-self: start; }
 
   /* formulaire en plusieurs étapes (x-data="formulaireEtapes") : barre d'étapes centrée, un panneau à la fois */
   .titre-page--centre { justify-content: center; text-align: center; }

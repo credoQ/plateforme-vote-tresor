@@ -37,7 +37,7 @@
                 @unless ($agent->exists)
                     <fieldset class="formulaire__groupe">
                         <legend class="libelle">Affectation</legend>
-                        <div class="formulaire-ligne">
+                        <div class="formulaire formulaire--deux-colonnes">
                             <div class="formulaire__groupe">
                                 <label class="libelle" for="structure_id">Structure <span class="requis">*</span></label>
                                 <x-select-recherche>

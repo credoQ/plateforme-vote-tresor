@@ -6,7 +6,7 @@
         </div>
 
         <ol class="etapes etapes-formulaire" aria-label="Étapes du formulaire">
-            @foreach (['Identification', 'Classement', 'Rattachement'] as $nomEtape)
+            @foreach (['Identification', 'Classement', 'Localisation'] as $nomEtape)
                 <li class="etape" x-bind:class="etat({{ $loop->iteration }})" x-bind:aria-current="etape === {{ $loop->iteration }} ? 'step' : null">
                     <button type="button" class="etape__bouton" x-on:click="allerA({{ $loop->iteration }})" x-bind:disabled="{{ $loop->iteration }} > etape">
                         <span class="etape__puce">
@@ -47,16 +47,17 @@
                 </div>
             </section>
 
-            <section class="carte etape-panneau" data-etape="2" x-show="estAffichee(2)">
+            <section class="carte etape-panneau" data-etape="2" x-show="estAffichee(2)"
+                     x-data="{ niveau: @js((string) $niveau), typeCode: @js($codeType), get avecRattachement() { return this.niveau === @js((string) Structure::NIVEAU_SERVICE) || this.typeCode === 'TC'; } }">
                 <div class="carte__entete"><h2>Étape 2 sur 3 · Classement</h2></div>
-                <div class="carte__corps formulaire formulaire--deux-colonnes">
+                <div class="carte__corps formulaire">
                     <div class="formulaire__groupe formulaire__groupe--pleine">
                         <label class="libelle" for="type_structure_id">Type de structure <span class="requis">*</span></label>
                         <x-select-recherche placeholder="Choisir le type">
-                            <select id="type_structure_id" name="type_structure_id" class="champ" required>
+                            <select id="type_structure_id" name="type_structure_id" class="champ" required x-on:change="typeCode = $event.target.selectedOptions[0]?.dataset.code ?? ''">
                                 <option value="">Choisir le type</option>
                                 @foreach ($types as $type)
-                                    <option value="{{ $type->id }}" data-detail="{{ $type->poleElectoral->code->libelle() }}" @selected((int) old('type_structure_id', $structure->type_structure_id) === $type->id)>{{ $type->code->libelle() }}</option>
+                                    <option value="{{ $type->id }}" data-code="{{ $type->code->value }}" data-detail="{{ $type->poleElectoral->code->libelle() }}" @selected((int) old('type_structure_id', $structure->type_structure_id) === $type->id)>{{ $type->code->libelle() }}</option>
                                 @endforeach
                             </select>
                         </x-select-recherche>
@@ -66,37 +67,37 @@
                         <legend class="libelle">Niveau <span class="requis">*</span></legend>
                         <div class="choix-cartes">
                             <label class="choix-carte">
-                                <input type="radio" name="niveau" value="{{ Structure::NIVEAU_STRUCTURE_ELECTORALE }}" @checked((int) old('niveau', $structure->niveau ?? Structure::NIVEAU_STRUCTURE_ELECTORALE) === Structure::NIVEAU_STRUCTURE_ELECTORALE) required>
+                                <input type="radio" name="niveau" value="{{ Structure::NIVEAU_STRUCTURE_ELECTORALE }}" x-model="niveau" @checked($niveau === Structure::NIVEAU_STRUCTURE_ELECTORALE) required>
                                 <span class="choix-carte__icone"><i data-lucide="vote"></i></span>
                                 <span><strong>Structure électorale</strong><small>Elle constitue sa propre circonscription.</small></span>
                             </label>
                             <label class="choix-carte">
-                                <input type="radio" name="niveau" value="{{ Structure::NIVEAU_SERVICE }}" @checked((int) old('niveau', $structure->niveau) === Structure::NIVEAU_SERVICE)>
+                                <input type="radio" name="niveau" value="{{ Structure::NIVEAU_SERVICE }}" x-model="niveau" @checked($niveau === Structure::NIVEAU_SERVICE)>
                                 <span class="choix-carte__icone"><i data-lucide="git-branch"></i></span>
                                 <span><strong>Service rattaché</strong><small>Ses agents votent avec la structure de rattachement.</small></span>
                             </label>
                         </div>
                         @error('niveau')<p class="erreur-champ">{{ $message }}</p>@enderror
                     </fieldset>
-                </div>
-            </section>
-
-            <section class="carte etape-panneau" data-etape="3" x-show="estAffichee(3)">
-                <div class="carte__entete"><h2>Étape 3 sur 3 · Rattachement</h2></div>
-                <div class="carte__corps formulaire formulaire--deux-colonnes">
-                    <div class="formulaire__groupe">
-                        <label class="libelle" for="structure_parente_id">Structure de rattachement</label>
+                    <div class="formulaire__groupe" x-show="avecRattachement" @unless ($avecRattachement) x-cloak @endunless>
+                        <label class="libelle" for="structure_parente_id">Structure de rattachement <span class="requis">*</span></label>
                         <x-select-recherche placeholder="Aucune">
-                            <select id="structure_parente_id" name="structure_parente_id" class="champ">
+                            <select id="structure_parente_id" name="structure_parente_id" class="champ" x-bind:disabled="! avecRattachement">
                                 <option value="">Aucune</option>
                                 @foreach ($parentes as $parente)
                                     <option value="{{ $parente->id }}" data-detail="{{ $parente->libelle }}" @selected((int) old('structure_parente_id', $structure->structure_parente_id) === $parente->id)>{{ $parente->code }}</option>
                                 @endforeach
                             </select>
                         </x-select-recherche>
-                        <p class="aide">Obligatoire pour un service, et pour une Trésorerie communale (sa Trésorerie départementale).</p>
+                        <p class="aide">Pour une Trésorerie communale : sa Trésorerie départementale.</p>
                         @error('structure_parente_id')<p class="erreur-champ">{{ $message }}</p>@enderror
                     </div>
+                </div>
+            </section>
+
+            <section class="carte etape-panneau" data-etape="3" x-show="estAffichee(3)">
+                <div class="carte__entete"><h2>Étape 3 sur 3 · Localisation</h2></div>
+                <div class="carte__corps formulaire">
                     <div class="formulaire__groupe">
                         <label class="libelle" for="departement_id">Département</label>
                         <x-select-recherche placeholder="Aucun">

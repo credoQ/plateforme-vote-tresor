@@ -6,6 +6,7 @@ use App\Actions\Audit\Journaliser;
 use App\Actions\Referentiel\ChangerStatutStructure;
 use App\Actions\Referentiel\EnregistrerStructure;
 use App\Enums\Audit\ActionAuditee;
+use App\Enums\Referentiel\CodeTypeStructure;
 use App\Http\Controllers\Controller;
 use App\Models\Departement;
 use App\Models\PoleElectoral;
@@ -167,9 +168,18 @@ class StructureController extends Controller
      */
     private function donneesFormulaire(Structure $structure): array
     {
+        $types = TypeStructure::with('poleElectoral')->orderBy('libelle')->get();
+        // Saisie renvoyée après une erreur, sinon la structure : la structure de rattachement ne s'affiche que pour
+        // un service ou une Trésorerie communale (R8).
+        $niveau = (int) old('niveau', $structure->niveau ?? Structure::NIVEAU_STRUCTURE_ELECTORALE);
+        $codeType = $types->firstWhere('id', (int) old('type_structure_id', $structure->type_structure_id))?->code->value ?? '';
+
         return [
             'structure' => $structure,
-            'types' => TypeStructure::with('poleElectoral')->orderBy('libelle')->get(),
+            'types' => $types,
+            'niveau' => $niveau,
+            'codeType' => $codeType,
+            'avecRattachement' => $niveau === Structure::NIVEAU_SERVICE || $codeType === CodeTypeStructure::TresorerieCommunale->value,
             'departements' => Departement::orderBy('libelle')->get(),
             'parentes' => Structure::query()
                 ->where('niveau', Structure::NIVEAU_STRUCTURE_ELECTORALE)

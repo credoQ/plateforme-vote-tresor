@@ -79,7 +79,7 @@
                             <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $errors->first('phases.*') }}</div></div>
                         @endif
 
-                        <div class="organisation-phases" x-data="{ phases: {{ $phasesAffichees }} }">
+                        <div class="organisation-phases" x-data="organisationPhases({{ $phasesAffichees }})">
                             @foreach ($organisation as $numero => $phase)
                                 <fieldset class="organisation-phase" @if ($numero > 1) x-show="phases >= {{ $numero }}" @if ($numero > $phasesAffichees) x-cloak @endif @endif>
                                     <legend class="organisation-phase__titre"><span class="organisation-phase__numero">{{ $numero }}</span>Phase {{ $numero }}</legend>
@@ -99,7 +99,7 @@
                                                         <td>{{ $libelleCollege }}</td>
                                                         <td>
                                                             <x-select-recherche compact>
-                                                                <select name="phases[{{ $numero }}][colleges][{{ $cle }}][decoupage]" class="champ" aria-label="Scrutins du collège {{ $libelleCollege }}, phase {{ $numero }}">
+                                                                <select name="phases[{{ $numero }}][colleges][{{ $cle }}][decoupage]" class="champ" data-college="{{ $cle }}" x-on:change="collegeExclusif($el)" aria-label="Scrutins du collège {{ $libelleCollege }}, phase {{ $numero }}">
                                                                     <option value="AUCUN">Aucun scrutin</option>
                                                                     @foreach ($decoupages as $valeur => $libelle)
                                                                         @if ($cle !== 'DGTCP' || $valeur === 'ENSEMBLE')

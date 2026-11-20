@@ -424,17 +424,16 @@
   .connexion__panneau { position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 48px; color: #fff; background: radial-gradient(120% 90% at 0% 0%, var(--tr-bleu-600), var(--tr-bleu-900) 70%); overflow: hidden; }
   .connexion__panneau::before { content: ""; position: absolute; right: -120px; top: 30%; width: 420px; height: 420px; border-radius: 50%; border: 48px solid rgba(255,255,255,.05); }
   .connexion__formulaire { display: grid; place-items: center; padding: 48px 24px; background: var(--tr-surface); }
-  .connexion__boite { width: min(400px, 100%); view-transition-name: connexion-boite; }
-  /* Passage du matricule au code (transition entre pages, gabarit invite) : seule la boîte du formulaire glisse,
-     le panneau de gauche reste en place. Un navigateur sans cette fonction change de page sans animation. */
-  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
-  ::view-transition-old(connexion-boite) { animation: 200ms ease-in both connexion-sortie; }
-  ::view-transition-new(connexion-boite) { animation: 260ms ease-out 60ms both connexion-entree; }
-  @keyframes connexion-sortie { to { opacity: 0; translate: -32px 0; } }
-  @keyframes connexion-entree { from { opacity: 0; translate: 32px 0; } }
-  @media (prefers-reduced-motion: reduce) {
-    ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
-  }
+  .connexion__boite { width: min(400px, 100%); }
+  /* Connexion en deux étapes dans la même page (Livewire Acces\Connexion) : les deux étapes occupent la même case
+     de grille ; celle qui part glisse et s'efface pendant que l'autre arrive. */
+  .connexion-etapes { display: grid; overflow: hidden; margin: -6px; padding: 6px; }
+  .connexion-etapes > * { grid-area: 1 / 1; min-width: 0; }
+  .glissement { transition: opacity .25s ease, translate .3s ease; }
+  .glissement--centre { opacity: 1; translate: 0 0; }
+  .glissement--gauche { opacity: 0; translate: -48px 0; }
+  .glissement--droite { opacity: 0; translate: 48px 0; }
+  @media (prefers-reduced-motion: reduce) { .glissement { transition: none; } }
   .connexion__marque { position: relative; display: flex; align-items: center; gap: 14px; }
   .connexion__marque strong { display: block; font-size: 15px; }
   .connexion__marque small { font-size: 12px; opacity: .8; }

@@ -41,7 +41,7 @@
 
 ## Authentification
 
-- Connexion sans mot de passe (R42) : matricule, puis code à usage unique envoyé par e-mail (`app/Actions/Acces/DemanderCodeConnexion.php`, `VerifierCodeConnexion.php`, `ConnexionController`). N'ajoutez ni mot de passe, ni paquet d'authentification (Fortify, Breeze…).
+- Connexion sans mot de passe (R42) : matricule, puis code à usage unique envoyé par e-mail (`app/Actions/Acces/DemanderCodeConnexion.php`, `VerifierCodeConnexion.php`, composant Livewire `app/Livewire/Acces/Connexion.php`). N'ajoutez ni mot de passe, ni paquet d'authentification (Fortify, Breeze…).
 - L'adresse utilisée est `User::adresseDeConnexion()` : celle du compte, sinon celle de la fiche agent. Un compte sans adresse ne peut pas se connecter.
 - Les connexions, échecs et déconnexions sont journalisés par les écouteurs des événements `Login`, `Failed` et `Logout` (`AppServiceProvider`).
 

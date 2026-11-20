@@ -1,5 +1,6 @@
 // Saisie du code de connexion en six cases (composant Alpine). Le champ « code » d'origine reste dans le
-// formulaire, masqué, et reçoit les six chiffres : c'est lui qui est envoyé. Coller le code remplit les cases.
+// formulaire, masqué, et reçoit les six chiffres (événement input : wire:model le suit). Coller le code remplit
+// les cases. Les cases ne prennent la main que si l'étape du code est affichée.
 
 const LONGUEUR = 6;
 
@@ -11,7 +12,9 @@ export default function saisieCode() {
             this.$refs.natif.hidden = true;
             this.$refs.code.removeAttribute('autofocus');
             this.repartir(this.$refs.code.value);
-            this.$nextTick(() => this.aller(Math.min(this.$refs.code.value.length, LONGUEUR - 1)));
+            if (this.$root.offsetParent !== null) {
+                this.$nextTick(() => this.aller(Math.min(this.$refs.code.value.length, LONGUEUR - 1)));
+            }
         },
 
         cases() {
@@ -22,6 +25,11 @@ export default function saisieCode() {
         },
         synchroniser() {
             this.$refs.code.value = this.chiffres.join('');
+            this.$refs.code.dispatchEvent(new Event('input', { bubbles: true }));
+        },
+        vider() {
+            this.chiffres = Array(LONGUEUR).fill('');
+            this.$refs.code.value = '';
         },
         repartir(texte, depuis = 0) {
             const chiffres = String(texte).replace(/\D/g, '').slice(0, LONGUEUR - depuis).split('');

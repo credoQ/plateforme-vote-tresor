@@ -81,7 +81,7 @@
                 <div class="carte__corps">
                     <fieldset class="organisation-phase">
                         <legend class="libelle">Phase 2</legend>
-                        <label class="case"><input type="checkbox" checked> Organiser une phase 2</label>
+                        <label class="case case--interrupteur"><input type="checkbox" role="switch" checked> Comité d’organisation</label>
                         <div class="formulaire__groupe"><label class="libelle" for="exemple-phase">Libellé</label><input id="exemple-phase" class="champ" value="Phase 2 · demi-finales"></div>
                         <div class="tableau-defilant">
                             <table class="tableau">

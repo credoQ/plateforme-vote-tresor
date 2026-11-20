@@ -99,6 +99,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('utilisateurs', UtilisateurController::class)
             ->only(['index', 'create', 'store', 'edit', 'update'])
             ->parameters(['utilisateurs' => 'utilisateur']);
+        Route::post('/utilisateurs/{utilisateur}/lier-agent', [UtilisateurController::class, 'lierAgent'])->name('utilisateurs.lier-agent');
 
         Route::get('/taches-echouees', [TacheEchoueeController::class, 'index'])->name('taches-echouees.index');
         Route::post('/taches-echouees/relancer', [TacheEchoueeController::class, 'relancerTout'])->name('taches-echouees.relancer-tout');

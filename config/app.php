@@ -33,6 +33,22 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Premier administrateur
+    |--------------------------------------------------------------------------
+    |
+    | Compte créé par db:seed s'il n'existe pas encore (PremierAdministrateurSeeder).
+    | Laissez ces variables vides pour ne créer aucun compte.
+    |
+    */
+
+    'premier_administrateur' => [
+        'login' => env('PREMIER_ADMIN_LOGIN'),
+        'nom' => env('PREMIER_ADMIN_NOM'),
+        'email' => env('PREMIER_ADMIN_EMAIL'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Pagination des tableaux
     |--------------------------------------------------------------------------
     |

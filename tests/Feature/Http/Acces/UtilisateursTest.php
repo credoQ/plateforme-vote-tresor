@@ -60,8 +60,8 @@ class UtilisateursTest extends TestCase
         User::factory()->pourAgent($agent)->create();
 
         $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
-            'name' => 'Doublon', 'login' => 'doublon', 'email' => 'doublon@example.test', 'matricule_agent' => '102345', 'roles' => [CodeRole::Electeur->value],
-        ])->assertSessionHasErrors('agent_id');
+            'name' => 'Doublon', 'login' => '102345', 'email' => 'doublon@example.test', 'roles' => [CodeRole::Electeur->value],
+        ])->assertSessionHasErrors('login');
 
         $this->post(route('utilisateurs.store'), [
             'name' => 'Point focal', 'login' => 'pf-dia', 'email' => 'pf@example.test', 'roles' => [CodeRole::PointFocal->value],
@@ -97,5 +97,40 @@ class UtilisateursTest extends TestCase
     {
         $this->actingAs($this->admin)->get(route('utilisateurs.create'))->assertOk()->assertSee('Créer le compte');
         $this->get(route('utilisateurs.edit', $this->admin))->assertOk()->assertSee('Enregistrer le compte');
+    }
+
+    /**
+     * R3 : l'identifiant qui est le matricule d'un agent sans compte lie le compte à cet agent ; son adresse suffit.
+     */
+    public function test_r3_lie_le_compte_a_l_agent_qui_porte_l_identifiant(): void
+    {
+        $agent = Agent::factory()->create(['matricule' => '104455', 'email' => 'agent@example.test']);
+
+        $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
+            'name' => $agent->nomComplet(), 'login' => '104455', 'roles' => [CodeRole::Comite->value], 'actif' => '1',
+            'structure_id' => Structure::where('code', 'DIA')->value('id'),
+        ])->assertSessionHasNoErrors();
+
+        $compte = User::where('login', '104455')->firstOrFail();
+        $this->assertSame($agent->id, $compte->agent_id);
+        $this->assertNull($compte->structure_id);
+        $this->assertSame('agent@example.test', $compte->adresseDeConnexion());
+    }
+
+    /**
+     * R3 : un compte sans agent se lie depuis la liste à un agent qui n'a pas encore de compte, une seule fois.
+     */
+    public function test_r3_lie_un_compte_existant_a_un_agent_sans_compte(): void
+    {
+        $agent = Agent::factory()->create(['matricule' => '106677']);
+        $compte = User::factory()->avecRoles(CodeRole::Comite)->create(['login' => 'comite-1']);
+
+        $this->actingAs($this->admin)->get(route('utilisateurs.index'))->assertOk()->assertSee('Lier à un agent')->assertSee('106677 · '.$agent->nomComplet());
+        $this->post(route('utilisateurs.lier-agent', $compte), ['agent' => '106677 · '.$agent->nomComplet()])->assertSessionHasNoErrors();
+        $this->assertSame($agent->id, $compte->fresh()->agent_id);
+
+        $autre = User::factory()->avecRoles(CodeRole::Observateur)->create();
+        $this->post(route('utilisateurs.lier-agent', $autre), ['agent' => '106677'])->assertSessionHasErrors('agent');
+        $this->assertNull($autre->fresh()->agent_id);
     }
 }

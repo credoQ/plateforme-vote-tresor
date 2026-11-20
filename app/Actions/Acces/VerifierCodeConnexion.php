@@ -28,7 +28,8 @@ class VerifierCodeConnexion
                 return false;
             }
 
-            if (! hash_equals($enCours->empreinte, DemanderCodeConnexion::empreinte(preg_replace('/\D/', '', $code)))) {
+            // Essais : avec auth.code_libre, tout code saisi après une demande est accepté.
+            if (! config('auth.code_libre') && ! hash_equals($enCours->empreinte, DemanderCodeConnexion::empreinte(preg_replace('/\D/', '', $code)))) {
                 $enCours->increment('tentatives');
 
                 return false;

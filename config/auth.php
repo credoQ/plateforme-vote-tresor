@@ -114,4 +114,16 @@ return [
 
     'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Code de connexion libre (essais uniquement)
+    |--------------------------------------------------------------------------
+    |
+    | À true, n'importe quel code est accepté après la demande d'un code, sans
+    | lire l'e-mail. Réservé aux essais : à remettre à false avant une édition réelle.
+    |
+    */
+
+    'code_libre' => (bool) env('CONNEXION_CODE_LIBRE', false),
+
 ];

@@ -26,20 +26,28 @@ class EmpreinteBulletin
     }
 
     /**
-     * Empreinte du dernier bulletin de la chaîne du scrutin, celui qu'aucun autre ne suit.
+     * Empreinte du dernier bulletin de la chaîne du scrutin, gardée sur la ligne du scrutin : la lecture ne dépend
+     * pas du nombre de bulletins déjà déposés.
      */
     public function derniere(int $scrutinId): ?string
     {
-        return Bulletin::query()
-            ->where('scrutin_id', $scrutinId)
-            ->whereNotExists(fn ($query) => $query->select(DB::raw(1))
-                ->from('bulletins as suivants')
-                ->whereColumn('suivants.empreinte_precedente', 'bulletins.empreinte'))
-            ->value('empreinte');
+        return DB::table('scrutins')->where('id', $scrutinId)->value('derniere_empreinte');
     }
 
     /**
-     * Vérifie que tous les bulletins du scrutin forment une seule chaîne intacte (R44).
+     * Fait avancer la fin de chaîne du scrutin, dans la transaction du vote, sous le verrou du scrutin.
+     * Écriture directe, sans événement ni updated_at : l'heure exacte du dernier vote ne doit être gardée nulle part (R43).
+     * Si la fin de chaîne était périmée, l'index bulletins_chaine_sans_embranchement refuse le bulletin : le vote échoue
+     * sans casser la chaîne.
+     */
+    public function avancer(int $scrutinId, string $empreinte): void
+    {
+        DB::table('scrutins')->where('id', $scrutinId)->update(['derniere_empreinte' => $empreinte]);
+    }
+
+    /**
+     * Vérifie que tous les bulletins du scrutin forment une seule chaîne intacte (R44), qui se termine sur
+     * la fin de chaîne gardée par le scrutin (un bulletin retiré en fin de chaîne est ainsi détecté).
      */
     public function chaineEstIntacte(int $scrutinId): bool
     {
@@ -56,6 +64,8 @@ class EmpreinteBulletin
             $parcourus++;
         }
 
-        return $parcourus === $bulletins->count() && $parcourus === Bulletin::where('scrutin_id', $scrutinId)->count();
+        return $parcourus === $bulletins->count()
+            && $parcourus === Bulletin::where('scrutin_id', $scrutinId)->count()
+            && $precedente === ($this->derniere($scrutinId) ?? 'DEBUT');
     }
 }

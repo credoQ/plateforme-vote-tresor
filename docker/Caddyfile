@@ -1,5 +1,6 @@
 # SITE_DOMAIN renseigné : certificat Let's Encrypt et redirection vers HTTPS.
 # Sans domaine, compose.yaml donne « :80 » : le site reste en HTTP simple.
+# Utilisé seulement sur un serveur dédié (COMPOSE_PROFILES=entree) ; sur le serveur partagé, le Caddy de TGE sert le site.
 # Serveur joignable seulement depuis le réseau interne (Let's Encrypt impossible) : voir docs/DEPLOIEMENT_DOCKER.md.
 {$SITE_DOMAIN} {
 	encode zstd gzip

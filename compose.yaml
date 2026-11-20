@@ -1,5 +1,5 @@
 # Voir docs/DEPLOIEMENT_DOCKER.md. Serveur partagé : c'est le Caddy principal du serveur qui publie les ports 80 et 443
-# et passe le site de vote au conteneur web par le réseau Docker « entree ». Notre caddy ne démarre que sur un
+# et passe le site de vote au conteneur femme-modele-web par le réseau Docker « entree ». Notre caddy ne démarre que sur un
 # serveur dédié (COMPOSE_PROFILES=entree). Docker contourne UFW : db n'est publié que sur 127.0.0.1.
 name: femme-modele
 
@@ -64,7 +64,9 @@ services:
       db:
         condition: service_healthy
 
-  web:
+  # Nginx. Le nom du service est aussi son nom sur le réseau « entree » : il doit être unique sur ce réseau.
+  # Un service nommé « web » détournerait le trafic du Caddy principal, qui envoie son propre site à « web ».
+  femme-modele-web:
     build:
       context: .
       target: web
@@ -72,10 +74,8 @@ services:
     restart: unless-stopped
     # Joignable par le Caddy principal du serveur sous le nom femme-modele-web, sans publier de port.
     networks:
-      default:
-      entree:
-        aliases:
-          - femme-modele-web
+      - default
+      - entree
     depends_on:
       - app
 
@@ -96,7 +96,7 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
-      - web
+      - femme-modele-web
 
   db:
     image: postgres:18-alpine
@@ -156,7 +156,8 @@ services:
         condition: service_healthy
 
 networks:
-  # Réseau partagé avec le Caddy principal du serveur, créé une fois sur le serveur : docker network create entree
+  # Réseau partagé avec le Caddy principal du serveur, créé par sa pile, à déployer avant celle-ci.
+  # Sur un serveur dédié, le créer une fois : docker network create entree
   entree:
     external: true
 

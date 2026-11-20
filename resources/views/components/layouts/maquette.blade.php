@@ -37,15 +37,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $titre }} · Femme modèle du Trésor</title>
+    <x-meta :titre="$titre.' · Femme modèle du Trésor'" />
     <script>try { const t = localStorage.getItem('fm-theme'); if (t) { document.documentElement.dataset.theme = t; } } catch (e) {}</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body>
 <div class="app">
-    <aside class="sidebar">
+    <aside class="sidebar" id="navigation">
         <div class="sidebar__marque">
             <img src="{{ asset('images/embleme-tresor.png') }}" alt="Trésor public">
             <div class="sidebar__nom">Femme modèle<small>du Trésor · DGTCP</small></div>
+            <button type="button" class="icone-bouton sidebar__fermer" data-fermer-menu aria-label="Fermer le menu"><i data-lucide="x"></i></button>
         </div>
         <nav class="sidebar__nav" aria-label="Navigation principale">
             @foreach ($menus[$profil] as $groupe => $liens)
@@ -64,9 +67,11 @@
         </div>
         <div class="bande-tricolore"></div>
     </aside>
+    <div class="voile-menu" data-fermer-menu></div>
 
     <div class="principal">
         <header class="entete">
+            <button type="button" class="icone-bouton entete__menu" data-ouvrir-menu aria-controls="navigation" aria-expanded="false" aria-label="Ouvrir le menu"><i data-lucide="menu"></i></button>
             <nav class="fil-ariane" aria-label="Fil d'Ariane">
                 <i data-lucide="house"></i>
                 @foreach ($ariane as $element)
@@ -95,5 +100,6 @@
     </div>
 </div>
 {{ $modales ?? '' }}
+@livewireScripts
 </body>
 </html>

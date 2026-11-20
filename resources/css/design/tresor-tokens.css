@@ -84,6 +84,7 @@
   --tr-police:"Montserrat",sans-serif;
 }
 [data-theme="sombre"]{
+  color-scheme:dark;
   --tr-fond:#0B0F14;
   --tr-surface:#121820;
   --tr-surface-2:#161E28;

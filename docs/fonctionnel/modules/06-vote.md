@@ -8,12 +8,24 @@ Ce module permet aux électeurs de voter en ligne pendant la période d’ouvert
 
 ## Fonctionnalités
 
-- [ ] L’affichage, pour chaque électeur, du seul scrutin auquel il est inscrit pour la phase en cours.
-- [ ] La consultation de la liste des candidates du scrutin (nom, prénoms, structure), avec recherche par nom et par structure.
-- [ ] Le désistement en ligne d’une candidate depuis son espace personnel, avant l’ouverture du scrutin.
-- [ ] Le vote avec confirmation, puis délivrance d’un accusé de vote sans indication du choix exprimé.
-- [ ] L’enregistrement séparé de l’émargement (qui a voté) et du bulletin (pour qui), garantissant le secret du vote.
-- [ ] L’accès depuis un ordinateur ou un téléphone mobile (interface adaptative).
+- [x] L’affichage, pour chaque électeur, du seul scrutin auquel il est inscrit pour la phase en cours.
+- [x] La consultation de la liste des candidates du scrutin (nom, prénoms, structure), avec recherche par nom et par structure.
+- [x] Le désistement en ligne d’une candidate depuis son espace personnel, avant l’ouverture du scrutin.
+- [x] Le vote avec confirmation, puis délivrance d’un accusé de vote sans indication du choix exprimé.
+- [x] L’enregistrement séparé de l’émargement (qui a voté) et du bulletin (pour qui), garantissant le secret du vote.
+- [x] L’accès depuis un ordinateur ou un téléphone mobile (interface adaptative).
+
+## Avancement
+
+- [x] Migration `bulletins` : identifiant aléatoire, aucune colonne vers l'agent ou l'utilisateur, pas de `created_at`, trigger qui interdit toute modification ou suppression (R43, R44)
+- [x] Paramètre `vote_pour_soi_autorise` de l'édition (R45, à confirmer) et numéro d'accusé de vote sur l'inscription
+- [x] Actions `PlanifierScrutin`, `OuvrirScrutin` (annulation si aucune candidate active, R38) et `FermerScrutin` ; commande `scrutins:basculer` lancée chaque minute par le planificateur (R39)
+- [x] Action `DeposerBulletin` : vote unique et définitif dans son scrutin (R40), choix d'une candidate active ou vote blanc paramétré (R33, R41), émargement et bulletin dans une transaction, horodatages tronqués à l'heure (R43), accusé de vote sans le choix
+- [x] Empreinte chaînée HMAC-SHA256 et vérification de la chaîne (R44)
+- [x] Taux de participation, seule donnée visible pendant le vote (R46)
+- [x] Tests des règles R33, R38 à R41 et R43 à R46
+- [x] Écrans de l'électeur : bulletin avec recherche, confirmation en deux étapes sans JavaScript, accusé imprimable sans le choix, retrait et réactivation de candidature depuis l'accueil (R32 à R34, R40, R42)
+- [x] Accusé de vote en PDF sur le canevas des documents (QR code de vérification publique sans l'identité du votant), téléchargeable par son seul électeur et envoyé par e-mail en pièce jointe (file `mails`) après le vote (R43)
 
 ## Acteurs
 
@@ -27,6 +39,13 @@ INSCRIRE (émargement), BULLETIN, CANDIDATE
 
 - `resources/views/maquettes/vote.blade.php`, consultable à l'adresse `/maquettes/vote`
 
+## Écrans
+
+- `/vote` : bulletin, confirmation, accusé de vote (électeur)
+- `/vote/accuse/{numero}` : accusé de vote en PDF (électeur)
+- `/verification/accuse-de-vote/{numero}` : vérification publique de l'accusé (lien signé du QR code)
+- `/espace` : retrait et réactivation de sa candidature
+
 ## Règles de gestion
 
 Règles R39 à R46, extraites de [regles-de-gestion.md](../regles-de-gestion.md) :
@@ -36,7 +55,7 @@ Règles R39 à R46, extraites de [regles-de-gestion.md](../regles-de-gestion.md)
 - **R39** · Le vote est électronique et n’est possible que pendant la période d’ouverture du scrutin.
 - **R40** · Un électeur ne vote qu’une seule fois par scrutin et uniquement dans le scrutin où il est inscrit ; le vote est définitif et ne peut être modifié.
 - **R41** · Le scrutin est uninominal à un tour : l’électeur choisit une seule candidate. Le vote blanc est paramétrable par édition.
-- **R42** · Le vote nécessite une authentification par matricule et mot de passe personnel ; un code OTP peut être exigé en complément lorsque l’agent dispose d’un contact renseigné.
+- **R42** · L’authentification se fait sans mot de passe : l’agent saisit son matricule et reçoit par e-mail un code à usage unique (OTP), valable 10 minutes, qu’il saisit pour se connecter. Le compte doit avoir une adresse e-mail (celle du compte ou de la fiche agent).
 - **R43** · Le vote est secret : l’émargement (agent, scrutin, date-heure) et le bulletin (scrutin, candidate) sont enregistrés séparément, dans une même transaction, sans aucun lien entre eux ; l’horodatage du bulletin est volontairement imprécis afin d’empêcher tout rapprochement.
 - **R44** · Chaque bulletin porte une empreinte cryptographique chaînée permettant de détecter toute altération.
 - **R45** · Une candidate est électrice dans son scrutin au même titre que les autres agents (le vote pour soi-même est à confirmer par le métier).

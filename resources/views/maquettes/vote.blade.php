@@ -5,21 +5,16 @@
         ['KOUTON Edwige', 'TC Zè', 'KE'], ['SOGLO Bénédicte', 'TC Kpomassè', 'SB'],
     ];
 @endphp
-<x-layouts.maquette titre="Voter" :ariane="['Mon espace', 'Voter']" profil="electeur" actif="vote">
+<x-layouts.vote titre="Voter" contexte="Phase 1 · élections primaires · Scrutin départemental · Atlantique" :etape="1">
     <div class="titre-page">
         <div>
-            <div class="surtitre">Phase 1 · élections primaires</div>
-            <h1>Scrutin départemental · Atlantique</h1>
-            <p>Choisissez une seule candidate parmi les agents femmes en service de votre circonscription.</p>
+            <h1>Choisissez votre candidate</h1>
+            <p>Scrutin départemental · Atlantique</p>
         </div>
         <div class="titre-page__actions">
             <span class="badge badge--primaire">Ouvert</span>
             <span class="etiquette"><i data-lucide="clock"></i>Clôture le 28 nov. à 18 h 00</span>
         </div>
-    </div>
-
-    <div class="alerte alerte--info" style="margin-bottom:20px"><i data-lucide="lock"></i>
-        <div><strong>Vote secret et définitif.</strong> La plateforme enregistre que vous avez voté, jamais pour qui. Une fois confirmé, votre choix ne peut plus être modifié.</div>
     </div>
 
     <section class="carte" style="margin-bottom:4px">
@@ -46,9 +41,9 @@
     <div class="barre-vote">
         <span class="avatar avatar--sans-anneau">AS</span>
         <div><div class="surtitre">Votre choix</div><b>AHOUANDJINOU Sandrine</b> · TC Ouidah</div>
-        <div style="margin-left:auto;display:flex;gap:8px">
+        <div class="barre-vote__actions">
             <a href="#" class="btn btn-discret">Plus tard</a>
-            <button class="btn btn-primaire btn--lg" data-ouvrir="confirmation"><i data-lucide="vote"></i>Voter pour cette candidate</button>
+            <button class="btn btn-primaire btn--lg" data-ouvrir="confirmation"><i data-lucide="vote"></i>Continuer vers la confirmation</button>
         </div>
     </div>
 
@@ -90,4 +85,4 @@
             </div>
         </div>
     </x-slot:modales>
-</x-layouts.maquette>
+</x-layouts.vote>

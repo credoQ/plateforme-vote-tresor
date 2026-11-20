@@ -115,4 +115,22 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Gabarit des e-mails
+    |--------------------------------------------------------------------------
+    |
+    | Gabarit aux couleurs de la DGTCP (emblème, bande tricolore, pied de page) :
+    | vues dans resources/views/vendor/mail, thème html/themes/tresor.css.
+    |
+    */
+
+    'markdown' => [
+        'theme' => 'tresor',
+
+        'paths' => [
+            resource_path('views/vendor/mail'),
+        ],
+    ],
+
 ];

@@ -17,6 +17,33 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Mentions institutionnelles
+    |--------------------------------------------------------------------------
+    |
+    | Intitulés repris dans les pieds de page des écrans, des e-mails et des
+    | documents. Le copyright est complété par l'année en cours.
+    |
+    */
+
+    'ministere' => 'Ministère de l’Économie et des Finances chargé des Finances et de la Microfinance',
+
+    'direction' => 'Direction générale du Trésor et de la Comptabilité publique',
+
+    'copyright' => 'DIA/DGTCP',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pagination des tableaux
+    |--------------------------------------------------------------------------
+    |
+    | Nombre de lignes par page de tous les tableaux de la plateforme.
+    |
+    */
+
+    'lignes_par_page' => 10,
+
+    /*
+    |--------------------------------------------------------------------------
     | Application Environment
     |--------------------------------------------------------------------------
     |

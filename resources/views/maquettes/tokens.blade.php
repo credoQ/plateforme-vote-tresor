@@ -76,6 +76,54 @@
                     </div>
                 </div>
             </section>
+            <section class="carte">
+                <div class="carte__entete"><h2>Édition · paramétrage d’une phase et de ses collèges</h2></div>
+                <div class="carte__corps">
+                    <fieldset class="organisation-phase">
+                        <legend class="libelle">Phase 2</legend>
+                        <label class="case"><input type="checkbox" checked> Organiser une phase 2</label>
+                        <div class="formulaire__groupe"><label class="libelle" for="exemple-phase">Libellé</label><input id="exemple-phase" class="champ" value="Phase 2 · demi-finales"></div>
+                        <div class="tableau-defilant">
+                            <table class="tableau">
+                                <thead><tr><th>Collège</th><th>Scrutins</th><th>Candidates</th><th class="nombre">Élues par scrutin</th></tr></thead>
+                                <tbody>
+                                    <tr><td>Pôle structures</td><td><select class="champ"><option>Un seul scrutin</option></select></td><td><select class="champ"><option>Nomination par le comité</option></select></td><td class="nombre"><input type="number" class="champ champ--court" value="3"></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </fieldset>
+                    <ul class="colleges-phase" style="margin-top:16px"><li><i data-lucide="users-round"></i>Pôle structures · Un seul scrutin · Nomination par le comité · 3 élue(s) par scrutin</li></ul>
+                </div>
+            </section>
+            <section class="carte">
+                <div class="carte__entete"><h2>Espace électeur · carte du scrutin (x-layouts.electeur)</h2></div>
+                <div class="carte__corps">
+                    <div class="scrutin-carte scrutin-carte--ouvert">
+                        <div class="scrutin-carte__haut">
+                            <div><div class="surtitre">Mon scrutin · Phase 1 · primaires</div><h2>Scrutin départemental · Atlantique</h2></div>
+                            <span class="badge badge--succes">Ouvert</span>
+                        </div>
+                        <div class="scrutin-carte__infos"><span><i data-lucide="clock"></i>Clôture le 28/11/2026 à 18:00</span><span><i data-lucide="users-round"></i>38 candidate(s)</span></div>
+                        <a href="#" class="btn btn-primaire btn--lg"><i data-lucide="vote"></i>Voter maintenant</a>
+                    </div>
+                </div>
+            </section>
+            <section class="carte">
+                <div class="carte__entete"><h2>Page de vote · en-tête et étapes (x-layouts.vote)</h2></div>
+                <header class="isoloir__entete">
+                    <div class="isoloir__marque">
+                        <img src="{{ asset('images/embleme-tresor.png') }}" alt="Trésor public">
+                        <div><strong>Femme modèle du Trésor</strong><small>Phase 1 · Scrutin départemental · Atlantique</small></div>
+                    </div>
+                    <div class="etapes isoloir__etapes">
+                        <div class="etape est-faite"><span class="etape__puce"><i data-lucide="check"></i></span><span class="etape__texte">Choisir<small>votre candidate</small></span></div>
+                        <span class="etape__trait"></span>
+                        <div class="etape est-en-cours"><span class="etape__puce">2</span><span class="etape__texte">Confirmer<small>votre vote</small></span></div>
+                    </div>
+                    <div class="isoloir__droite"><a href="#" class="btn btn-discret isoloir__quitter"><i data-lucide="x"></i><span>Quitter</span></a></div>
+                </header>
+                <div class="bande-tricolore"></div>
+            </section>
         </div>
     </div>
 </x-layouts.maquette>

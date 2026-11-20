@@ -1,0 +1,390 @@
+/* Thème des e-mails, charte DGTCP (modèle A).
+   Les messageries ne lisent ni les variables CSS ni les polices web : les couleurs reprennent en dur les
+   valeurs de resources/css/design/tresor-tokens.css, et Montserrat retombe sur Arial. */
+
+/* Base */
+
+body,
+body *:not(html):not(style):not(br):not(tr):not(code) {
+    box-sizing: border-box;
+    font-family: Montserrat, Arial, Helvetica, sans-serif;
+    position: relative;
+}
+
+body {
+    -webkit-text-size-adjust: none;
+    background-color: #F3F5F8;
+    color: #1C2733;
+    height: 100%;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+}
+
+p,
+ul,
+ol,
+blockquote {
+    line-height: 1.6;
+    text-align: left;
+}
+
+a {
+    color: #0054A0;
+}
+
+a img {
+    border: none;
+}
+
+/* Typographie */
+
+h1 {
+    color: #1C2733;
+    font-size: 18px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: left;
+}
+
+h2 {
+    color: #1C2733;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: left;
+}
+
+h3 {
+    color: #1C2733;
+    font-size: 14px;
+    font-weight: bold;
+    margin-top: 0;
+    text-align: left;
+}
+
+p {
+    color: #1C2733;
+    font-size: 15px;
+    line-height: 1.6em;
+    margin-top: 0;
+    text-align: left;
+}
+
+p.sub {
+    font-size: 12px;
+}
+
+img {
+    max-width: 100%;
+}
+
+/* Structure */
+
+.wrapper {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    background-color: #F3F5F8;
+    margin: 0;
+    padding: 24px 0;
+    width: 100%;
+}
+
+.inner-body {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 570px;
+    background-color: #FFFFFF;
+    border: 1px solid #E2E7EE;
+    border-radius: 6px;
+    margin: 0 auto;
+    padding: 0;
+    width: 570px;
+}
+
+/* Bande tricolore */
+
+.tricolore {
+    font-size: 0;
+    line-height: 0;
+    padding: 0;
+}
+
+.tricolore-vert {
+    background-color: #008751;
+    font-size: 0;
+    line-height: 0;
+}
+
+.tricolore-jaune {
+    background-color: #FCD116;
+    font-size: 0;
+    line-height: 0;
+}
+
+.tricolore-rouge {
+    background-color: #E8112D;
+    font-size: 0;
+    line-height: 0;
+}
+
+/* En-tête */
+
+.header {
+    border-bottom: 1px solid #E2E7EE;
+    padding: 26px 32px 18px;
+    text-align: center;
+}
+
+.header-lien {
+    display: inline-block;
+    text-decoration: none;
+}
+
+.logo {
+    display: block;
+    height: 72px;
+    margin: 0 auto 10px;
+    max-height: 72px;
+    width: 72px;
+}
+
+.header-nom {
+    color: #0054A0;
+    display: block;
+    font-size: 17px;
+    font-weight: bold;
+}
+
+.header-edition {
+    color: #5B6878;
+    display: block;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 1.5px;
+    margin-top: 2px;
+    text-transform: uppercase;
+}
+
+/* Corps */
+
+.content-cell {
+    max-width: 100vw;
+    padding: 28px 32px;
+}
+
+.subcopy {
+    border-top: 1px solid #E2E7EE;
+    margin-top: 25px;
+    padding-top: 25px;
+}
+
+.subcopy p {
+    color: #5B6878;
+    font-size: 13px;
+}
+
+/* Pied de page */
+
+.footer-cell {
+    background-color: #F3F5F8;
+    border-top: 1px solid #E2E7EE;
+    padding: 18px 32px 20px;
+    text-align: center;
+}
+
+.footer-cell p {
+    color: #5B6878;
+    font-size: 12px;
+    line-height: 1.55em;
+    margin-bottom: 4px;
+    text-align: center;
+}
+
+.footer-cell a {
+    color: #5B6878;
+    text-decoration: underline;
+}
+
+/* Tableaux */
+
+.table table {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 24px auto;
+    width: 100%;
+}
+
+.table th {
+    border-bottom: 1px solid #E2E7EE;
+    margin: 0;
+    padding-bottom: 8px;
+}
+
+.table td {
+    color: #1C2733;
+    font-size: 15px;
+    line-height: 18px;
+    margin: 0;
+    padding: 10px 0;
+}
+
+/* Boutons : bouton primaire de la charte, bleu Trésor et liseré or de 3 px. */
+
+.action {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    float: unset;
+    margin: 28px auto;
+    padding: 0;
+    text-align: center;
+    width: 100%;
+}
+
+.button {
+    -webkit-text-size-adjust: none;
+    border-radius: 6px;
+    color: #FFFFFF;
+    display: inline-block;
+    font-weight: bold;
+    overflow: hidden;
+    text-decoration: none;
+}
+
+.button-blue,
+.button-primary {
+    background-color: #0054A0;
+    border-bottom: 3px solid #E0A800;
+    border-left: 22px solid #0054A0;
+    border-right: 22px solid #0054A0;
+    border-top: 11px solid #0054A0;
+    padding-bottom: 8px;
+}
+
+.button-green,
+.button-success {
+    background-color: #2E7D32;
+    border-bottom: 11px solid #2E7D32;
+    border-left: 22px solid #2E7D32;
+    border-right: 22px solid #2E7D32;
+    border-top: 11px solid #2E7D32;
+}
+
+.button-red,
+.button-error {
+    background-color: #C62828;
+    border-bottom: 11px solid #C62828;
+    border-left: 22px solid #C62828;
+    border-right: 22px solid #C62828;
+    border-top: 11px solid #C62828;
+}
+
+/* Encadrés */
+
+.panel {
+    border-left: 4px solid #0054A0;
+    margin: 21px 0;
+}
+
+.panel-content {
+    background-color: #EEF4FB;
+    color: #1C2733;
+    padding: 16px;
+}
+
+.panel-content p {
+    color: #1C2733;
+}
+
+.panel-item {
+    padding: 0;
+}
+
+.panel-item p:last-of-type {
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+/* Code de connexion : bloc centré sur fond bleu clair, chiffres espacés (composant x-mail::code). */
+
+.code {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    margin: 24px 0;
+    width: 100%;
+}
+
+.code-cell {
+    background-color: #EFF5F9;
+    border: 1px solid #C2D6E8;
+    border-radius: 12px;
+    padding: 22px 16px;
+    text-align: center;
+}
+
+.code-libelle {
+    color: #004788;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2px;
+    margin: 0;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.code-valeur {
+    color: #002E59;
+    font-size: 36px;
+    font-weight: bold;
+    letter-spacing: 10px;
+    line-height: 1.3em;
+    margin: 10px 0 6px;
+    padding-left: 10px;
+    text-align: center;
+}
+
+.code-validite {
+    color: #4D5359;
+    font-size: 12px;
+    margin: 0;
+    text-align: center;
+}
+
+/* Récapitulatif (accusé de vote) : libellé à gauche, valeur à droite. */
+
+.recapitulatif {
+    -premailer-cellpadding: 0;
+    -premailer-cellspacing: 0;
+    -premailer-width: 100%;
+    border: 1px solid #E2E7EE;
+    border-radius: 8px;
+    margin: 20px 0;
+    width: 100%;
+}
+
+.recapitulatif td {
+    border-bottom: 1px solid #EEF0F2;
+    font-size: 13px;
+    padding: 10px 14px;
+}
+
+.recapitulatif-libelle {
+    color: #4D5359;
+}
+
+.recapitulatif-valeur {
+    color: #1C2733;
+    font-weight: bold;
+    text-align: right;
+}
+
+/* Utilitaires */
+
+.break-all {
+    word-break: break-all;
+}

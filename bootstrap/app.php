@@ -12,7 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        //
+        // Derrière Caddy (HTTPS) : seul proxy à joindre l'application, il fixe lui-même les en-têtes X-Forwarded.
+        // Sans cela, les liens signés (accusés, procès-verbaux) seraient en http et les limites compteraient l'IP de Caddy.
+        $middleware->trustProxies(at: '*');
+        $middleware->redirectGuestsTo(fn () => route('login'));
+        $middleware->redirectUsersTo(fn () => route('espace'));
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

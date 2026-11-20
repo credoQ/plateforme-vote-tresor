@@ -6,6 +6,7 @@
     <title>Connexion · Femme modèle du Trésor</title>
     <script>try { const t = localStorage.getItem('fm-theme'); if (t) { document.documentElement.dataset.theme = t; } } catch (e) {}</script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
 </head>
 <body>
 <div class="connexion">
@@ -56,5 +57,6 @@
         </form>
     </section>
 </div>
+@livewireScripts
 </body>
 </html>

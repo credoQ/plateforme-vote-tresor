@@ -38,6 +38,13 @@ class ConnexionTest extends TestCase
         $this->get(route('login'))->assertOk()->assertSee('Matricule')->assertSee('Recevoir mon code')->assertDontSee('Mot de passe');
     }
 
+    public function test_ne_pose_ni_cookie_xsrf_ni_cookie_de_session_au_nom_du_cadriciel(): void
+    {
+        config(['session.cookie' => 'fm_sid']);
+
+        $this->get(route('login'))->assertOk()->assertCookieMissing('XSRF-TOKEN')->assertCookie('fm_sid');
+    }
+
     public function test_seule_la_page_de_connexion_est_indexable_et_partageable(): void
     {
         $this->get(route('login'))->assertOk()

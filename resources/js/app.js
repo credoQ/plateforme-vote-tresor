@@ -1,6 +1,7 @@
 import { createIcons, icons } from 'lucide';
 import './alertes';
 import formulaireEtapes from './formulaire-etapes';
+import lecteurVideo from './lecteur-video';
 import organisationPhases from './organisation-phases';
 import saisieCode from './saisie-code';
 import selectRecherche from './select-recherche';
@@ -152,6 +153,7 @@ document.addEventListener('alpine:init', () => {
     window.Alpine.data('formulaireEtapes', formulaireEtapes);
     window.Alpine.data('organisationPhases', organisationPhases);
     window.Alpine.data('saisieCode', saisieCode);
+    window.Alpine.data('lecteurVideo', lecteurVideo);
 });
 
 // Après chaque mise à jour d'un composant Livewire, les icônes et les tableaux renvoyés par le serveur sont repréparés.

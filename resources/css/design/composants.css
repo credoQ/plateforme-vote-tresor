@@ -421,8 +421,35 @@
 
   /* ---------------------------------------------------------------- connexion */
   .connexion { display: grid; grid-template-columns: 1.05fr 1fr; min-height: 100vh; }
-  .connexion__panneau { position: relative; display: flex; flex-direction: column; justify-content: space-between; padding: 48px; color: #fff; background: radial-gradient(120% 90% at 0% 0%, var(--tr-bleu-600), var(--tr-bleu-900) 70%); overflow: hidden; }
-  .connexion__panneau::before { content: ""; position: absolute; right: -120px; top: 30%; width: 420px; height: 420px; border-radius: 50%; border: 48px solid rgba(255,255,255,.05); }
+  /* Panneau de la connexion : photo voilée de bleu Trésor (le texte reste lisible), filet tricolore de 3 px à gauche,
+     accroche et vidéos de présentation en bas. Sur téléphone, il laisse la place à un bandeau photo. */
+  .connexion__panneau { position: relative; display: flex; flex-direction: column; padding: 48px; color: #fff; background: var(--tr-bleu-900) url('../../images/connexion/fond.jpg') 45% 30% / cover no-repeat; overflow: hidden; }
+  .connexion__panneau::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, color-mix(in srgb, var(--tr-bleu-900) 97%, transparent) 0%, color-mix(in srgb, var(--tr-bleu-900) 88%, transparent) 38%, color-mix(in srgb, var(--tr-bleu-900) 35%, transparent) 68%, color-mix(in srgb, var(--tr-bleu-900) 55%, transparent) 100%); }
+  .connexion__panneau::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: linear-gradient(180deg, var(--tr-drapeau-vert) 0 33.33%, var(--tr-drapeau-jaune) 33.33% 66.66%, var(--tr-drapeau-rouge) 66.66%); }
+  .connexion__bas { position: relative; display: grid; gap: 28px; margin: auto 0 40px; }
+  .connexion__videos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; max-width: 600px; }
+  .video-carte { display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 8px; border: 1px solid rgba(255,255,255,.18); border-radius: 14px; background: rgba(255,255,255,.10); backdrop-filter: blur(8px); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background .15s; }
+  .video-carte:hover { background: rgba(255,255,255,.16); }
+  .video-carte:focus-visible { outline: 2px solid var(--tr-accent-sur-primaire); outline-offset: 2px; }
+  .video-carte__vignette { position: relative; flex: none; width: 104px; aspect-ratio: 16 / 9; border-radius: 9px; overflow: hidden; }
+  .video-carte__vignette img { display: block; width: 100%; height: 100%; object-fit: cover; transition: scale .3s; }
+  .video-carte:hover .video-carte__vignette img { scale: 1.05; }
+  .video-carte__lecture { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,.18); }
+  .video-carte__lecture span { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: var(--tr-accent-sur-primaire); color: var(--tr-bleu-900); box-shadow: 0 4px 12px rgba(0,0,0,.3); }
+  .video-carte__lecture svg { width: 14px; height: 14px; margin-left: 2px; fill: currentColor; }
+  .video-carte strong { display: block; font-size: 13px; line-height: 18px; white-space: nowrap; }
+  .video-carte small { display: block; margin-top: 2px; font-size: 12px; opacity: .75; white-space: nowrap; }
+  .connexion__bandeau, .connexion__videos-telephone { display: none; }
+  .connexion__videos-telephone button { display: flex; align-items: center; gap: 10px; padding: 0; border: 0; background: none; color: var(--tr-primaire); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+  .connexion__videos-telephone svg { width: 20px; height: 20px; }
+  /* Lecteur des vidéos de présentation, par-dessus la page. */
+  .lecteur { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; padding: 24px; background: rgba(6,18,38,.85); backdrop-filter: blur(4px); }
+  .lecteur__boite { width: min(1040px, 100%); }
+  .lecteur__tete { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 12px; color: #fff; font-weight: 600; }
+  .lecteur__fermer { display: grid; flex: none; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 50%; background: rgba(255,255,255,.14); color: #fff; cursor: pointer; }
+  .lecteur__fermer:hover { background: rgba(255,255,255,.24); }
+  .lecteur__fermer svg { width: 18px; height: 18px; }
+  .lecteur__video { display: block; width: 100%; aspect-ratio: 16 / 9; border-radius: 14px; background: #000; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
   .connexion__formulaire { display: grid; place-items: center; padding: 48px 24px; background: var(--tr-surface); }
   .connexion__boite { width: min(400px, 100%); }
   /* Connexion en deux étapes dans la même page (Livewire Acces\Connexion) : les deux étapes occupent la même case
@@ -631,8 +658,16 @@
     html.menu-ouvert { overflow: hidden; }
     .entete__menu, .sidebar__fermer { display: grid; }
     .entete { gap: 8px; }
-    .connexion { grid-template-columns: 1fr; }
+    .connexion { grid-template-columns: 1fr; align-content: start; }
     .connexion__panneau { display: none; }
+    .connexion__bandeau { position: relative; display: block; height: 210px; color: #fff; background: var(--tr-bleu-900) url('../../images/connexion/fond-telephone.jpg') 45% 30% / cover no-repeat; }
+    .connexion__bandeau::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, color-mix(in srgb, var(--tr-bleu-900) 95%, transparent) 0%, color-mix(in srgb, var(--tr-bleu-900) 40%, transparent) 70%, color-mix(in srgb, var(--tr-bleu-900) 55%, transparent) 100%); }
+    .connexion__bandeau-texte { position: absolute; right: 20px; bottom: 18px; left: 20px; }
+    .connexion__bandeau-texte .surtitre { color: var(--tr-accent-sur-primaire); }
+    .connexion__bandeau-texte strong { display: block; margin-top: 4px; font-size: 20px; line-height: 26px; }
+    .connexion__bandeau .bande-tricolore { position: absolute; right: 0; bottom: 0; left: 0; }
+    .connexion__formulaire { padding: 28px 20px 32px; }
+    .connexion__videos-telephone { display: grid; gap: 10px; margin-top: 20px; }
     .contenu { padding: 20px 16px; }
     .entete { padding: 0 16px; }
     .affectation, .profil__nom { display: none; }

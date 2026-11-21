@@ -17,7 +17,27 @@ class ConnexionController extends Controller
 {
     public function create(): View
     {
-        return view('acces.connexion', ['editionEnCours' => Edition::anneeEnCours()]);
+        return view('acces.connexion', [
+            'editionEnCours' => Edition::anneeEnCours(),
+            'videos' => $this->videos(),
+        ]);
+    }
+
+    /**
+     * Vidéos de présentation proposées sur la page de connexion (config/videos.php).
+     *
+     * @return list<array{titre: string, detail: string, src: string, apercu: string}>
+     */
+    private function videos(): array
+    {
+        return collect(config('videos'))
+            ->map(fn (array $video): array => [
+                'titre' => $video['titre'],
+                'detail' => $video['detail'],
+                'src' => asset("videos/{$video['fichier']}.mp4"),
+                'apercu' => asset("videos/{$video['fichier']}.jpg"),
+            ])
+            ->all();
     }
 
     public function destroy(Request $request): RedirectResponse

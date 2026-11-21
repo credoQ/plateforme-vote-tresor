@@ -24,14 +24,14 @@ use Illuminate\Support\Facades\Route;
 Route::redirect('/', '/espace');
 
 // Vérification publique des documents PDF par leur QR code (liens signés).
-Route::middleware(['signed', 'throttle:30,1'])->prefix('verification')->name('verification.')->group(function () {
+Route::middleware(['signed', 'throttle:verification'])->prefix('verification')->name('verification.')->group(function () {
     Route::get('/proces-verbal/{numero}', [VerificationController::class, 'procesVerbal'])->name('proces-verbal');
     Route::get('/accuse-de-vote/{numero}', [VerificationController::class, 'accuseDeVote'])->name('accuse-de-vote');
     Route::get('/export', [VerificationController::class, 'export'])->name('export');
 });
 
 // Rapports de violation de la politique de sécurité du contenu, envoyés par les navigateurs.
-Route::post('/csp-rapport', RapportCspController::class)->middleware('throttle:30,1')->name('csp.rapport');
+Route::post('/csp-rapport', RapportCspController::class)->middleware('throttle:csp-rapport')->name('csp.rapport');
 
 // Connexion sans mot de passe : matricule, puis code reçu par e-mail (R42).
 Route::middleware('guest')->group(function () {
@@ -55,7 +55,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('can:voter')->group(function () {
         Route::get('/vote', [VoteController::class, 'show'])->name('vote');
         Route::post('/vote/confirmation', [VoteController::class, 'confirmer'])->name('vote.confirmer');
-        Route::post('/vote', [VoteController::class, 'store'])->middleware('throttle:10,1')->name('vote.store');
+        Route::post('/vote', [VoteController::class, 'store'])->middleware('throttle:vote')->name('vote.store');
         Route::get('/vote/accuse/{numero}', [VoteController::class, 'accuse'])->name('vote.accuse');
     });
     Route::post('/candidatures/{candidate}/desister', [CandidatureController::class, 'desister'])->name('candidatures.desister');

@@ -36,10 +36,14 @@ Des volumes gardent les données d'une mise à jour à l'autre : `postgres` (la 
 Prérequis : Docker et le plugin Compose installés, l'utilisateur dans le groupe `docker`.
 
 ```bash
-git clone <adresse du dépôt> ~/femme-modele
-cd ~/femme-modele
+git clone <adresse du dépôt> ~/plateforme-vote
+cd ~/plateforme-vote
 cp .env.production.example .env
 ```
+
+Dépôt privé : le serveur le clone avec une clé de déploiement en lecture seule, propre à ce dépôt (GitHub refuse
+qu'une même clé serve deux dépôts). Elle est déclarée dans `~/.ssh/config` sous un alias, par exemple `github-vote`,
+et le dépôt se clone alors par `git@github-vote:<compte>/<dépôt>.git`.
 
 Remplir le `.env` (`nano .env`) :
 
@@ -104,14 +108,31 @@ Aucun service de la présente pile branché sur `entree` ne doit porter un nom d
 
 ## Mettre à jour
 
+Depuis le poste de développement, fusionner `dev` dans `main` et pousser ; puis sur le serveur :
+
 ```bash
-cd ~/femme-modele
-git pull
-docker compose up -d --build
+cd ~/plateforme-vote
+git pull --ff-only
+docker compose build
+docker compose up -d
 ```
 
-Les conteneurs sont recréés avec le nouveau code ; les migrations passent au démarrage de `app`.
+Seuls les conteneurs dont l'image a changé sont recréés ; les migrations passent au démarrage de `app`.
 **Pas de mise à jour pendant un scrutin ouvert** : le redémarrage coupe le site quelques secondes.
+
+Vérifier ensuite :
+
+```bash
+docker compose ps                       # tous « Up », db « healthy »
+docker compose logs app --since 2m      # aucune erreur
+curl -I https://<domaine du vote>/connexion   # 200 OK
+```
+
+Après une modification du `.env` seule, il suffit de recréer les conteneurs PHP pour qu'ils relisent la configuration :
+
+```bash
+docker compose up -d --force-recreate app worker worker-codes scheduler
+```
 
 ## Avant chaque scrutin
 

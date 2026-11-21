@@ -608,6 +608,9 @@
   .portail__droite { margin-left: auto; display: flex; align-items: center; gap: 8px; }
   .portail__contenu { width: 100%; max-width: 880px; margin: 0 auto; padding: 32px 28px 48px; flex: 1; display: grid; gap: 20px; align-content: start; }
   .portail__contenu > * { min-width: 0; }
+  /* racine du composant Livewire de l'accueil : reprend l'espacement de .portail__contenu entre ses blocs */
+  .portail__accueil { display: grid; gap: 20px; align-content: start; }
+  .portail__accueil > * { min-width: 0; }
   .portail__bonjour h1 { font-size: 26px; line-height: 34px; font-weight: 800; }
   .portail__bonjour p { color: var(--tr-texte-2); margin-top: 2px; }
   .portail__deux { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; align-items: start; }

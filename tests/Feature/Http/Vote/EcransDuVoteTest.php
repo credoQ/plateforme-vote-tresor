@@ -152,6 +152,25 @@ class EcransDuVoteTest extends TestCase
     }
 
     /**
+     * Les rapports de sécurité du navigateur ont leur propre limite : ils n'épuisent pas celle du vote.
+     */
+    public function test_les_rapports_de_securite_n_epuisent_pas_la_limite_du_vote(): void
+    {
+        $this->ouvrir();
+        $this->actingAs($this->electeur);
+
+        foreach (range(1, 15) as $rapport) {
+            $this->postJson(route('csp.rapport'), ['csp-report' => ['blocked-uri' => 'https://exemple.test/x.js']])->assertNoContent();
+        }
+
+        $this->post(route('vote.store'), ['candidate' => 'inconnue'])->assertRedirect();
+        foreach (range(2, 10) as $essai) {
+            $this->post(route('vote.store'), ['candidate' => 'inconnue']);
+        }
+        $this->post(route('vote.store'), ['candidate' => 'inconnue'])->assertTooManyRequests();
+    }
+
+    /**
      * R33, R41 : seules les candidates actives du scrutin et, si l'édition l'autorise, le vote blanc.
      */
     public function test_r41_refuse_un_choix_hors_bulletin_et_propose_le_blanc_s_il_est_autorise(): void

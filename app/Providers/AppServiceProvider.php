@@ -14,10 +14,13 @@ use App\View\Composers\NavigationComposer;
 use Illuminate\Auth\Events\Failed;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Logout;
+use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\View\View as Vue;
@@ -37,6 +40,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Limiteurs nommés : chacun a son propre compteur. Une limite « throttle:X,Y » compte par utilisateur sans
+        // tenir compte de la route : des rapports de sécurité envoyés pendant le vote épuiseraient la limite du vote.
+        RateLimiter::for('vote', fn (Request $request): Limit => Limit::perMinute(10)->by((string) ($request->user()?->getAuthIdentifier() ?? $request->ip())));
+        RateLimiter::for('csp-rapport', fn (Request $request): Limit => Limit::perMinute(30)->by((string) $request->ip()));
+        RateLimiter::for('verification', fn (Request $request): Limit => Limit::perMinute(30)->by((string) $request->ip()));
+
         Gate::define('administrer', fn (User $user): bool => $user->aLeRole(CodeRole::Administrateur));
         Gate::define('piloter', fn (User $user): bool => $user->aLeRole(CodeRole::Comite));
         Gate::define('controler-listes', fn (User $user): bool => $user->aLeRole(CodeRole::Comite, CodeRole::PointFocal));

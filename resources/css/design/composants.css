@@ -421,11 +421,13 @@
 
   /* ---------------------------------------------------------------- connexion */
   .connexion { display: grid; grid-template-columns: 1.05fr 1fr; min-height: 100vh; }
-  /* Panneau de la connexion : photo voilée de bleu Trésor (le texte reste lisible), filet tricolore de 3 px à gauche,
+  /* Panneau de la connexion : photo voilée de bleu Trésor (le texte reste lisible), calée en haut sur 80 % de la
+     hauteur pour que l'accroche ne couvre pas les visages, filet tricolore de 3 px à gauche,
      accroche et vidéos de présentation en bas. Sur téléphone, il laisse la place à un bandeau photo. */
-  .connexion__panneau { position: relative; display: flex; flex-direction: column; padding: 48px; color: #fff; background: var(--tr-bleu-900) url('../../images/connexion/fond.jpg') 45% 30% / cover no-repeat; overflow: hidden; }
-  .connexion__panneau::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, color-mix(in srgb, var(--tr-bleu-900) 97%, transparent) 0%, color-mix(in srgb, var(--tr-bleu-900) 88%, transparent) 38%, color-mix(in srgb, var(--tr-bleu-900) 35%, transparent) 68%, color-mix(in srgb, var(--tr-bleu-900) 55%, transparent) 100%); }
+  .connexion__panneau { position: relative; display: flex; flex-direction: column; padding: 48px; color: #fff; background: var(--tr-bleu-900) url('../../images/connexion/fond.jpg') 45% 0 / auto 80% no-repeat; overflow: hidden; }
+  .connexion__panneau::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, var(--tr-bleu-900) 0 21%, color-mix(in srgb, var(--tr-bleu-900) 88%, transparent) 38%, color-mix(in srgb, var(--tr-bleu-900) 35%, transparent) 68%, color-mix(in srgb, var(--tr-bleu-900) 55%, transparent) 100%); }
   .connexion__panneau::after { content: ""; position: absolute; inset: 0 auto 0 0; width: 3px; background: linear-gradient(180deg, var(--tr-drapeau-vert) 0 33.33%, var(--tr-drapeau-jaune) 33.33% 66.66%, var(--tr-drapeau-rouge) 66.66%); }
+  @media (min-aspect-ratio: 2 / 1) { .connexion__panneau { background-size: cover; } }
   .connexion__bas { position: relative; display: grid; gap: 28px; margin: auto 0 40px; }
   .connexion__videos { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; max-width: 600px; }
   .video-carte { display: flex; align-items: center; gap: 12px; padding: 8px 14px 8px 8px; border: 1px solid rgba(255,255,255,.18); border-radius: 14px; background: rgba(255,255,255,.10); backdrop-filter: blur(8px); color: inherit; font: inherit; text-align: left; cursor: pointer; transition: background .15s; }

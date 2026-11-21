@@ -18,7 +18,7 @@
                 <div style="font-size:12px;opacity:.8">et de la Comptabilité publique</div>
             </div>
         </div>
-        <div style="position:relative;max-width:440px">
+        <div class="connexion__bas" style="max-width:440px">
             <div class="surtitre" style="color:var(--tr-accent-sur-primaire)">Édition 2026</div>
             <h1 style="font-size:32px;line-height:40px;font-weight:700;margin:8px 0 12px">Élisez la Femme modèle du Trésor</h1>
             <p style="opacity:.85">Un agent, une voix par phase. Votre vote est secret : la plateforme enregistre que vous avez voté, jamais pour qui.</p>

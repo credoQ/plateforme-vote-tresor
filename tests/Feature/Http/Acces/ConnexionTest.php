@@ -38,6 +38,17 @@ class ConnexionTest extends TestCase
         $this->get(route('login'))->assertOk()->assertSee('Matricule')->assertSee('Recevoir mon code')->assertDontSee('Mot de passe');
     }
 
+    public function test_la_page_de_connexion_propose_les_videos_de_presentation(): void
+    {
+        $reponse = $this->get(route('login'))->assertOk();
+
+        foreach (config('videos') as $video) {
+            $this->assertFileExists(public_path("videos/{$video['fichier']}.mp4"));
+            $this->assertFileExists(public_path("videos/{$video['fichier']}.jpg"));
+            $reponse->assertSee($video['titre'])->assertSee(asset("videos/{$video['fichier']}.jpg"), false);
+        }
+    }
+
     public function test_ne_pose_ni_cookie_xsrf_ni_cookie_de_session_au_nom_du_cadriciel(): void
     {
         config(['session.cookie' => 'fm_sid']);

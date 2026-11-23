@@ -24,7 +24,7 @@ class DroitsTest extends TestCase
     }
 
     /**
-     * R32 : la candidate elle-même, le comité, ou le point focal de sa structure peuvent la désactiver ; personne d'autre.
+     * R32 : la candidate elle-même, le comité, l'administrateur ou le point focal de sa structure peuvent la désactiver ; personne d'autre.
      */
     public function test_r32_droits_de_desactivation_d_une_candidate(): void
     {
@@ -34,12 +34,17 @@ class DroitsTest extends TestCase
 
         $elle = User::factory()->pourAgent($candidate->agent)->avecRoles(CodeRole::Electeur)->create();
         $comite = User::factory()->avecRoles(CodeRole::Comite)->create();
+        $administrateur = User::factory()->avecRoles(CodeRole::Administrateur)->create();
+        $observateur = User::factory()->avecRoles(CodeRole::Observateur)->create();
         $pointFocalDia = User::factory()->pointFocalDe($dia)->create();
         $pointFocalDr = User::factory()->pointFocalDe($this->structure('DR'))->create();
         $autreElecteur = User::factory()->pourAgent(Agent::factory()->create())->avecRoles(CodeRole::Electeur)->create();
 
         $this->assertTrue($elle->can('desactiver', $candidate));
         $this->assertTrue($comite->can('desactiver', $candidate));
+        $this->assertTrue($administrateur->can('desactiver', $candidate));
+        $this->assertTrue($administrateur->can('reactiver', $candidate));
+        $this->assertFalse($observateur->can('desactiver', $candidate));
         $this->assertTrue($pointFocalDia->can('reactiver', $candidate));
         $this->assertFalse($pointFocalDr->can('desactiver', $candidate));
         $this->assertFalse($autreElecteur->can('desactiver', $candidate));

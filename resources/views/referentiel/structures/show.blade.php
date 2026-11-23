@@ -13,14 +13,14 @@
         </div>
         <div class="titre-page__actions">
             @can('update', $structure)
-                <a href="{{ route('structures.edit', $structure) }}" class="btn btn-secondaire"><i data-lucide="pencil"></i>Modifier</a>
+                <a wire:navigate href="{{ route('structures.edit', $structure) }}" class="btn btn-secondaire"><i data-lucide="pencil"></i>Modifier</a>
                 @if ($structure->actif)
                     <button type="button" class="btn btn-danger-contour" data-ouvrir="modale-desactiver"><i data-lucide="ban"></i>Désactiver</button>
                 @else
                     <button type="button" class="btn btn-secondaire" data-ouvrir="modale-reactiver"><i data-lucide="rotate-ccw"></i>Réactiver</button>
                 @endif
             @endcan
-            <a href="{{ route('structures.index') }}" class="btn btn-tertiaire"><i data-lucide="arrow-left"></i>Retour à la liste</a>
+            <a wire:navigate href="{{ route('structures.index') }}" class="btn btn-tertiaire"><i data-lucide="arrow-left"></i>Retour à la liste</a>
         </div>
     </div>
 
@@ -38,7 +38,7 @@
                             <td>Rattachée à</td>
                             <td>
                                 @if ($structure->structureParente)
-                                    <a href="{{ route('structures.show', $structure->structureParente) }}">{{ $structure->structureParente->code }}</a> · {{ $structure->structureParente->libelle }}
+                                    <a wire:navigate href="{{ route('structures.show', $structure->structureParente) }}">{{ $structure->structureParente->code }}</a> · {{ $structure->structureParente->libelle }}
                                 @else
                                     Aucune
                                 @endif
@@ -49,7 +49,7 @@
                             <td>Agents en service</td>
                             <td class="chiffres">
                                 @can('viewAny', \App\Models\Agent::class)
-                                    <a href="{{ route('agents.index', ['structure' => $structure->id]) }}">{{ number_format($agentsEnService, 0, ',', ' ') }}</a>
+                                    <a wire:navigate href="{{ route('agents.index', ['structure' => $structure->id]) }}">{{ number_format($agentsEnService, 0, ',', ' ') }}</a>
                                 @else
                                     {{ number_format($agentsEnService, 0, ',', ' ') }}
                                 @endcan
@@ -65,7 +65,7 @@
                 <h2>Structures rattachées</h2>
                 @can('update', $structure)
                     @if ($structure->actif && ! $structure->estUnService())
-                        <a href="{{ route('structures.create', ['parente' => $structure->id]) }}" class="btn btn-tertiaire btn--sm"><i data-lucide="plus"></i>Ajouter un service</a>
+                        <a wire:navigate href="{{ route('structures.create', ['parente' => $structure->id]) }}" class="btn btn-tertiaire btn--sm"><i data-lucide="plus"></i>Ajouter un service</a>
                     @endif
                 @endcan
             </div>
@@ -89,7 +89,7 @@
                     <tbody>
                         @forelse ($structuresFilles as $fille)
                             <tr>
-                                <td class="reference"><a href="{{ route('structures.show', $fille) }}">{{ $fille->code }}</a></td>
+                                <td class="reference"><a wire:navigate href="{{ route('structures.show', $fille) }}">{{ $fille->code }}</a></td>
                                 <td>{{ $fille->libelle }}<div class="aide">{{ $fille->estUnService() ? 'Service' : $fille->typeStructure->code->libelle() }}</div></td>
                                 <td class="nombre">{{ number_format($fille->agents_en_service_count, 0, ',', ' ') }}</td>
                                 <td>

@@ -65,7 +65,7 @@
 
                 <div class="formulaire__actions">
                     <button type="submit" class="btn btn-primaire"><i data-lucide="save"></i>{{ ! $utilisateur->exists ? 'Créer le compte' : 'Enregistrer le compte' }}</button>
-                    <a href="{{ route('utilisateurs.index') }}" class="btn btn-tertiaire">Retour à la liste</a>
+                    <a wire:navigate href="{{ route('utilisateurs.index') }}" class="btn btn-tertiaire">Retour à la liste</a>
                 </div>
             </form>
         </div>

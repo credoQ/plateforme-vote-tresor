@@ -10,9 +10,9 @@
         </div>
         <div class="titre-page__actions">
             @if ($peutModifier)
-                <a href="{{ route('agents.edit', $agent) }}" class="btn btn-secondaire"><i data-lucide="pencil"></i>Modifier la fiche</a>
+                <a wire:navigate href="{{ route('agents.edit', $agent) }}" class="btn btn-secondaire"><i data-lucide="pencil"></i>Modifier la fiche</a>
             @endif
-            <a href="{{ route('agents.index') }}" class="btn btn-tertiaire"><i data-lucide="arrow-left"></i>Retour à la liste</a>
+            <a wire:navigate href="{{ route('agents.index') }}" class="btn btn-tertiaire"><i data-lucide="arrow-left"></i>Retour à la liste</a>
         </div>
     </div>
 

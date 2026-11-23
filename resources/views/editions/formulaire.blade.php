@@ -177,7 +177,7 @@
 
             <div class="formulaire__actions formulaire-etapes__actions">
                 <button type="button" class="btn btn-secondaire" x-show="etape > 1" x-cloak x-on:click="precedente()"><i data-lucide="arrow-left"></i>Précédent</button>
-                <a href="{{ ! $edition->exists ? route('editions.index') : route('editions.show', $edition) }}" class="btn btn-tertiaire formulaire-etapes__annuler">Annuler</a>
+                <a wire:navigate href="{{ ! $edition->exists ? route('editions.index') : route('editions.show', $edition) }}" class="btn btn-tertiaire formulaire-etapes__annuler">Annuler</a>
                 <button type="button" class="btn btn-primaire" x-show="! estDerniere" x-cloak x-on:click="suivante()">Suivant<i data-lucide="arrow-right"></i></button>
                 <button type="submit" class="btn btn-primaire formulaire-etapes__envoyer" x-bind:hidden="! estDerniere"><i data-lucide="save"></i>{{ ! $edition->exists ? 'Créer l’édition' : 'Enregistrer l’édition' }}</button>
             </div>

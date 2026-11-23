@@ -7,8 +7,8 @@
 
     <div class="carte espace-bloc">
         <div class="onglets">
-            <a href="{{ route('structures.index') }}" class="onglet">Structures</a>
-            <a href="{{ route('structures.organisation') }}" class="onglet est-actif">Types et départements</a>
+            <a wire:navigate href="{{ route('structures.index') }}" class="onglet">Structures</a>
+            <a wire:navigate href="{{ route('structures.organisation') }}" class="onglet est-actif">Types et départements</a>
         </div>
         <x-barre-filtres :total="$types->count()" libelle="type(s)" :action="route('structures.organisation').'#types'" :conserver="['departement' => $filtres['departement']]" id="types">
             <x-filtre libelle="Type de structure" pour="filtre-type" large>
@@ -34,7 +34,7 @@
                             <td>{{ $ligne['pole']->code->libelle() }}</td>
                             <td>{{ $ligne['type']->code->libelle() }}</td>
                             <td class="reference">{{ $ligne['type']->code->value }}</td>
-                            <td class="nombre"><a href="{{ route('structures.index', ['type' => $ligne['type']->id]) }}">{{ number_format($ligne['type']->structures_count, 0, ',', ' ') }}</a></td>
+                            <td class="nombre"><a wire:navigate href="{{ route('structures.index', ['type' => $ligne['type']->id]) }}">{{ number_format($ligne['type']->structures_count, 0, ',', ' ') }}</a></td>
                         </tr>
                     @empty
                         <tr><td colspan="4"><div class="etat-vide"><p>Aucun type de structure ne correspond aux filtres.</p></div></td></tr>
@@ -61,12 +61,12 @@
                             <td>{{ $departement->libelle }}</td>
                             <td>
                                 @if ($departement->tresorerieDepartementale)
-                                    <a href="{{ route('structures.show', $departement->tresorerieDepartementale) }}">{{ $departement->tresorerieDepartementale->code }}</a>
+                                    <a wire:navigate href="{{ route('structures.show', $departement->tresorerieDepartementale) }}">{{ $departement->tresorerieDepartementale->code }}</a>
                                 @else
                                     <span class="badge badge--attente">Aucune</span>
                                 @endif
                             </td>
-                            <td class="nombre"><a href="{{ route('structures.index', ['departement' => $departement->id]) }}">{{ $departement->tresoreries_communales_count }}</a></td>
+                            <td class="nombre"><a wire:navigate href="{{ route('structures.index', ['departement' => $departement->id]) }}">{{ $departement->tresoreries_communales_count }}</a></td>
                         </tr>
                     @empty
                         <tr><td colspan="4"><div class="etat-vide"><p>Aucun département ne correspond à la recherche.</p></div></td></tr>

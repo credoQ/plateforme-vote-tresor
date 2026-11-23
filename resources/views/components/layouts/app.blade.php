@@ -62,7 +62,7 @@
                         </div>
                         <div class="menu-profil__groupe">
                             @if ($espaceElecteur)
-                                <a href="{{ $espaceElecteur }}" class="menu-profil__lien" role="menuitem"><i data-lucide="house"></i>Mon espace électeur</a>
+                                <a wire:navigate href="{{ $espaceElecteur }}" class="menu-profil__lien" role="menuitem"><i data-lucide="house"></i>Mon espace électeur</a>
                             @endif
                             <button type="button" class="menu-profil__lien" role="menuitem" data-basculer-theme><i data-lucide="moon"></i>Thème sombre<span class="interrupteur" aria-hidden="true"></span></button>
                         </div>

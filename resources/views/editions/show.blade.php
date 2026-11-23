@@ -10,10 +10,10 @@
         </div>
         <div class="titre-page__actions">
             @if ($edition->estModifiable())
-                <a href="{{ route('editions.edit', $edition) }}" class="btn btn-secondaire"><i data-lucide="settings"></i>Paramétrer</a>
+                <a wire:navigate href="{{ route('editions.edit', $edition) }}" class="btn btn-secondaire"><i data-lucide="settings"></i>Paramétrer</a>
                 <button type="button" class="btn btn-primaire" data-ouvrir="modale-lancer"><i data-lucide="rocket"></i>Lancer l’édition</button>
             @else
-                <a href="{{ route('tableau-de-bord') }}" class="btn btn-secondaire"><i data-lucide="chart-line"></i>Tableau de bord</a>
+                <a wire:navigate href="{{ route('tableau-de-bord') }}" class="btn btn-secondaire"><i data-lucide="chart-line"></i>Tableau de bord</a>
             @endif
         </div>
     </div>
@@ -29,7 +29,7 @@
         <ol>
             @foreach ($edition->phases as $etape)
                 <li @class(['frise-phases__etape', 'est-choisie' => $etape->is($phase), 'est-faite' => $etape->statut === StatutPhase::Cloturee])>
-                    <a href="{{ route('editions.show', [$edition, 'phase' => $etape->numero]) }}" @if ($etape->is($phase)) aria-current="page" @endif>
+                    <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $etape->numero]) }}" @if ($etape->is($phase)) aria-current="page" @endif>
                         <span class="frise-phases__puce">@if ($etape->statut === StatutPhase::Cloturee)<i data-lucide="check"></i>@else{{ $etape->numero }}@endif</span>
                         <span class="frise-phases__texte">
                             <strong>{{ $etape->libelle }}</strong>
@@ -79,9 +79,9 @@
             @endif
 
             <nav class="onglets" aria-label="Rubriques de la phase">
-                <a href="{{ route('editions.show', [$edition, 'phase' => $phase->numero]) }}" @class(['onglet', 'est-actif' => $onglet === 'scrutins']) @if ($onglet === 'scrutins') aria-current="page" @endif>Scrutins <span class="compteur">{{ $phase->scrutins_count }}</span></a>
-                <a href="{{ route('editions.show', [$edition, 'phase' => $phase->numero, 'onglet' => 'colleges']) }}" @class(['onglet', 'est-actif' => $onglet === 'colleges']) @if ($onglet === 'colleges') aria-current="page" @endif>Collèges <span class="compteur">{{ $phase->colleges->count() }}</span></a>
-                <a href="{{ route('editions.show', [$edition, 'phase' => $phase->numero, 'onglet' => 'resultats']) }}" @class(['onglet', 'est-actif' => $onglet === 'resultats']) @if ($onglet === 'resultats') aria-current="page" @endif>Résultats à valider <span @class(['compteur', 'compteur--attente' => $phase->scrutins_a_valider_count > 0])>{{ $phase->scrutins_a_valider_count }}</span></a>
+                <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $phase->numero]) }}" @class(['onglet', 'est-actif' => $onglet === 'scrutins']) @if ($onglet === 'scrutins') aria-current="page" @endif>Scrutins <span class="compteur">{{ $phase->scrutins_count }}</span></a>
+                <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $phase->numero, 'onglet' => 'colleges']) }}" @class(['onglet', 'est-actif' => $onglet === 'colleges']) @if ($onglet === 'colleges') aria-current="page" @endif>Collèges <span class="compteur">{{ $phase->colleges->count() }}</span></a>
+                <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $phase->numero, 'onglet' => 'resultats']) }}" @class(['onglet', 'est-actif' => $onglet === 'resultats']) @if ($onglet === 'resultats') aria-current="page" @endif>Résultats à valider <span @class(['compteur', 'compteur--attente' => $phase->scrutins_a_valider_count > 0])>{{ $phase->scrutins_a_valider_count }}</span></a>
             </nav>
 
             @if ($onglet === 'colleges')
@@ -149,7 +149,7 @@
                                         @if ($onglet === 'resultats')
                                             <a href="{{ route('scrutins.show', $ligne['scrutin']) }}#resultats" class="btn btn-tertiaire btn--sm"><i data-lucide="badge-check"></i>Valider</a>
                                         @else
-                                            <a href="{{ route('scrutins.show', $ligne['scrutin']) }}" class="btn btn-tertiaire btn--sm"><i data-lucide="eye"></i>Ouvrir</a>
+                                            <a wire:navigate href="{{ route('scrutins.show', $ligne['scrutin']) }}" class="btn btn-tertiaire btn--sm"><i data-lucide="eye"></i>Ouvrir</a>
                                         @endif
                                     </td>
                                 </tr>
@@ -173,7 +173,7 @@
     <x-slot:modales>
         @if ($edition->estModifiable())
             <x-modale-confirmation id="modale-lancer" :titre="'Lancer l’édition '.$edition->annee.' ?'" :action="route('editions.lancer', $edition)" bouton="Lancer l’édition" icone="rocket">
-                L’édition passera en cours et ne pourra plus être modifiée. Toutes les phases doivent être planifiées, et aucune autre édition ne doit être en cours.
+                L’édition passera en cours et ne pourra plus être modifiée. Toutes les phases doivent être planifiées, les scrutins de la première phase générés, et aucune autre édition ne doit être en cours.
             </x-modale-confirmation>
         @endif
         @foreach ($edition->phases as $etape)

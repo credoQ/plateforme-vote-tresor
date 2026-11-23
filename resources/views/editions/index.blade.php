@@ -4,7 +4,7 @@
             <h1>Éditions</h1>
         </div>
         <div class="titre-page__actions">
-            <a href="{{ route('editions.create') }}" class="btn btn-primaire"><i data-lucide="plus"></i>Créer une édition</a>
+            <a wire:navigate href="{{ route('editions.create') }}" class="btn btn-primaire"><i data-lucide="plus"></i>Créer une édition</a>
         </div>
     </div>
 

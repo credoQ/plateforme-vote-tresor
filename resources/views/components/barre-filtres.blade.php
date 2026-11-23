@@ -10,7 +10,7 @@
     <div class="barre-filtres__fin">
         <button type="submit" class="btn btn-secondaire"><i data-lucide="filter"></i>Filtrer</button>
         @if ($filtresActifs)
-            <a href="{{ $adresseSansFiltre }}" class="lien"><i data-lucide="x"></i>Réinitialiser</a>
+            <a wire:navigate href="{{ $adresseSansFiltre }}" class="lien"><i data-lucide="x"></i>Réinitialiser</a>
         @endif
         @if ($total !== null)
             <span class="aide barre-filtres__total"><b class="chiffres">{{ number_format($total, 0, ',', ' ') }}</b> {{ $libelle }}</span>

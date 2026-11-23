@@ -146,7 +146,7 @@
                         <tbody>
                             @forelse ($this->donnees['scrutins'] as $ligne)
                                 <tr wire:key="scrutin-{{ $ligne['scrutin']->id }}">
-                                    <td><a class="lien" href="{{ route('scrutins.show', $ligne['scrutin']) }}">{{ $ligne['scrutin']->libelle }}</a><div class="aide">{{ $ligne['scrutin']->code }} · {{ $ligne['scrutin']->candidates_actives }} candidate(s)</div></td>
+                                    <td><a wire:navigate class="lien" href="{{ route('scrutins.show', $ligne['scrutin']) }}">{{ $ligne['scrutin']->libelle }}</a><div class="aide">{{ $ligne['scrutin']->code }} · {{ $ligne['scrutin']->candidates_actives }} candidate(s)</div></td>
                                     <td>{{ $ligne['scrutin']->poleElectoral?->code->libelle() ?? 'Toute la DGTCP' }}</td>
                                     <td class="nombre">{{ number_format($ligne['inscrits'], 0, ',', ' ') }}</td>
                                     <td class="nombre">{{ number_format($ligne['votants'], 0, ',', ' ') }}</td>

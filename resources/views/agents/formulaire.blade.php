@@ -90,7 +90,7 @@
 
             <div class="formulaire__actions formulaire-etapes__actions">
                 <button type="button" class="btn btn-secondaire" x-show="etape > 1" x-cloak x-on:click="precedente()"><i data-lucide="arrow-left"></i>Précédent</button>
-                <a href="{{ ! $agent->exists ? route('agents.index') : route('agents.show', $agent) }}" class="btn btn-tertiaire formulaire-etapes__annuler">Annuler</a>
+                <a wire:navigate href="{{ ! $agent->exists ? route('agents.index') : route('agents.show', $agent) }}" class="btn btn-tertiaire formulaire-etapes__annuler">Annuler</a>
                 <button type="button" class="btn btn-primaire" x-show="! estDerniere" x-cloak x-on:click="suivante()">Suivant<i data-lucide="arrow-right"></i></button>
                 <button type="submit" class="btn btn-primaire formulaire-etapes__envoyer" x-bind:hidden="! estDerniere"><i data-lucide="save"></i>{{ ! $agent->exists ? 'Enregistrer l’agent' : 'Enregistrer la fiche' }}</button>
             </div>

@@ -119,7 +119,6 @@
   /* fiche d'une personne : avatar à gauche du nom, matricule et statut en étiquettes sous le nom */
   .titre-page__identite { display: flex; align-items: center; gap: 16px; min-width: 0; }
   .titre-page__identite .titre-page__surtitre { flex-wrap: wrap; margin: 6px 0 0; }
-  .affectation-mutation { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--tr-bordure-legere); }
   .titre-page__actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
   .titre-page__surtitre { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 

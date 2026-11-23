@@ -59,7 +59,7 @@ class GestionDesAgentsTest extends TestCase
 
         $this->actingAs($this->admin)->get(route('agents.create'))->assertOk()->assertSee('Enregistrer l’agent');
         $this->post(route('agents.store'), [
-            'matricule' => '300100', 'npi' => '1234567890', 'nom' => 'ahouansou', 'prenoms' => 'Clarisse', 'sexe' => 'F',
+            'matricule' => '300100', 'npi' => '1234567890', 'nom' => 'ahouansou', 'prenoms' => 'Clarisse', 'sexe' => 'F', 'email' => 'clarisse@example.test',
             'date_naissance' => '1985-03-12', 'structure_id' => $dia->id, 'date_debut' => '2024-01-02', 'fonction' => '',
         ])->assertSessionHasNoErrors();
 
@@ -100,7 +100,7 @@ class GestionDesAgentsTest extends TestCase
 
         $this->actingAs($this->admin)->get(route('agents.edit', $agent))->assertOk();
         $this->put(route('agents.update', $agent), [
-            'matricule' => $agent->matricule, 'nom' => 'DOSSOU', 'prenoms' => 'Marc', 'sexe' => 'M', 'fonction' => 'Chef de service',
+            'matricule' => $agent->matricule, 'nom' => 'DOSSOU', 'prenoms' => 'Marc', 'sexe' => 'M', 'email' => 'marc@example.test', 'fonction' => 'Chef de service',
         ])->assertSessionHasNoErrors();
 
         $this->assertSame('Chef de service', $agent->fresh()->fonction);

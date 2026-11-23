@@ -17,13 +17,13 @@ class ImporterAgentsTest extends TestCase
 {
     use RefreshDatabase;
 
-    private const ENTETE = 'Matricule;NPI;Nom;Prénoms;Sexe;Date naissance;Structure;Date début;Fonction';
+    private const ENTETE = 'Matricule;NPI;Nom;Prénoms;Sexe;Date naissance;Structure;Date début;Fonction;Email';
 
     public function test_importe_les_agents_et_leurs_affectations(): void
     {
         $rapport = $this->importer([
-            '100001;1111111111;AHOUANSOU;Clarisse;F;12/03/1985;DIA;2021-01-04;Chef service',
-            '100002;2222222222;DOSSOU;Marc;Masculin;1979-07-01;td-zou;;',
+            '100001;1111111111;AHOUANSOU;Clarisse;F;12/03/1985;DIA;2021-01-04;Chef service;a100001@example.test',
+            '100002;2222222222;DOSSOU;Marc;Masculin;1979-07-01;td-zou;;;a100002@example.test',
         ]);
 
         $this->assertSame(2, $rapport->agentsCrees);
@@ -43,21 +43,23 @@ class ImporterAgentsTest extends TestCase
     public function test_rejette_les_doublons_et_les_lignes_incompletes(): void
     {
         $rapport = $this->importer([
-            '100001;1111111111;AHOUANSOU;Clarisse;F;;DIA;;',
-            '100001;3333333333;AHOUANSOU;Clarisse;F;;DIA;;',
-            '100003;;KPADE;Inès;;;DIA;;',
-            '100004;;HOUNTON;Paul;M;;;;',
-            '100005;;ZINSOU;Rose;F;;INCONNUE;;',
-            '100006;1111111111;AGBO;Léa;F;;DR;;',
+            '100001;1111111111;AHOUANSOU;Clarisse;F;;DIA;;;a100001@example.test',
+            '100001;3333333333;AHOUANSOU;Clarisse;F;;DIA;;;a100001@example.test',
+            '100003;;KPADE;Inès;;;DIA;;;a100003@example.test',
+            '100004;;HOUNTON;Paul;M;;;;;a100004@example.test',
+            '100005;;ZINSOU;Rose;F;;INCONNUE;;;a100005@example.test',
+            '100006;1111111111;AGBO;Léa;F;;DR;;;a100006@example.test',
+            '100007;;HOUNSOU;Afi;F;;DR;;;',
         ]);
 
         $this->assertSame(1, $rapport->agentsCrees);
-        $this->assertSame([3, 4, 5, 6, 7], array_keys($rapport->rejets));
+        $this->assertSame([3, 4, 5, 6, 7, 8], array_keys($rapport->rejets));
         $this->assertStringContainsString('doublon', $rapport->rejets[3][0]);
         $this->assertStringContainsString('Sexe absent', $rapport->rejets[4][0]);
         $this->assertStringContainsString('absente', $rapport->rejets[5][0]);
         $this->assertStringContainsString('inconnue', $rapport->rejets[6][0]);
         $this->assertStringContainsString('NPI', $rapport->rejets[7][0]);
+        $this->assertStringContainsString('e-mail absente', $rapport->rejets[8][0]);
         $this->assertDatabaseMissing('agents', ['matricule' => '100006']);
     }
 
@@ -66,9 +68,9 @@ class ImporterAgentsTest extends TestCase
      */
     public function test_r12_un_nouvel_import_met_a_jour_l_agent_et_enregistre_sa_mutation(): void
     {
-        $this->importer(['100001;1111111111;AHOUANSOU;Clarisse;F;;DIA;2021-01-04;']);
+        $this->importer(['100001;1111111111;AHOUANSOU;Clarisse;F;;DIA;2021-01-04;;a100001@example.test']);
 
-        $rapport = $this->importer(['100001;1111111111;AHOUANSOU épouse GBAGUIDI;Clarisse;F;;TD-ATL;2026-02-01;']);
+        $rapport = $this->importer(['100001;1111111111;AHOUANSOU épouse GBAGUIDI;Clarisse;F;;TD-ATL;2026-02-01;;a100001@example.test']);
 
         $agent = Agent::where('matricule', '100001')->firstOrFail();
         $this->assertSame(1, $rapport->agentsMisAJour);
@@ -84,10 +86,10 @@ class ImporterAgentsTest extends TestCase
         $chemin = sys_get_temp_dir().'/agents-'.uniqid().'.xlsx';
         $classeur = new Writer;
         $classeur->openToFile($chemin);
-        $classeur->addRow(Row::fromValues(['Matricule', 'Nom', 'Prénoms', 'Sexe', 'Date naissance', 'Structure', 'Date début']));
-        $classeur->addRow(Row::fromValues([100001, 'AHOUANSOU', 'Clarisse', 'F', new \DateTimeImmutable('1985-03-12'), 'DIA', new \DateTimeImmutable('2021-01-04')]));
-        $classeur->addRow(Row::fromValues(['', '', '', '', '', '', '']));
-        $classeur->addRow(Row::fromValues([100002, 'DOSSOU', 'Marc', '', null, 'DIA', null]));
+        $classeur->addRow(Row::fromValues(['Matricule', 'Nom', 'Prénoms', 'Sexe', 'Date naissance', 'Structure', 'Date début', 'Email']));
+        $classeur->addRow(Row::fromValues([100001, 'AHOUANSOU', 'Clarisse', 'F', new \DateTimeImmutable('1985-03-12'), 'DIA', new \DateTimeImmutable('2021-01-04'), 'clarisse@example.test']));
+        $classeur->addRow(Row::fromValues(['', '', '', '', '', '', '', '']));
+        $classeur->addRow(Row::fromValues([100002, 'DOSSOU', 'Marc', '', null, 'DIA', null, 'marc@example.test']));
         $classeur->close();
         $this->beforeApplicationDestroyed(fn () => @unlink($chemin));
 
@@ -109,7 +111,7 @@ class ImporterAgentsTest extends TestCase
 
     public function test_la_commande_affiche_le_bilan_et_echoue_s_il_y_a_des_rejets(): void
     {
-        $chemin = $this->fichier(['100001;;AHOUANSOU;Clarisse;F;;DIA;;', '100002;;DOSSOU;Marc;;;DIA;;']);
+        $chemin = $this->fichier(['100001;;AHOUANSOU;Clarisse;F;;DIA;;;a100001@example.test', '100002;;DOSSOU;Marc;;;DIA;;;a100002@example.test']);
 
         $this->artisan('agents:importer', ['fichier' => $chemin, '--date' => '2026-01-15'])
             ->expectsOutputToContain('Lignes rejetées')

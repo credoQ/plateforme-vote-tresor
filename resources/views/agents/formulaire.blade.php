@@ -28,7 +28,7 @@
             <section class="carte etape-panneau" data-etape="1" x-show="estAffichee(1)">
                 <div class="carte__entete"><h2>Étape 1 sur {{ $agent->exists ? 2 : 3 }} · Identité</h2></div>
                 <div class="carte__corps formulaire formulaire--deux-colonnes">
-                    @foreach ([['matricule', 'Matricule', true, 'text'], ['npi', 'NPI', false, 'text'], ['nom', 'Nom', true, 'text'], ['prenoms', 'Prénoms', true, 'text'], ['date_naissance', 'Date de naissance', false, 'date']] as [$champ, $libelle, $requis, $type])
+                    @foreach ([['matricule', 'Matricule', true, 'text'], ['npi', 'NPI', false, 'text'], ['nom', 'Nom', true, 'text'], ['prenoms', 'Prénoms', true, 'text'], ['email', 'E-mail', true, 'email'], ['date_naissance', 'Date de naissance', false, 'date']] as [$champ, $libelle, $requis, $type])
                         <div class="formulaire__groupe">
                             <label class="libelle" for="{{ $champ }}">{{ $libelle }} @if ($requis)<span class="requis">*</span>@endif</label>
                             <input id="{{ $champ }}" name="{{ $champ }}" type="{{ $type }}" class="champ" value="{{ old($champ, $type === 'date' ? $agent->{$champ}?->format('Y-m-d') : $agent->{$champ}) }}" @required($requis)>
@@ -78,7 +78,7 @@
             <section class="carte etape-panneau" data-etape="{{ $agent->exists ? 2 : 3 }}" x-show="estAffichee({{ $agent->exists ? 2 : 3 }})">
                 <div class="carte__entete"><h2>Étape {{ $agent->exists ? '2 sur 2' : '3 sur 3' }} · Informations complémentaires</h2></div>
                 <div class="carte__corps formulaire formulaire--deux-colonnes">
-                    @foreach ([['date_prise_service', 'Date de prise de service', 'date'], ['fonction', 'Fonction', 'text'], ['statut', 'Statut', 'text'], ['telephone', 'Téléphone', 'tel'], ['email', 'E-mail', 'email']] as [$champ, $libelle, $type])
+                    @foreach ([['date_prise_service', 'Date de prise de service', 'date'], ['fonction', 'Fonction', 'text'], ['statut', 'Statut', 'text'], ['telephone', 'Téléphone', 'tel']] as [$champ, $libelle, $type])
                         <div class="formulaire__groupe">
                             <label class="libelle" for="{{ $champ }}">{{ $libelle }}</label>
                             <input id="{{ $champ }}" name="{{ $champ }}" type="{{ $type }}" class="champ" value="{{ old($champ, $type === 'date' ? $agent->{$champ}?->format('Y-m-d') : $agent->{$champ}) }}">

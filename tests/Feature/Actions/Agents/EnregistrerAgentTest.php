@@ -29,6 +29,7 @@ class EnregistrerAgentTest extends TestCase
             'date_naissance' => '1985-03-12',
             'fonction' => 'Chef service',
             'telephone' => '+229 01 00 00 00',
+            'email' => 'clarisse@example.test',
         ]);
 
         $this->assertTrue($agent->fresh()->estUneFemme());
@@ -49,6 +50,16 @@ class EnregistrerAgentTest extends TestCase
     }
 
     /**
+     * R11 : l'adresse e-mail est obligatoire et doit être valide : elle reçoit les codes de connexion.
+     */
+    public function test_r11_rejette_un_agent_sans_adresse_e_mail_valide(): void
+    {
+        $this->attendreErreur('email', fn () => $this->enregistrer(['matricule' => '102347', 'nom' => 'DOSSOU', 'prenoms' => 'Marc', 'sexe' => 'M']));
+        $this->attendreErreur('email', fn () => $this->enregistrer(['matricule' => '102347', 'nom' => 'DOSSOU', 'prenoms' => 'Marc', 'sexe' => 'M', 'email' => 'marc.dossou']));
+        $this->assertDatabaseMissing('agents', ['matricule' => '102347']);
+    }
+
+    /**
      * R11 : le matricule et le NPI sont uniques.
      */
     public function test_r11_rejette_un_matricule_ou_un_npi_deja_attribue(): void
@@ -56,14 +67,14 @@ class EnregistrerAgentTest extends TestCase
         $existant = Agent::factory()->create(['matricule' => '200001', 'npi' => '9999999999']);
 
         $this->attendreErreur('matricule', fn () => $this->enregistrer([
-            'matricule' => '200001', 'nom' => 'X', 'prenoms' => 'Y', 'sexe' => 'M',
+            'matricule' => '200001', 'nom' => 'X', 'prenoms' => 'Y', 'sexe' => 'M', 'email' => 'x@example.test',
         ]));
         $this->attendreErreur('npi', fn () => $this->enregistrer([
-            'matricule' => '200002', 'npi' => '9999999999', 'nom' => 'X', 'prenoms' => 'Y', 'sexe' => 'M',
+            'matricule' => '200002', 'npi' => '9999999999', 'nom' => 'X', 'prenoms' => 'Y', 'sexe' => 'M', 'email' => 'x@example.test',
         ]));
 
         $this->enregistrer([
-            'matricule' => '200001', 'npi' => '9999999999', 'nom' => 'NOUVEAU NOM', 'prenoms' => 'Y', 'sexe' => 'M',
+            'matricule' => '200001', 'npi' => '9999999999', 'nom' => 'NOUVEAU NOM', 'prenoms' => 'Y', 'sexe' => 'M', 'email' => 'x@example.test',
         ], $existant);
         $this->assertSame('NOUVEAU NOM', $existant->fresh()->nom);
     }
@@ -73,7 +84,7 @@ class EnregistrerAgentTest extends TestCase
      */
     public function test_r3_un_nouvel_agent_recoit_son_compte_electeur(): void
     {
-        $agent = $this->enregistrer(['matricule' => '300001', 'nom' => 'SAGBO', 'prenoms' => 'Rachelle', 'sexe' => 'F']);
+        $agent = $this->enregistrer(['matricule' => '300001', 'nom' => 'SAGBO', 'prenoms' => 'Rachelle', 'sexe' => 'F', 'email' => 'rachelle@example.test']);
 
         $compte = $agent->compte;
         $this->assertNotNull($compte);
@@ -81,7 +92,7 @@ class EnregistrerAgentTest extends TestCase
         $this->assertSame('SAGBO Rachelle', $compte->name);
         $this->assertTrue($compte->aLeRole(CodeRole::Electeur));
 
-        $this->enregistrer(['matricule' => '300001', 'nom' => 'SAGBO', 'prenoms' => 'Rachelle Afi', 'sexe' => 'F'], $agent);
+        $this->enregistrer(['matricule' => '300001', 'nom' => 'SAGBO', 'prenoms' => 'Rachelle Afi', 'sexe' => 'F', 'email' => 'rachelle@example.test'], $agent);
         $this->assertSame(1, User::where('agent_id', $agent->id)->count());
     }
 
@@ -92,7 +103,7 @@ class EnregistrerAgentTest extends TestCase
     {
         $administrateur = User::factory()->avecRoles(CodeRole::Administrateur)->create(['login' => '300002']);
 
-        $agent = $this->enregistrer(['matricule' => '300002', 'nom' => 'KPADE', 'prenoms' => 'Inès', 'sexe' => 'F']);
+        $agent = $this->enregistrer(['matricule' => '300002', 'nom' => 'KPADE', 'prenoms' => 'Inès', 'sexe' => 'F', 'email' => 'ines@example.test']);
 
         $administrateur->refresh();
         $this->assertSame($agent->id, $administrateur->agent_id);

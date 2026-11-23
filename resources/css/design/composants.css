@@ -585,6 +585,8 @@
   .colleges-phase { display: grid; gap: 6px; margin: 0 0 16px; padding: 0; list-style: none; font-size: 13px; color: var(--tr-texte-2); }
   .colleges-phase li { display: flex; align-items: center; gap: 8px; }
   .colleges-phase svg { width: 15px; height: 15px; flex: none; color: var(--tr-texte-3); }
+  /* erreur reprise dans une fenêtre SweetAlert : l'encadré ne reste visible que sans JavaScript */
+  .js .alerte--fenetre { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
   fieldset.grille-candidates { border: 0; padding: 0; margin: 0; min-width: 0; }
   .barre-vote__actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }

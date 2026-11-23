@@ -5,12 +5,13 @@ namespace App\Actions\Editions;
 use App\Actions\Audit\Journaliser;
 use App\Enums\Audit\ActionAuditee;
 use App\Enums\Editions\StatutEdition;
+use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Edition;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Passe une édition en cours, une fois son calendrier complet (R16) : une seule édition peut être en cours.
+ * Passe une édition en cours, une fois son calendrier complet et les scrutins de sa première phase générés (R16) : une seule édition peut être en cours.
  */
 class LancerEdition
 {
@@ -36,6 +37,12 @@ class LancerEdition
             $nonPlanifiees = $edition->phases->filter(fn ($phase): bool => $phase->date_debut === null || $phase->date_fin === null);
             if ($edition->phases->isEmpty() || $nonPlanifiees->isNotEmpty()) {
                 $this->echouer('Toutes les phases doivent être planifiées avant de lancer l’édition.');
+            }
+
+            // Les scrutins des phases suivantes dépendent des résultats : seuls ceux de la première sont exigés.
+            $premiere = $edition->phases->sortBy('numero')->first();
+            if (! $premiere->scrutins()->where('statut', '!=', StatutScrutin::Annule->value)->exists()) {
+                $this->echouer("Générez les scrutins de la {$premiere->libelle} avant de lancer l’édition.");
             }
 
             $edition->update(['statut' => StatutEdition::EnCours]);

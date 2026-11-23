@@ -57,13 +57,17 @@ class EditionsTest extends TestCase
         $this->assertTrue($edition->vote_blanc_autorise);
         $this->get(route('editions.show', $edition))->assertOk()->assertSee('Phase 3 · finale')->assertSee('Lancer l’édition');
 
-        $this->post(route('editions.lancer', $edition))->assertSessionHasErrors('edition');
-        $this->get(route('editions.show', $edition))->assertSee('Toutes les phases doivent être planifiées');
+        $this->post(route('editions.lancer', $edition))->assertSessionHasErrors(['edition' => 'Toutes les phases doivent être planifiées avant de lancer l’édition.']);
 
         foreach ([1 => ['2027-03-01', '2027-03-15'], 2 => ['2027-03-20', '2027-04-05'], 3 => ['2027-04-10', '2027-04-30']] as $numero => [$debut, $fin]) {
             $this->put(route('phases.update', $edition->phase($numero)), ['date_debut' => $debut, 'date_fin' => $fin])->assertSessionHasNoErrors();
         }
 
+        $this->from(route('editions.show', $edition))->followingRedirects()->post(route('editions.lancer', $edition))
+            ->assertSee('Générez les scrutins de la Phase 1 · primaires avant de lancer l’édition.', false)
+            ->assertSee('alerte--fenetre', false);
+
+        Scrutin::factory()->for($edition->phase(1))->create();
         $this->post(route('editions.lancer', $edition))->assertSessionHasNoErrors();
         $this->assertSame(StatutEdition::EnCours, $edition->fresh()->statut);
         $this->get(route('editions.show', $edition))->assertDontSee('Paramétrer')->assertSee('Ouvrir la phase');

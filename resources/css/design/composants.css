@@ -112,7 +112,7 @@
   .avatar--sans-anneau { box-shadow: none; }
   .avatar--grand { width: 56px; height: 56px; font-size: 18px; }
 
-  .contenu { width: 100%; max-width: var(--container-contenu); padding: 28px; }
+  .contenu { width: 100%; padding: 28px; }
   .titre-page { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
   .titre-page h1 { font-size: 24px; line-height: 32px; font-weight: 700; }
   .titre-page p { color: var(--tr-texte-2); margin-top: 2px; }
@@ -406,6 +406,49 @@
   .segment__lien { display: inline-flex; align-items: center; height: 32px; padding: 0 14px; border-radius: 6px; font-size: 12px; font-weight: 600; color: var(--tr-texte-2); text-decoration: none; }
   .segment__lien.est-actif { background: var(--tr-surface); color: var(--tr-texte); box-shadow: var(--tr-ombre-1); }
   [data-theme="sombre"] .barre-horizontale__piste { background: var(--tr-bordure); }
+  /* donut (x-donut) : arcs dans l'ordre fixe de la palette des graphiques, part neutre en --tr-bordure */
+  .donut-bloc { display: flex; align-items: center; gap: 20px; }
+  .donut { position: relative; width: 132px; height: 132px; flex: none; }
+  .donut svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+  .donut circle { fill: none; stroke-width: 4.2; }
+  .donut .donut__fond { stroke: var(--tr-surface-2); }
+  .donut .donut__arc--0 { stroke: var(--tr-bordure); }
+  .donut .donut__arc--1 { stroke: var(--tr-graph-1); }
+  .donut .donut__arc--2 { stroke: var(--tr-graph-2); }
+  .donut .donut__arc--3 { stroke: var(--tr-graph-3); }
+  .donut .donut__arc--4 { stroke: var(--tr-graph-4); }
+  .donut .donut__arc--5 { stroke: var(--tr-graph-5); }
+  .donut .donut__arc--6 { stroke: var(--tr-graph-6); }
+  .donut__centre { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+  .donut__centre strong { font-size: 22px; line-height: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .donut__centre small { font-size: 11px; color: var(--tr-texte-3); }
+  .donut--petit { width: 96px; height: 96px; }
+  .donut--petit .donut__centre strong { font-size: 17px; line-height: 22px; }
+  .donut-bloc > .recapitulatif__liste { flex: 1; min-width: 0; }
+  .legende-donut { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; font-size: 13px; flex: 1; min-width: 0; }
+  .legende-donut li { display: flex; align-items: center; gap: 8px; }
+  .legende-donut b { margin-left: auto; font-variant-numeric: tabular-nums; }
+  .pastille-graphe { width: 10px; height: 10px; border-radius: 3px; flex: none; background: var(--tr-bordure); }
+  .pastille-graphe--1 { background: var(--tr-graph-1); }
+  .pastille-graphe--2 { background: var(--tr-graph-2); }
+  .pastille-graphe--3 { background: var(--tr-graph-3); }
+  .pastille-graphe--4 { background: var(--tr-graph-4); }
+  .pastille-graphe--5 { background: var(--tr-graph-5); }
+  .pastille-graphe--6 { background: var(--tr-graph-6); }
+  /* grilles du tableau de bord et barres horizontales sur deux colonnes */
+  .grille-trois { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: stretch; }
+  .grille-large-etroite { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 16px; align-items: stretch; }
+  .barres-colonnes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2px 28px; }
+  @media (max-width: 1100px) { .grille-trois, .grille-large-etroite { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { .barres-colonnes { grid-template-columns: 1fr; } .donut-bloc { flex-wrap: wrap; } }
+  .horodatage { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--tr-texte-3); }
+  .horodatage svg { width: 14px; height: 14px; }
+  .tableau tbody tr.est-cliquable { cursor: pointer; }
+  .tableau tbody tr.est-cliquable:hover td { background: var(--tr-surface-2); }
+  /* grande fenêtre (tableau complet) : l'en-tête et les filtres restent visibles, le tableau défile */
+  .modale--large { width: min(1100px, 100%); max-height: calc(100vh - 32px); display: grid; grid-template-rows: auto auto minmax(0, 1fr) auto; overflow: hidden; }
+  .modale--large .tableau-defilant { overflow: auto; }
+  .modale__fermer { margin-left: auto; }
   .legende { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--tr-texte-2); }
   .legende span { display: inline-flex; align-items: center; gap: 6px; }
   .legende i { width: 10px; height: 10px; border-radius: 3px; }

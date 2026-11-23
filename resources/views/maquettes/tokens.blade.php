@@ -142,5 +142,22 @@
                 </dl>
             </div>
         </section>
+
+        <section class="carte">
+            <div class="carte__entete"><h2>Donut (x-donut)</h2></div>
+            <div class="carte__corps grille-trois">
+                <div class="donut-bloc">
+                    <x-donut :segments="[['libelle' => 'Votants', 'valeur' => 2391, 'couleur' => 1], ['libelle' => 'Pas encore votés', 'valeur' => 2421, 'couleur' => 0]]" valeur="49,7 %" legende="votants" />
+                    <ul class="legende-donut"><li><i class="pastille-graphe pastille-graphe--1"></i>Votants<b>2 391</b></li><li><i class="pastille-graphe"></i>Pas encore votés<b>2 421</b></li></ul>
+                </div>
+                <div class="donut-bloc">
+                    <x-donut :segments="[['libelle' => 'Ouverts', 'valeur' => 9, 'couleur' => 1], ['libelle' => 'À venir', 'valeur' => 3, 'couleur' => 3], ['libelle' => 'Clos', 'valeur' => 8, 'couleur' => 5], ['libelle' => 'Résultats publiés', 'valeur' => 6, 'couleur' => 2]]" valeur="26" legende="scrutins" />
+                    <ul class="legende-donut"><li><i class="pastille-graphe pastille-graphe--1"></i>Ouverts<b>9</b></li><li><i class="pastille-graphe pastille-graphe--3"></i>À venir<b>3</b></li><li><i class="pastille-graphe pastille-graphe--5"></i>Clos<b>8</b></li><li><i class="pastille-graphe pastille-graphe--2"></i>Résultats publiés<b>6</b></li></ul>
+                </div>
+                <div class="donut-bloc">
+                    <x-donut :segments="[['libelle' => 'Actives', 'valeur' => 312, 'couleur' => 2], ['libelle' => 'Désistements', 'valeur' => 4, 'couleur' => 6]]" valeur="312" petit />
+                </div>
+            </div>
+        </section>
     </div>
 </x-layouts.maquette>

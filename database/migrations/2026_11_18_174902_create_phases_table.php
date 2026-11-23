@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('phases', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('edition_id')->constrained('editions')->cascadeOnDelete();
             $table->unsignedTinyInteger('numero');
             $table->string('libelle', 80);

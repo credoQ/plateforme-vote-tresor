@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('scrutins', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('phase_id')->constrained('phases')->cascadeOnDelete();
             $table->foreignId('pole_electoral_id')->nullable()->constrained('poles_electoraux')->restrictOnDelete();
             $table->string('code', 40);

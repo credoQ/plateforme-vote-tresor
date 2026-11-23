@@ -88,6 +88,14 @@ class Agent extends Model
     }
 
     /**
+     * Initiales du nom et du premier prénom, pour l'avatar de la fiche.
+     */
+    public function initiales(): string
+    {
+        return mb_strtoupper(mb_substr($this->nom, 0, 1).mb_substr($this->prenoms ?? '', 0, 1));
+    }
+
+    /**
      * Agents en service à la date donnée : une affectation en cours dans une structure active (R13).
      */
     #[Scope]

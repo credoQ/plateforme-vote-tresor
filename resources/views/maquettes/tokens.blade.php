@@ -125,5 +125,22 @@
                 <div class="bande-tricolore"></div>
             </section>
         </div>
+
+        <section class="carte">
+            <div class="carte__entete"><h2>Fiche d’une personne</h2></div>
+            <div class="carte__corps" style="display:grid;gap:20px">
+                <div class="titre-page__identite">
+                    <span class="avatar avatar--grand avatar--sans-anneau" aria-hidden="true">AC</span>
+                    <div>
+                        <h1 style="font-size:24px;line-height:32px;font-weight:700">AHOUANSOU Clarisse</h1>
+                        <div class="titre-page__surtitre"><span class="etiquette"><i data-lucide="id-card"></i>104801</span><span class="etiquette">Féminin</span><span class="badge badge--succes">En service</span></div>
+                    </div>
+                </div>
+                <dl class="recapitulatif__liste">
+                    <div><dt>NPI</dt><dd>1173956900</dd></div>
+                    <div><dt>Fonction</dt><dd class="est-vide">Non renseignée</dd></div>
+                </dl>
+            </div>
+        </section>
     </div>
 </x-layouts.maquette>

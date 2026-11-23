@@ -186,6 +186,7 @@
   .champ:hover { border-color: var(--tr-gris-400); }
   .champ:focus { outline: none; border-color: var(--tr-primaire); box-shadow: 0 0 0 4px color-mix(in srgb, var(--tr-bleu-400) 35%, transparent); }
   .champ[readonly] { background: var(--tr-gris-50); border-color: var(--tr-gris-200); }
+  .champ:disabled { background: color-mix(in srgb, var(--tr-texte) 7%, var(--tr-surface)); border-color: var(--tr-bordure); color: var(--tr-texte-3); cursor: not-allowed; }
   .champ.est-erreur { border-color: var(--tr-erreur-500); }
   textarea.champ { height: auto; min-height: 96px; padding: 10px 14px; }
   input[type="file"].champ { padding: 10px 14px; line-height: 20px; }

@@ -170,7 +170,7 @@
                         </div>
                         <div class="formulaire__groupe">
                             <label class="libelle" for="date_debut">À partir du <span class="requis">*</span></label>
-                            <input id="date_debut" name="date_debut" type="date" class="champ champ--moyen" value="{{ old('date_debut', now()->toDateString()) }}" required>
+                            <input id="date_debut" name="date_debut" type="date" class="champ" value="{{ old('date_debut', now()->toDateString()) }}" required>
                             @error('date_debut')<p class="erreur-champ">{{ $message }}</p>@enderror
                         </div>
                     </div>
@@ -198,7 +198,7 @@
                     <div class="modale__corps formulaire">
                         <div class="formulaire__groupe">
                             <label class="libelle" for="date_fin">Dernier jour de service <span class="requis">*</span></label>
-                            <input id="date_fin" name="date_fin" type="date" class="champ champ--moyen" value="{{ old('date_fin', now()->toDateString()) }}" required>
+                            <input id="date_fin" name="date_fin" type="date" class="champ" value="{{ old('date_fin', now()->toDateString()) }}" required>
                             @error('date_fin')<p class="erreur-champ">{{ $message }}</p>@enderror
                         </div>
                     </div>

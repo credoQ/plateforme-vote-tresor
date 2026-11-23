@@ -39,6 +39,17 @@ class GestionDesAgentsTest extends TestCase
         $this->get(route('agents.show', [$agent, 'recherche' => 'inconnue']))->assertSee('Aucune affectation ne correspond aux filtres.');
     }
 
+    public function test_la_fiche_presente_l_affectation_actuelle_et_la_duree_de_chaque_affectation(): void
+    {
+        $agent = Agent::factory()->affecteA($this->structure('DIA'), Carbon::parse('2024-01-01'))->create();
+        Affectation::factory()->terminee('2023-12-31')->create(['agent_id' => $agent->id, 'structure_id' => $this->structure('TD-ZOU')->id, 'date_debut' => '2020-01-01']);
+
+        $this->actingAs($this->admin)->get(route('agents.show', $agent))->assertOk()
+            ->assertSeeInOrder(['Affectation actuelle', 'DIA', 'Depuis le 01/01/2024 · 2 ans 10 mois', 'Muter l’agent'], false)
+            ->assertSee('4 ans')->assertSee('En service')
+            ->assertDontSee('affectation(s)', false);
+    }
+
     /**
      * R11, R12 : saisie manuelle d'un agent avec son affectation, tracée au journal.
      */

@@ -116,6 +116,10 @@
   .titre-page { display: flex; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 24px; }
   .titre-page h1 { font-size: 24px; line-height: 32px; font-weight: 700; }
   .titre-page p { color: var(--tr-texte-2); margin-top: 2px; }
+  /* fiche d'une personne : avatar à gauche du nom, matricule et statut en étiquettes sous le nom */
+  .titre-page__identite { display: flex; align-items: center; gap: 16px; min-width: 0; }
+  .titre-page__identite .titre-page__surtitre { flex-wrap: wrap; margin: 6px 0 0; }
+  .affectation-mutation { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--tr-bordure-legere); }
   .titre-page__actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
   .titre-page__surtitre { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 
@@ -576,7 +580,9 @@
   .recapitulatif__liste > div { display: flex; justify-content: space-between; gap: 16px; padding: 10px 14px; border-bottom: 1px solid var(--tr-bordure-legere); }
   .recapitulatif__liste > div:last-child { border-bottom: 0; }
   .recapitulatif__liste dt { color: var(--tr-texte-2); }
-  .recapitulatif__liste dd { margin: 0; font-weight: 600; text-align: right; }
+  .recapitulatif__liste dd { margin: 0; font-weight: 600; text-align: right; min-width: 0; overflow-wrap: anywhere; }
+  .recapitulatif__liste dt { flex: none; }
+  .recapitulatif__liste dd.est-vide { font-weight: 500; color: var(--tr-texte-3); }
   .recapitulatif__titre { margin: 24px 0 12px; font-size: 15px; font-weight: 600; }
   .recapitulatif__phases { display: grid; gap: 12px; }
   .recapitulatif__phase { padding: 12px 14px; border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon); }

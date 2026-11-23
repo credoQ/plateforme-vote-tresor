@@ -13,7 +13,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] La constitution automatique des listes électorales à partir des affectations à la date de gel.
 - [x] Le contrôle des listes par les points focaux, les corrections et l’arrêt définitif des listes par le comité.
 - [x] La constitution de la liste des candidates de chaque scrutin selon son collège : d’office (agents de sexe féminin en service dans la circonscription), par nomination du comité, ou par reprise des lauréates qualifiées de la phase précédente.
-- [x] La désactivation d’une candidate qui ne souhaite pas concourir (désistement), par le point focal ou le comité à sa demande, et sa réactivation éventuelle avant l’ouverture du scrutin.
+- [x] La désactivation d’une candidate qui ne souhaite pas concourir (désistement), par le point focal, le comité ou l’administrateur à sa demande, et sa réactivation éventuelle avant l’ouverture du scrutin.
 - [x] La publication et l’export des listes électorales et des listes de candidates.
 
 ## Avancement

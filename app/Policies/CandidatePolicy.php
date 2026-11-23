@@ -8,7 +8,7 @@ use App\Models\Inscription;
 use App\Models\User;
 
 /**
- * Désactivation et réactivation d'une candidate (R32, R34) : par elle-même, par le comité,
+ * Désactivation et réactivation d'une candidate (R32, R34) : par elle-même, par le comité, par l'administrateur,
  * ou par le point focal de la structure où elle est inscrite (R4).
  */
 class CandidatePolicy
@@ -19,7 +19,7 @@ class CandidatePolicy
             return true;
         }
 
-        if ($user->aLeRole(CodeRole::Comite)) {
+        if ($user->aLeRole(CodeRole::Comite, CodeRole::Administrateur)) {
             return true;
         }
 

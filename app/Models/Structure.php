@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Referentiel\CodePoleElectoral;
 use App\Enums\Referentiel\CodeTypeStructure;
+use App\Models\Concerns\IdentifieParUuid;
 use Database\Factories\StructureFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Structure extends Model
 {
     /** @use HasFactory<StructureFactory> */
-    use HasFactory;
+    use HasFactory, IdentifieParUuid;
 
     public const NIVEAU_STRUCTURE_ELECTORALE = 1;
 

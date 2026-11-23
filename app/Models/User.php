@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Acces\CodeRole;
+use App\Models\Concerns\IdentifieParUuid;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
@@ -20,7 +21,7 @@ use Illuminate\Notifications\Notifiable;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, IdentifieParUuid, Notifiable;
 
     /**
      * @var array<string, mixed>

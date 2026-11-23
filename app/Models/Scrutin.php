@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Scrutins\StatutScrutin;
+use App\Models\Concerns\IdentifieParUuid;
 use Database\Factories\ScrutinFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -21,7 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Scrutin extends Model
 {
     /** @use HasFactory<ScrutinFactory> */
-    use HasFactory;
+    use HasFactory, IdentifieParUuid;
 
     /**
      * @var array<string, mixed>

@@ -44,6 +44,6 @@ class NominationController extends Controller
     {
         $retirer->handle($candidate, $request->user());
 
-        return redirect()->route('scrutins.show', $candidate->scrutin_id)->with('succes', "La nomination de {$candidate->agent->nomComplet()} est retirée.");
+        return redirect()->route('scrutins.show', $candidate->scrutin)->with('succes', "La nomination de {$candidate->agent->nomComplet()} est retirée.");
     }
 }

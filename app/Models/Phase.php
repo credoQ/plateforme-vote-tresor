@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Editions\StatutPhase;
+use App\Models\Concerns\IdentifieParUuid;
 use Database\Factories\PhaseFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Phase extends Model
 {
     /** @use HasFactory<PhaseFactory> */
-    use HasFactory;
+    use HasFactory, IdentifieParUuid;
 
     /**
      * Numéros des phases de l'organisation par défaut (primaires, demi-finales, finale).

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Models\Concerns\IdentifieParUuid;
 use Database\Factories\EditionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -27,7 +28,7 @@ use Illuminate\Support\Facades\DB;
 class Edition extends Model
 {
     /** @use HasFactory<EditionFactory> */
-    use HasFactory;
+    use HasFactory, IdentifieParUuid;
 
     public const CLE_CACHE_EN_COURS = 'edition.en-cours';
 

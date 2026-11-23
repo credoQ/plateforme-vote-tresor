@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Enums\Scrutins\OrigineCandidate;
 use App\Enums\Scrutins\StatutCandidate;
+use App\Models\Concerns\IdentifieParUuid;
 use Database\Factories\CandidateFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -25,7 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Candidate extends Model
 {
     /** @use HasFactory<CandidateFactory> */
-    use HasFactory;
+    use HasFactory, IdentifieParUuid;
 
     /**
      * @var array<string, mixed>

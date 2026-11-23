@@ -66,7 +66,7 @@
             </div>
             <div class="tableau-defilant">
                 <table class="tableau">
-                    <thead><tr><th>Scrutin</th><th>Circonscription</th><th class="nombre">Inscrits</th><th>Participation</th><th>Statut</th><th class="actions"></th></tr></thead>
+                    <thead><tr><th>Scrutin</th><th>Zone de vote</th><th class="nombre">Inscrits</th><th>Participation</th><th>Statut</th><th class="actions"></th></tr></thead>
                     <tbody>
                     @foreach ($scrutins as [$code, $nom, $pole, $inscrits, $votants, $cand, $statut])
                         @php $taux = $inscrits ? round($votants / $inscrits * 100) : 0; @endphp

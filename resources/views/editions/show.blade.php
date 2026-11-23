@@ -80,13 +80,13 @@
 
             <nav class="onglets" aria-label="Rubriques de la phase">
                 <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $phase->numero]) }}" @class(['onglet', 'est-actif' => $onglet === 'scrutins']) @if ($onglet === 'scrutins') aria-current="page" @endif>Scrutins <span class="compteur">{{ $phase->scrutins_count }}</span></a>
-                <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $phase->numero, 'onglet' => 'colleges']) }}" @class(['onglet', 'est-actif' => $onglet === 'colleges']) @if ($onglet === 'colleges') aria-current="page" @endif>Collèges <span class="compteur">{{ $phase->colleges->count() }}</span></a>
+                <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $phase->numero, 'onglet' => 'colleges']) }}" @class(['onglet', 'est-actif' => $onglet === 'colleges']) @if ($onglet === 'colleges') aria-current="page" @endif>Périmètres <span class="compteur">{{ $phase->colleges->count() }}</span></a>
                 <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $phase->numero, 'onglet' => 'resultats']) }}" @class(['onglet', 'est-actif' => $onglet === 'resultats']) @if ($onglet === 'resultats') aria-current="page" @endif>Résultats à valider <span @class(['compteur', 'compteur--attente' => $phase->scrutins_a_valider_count > 0])>{{ $phase->scrutins_a_valider_count }}</span></a>
             </nav>
 
             @if ($onglet === 'colleges')
                 <div class="carte__corps">
-                    <ul class="colleges-phase" aria-label="Collèges de la phase">
+                    <ul class="colleges-phase" aria-label="Périmètres de la phase">
                         @foreach ($phase->colleges as $collegeDeLaPhase)
                             <li><i data-lucide="users-round"></i>{{ $collegeDeLaPhase->resume() }}</li>
                         @endforeach
@@ -110,10 +110,10 @@
                     <x-filtre libelle="Recherche" pour="filtre-recherche" large>
                         <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Scrutin ou code"></div>
                     </x-filtre>
-                    <x-filtre libelle="Collège" pour="filtre-college">
+                    <x-filtre libelle="Périmètre" pour="filtre-college">
                         <x-select-recherche compact soumettre>
                             <select id="filtre-college" name="college" class="champ">
-                                <option value="">Tous les collèges</option>
+                                <option value="">Tous les périmètres</option>
                                 @foreach ($colleges as $valeur => $libelle)
                                     <option value="{{ $valeur }}" @selected($college === $valeur)>{{ $libelle }}</option>
                                 @endforeach
@@ -165,7 +165,7 @@
 
         @if (session('sans_femme') && $phase->numero === 1 && $phase->scrutins_count > 0)
             <div class="alerte alerte--info espace-bloc"><i data-lucide="info"></i>
-                <div><strong>{{ count(session('sans_femme')) }} circonscription(s) sans scrutin</strong>, faute d’agent femme en service à la date de gel : {{ implode(', ', session('sans_femme')) }}. Leurs agents voteront aux phases 2 et 3.</div>
+                <div><strong>{{ count(session('sans_femme')) }} zone(s) de vote sans scrutin</strong>, faute d’agent femme en service à la date de gel : {{ implode(', ', session('sans_femme')) }}. Leurs agents voteront aux phases 2 et 3.</div>
             </div>
         @endif
     @endif

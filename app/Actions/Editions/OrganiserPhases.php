@@ -76,7 +76,7 @@ class OrganiserPhases
             'phases.required' => 'Une édition compte au moins une phase.',
             'phases.max' => 'Une édition compte au plus trois phases.',
             'phases.*.libelle.required' => 'Chaque phase a un libellé.',
-            'phases.*.colleges.required' => 'Chaque phase compte au moins un collège.',
+            'phases.*.colleges.required' => 'Chaque phase compte au moins un périmètre.',
             'phases.*.colleges.*.nb_elues.min' => 'Chaque scrutin élit au moins une lauréate.',
             'phases.*.colleges.*.nb_elues.max' => 'Un scrutin élit au plus vingt lauréates.',
         ])->validate()['phases'];
@@ -90,15 +90,15 @@ class OrganiserPhases
             $colleges = $phase['colleges'];
 
             if (array_diff(array_keys($colleges), $cles) !== []) {
-                $this->echouer("Phase {$numero} : collège inconnu.");
+                $this->echouer("Phase {$numero} : périmètre inconnu.");
             }
 
             if (isset($colleges[Phase::COLLEGE_DGTCP]) && count($colleges) > 1) {
-                $this->echouer("Phase {$numero} : le collège de toute la DGTCP ne se combine avec aucun autre collège.");
+                $this->echouer("Phase {$numero} : le périmètre de toute la DGTCP ne se combine avec aucun autre périmètre.");
             }
 
             if (($colleges[Phase::COLLEGE_DGTCP]['decoupage'] ?? null) === Decoupage::ParCirconscription->value) {
-                $this->echouer("Phase {$numero} : le collège de toute la DGTCP forme un seul scrutin.");
+                $this->echouer("Phase {$numero} : le périmètre de toute la DGTCP forme un seul scrutin.");
             }
 
             foreach ($colleges as $cle => $college) {
@@ -112,7 +112,7 @@ class OrganiserPhases
                 }
 
                 if ($cle !== Phase::COLLEGE_DGTCP && ! in_array($cle, $precedents, true)) {
-                    $this->echouer("Phase {$numero} : la qualification suppose que la phase précédente ait un collège pour le même pôle.");
+                    $this->echouer("Phase {$numero} : la qualification suppose que la phase précédente ait un périmètre pour le même pôle.");
                 }
             }
         }

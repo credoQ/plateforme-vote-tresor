@@ -51,7 +51,7 @@
             <button class="btn btn-primaire btn--lg" style="width:100%"><i data-lucide="log-in"></i>Se connecter</button>
 
             <div class="alerte alerte--info" style="margin-top:24px"><i data-lucide="info"></i>
-                <div><strong>Phase 1 ouverte</strong> jusqu'au 28 novembre à 18 h. Vous votez dans la circonscription de votre poste d'affectation.</div>
+                <div><strong>Phase 1 ouverte</strong> jusqu'au 28 novembre à 18 h. Vous votez avec les agents de votre structure (ou de votre département).</div>
             </div>
             <div class="bande-tricolore" style="margin-top:32px;border-radius:2px"></div>
         </form>

@@ -110,6 +110,7 @@ git merge --no-ff module/06-vote
 
 - L'interface, les messages, les libellés de validation et les e-mails sont en français (`APP_LOCALE=fr`).
 - Le vocabulaire métier reste en français dans le code (classes, tables, colonnes, routes) pour coller au MCD : `Edition`, `Phase`, `Scrutin`, `Candidate`, `Bulletin`, `ProcesVerbal`, `Structure`, `TypeStructure`, `PoleElectoral`, `Departement`, `Agent`. Les mots techniques Laravel (controller, request, policy, job) restent en anglais.
+- À l'écran (libellés, messages, e-mails, documents), le collège se dit « périmètre » et la circonscription « zone de vote » ; le code, les tables et les valeurs enregistrées gardent `college` et `circonscription`. Le découpage s'affiche « Un scrutin par département ou par structure » ou « Un seul scrutin pour tout le périmètre », et un électeur « vote avec les agents de sa structure (ou de son département) », sans jargon.
 
 ## Déroulement électoral
 

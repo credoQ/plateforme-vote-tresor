@@ -80,7 +80,7 @@ class EditionsTest extends TestCase
     {
         $college = fn (string $decoupage, string $origine = 'NOMINATION', int $elues = 1): array => ['decoupage' => $decoupage, 'origine' => $origine, 'nb_elues' => $elues];
 
-        $this->actingAs($this->comite)->get(route('editions.create'))->assertOk()->assertSee('Phases et collèges')->assertSee('Phase 3 · finale', false)
+        $this->actingAs($this->comite)->get(route('editions.create'))->assertOk()->assertSee('Phases et périmètres')->assertSee('Phase 3 · finale', false)
             ->assertSee('Ajouter une phase')->assertViewHas('phasesAffichees', 1);
         $this->post(route('editions.store'), [
             'annee' => 2027, 'libelle' => 'Femme modèle du Trésor 2027', 'date_debut' => '2027-03-01', 'date_fin' => '2027-04-30', 'date_gel' => '2027-02-15',
@@ -96,7 +96,7 @@ class EditionsTest extends TestCase
         $this->get(route('editions.edit', $edition))->assertOk()->assertViewHas('phasesAffichees', 2);
         $this->get(route('editions.show', $edition))->assertOk()->assertSee('Élections finales');
         $this->get(route('editions.show', [$edition, 'phase' => 2, 'onglet' => 'colleges']))->assertOk()
-            ->assertSee('Pôle structures · Un seul scrutin · Nomination par le comité · 3 élue(s) par scrutin');
+            ->assertSee('Pôle structures · Un seul scrutin pour tout le périmètre · Nomination par le comité · 3 élue(s) par scrutin');
 
         $this->put(route('editions.update', $edition), [
             'annee' => 2027, 'libelle' => 'Femme modèle du Trésor 2027', 'date_debut' => '2027-03-01', 'date_fin' => '2027-04-30', 'date_gel' => '2027-02-15',

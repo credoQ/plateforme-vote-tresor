@@ -33,7 +33,7 @@ class ArreterListes
             $scrutin = $this->constituerListes->handle(Scrutin::lockForUpdate()->findOrFail($scrutin->id));
 
             if ($scrutin->inscriptions_count === 0) {
-                $this->echouer('La liste électorale est vide : aucun agent en service dans la circonscription à la date de gel.');
+                $this->echouer('La liste électorale est vide : aucun agent en service dans la zone de vote à la date de gel.');
             }
 
             if ($scrutin->candidates_count === 0) {

@@ -218,7 +218,7 @@
     </section>
 
     <section class="carte">
-        <div class="carte__entete"><h2>Circonscription</h2></div>
+        <div class="carte__entete"><h2>Zone de vote</h2></div>
         <div class="tableau-defilant">
             <table class="tableau tableau--fiches">
                 <thead><tr><th>Département</th><th>Type de structure</th><th>Structures</th></tr></thead>

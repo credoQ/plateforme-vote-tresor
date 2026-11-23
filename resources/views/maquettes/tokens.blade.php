@@ -77,7 +77,7 @@
                 </div>
             </section>
             <section class="carte">
-                <div class="carte__entete"><h2>Édition · paramétrage d’une phase et de ses collèges</h2></div>
+                <div class="carte__entete"><h2>Édition · paramétrage d’une phase et de ses périmètres</h2></div>
                 <div class="carte__corps">
                     <fieldset class="organisation-phase">
                         <legend class="libelle">Phase 2</legend>
@@ -85,7 +85,7 @@
                         <div class="formulaire__groupe"><label class="libelle" for="exemple-phase">Libellé</label><input id="exemple-phase" class="champ" value="Phase 2 · demi-finales"></div>
                         <div class="tableau-defilant">
                             <table class="tableau">
-                                <thead><tr><th>Collège</th><th>Scrutins</th><th>Candidates</th><th class="nombre">Élues par scrutin</th></tr></thead>
+                                <thead><tr><th>Périmètre</th><th>Scrutins</th><th>Candidates</th><th class="nombre">Élues par scrutin</th></tr></thead>
                                 <tbody>
                                     <tr><td>Pôle structures</td><td><select class="champ"><option>Un seul scrutin</option></select></td><td><select class="champ"><option>Nomination par le comité</option></select></td><td class="nombre"><input type="number" class="champ champ--court" value="3"></td></tr>
                                 </tbody>

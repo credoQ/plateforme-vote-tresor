@@ -8,6 +8,7 @@ use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Scrutins\RouvrirListes;
 use App\Enums\Acces\CodeRole;
+use App\Enums\Referentiel\CodeTypeStructure;
 use App\Enums\Scrutins\OrigineCandidate;
 use App\Enums\Scrutins\StatutCandidate;
 use App\Enums\Scrutins\StatutScrutin;
@@ -16,6 +17,7 @@ use App\Models\Agent;
 use App\Models\Candidate;
 use App\Models\Phase;
 use App\Models\Scrutin;
+use App\Models\Structure;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -51,7 +53,7 @@ class ScrutinController extends Controller
         $perimetre = $utilisateur->aLeRole(CodeRole::Comite, CodeRole::Observateur, CodeRole::Administrateur) ? null : $utilisateur->perimetre();
         $recherche = trim((string) $request->query('recherche', ''));
 
-        $scrutin->load(['phase.edition', 'college.poleElectoral', 'poleElectoral', 'structures' => fn ($q) => $q->orderBy('code'), 'procesVerbal']);
+        $scrutin->load(['phase.edition', 'college.poleElectoral', 'poleElectoral', 'structures' => fn ($q) => $q->with(['typeStructure', 'departement'])->orderBy('code'), 'procesVerbal']);
 
         $structuresInscription = $scrutin->inscriptions()->pluck('structure_id', 'agent_id');
         $candidates = $scrutin->candidates()->with(['agent', 'desactiveePar', 'nommeePar'])->get()
@@ -89,6 +91,7 @@ class ScrutinController extends Controller
             'pilote' => $utilisateur->can('piloter'),
             ...$this->nominations($scrutin, $utilisateur),
             'structures' => $scrutin->structures->keyBy('id'),
+            'circonscription' => $this->circonscription($scrutin),
             'participation' => $scrutin->participation(),
             ...$this->resultats($scrutin, $candidates, $utilisateur),
         ]);
@@ -152,6 +155,36 @@ class ScrutinController extends Controller
                 ->orderBy('nom')->orderBy('prenoms')
                 ->get(['id', 'matricule', 'nom', 'prenoms']),
         ];
+    }
+
+    /**
+     * Structures de la circonscription rangées par département (les structures centrales à part), puis par type :
+     * la trésorerie départementale avant les trésoreries communales, dans l'ordre des types du référentiel.
+     *
+     * @return list<array{departement: string|null, types: list<array{libelle: string, codes: list<string>}>}>
+     */
+    private function circonscription(Scrutin $scrutin): array
+    {
+        $ordreTypes = collect([CodeTypeStructure::TresorerieDepartementale, CodeTypeStructure::TresorerieCommunale, ...CodeTypeStructure::cases()])
+            ->map(fn (CodeTypeStructure $type): string => $type->value)->unique()->values()->flip();
+
+        return $scrutin->structures
+            ->groupBy(fn (Structure $structure): string => $structure->departement?->libelle ?? '')
+            ->sortKeys()
+            ->map(fn (Collection $structures, string $departement): array => [
+                'departement' => $departement === '' ? null : $departement,
+                'types' => $structures
+                    ->groupBy(fn (Structure $structure): string => $structure->typeStructure->code->value)
+                    ->sortBy(fn (Collection $groupe, string $type): int => $ordreTypes[$type])
+                    ->map(fn (Collection $groupe, string $type): array => [
+                        'libelle' => CodeTypeStructure::from($type)->libelle(),
+                        'codes' => $groupe->pluck('code')->sort()->values()->all(),
+                    ])
+                    ->values()
+                    ->all(),
+            ])
+            ->values()
+            ->all();
     }
 
     /**

@@ -516,7 +516,11 @@
   .erreur-champ { font-size: 13px; color: var(--tr-erreur-700); }
   .espace-bloc { margin-bottom: 20px; }
   .liens-export { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; }
-  .formulaire-ligne { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 16px; margin-bottom: 16px; }
+  /* champs alignés par le haut : une erreur sous un champ ne décale pas ses voisins ; le bouton s'aligne sur les champs
+     (libellé 18 px + 6 px de marge + 6 px d'écart, plus 2 px pour un bouton de 40 px face à un champ de 44 px) */
+  .formulaire-ligne { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 12px 16px; margin-bottom: 16px; }
+  .formulaire-ligne > .btn { margin-top: 32px; }
+  .formulaire-ligne .erreur-champ { width: 0; min-width: 100%; }
   .formulaire-ligne .formulaire__groupe { min-width: 160px; }
   .formulaire-ligne .formulaire__groupe--large { flex: 1 1 260px; max-width: 440px; }
   .champ--court { width: 96px; }

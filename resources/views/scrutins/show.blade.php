@@ -40,7 +40,10 @@
 
     @if ($pilote && $scrutin->accepteLesDesistements())
         <section class="carte espace-bloc">
-            <div class="carte__entete"><h2>Préparation</h2></div>
+            <div class="carte__entete">
+                <h2>Préparation</h2>
+                <span class="etiquette"><i data-lucide="calendar-range"></i>{{ $scrutin->phase->libelle }} : @if ($scrutin->phase->date_debut)du {{ $scrutin->phase->date_debut->format('d/m/Y') }} au {{ $scrutin->phase->date_fin->format('d/m/Y') }}@else à planifier @endif</span>
+            </div>
             <div class="carte__corps">
                 <form method="POST" action="{{ route('scrutins.planifier', $scrutin) }}" class="formulaire-ligne">
                     @csrf
@@ -87,9 +90,16 @@
             <div class="carte__corps">
                 <form method="POST" action="{{ route('nominations.store', $scrutin) }}" class="formulaire-ligne">
                     @csrf
-                    <div class="formulaire__groupe">
-                        <label class="libelle" for="matricule-nominee">Matricule de la candidate</label>
-                        <input id="matricule-nominee" name="matricule" class="champ" list="electrices-nominables" value="{{ old('matricule') }}" autocomplete="off" required>
+                    <div class="formulaire__groupe formulaire__groupe--large">
+                        <label class="libelle" for="matricules-nominees">Candidates</label>
+                        <x-select-recherche placeholder="Nom ou matricule">
+                            <select id="matricules-nominees" name="matricules[]" class="champ" multiple required>
+                                @foreach ($nominables as $electrice)
+                                    <option value="{{ $electrice->matricule }}" data-detail="{{ $electrice->matricule }}" @selected(in_array($electrice->matricule, (array) old('matricules', []), true))>{{ $electrice->nomComplet() }}</option>
+                                @endforeach
+                            </select>
+                        </x-select-recherche>
+                        @error('matricules')<p class="erreur-champ">{{ $message }}</p>@enderror
                         @error('matricule')<p class="erreur-champ">{{ $message }}</p>@enderror
                     </div>
                     <div class="formulaire__groupe formulaire__groupe--large">
@@ -97,13 +107,8 @@
                         <input id="reference-nomination" name="reference_nomination" class="champ" maxlength="200" value="{{ old('reference_nomination') }}" placeholder="Ex. : PV du CODIR du 25/11/2026" required>
                         @error('reference_nomination')<p class="erreur-champ">{{ $message }}</p>@enderror
                     </div>
-                    <button type="submit" class="btn btn-secondaire"><i data-lucide="user-plus"></i>Nominer la candidate</button>
+                    <button type="submit" class="btn btn-secondaire"><i data-lucide="user-plus"></i>Nominer les candidates</button>
                 </form>
-                <datalist id="electrices-nominables">
-                    @foreach ($nominables as $electrice)
-                        <option value="{{ $electrice->matricule }}">{{ $electrice->nomComplet() }}</option>
-                    @endforeach
-                </datalist>
             </div>
         @endif
         <x-barre-filtres :total="$pageCandidates->total()" libelle="candidate(s)" :action="route('scrutins.show', $scrutin).'#candidates'" :conserver="['recherche' => $recherche]">
@@ -214,7 +219,22 @@
 
     <section class="carte">
         <div class="carte__entete"><h2>Circonscription</h2></div>
-        <div class="carte__corps"><p>{{ $scrutin->structures->map(fn ($s) => $s->code)->implode(' · ') }}</p></div>
+        <div class="tableau-defilant">
+            <table class="tableau tableau--fiches">
+                <thead><tr><th>Département</th><th>Type de structure</th><th>Structures</th></tr></thead>
+                <tbody>
+                    @foreach ($circonscription as $groupe)
+                        @foreach ($groupe['types'] as $type)
+                            <tr>
+                                <td>{{ $groupe['departement'] ?? 'Structures centrales' }}</td>
+                                <td>{{ $type['libelle'] }}@if (count($type['codes']) > 1) <span class="aide">({{ count($type['codes']) }})</span>@endif</td>
+                                <td>{{ implode(' · ', $type['codes']) }}</td>
+                            </tr>
+                        @endforeach
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
     </section>
 
     <x-slot:modales>

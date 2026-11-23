@@ -13,6 +13,7 @@
     <button type="button" x-ref="bouton" x-cloak
             class="champ select-recherche__champ" x-bind:class="{ 'est-erreur': erreur, 'est-ouvert': ouvert }"
             aria-haspopup="listbox" x-bind:aria-expanded="ouvert"
+            x-bind:disabled="desactive"
             x-on:click="basculer()" x-on:keydown.arrow-down.prevent="ouvrir()" x-on:keydown.escape="fermer()">
         <span class="select-recherche__valeur">
             <template x-if="multiple && valeurs.length">

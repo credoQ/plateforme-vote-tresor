@@ -27,6 +27,7 @@ export default function selectRecherche({ placeholder = 'Choisir…', soumettre 
         actif: 0,
         position: {},
         erreur: false,
+        desactive: false,
         avecRecherche: false,
         aUneOptionVide: false,
 
@@ -57,6 +58,13 @@ export default function selectRecherche({ placeholder = 'Choisir…', soumettre 
                 bouton.focus();
             });
             this.select.addEventListener('change', () => this.lireValeurs());
+
+            // Un <select> désactivé par la page (attribut disabled) désactive aussi le bouton qui le remplace.
+            this.desactive = this.select.disabled;
+            new MutationObserver(() => {
+                this.desactive = this.select.disabled;
+                if (this.desactive) this.fermer();
+            }).observe(this.select, { attributes: true, attributeFilter: ['disabled'] });
 
             this.$watch('recherche', () => {
                 this.actif = 0;

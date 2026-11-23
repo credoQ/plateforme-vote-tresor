@@ -9,9 +9,11 @@ use App\Actions\Audit\Journaliser;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
 use App\Http\Controllers\Controller;
+use App\Models\Affectation;
 use App\Models\Agent;
 use App\Models\Edition;
 use App\Models\Structure;
+use Carbon\CarbonInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -69,6 +71,8 @@ class AgentController extends Controller
         $recherche = trim((string) $request->query('recherche', ''));
         $periode = (string) $request->query('periode', '');
 
+        $affectation = $agent->affectationLe()?->load('structure.departement');
+
         return view('agents.show', [
             'agent' => $agent->load('compte.roles'),
             'affectations' => $agent->affectations()
@@ -78,14 +82,33 @@ class AgentController extends Controller
                 ->when($periode === 'en-cours', fn ($q) => $q->whereNull('date_fin'))
                 ->when($periode === 'terminees', fn ($q) => $q->whereNotNull('date_fin'))
                 ->paginate(config('app.lignes_par_page'))
-                ->withQueryString(),
+                ->withQueryString()
+                ->through(fn (Affectation $ligne): Affectation => $ligne->setAttribute('duree', $this->duree($ligne->date_debut, $ligne->date_fin))),
+            // Les filtres de l'historique ne s'affichent que s'il y a de quoi filtrer.
+            'avecFiltres' => $recherche !== '' || $periode !== '' || $agent->affectations()->count() > 5,
             'recherche' => $recherche,
             'periode' => $periode,
-            'affectation' => $agent->affectationLe(),
+            'affectation' => $affectation,
+            'anciennete' => $affectation === null ? null : $this->duree($affectation->date_debut, null),
+            'roles' => $agent->compte?->roles->map(fn ($role): string => $role->code->libelle())->implode(', '),
             'ineligibilite' => Edition::courante()?->motifIneligibilite($agent->matricule),
             'peutModifier' => $request->user()->can('update', $agent),
             'structures' => $this->structures(null),
         ]);
+    }
+
+    /**
+     * Durée d'une affectation en années et mois (« 8 ans 3 mois »), jusqu'à aujourd'hui si elle est en cours.
+     */
+    private function duree(CarbonInterface $debut, ?CarbonInterface $fin): string
+    {
+        $intervalle = $debut->diff(($fin ?? now())->copy()->addDay());
+        $parties = array_filter([
+            $intervalle->y > 0 ? $intervalle->y.' an'.($intervalle->y > 1 ? 's' : '') : null,
+            $intervalle->m > 0 ? $intervalle->m.' mois' : null,
+        ]);
+
+        return $parties === [] ? 'Moins d’un mois' : implode(' ', $parties);
     }
 
     public function edit(Agent $agent): View

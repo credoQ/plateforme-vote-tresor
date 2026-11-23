@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('editions', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->smallInteger('annee')->unique();
             $table->string('libelle', 160);
             $table->date('date_debut');

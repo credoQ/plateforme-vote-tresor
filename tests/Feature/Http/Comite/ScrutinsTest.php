@@ -57,6 +57,22 @@ class ScrutinsTest extends TestCase
     }
 
     /**
+     * R19 : un scrutin planifié hors des dates de sa phase est refusé, avec le message affiché sur la fiche.
+     */
+    public function test_r19_affiche_l_erreur_d_un_scrutin_planifie_hors_de_sa_phase(): void
+    {
+        $scrutin = $this->scrutinDia();
+        $scrutin->phase->update(['date_debut' => '2026-11-20', 'date_fin' => '2026-11-30']);
+
+        $this->actingAs($this->comite)->from(route('scrutins.show', $scrutin))
+            ->followingRedirects()
+            ->post(route('scrutins.planifier', $scrutin), ['ouverture' => '2026-11-16T09:44', 'fermeture' => '2026-11-24T09:44'])
+            ->assertSee('Le scrutin ne peut pas s’ouvrir avant le début de la phase, le 20/11/2026.', false)
+            ->assertSee('signalerErreur', false);
+        $this->assertNull($scrutin->fresh()->date_heure_ouverture);
+    }
+
+    /**
      * R19, R27 : planification, actualisation puis arrêt des listes ; les listes arrêtées ne s'actualisent plus.
      */
     public function test_r27_planifie_et_arrete_les_listes_d_un_scrutin(): void
@@ -130,15 +146,15 @@ class ScrutinsTest extends TestCase
         $pointFocal = User::factory()->pointFocalDe(Structure::where('code', 'DIA')->firstOrFail())->create();
 
         $this->actingAs($this->comite)->get(route('scrutins.show', $scrutin))->assertOk()
-            ->assertSee('Nominer la candidate')->assertSee('Nomination par le comité · 1 élue(s)')->assertSee($this->femmeDia->matricule);
+            ->assertSee('Nominer les candidates')->assertSee('Nomination par le comité · 1 élue(s)')->assertSee($this->femmeDia->matricule);
 
-        $this->post(route('nominations.store', $scrutin), ['matricule' => $this->femmeDia->matricule, 'reference_nomination' => ''])->assertSessionHasErrors('reference_nomination');
-        $this->post(route('nominations.store', $scrutin), ['matricule' => $this->femmeDia->matricule, 'reference_nomination' => 'PV du CODIR du 25/11/2026'])
+        $this->post(route('nominations.store', $scrutin), ['matricules' => [$this->femmeDia->matricule], 'reference_nomination' => ''])->assertSessionHasErrors('reference_nomination');
+        $this->post(route('nominations.store', $scrutin), ['matricules' => [$this->femmeDia->matricule], 'reference_nomination' => 'PV du CODIR du 25/11/2026'])
             ->assertSessionHas('succes');
         $this->get(route('scrutins.show', $scrutin))->assertSee('AHOUANSOU')->assertSee('PV du CODIR du 25/11/2026')->assertSee('Retirer la nomination');
 
         $candidate = $scrutin->candidates()->sole();
-        $this->actingAs($pointFocal)->post(route('nominations.store', $scrutin), ['matricule' => '000000', 'reference_nomination' => 'PV'])->assertForbidden();
+        $this->actingAs($pointFocal)->post(route('nominations.store', $scrutin), ['matricules' => ['000000'], 'reference_nomination' => 'PV'])->assertForbidden();
         $this->post(route('nominations.destroy', $candidate))->assertForbidden();
 
         $this->actingAs($this->comite)->post(route('nominations.destroy', $candidate))->assertSessionHas('succes');
@@ -156,6 +172,25 @@ class ScrutinsTest extends TestCase
             ->assertSee('<input type="hidden" name="recherche" value="ahouansou">', false);
         $this->get(route('scrutins.show', [$scrutin, 'statut_candidate' => 'DESACTIVEE']))
             ->assertSee('Aucune candidate ne correspond aux filtres.');
+    }
+
+    /**
+     * R58 : une même décision nomine plusieurs candidates d'un coup ; si l'une est refusée, aucune n'est nominée.
+     */
+    public function test_r58_nomine_plusieurs_candidates_ou_aucune(): void
+    {
+        $this->edition->phase(Phase::PRIMAIRES)->colleges()->update(['origine_candidates' => OrigineCandidate::Nomination]);
+        $seconde = Agent::factory()->femme()->affecteA(Structure::where('code', 'DIA')->firstOrFail(), Carbon::parse('2020-01-01'))->create(['nom' => 'DOSSOU']);
+        $scrutin = $this->scrutinDia();
+        $this->actingAs($this->comite);
+
+        $this->post(route('nominations.store', $scrutin), ['matricules' => [], 'reference_nomination' => 'PV'])->assertSessionHasErrors('matricules');
+        $this->post(route('nominations.store', $scrutin), ['matricules' => [$this->femmeDia->matricule, '000000'], 'reference_nomination' => 'PV'])->assertSessionHasErrors('matricule');
+        $this->assertSame(0, $scrutin->candidates()->count());
+
+        $this->post(route('nominations.store', $scrutin), ['matricules' => [$this->femmeDia->matricule, $seconde->matricule], 'reference_nomination' => 'PV du CODIR du 25/11/2026'])
+            ->assertSessionHas('succes', '2 candidates sont nominées.');
+        $this->assertSame(2, $scrutin->candidates()->count());
     }
 
     private function scrutinDia(): Scrutin

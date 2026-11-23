@@ -121,9 +121,32 @@ class EnregistrerEditionTest extends TestCase
         $this->attendreErreur('annee', fn () => $this->enregistrer($this->donnees()));
     }
 
-    public function test_rejette_un_gel_des_listes_apres_le_debut_de_l_edition(): void
+    /**
+     * R14 : le gel peut tomber pendant l'édition, jamais après sa fin ni au début d'une phase déjà planifiée.
+     */
+    public function test_r14_accepte_un_gel_pendant_l_edition_avant_la_premiere_phase(): void
     {
-        $this->attendreErreur('date_gel', fn () => $this->enregistrer($this->donnees(['date_gel' => '2027-03-10'])));
+        $edition = $this->enregistrer($this->donnees(['date_gel' => '2027-03-10']));
+        $this->assertSame('2027-03-10', $edition->date_gel->toDateString());
+
+        $this->attendreErreur('date_gel', fn () => $this->enregistrer($this->donnees(['annee' => 2028, 'date_debut' => '2028-03-01', 'date_fin' => '2028-04-30', 'date_gel' => '2028-05-02'])));
+
+        $edition->phase(1)->update(['date_debut' => '2027-03-15', 'date_fin' => '2027-03-25']);
+        $this->attendreErreur('date_gel', fn () => $this->enregistrer($this->donnees(['date_gel' => '2027-03-15']), $edition->fresh()));
+        $this->assertSame('2027-03-14', $this->enregistrer($this->donnees(['date_gel' => '2027-03-14']), $edition->fresh())->date_gel->toDateString());
+    }
+
+    public function test_rejette_un_calendrier_qui_commence_avant_l_annee_de_l_edition(): void
+    {
+        $this->attendreErreur('date_debut', fn () => $this->enregistrer($this->donnees(['date_debut' => '2026-12-15', 'date_gel' => '2026-12-01'])));
+        $this->attendreErreur('date_gel', fn () => $this->enregistrer($this->donnees(['date_debut' => '2027-01-10', 'date_gel' => '2026-12-31'])));
+    }
+
+    public function test_accepte_un_calendrier_qui_deborde_sur_l_annee_suivante(): void
+    {
+        $edition = $this->enregistrer($this->donnees(['date_debut' => '2027-12-01', 'date_fin' => '2028-02-28', 'date_gel' => '2027-11-15']));
+
+        $this->assertSame('2028-02-28', $edition->date_fin->toDateString());
     }
 
     public function test_modifie_une_edition_en_preparation_sans_recreer_ses_phases(): void

@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('candidates', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->foreignId('scrutin_id')->constrained('scrutins')->cascadeOnDelete();
             $table->foreignId('agent_id')->constrained('agents')->restrictOnDelete();
             $table->string('origine', 20);

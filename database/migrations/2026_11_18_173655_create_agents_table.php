@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('agents', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('matricule', 30)->unique();
             $table->string('npi', 20)->nullable()->unique();
             $table->string('nom', 100);

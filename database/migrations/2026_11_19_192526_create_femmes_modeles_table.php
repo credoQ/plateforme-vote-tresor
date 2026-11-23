@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('femmes_modeles', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('matricule', 30);
             $table->foreignId('agent_id')->nullable()->constrained('agents')->nullOnDelete();
             $table->string('nom_complet', 200);

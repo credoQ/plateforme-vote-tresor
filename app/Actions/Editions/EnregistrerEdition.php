@@ -4,6 +4,7 @@ namespace App\Actions\Editions;
 
 use App\Models\Edition;
 use App\Models\Phase;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
@@ -31,20 +32,27 @@ class EnregistrerEdition
             throw ValidationException::withMessages(['edition' => 'Une édition lancée ou clôturée ne peut plus être modifiée.']);
         }
 
+        // Le calendrier d'une édition peut déborder sur l'année suivante, jamais commencer avant son année.
+        $annee = is_numeric($donnees['annee'] ?? null) ? (int) $donnees['annee'] : null;
+        $pasAvantLAnnee = $annee !== null && $annee >= 2000 && $annee <= 2100 ? ["after_or_equal:{$annee}-01-01"] : [];
+
         $donnees = Validator::make($donnees, [
             'annee' => ['required', 'integer', 'between:2000,2100', Rule::unique('editions', 'annee')->ignore($edition?->id)],
             'libelle' => ['required', 'string', 'max:160'],
-            'date_debut' => ['required', 'date'],
+            'date_debut' => ['required', 'date', ...$pasAvantLAnnee],
             'date_fin' => ['required', 'date', 'after_or_equal:date_debut'],
-            'date_gel' => ['required', 'date', 'before_or_equal:date_debut'],
+            // R14 : le gel fixe la liste électorale ; il peut tomber avant ou pendant l'édition, toujours avant la première phase.
+            'date_gel' => ['required', 'date', 'before_or_equal:date_fin', ...$pasAvantLAnnee],
             'vote_blanc_autorise' => ['sometimes', 'boolean'],
             'vote_pour_soi_autorise' => ['sometimes', 'boolean'],
             'quorum' => ['nullable', 'numeric', 'gt:0', 'max:100'],
             'delai_reeligibilite' => ['sometimes', 'integer', 'min:0', 'max:20'],
         ], [
             'annee.unique' => 'Une édition existe déjà pour cette année.',
+            'date_debut.after_or_equal' => "L’édition {$annee} ne peut pas commencer avant le 01/01/{$annee}.",
+            'date_gel.after_or_equal' => "Les listes de l’édition {$annee} ne peuvent pas être gelées avant le 01/01/{$annee}.",
             'date_fin.after_or_equal' => 'La date de fin doit suivre la date de début.',
-            'date_gel.before_or_equal' => 'Les listes électorales doivent être gelées au plus tard au début de l’édition.',
+            'date_gel.before_or_equal' => 'Les listes électorales doivent être gelées au plus tard à la fin de l’édition.',
             'quorum.gt' => 'Le quorum est un pourcentage de participation compris entre 0 et 100.',
             'quorum.max' => 'Le quorum est un pourcentage de participation compris entre 0 et 100.',
             'delai_reeligibilite.integer' => 'Le délai de rééligibilité est un nombre d’années, de 0 à 20.',
@@ -52,6 +60,12 @@ class EnregistrerEdition
             'delai_reeligibilite.max' => 'Le délai de rééligibilité est un nombre d’années, de 0 à 20.',
             'required' => 'Le champ :attribute est obligatoire.',
         ])->validate();
+
+        // Une phase déjà planifiée doit toujours commencer après le gel (ParametrerPhase le vérifie à la planification).
+        $premierePhase = $edition?->phases()->whereNotNull('date_debut')->orderBy('date_debut')->first();
+        if ($premierePhase !== null && $premierePhase->date_debut->toDateString() <= Carbon::parse($donnees['date_gel'])->toDateString()) {
+            throw ValidationException::withMessages(['date_gel' => "Les listes doivent être gelées avant le début de la {$premierePhase->libelle}, le {$premierePhase->date_debut->format('d/m/Y')}."]);
+        }
 
         return DB::transaction(function () use ($donnees, $edition, $phases): Edition {
             $edition ??= new Edition;

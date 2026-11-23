@@ -100,12 +100,25 @@ class EditionsTest extends TestCase
         ])->assertSessionHasErrors('phases');
     }
 
+    public function test_les_adresses_portent_un_uuid_et_jamais_le_numero_de_la_ligne(): void
+    {
+        $edition = Edition::factory()->avecPhases()->create();
+
+        $this->assertStringEndsWith('/editions/'.$edition->uuid, route('editions.show', $edition));
+        $this->actingAs($this->comite)->get(route('editions.show', $edition))->assertOk();
+        $this->get('/editions/'.$edition->id)->assertNotFound();
+    }
+
     public function test_affiche_les_erreurs_de_planification(): void
     {
         $edition = Edition::factory()->avecPhases()->create(['date_debut' => '2030-03-01', 'date_fin' => '2030-03-31', 'date_gel' => '2030-02-15']);
 
-        $this->actingAs($this->comite)->put(route('phases.update', $edition->phase(1)), ['date_debut' => '2030-05-01', 'date_fin' => '2030-05-10'])
-            ->assertSessionHasErrors('date_debut');
+        $this->actingAs($this->comite)->from(route('editions.show', $edition))
+            ->followingRedirects()
+            ->put(route('phases.update', $edition->phase(1)), ['date_debut' => '2030-05-01', 'date_fin' => '2030-05-10'])
+            ->assertSee('La phase doit se dérouler pendant l’édition, du 01/03/2030 au 31/03/2030.', false)
+            ->assertSee('signalerErreur', false);
+        $this->assertNull($edition->phase(1)->fresh()->date_debut);
     }
 
     /**

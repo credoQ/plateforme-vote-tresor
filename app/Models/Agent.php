@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Agents\Sexe;
+use App\Models\Concerns\IdentifieParUuid;
 use Carbon\CarbonInterface;
 use Database\Factories\AgentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -26,7 +27,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 class Agent extends Model
 {
     /** @use HasFactory<AgentFactory> */
-    use HasFactory;
+    use HasFactory, IdentifieParUuid;
 
     /**
      * Historique des affectations, de la plus récente à la plus ancienne (R12).

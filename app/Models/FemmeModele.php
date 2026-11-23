@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Editions\SourceFemmeModele;
+use App\Models\Concerns\IdentifieParUuid;
 use Database\Factories\FemmeModeleFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
@@ -19,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class FemmeModele extends Model
 {
     /** @use HasFactory<FemmeModeleFactory> */
-    use HasFactory;
+    use HasFactory, IdentifieParUuid;
 
     /**
      * @return BelongsTo<Agent, $this>

@@ -99,7 +99,7 @@
                                                         <td>{{ $libelleCollege }}</td>
                                                         <td>
                                                             <x-select-recherche compact>
-                                                                <select name="phases[{{ $numero }}][colleges][{{ $cle }}][decoupage]" class="champ" data-college="{{ $cle }}" x-on:change="collegeExclusif($el)" aria-label="Scrutins du collège {{ $libelleCollege }}, phase {{ $numero }}">
+                                                                <select name="phases[{{ $numero }}][colleges][{{ $cle }}][decoupage]" class="champ" data-college="{{ $cle }}" x-on:change="choisirDecoupage($el)" aria-label="Scrutins du collège {{ $libelleCollege }}, phase {{ $numero }}">
                                                                     <option value="AUCUN">Aucun scrutin</option>
                                                                     @foreach ($decoupages as $valeur => $libelle)
                                                                         @if ($cle !== 'DGTCP' || $valeur === 'ENSEMBLE')
@@ -111,7 +111,7 @@
                                                         </td>
                                                         <td>
                                                             <x-select-recherche compact>
-                                                                <select name="phases[{{ $numero }}][colleges][{{ $cle }}][origine]" class="champ" aria-label="Candidates du collège {{ $libelleCollege }}, phase {{ $numero }}">
+                                                                <select name="phases[{{ $numero }}][colleges][{{ $cle }}][origine]" class="champ" data-parametre-college aria-label="Candidates du collège {{ $libelleCollege }}, phase {{ $numero }}">
                                                                     @foreach ($origines as $valeur => $libelle)
                                                                         <option value="{{ $valeur }}" @selected(old("phases.$numero.colleges.$cle.origine", $phase['colleges'][$cle]['origine']) === $valeur)>{{ $libelle }}</option>
                                                                     @endforeach
@@ -119,7 +119,7 @@
                                                             </x-select-recherche>
                                                         </td>
                                                         <td class="nombre">
-                                                            <input type="number" min="1" max="20" name="phases[{{ $numero }}][colleges][{{ $cle }}][nb_elues]" class="champ champ--court" value="{{ old("phases.$numero.colleges.$cle.nb_elues", $phase['colleges'][$cle]['nb_elues']) }}" aria-label="Élues par scrutin, collège {{ $libelleCollege }}, phase {{ $numero }}">
+                                                            <input type="number" min="1" max="20" name="phases[{{ $numero }}][colleges][{{ $cle }}][nb_elues]" class="champ champ--court" data-parametre-college value="{{ old("phases.$numero.colleges.$cle.nb_elues", $phase['colleges'][$cle]['nb_elues']) }}" aria-label="Élues par scrutin, collège {{ $libelleCollege }}, phase {{ $numero }}">
                                                         </td>
                                                     </tr>
                                                 @endforeach

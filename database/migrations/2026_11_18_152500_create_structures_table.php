@@ -16,6 +16,7 @@ return new class extends Migration
     {
         Schema::create('structures', function (Blueprint $table) {
             $table->id();
+            $table->uuid('uuid')->unique();
             $table->string('code', 30)->unique();
             $table->string('sigle', 20)->nullable();
             $table->string('libelle', 160);

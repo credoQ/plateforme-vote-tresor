@@ -27,6 +27,7 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Concurrency;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
 /**
  * Test de charge du vote (R40, R44) : un seul scrutin de N électeurs, dont les votes passent par l'action réelle
@@ -131,6 +132,7 @@ class SimulerChargeVoteCommand extends Command
                 $maintenant = now();
                 foreach (array_chunk(range(1, $electeurs), 500) as $numeros) {
                     DB::table('agents')->insert(array_map(fn (int $numero): array => [
+                        'uuid' => (string) Str::uuid7(),
                         'matricule' => sprintf('CHARGE%06d', $numero),
                         'nom' => 'SIMULATION',
                         'prenoms' => "Électeur {$numero}",

@@ -173,7 +173,7 @@
     <x-slot:modales>
         @if ($edition->estModifiable())
             <x-modale-confirmation id="modale-lancer" :titre="'Lancer l’édition '.$edition->annee.' ?'" :action="route('editions.lancer', $edition)" bouton="Lancer l’édition" icone="rocket">
-                L’édition passera en cours et ne pourra plus être modifiée. Toutes les phases doivent être planifiées, et aucune autre édition ne doit être en cours.
+                L’édition passera en cours et ne pourra plus être modifiée. Toutes les phases doivent être planifiées, les scrutins de la première phase générés, et aucune autre édition ne doit être en cours.
             </x-modale-confirmation>
         @endif
         @foreach ($edition->phases as $etape)

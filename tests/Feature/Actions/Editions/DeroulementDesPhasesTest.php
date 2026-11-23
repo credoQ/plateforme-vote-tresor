@@ -46,7 +46,7 @@ class DeroulementDesPhasesTest extends TestCase
      */
     public function test_r18_refuse_d_ouvrir_une_phase_avant_la_cloture_de_la_precedente(): void
     {
-        $edition = $this->editionLancee();
+        $edition = $this->editionLancee(fn (Edition $e) => Scrutin::factory()->for($e->phase(1))->create());
         Scrutin::factory()->for($edition->phase(2))->create();
 
         $this->attendreErreur(fn () => $this->ouvrir($edition->phase(2)), 'doit être clôturée');
@@ -57,10 +57,11 @@ class DeroulementDesPhasesTest extends TestCase
      */
     public function test_r18_refuse_de_cloturer_une_phase_dont_un_resultat_n_est_pas_publie(): void
     {
-        $edition = $this->editionLancee();
+        $edition = $this->editionLancee(function (Edition $e): void {
+            Scrutin::factory()->for($e->phase(1))->statut(StatutScrutin::ResultatsPublies)->create();
+            Scrutin::factory()->for($e->phase(1))->statut(StatutScrutin::ResultatsValides)->create(['libelle' => 'Scrutin du Zou']);
+        });
         $phase1 = $edition->phase(1);
-        Scrutin::factory()->for($phase1)->statut(StatutScrutin::ResultatsPublies)->create();
-        Scrutin::factory()->for($phase1)->statut(StatutScrutin::ResultatsValides)->create(['libelle' => 'Scrutin du Zou']);
         $this->ouvrir($phase1);
 
         $this->attendreErreur(fn () => app(CloturerPhase::class)->handle($phase1), 'Scrutin du Zou');
@@ -69,8 +70,8 @@ class DeroulementDesPhasesTest extends TestCase
 
     public function test_refuse_d_ouvrir_une_phase_sans_scrutin(): void
     {
-        $edition = $this->editionLancee();
-        Scrutin::factory()->for($edition->phase(1))->statut(StatutScrutin::Annule)->create();
+        $edition = $this->editionLancee(fn (Edition $e) => Scrutin::factory()->for($e->phase(1))->create());
+        $edition->phase(1)->scrutins()->update(['statut' => StatutScrutin::Annule]);
 
         $this->attendreErreur(fn () => $this->ouvrir($edition->phase(1)), 'aucun scrutin');
     }
@@ -80,14 +81,16 @@ class DeroulementDesPhasesTest extends TestCase
      */
     public function test_r18_deroule_les_trois_phases_dans_l_ordre_jusqu_a_la_cloture_de_l_edition(): void
     {
-        $edition = $this->editionLancee();
+        $edition = $this->editionLancee(function (Edition $e): void {
+            Scrutin::factory()->for($e->phase(Phase::PRIMAIRES))->create();
+            Scrutin::factory()->for($e->phase(Phase::PRIMAIRES))->statut(StatutScrutin::Annule)->create();
+        });
 
         foreach ([Phase::PRIMAIRES, Phase::DEMI_FINALES, Phase::FINALE] as $numero) {
             $phase = $edition->phase($numero);
-            $scrutin = Scrutin::factory()->for($phase)->create();
-            if ($numero === Phase::PRIMAIRES) {
-                Scrutin::factory()->for($phase)->statut(StatutScrutin::Annule)->create();
-            }
+            $scrutin = $numero === Phase::PRIMAIRES
+                ? $phase->scrutins()->where('statut', '!=', StatutScrutin::Annule->value)->sole()
+                : Scrutin::factory()->for($phase)->create();
 
             $this->ouvrir($phase);
             $this->assertSame(StatutPhase::Ouverte, $phase->fresh()->statut);
@@ -117,9 +120,15 @@ class DeroulementDesPhasesTest extends TestCase
         return $edition;
     }
 
-    private function editionLancee(): Edition
+    /**
+     * Édition planifiée puis lancée : $preparer génère les scrutins de la phase 1, exigés au lancement.
+     */
+    private function editionLancee(callable $preparer): Edition
     {
-        return app(LancerEdition::class)->handle($this->editionPlanifiee());
+        $edition = $this->editionPlanifiee();
+        $preparer($edition);
+
+        return app(LancerEdition::class)->handle($edition)->load('phases');
     }
 
     private function ouvrir(Phase $phase): Phase

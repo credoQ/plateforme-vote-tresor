@@ -9,7 +9,7 @@ Ce module permet l’enregistrement des agents et la tenue de leurs affectations
 ## Fonctionnalités
 
 - [x] L’import des agents depuis le système d’information des ressources humaines ou par fichier (Excel/CSV), et la saisie manuelle.
-- [x] L’enregistrement des informations utiles de l’agent (matricule, NPI, nom, prénoms, sexe) ; la date de prise de service, le téléphone, l’e-mail, la fonction et le statut peuvent être importés à titre informatif mais ne sont pas gérés.
+- [x] L’enregistrement des informations utiles de l’agent (matricule, NPI, nom, prénoms, sexe, adresse e-mail obligatoire) ; la date de prise de service, le téléphone, la fonction et le statut peuvent être importés à titre informatif mais ne sont pas gérés.
 - [x] La gestion des affectations (structure, date de début, date de fin) et de leur historique.
 - [x] Le contrôle des doublons et des données incomplètes (sexe, affectation), le sexe déterminant la qualité de candidate.
 
@@ -24,6 +24,7 @@ Ce module permet l’enregistrement des agents et la tenue de leurs affectations
 - [x] Import des fichiers Excel (.xlsx, première feuille, OpenSpout) en plus du CSV : dates Excel et matricules numériques reconnus, numéros de ligne du classeur dans le rapport
 - [x] Écrans de gestion des agents : liste filtrable (structure, sexe, situation), fiche avec historique des affectations, saisie manuelle avec affectation initiale, modification, mutation et fin d'affectation par l'administrateur, tracées au journal ; le point focal contrôle en lecture seule les agents de sa structure et des structures rattachées (R4)
 - [x] Compte électeur ouvert à la création de l'agent, par la saisie comme par l'import (R3) : action `OuvrirCompteElecteur`, identifiant = matricule, rôle Électeur ; un compte existant sous ce matricule sans agent lui est rattaché
+- [x] Adresse e-mail obligatoire et valide pour tout agent, à la saisie comme à l'import (colonne `email` exigée, ligne sans adresse rejetée) ; obligatoire aussi à la création d'un compte utilisateur
 - [ ] Format exact de l'export du SI RH, à obtenir
 
 ## Acteurs
@@ -44,7 +45,7 @@ Règles R11 à R15, extraites de [regles-de-gestion.md](../regles-de-gestion.md)
 
 ### Gestion des agents et des affectations
 
-- **R11** · Un agent est identifié par son matricule, unique ; il possède un NPI, un nom, des prénoms, un sexe et une date de naissance. La date de prise de service, le téléphone, l’e-mail, la fonction et le statut peuvent figurer dans la fiche à titre informatif, mais ne sont pas gérés par la plateforme : aucune règle ne s’appuie sur eux.
+- **R11** · Un agent est identifié par son matricule, unique ; il possède un NPI, un nom, des prénoms, un sexe, une date de naissance et une adresse e-mail, obligatoire, qui reçoit ses codes de connexion. La date de prise de service, le téléphone, la fonction et le statut peuvent figurer dans la fiche à titre informatif, mais ne sont pas gérés par la plateforme : aucune règle ne s’appuie sur eux.
 - **R12** · Un agent est affecté à une seule structure à une date donnée ; l’historique des affectations est conservé.
 - **R13** · Un agent est considéré en service lorsqu’il figure dans la liste des agents avec une affectation en cours dans une structure de la DGTCP ; la tenue à jour de cette liste relève de l’import des agents et des affectations.
 - **R14** · Est électeur tout agent en service à la date de gel des listes électorales (les catégories exactes d’agents admis à voter sont à confirmer par le métier).

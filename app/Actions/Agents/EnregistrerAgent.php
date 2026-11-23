@@ -11,7 +11,8 @@ use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
 /**
- * Crée ou met à jour la fiche d'un agent (R11) : matricule unique, NPI unique, nom, prénoms et sexe obligatoires.
+ * Crée ou met à jour la fiche d'un agent (R11) : matricule unique, NPI unique, nom, prénoms, sexe et adresse e-mail
+ * obligatoires (l'adresse reçoit les codes de connexion, R42).
  * Les champs informatifs sont enregistrés tels quels, sans contrôle métier.
  * À la création, l'agent reçoit son compte électeur, identifié par son matricule (R3).
  */
@@ -39,7 +40,7 @@ class EnregistrerAgent
             'date_naissance' => ['nullable', 'date', 'before:today'],
             'date_prise_service' => ['nullable', 'date'],
             'telephone' => ['nullable', 'string', 'max:30'],
-            'email' => ['nullable', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255'],
             'fonction' => ['nullable', 'string', 'max:150'],
             'statut' => ['nullable', 'string', 'max:60'],
         ], [
@@ -47,6 +48,8 @@ class EnregistrerAgent
             'npi.unique' => 'Ce NPI est déjà attribué à un autre agent.',
             'sexe.required' => 'Le sexe de l’agent est obligatoire : il détermine la qualité de candidate.',
             'sexe.enum' => 'Le sexe doit être F (féminin) ou M (masculin).',
+            'email.required' => 'L’adresse e-mail de l’agent est obligatoire : elle reçoit les codes de connexion.',
+            'email.email' => 'Adresse e-mail invalide.',
             'required' => 'Le champ :attribute est obligatoire.',
             'date' => 'Le champ :attribute doit être une date valide.',
         ])->validate();

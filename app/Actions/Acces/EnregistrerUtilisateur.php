@@ -16,8 +16,8 @@ use Illuminate\Validation\ValidationException;
 /**
  * Crée ou modifie un compte utilisateur et ses rôles (R1 à R4).
  *
- * Il n'y a pas de mot de passe : la connexion se fait par un code envoyé par e-mail (R42). Un compte doit donc
- * avoir une adresse, la sienne ou celle de la fiche de l'agent lié.
+ * Il n'y a pas de mot de passe : la connexion se fait par un code envoyé par e-mail (R42). L'adresse est obligatoire
+ * à la création du compte ; un compte existant peut ensuite s'en passer si la fiche de l'agent lié en porte une.
  */
 class EnregistrerUtilisateur
 {
@@ -35,7 +35,7 @@ class EnregistrerUtilisateur
         $donnees = Validator::make($donnees, [
             'name' => ['required', 'string', 'max:255'],
             'login' => ['required', 'string', 'max:60', Rule::unique('users', 'login')->ignore($utilisateur?->id)],
-            'email' => [Rule::requiredIf(fn (): bool => blank($emailAgent)), 'nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($utilisateur?->id)],
+            'email' => [Rule::requiredIf(fn (): bool => $utilisateur === null || blank($emailAgent)), 'nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($utilisateur?->id)],
             'actif' => ['sometimes', 'boolean'],
             'agent_id' => ['nullable', 'integer', 'exists:agents,id', Rule::unique('users', 'agent_id')->ignore($utilisateur?->id)],
             'structure_id' => ['nullable', 'integer', 'exists:structures,id', Rule::requiredIf(fn (): bool => in_array(CodeRole::PointFocal->value, (array) ($donnees['roles'] ?? []), true))],

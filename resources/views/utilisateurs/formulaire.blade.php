@@ -11,7 +11,7 @@
                 @csrf
                 @if ($utilisateur->exists) @method('PUT') @endif
 
-                @foreach ([['name', 'Nom et prénoms', true], ['login', 'Identifiant (matricule pour un agent)', true], ['email', 'E-mail de connexion', false]] as [$champ, $libelle, $requis])
+                @foreach ([['name', 'Nom et prénoms', true], ['login', 'Identifiant (matricule pour un agent)', true], ['email', 'E-mail de connexion', ! $utilisateur->exists]] as [$champ, $libelle, $requis])
                     <div class="formulaire__groupe">
                         <label class="libelle" for="{{ $champ }}">{{ $libelle }} @if ($requis)<span class="requis">*</span>@endif</label>
                         <input id="{{ $champ }}" name="{{ $champ }}" class="champ" value="{{ old($champ, $utilisateur->{$champ}) }}" @if ($champ === 'email') type="email" @endif>
@@ -23,7 +23,7 @@
                                     Si un agent porte ce matricule, le compte lui est lié.
                                 @endif
                             </p>
-                        @elseif ($champ === 'email')
+                        @elseif ($champ === 'email' && $utilisateur->exists)
                             <p class="aide">Facultatif si la fiche de l’agent lié porte une adresse.</p>
                         @endif
                         @error($champ)<p class="erreur-champ">{{ $message }}</p>@enderror

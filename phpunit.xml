@@ -32,5 +32,9 @@
         <env name="PULSE_ENABLED" value="false"/>
         <env name="TELESCOPE_ENABLED" value="false"/>
         <env name="NIGHTWATCH_ENABLED" value="false"/>
+        <env name="PREMIER_ADMIN_LOGIN" value=""/>
+        <env name="PREMIER_ADMIN_NOM" value=""/>
+        <env name="PREMIER_ADMIN_EMAIL" value=""/>
+        <env name="CONNEXION_CODE_LIBRE" value="false"/>
     </php>
 </phpunit>

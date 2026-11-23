@@ -97,7 +97,7 @@ class ListesTest extends TestCase
             ->assertSeeHtml('wire:poll.60s')
             ->call('choisirPhase', 2)
             ->assertSet('phase', '2')
-            ->assertSee('actualisation automatique');
+            ->assertSee('actualisation chaque minute');
 
         Livewire::actingAs(User::factory()->avecRoles(CodeRole::Electeur)->create())
             ->test(TableauDeBord::class)

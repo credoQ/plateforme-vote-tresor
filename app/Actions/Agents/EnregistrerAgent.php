@@ -2,8 +2,10 @@
 
 namespace App\Actions\Agents;
 
+use App\Actions\Acces\OuvrirCompteElecteur;
 use App\Enums\Agents\Sexe;
 use App\Models\Agent;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
@@ -11,9 +13,12 @@ use Illuminate\Validation\ValidationException;
 /**
  * Crée ou met à jour la fiche d'un agent (R11) : matricule unique, NPI unique, nom, prénoms et sexe obligatoires.
  * Les champs informatifs sont enregistrés tels quels, sans contrôle métier.
+ * À la création, l'agent reçoit son compte électeur, identifié par son matricule (R3).
  */
 class EnregistrerAgent
 {
+    public function __construct(private OuvrirCompteElecteur $ouvrirCompte) {}
+
     /**
      * @param  array{matricule: string, npi?: string|null, nom: string, prenoms: string, sexe: Sexe|string, date_naissance?: string|null, date_prise_service?: string|null, telephone?: string|null, email?: string|null, fonction?: string|null, statut?: string|null}  $donnees
      *
@@ -46,9 +51,18 @@ class EnregistrerAgent
             'date' => 'Le champ :attribute doit être une date valide.',
         ])->validate();
 
-        $agent ??= new Agent;
-        $agent->fill($donnees)->save();
+        if ($agent !== null) {
+            $agent->fill($donnees)->save();
 
-        return $agent;
+            return $agent;
+        }
+
+        // Un nouvel agent reçoit aussitôt son compte électeur (R3) : la fiche et le compte sont créés ensemble, ou pas du tout.
+        return DB::transaction(function () use ($donnees): Agent {
+            $agent = Agent::create($donnees);
+            $this->ouvrirCompte->handle($agent);
+
+            return $agent;
+        });
     }
 }

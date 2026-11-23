@@ -23,6 +23,7 @@ Ce module permet l’enregistrement des agents et la tenue de leurs affectations
 - [x] Tests des règles R11 à R13
 - [x] Import des fichiers Excel (.xlsx, première feuille, OpenSpout) en plus du CSV : dates Excel et matricules numériques reconnus, numéros de ligne du classeur dans le rapport
 - [x] Écrans de gestion des agents : liste filtrable (structure, sexe, situation), fiche avec historique des affectations, saisie manuelle avec affectation initiale, modification, mutation et fin d'affectation par l'administrateur, tracées au journal ; le point focal contrôle en lecture seule les agents de sa structure et des structures rattachées (R4)
+- [x] Compte électeur ouvert à la création de l'agent, par la saisie comme par l'import (R3) : action `OuvrirCompteElecteur`, identifiant = matricule, rôle Électeur ; un compte existant sous ce matricule sans agent lui est rattaché
 - [ ] Format exact de l'export du SI RH, à obtenir
 
 ## Acteurs

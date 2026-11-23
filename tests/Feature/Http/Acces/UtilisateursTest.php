@@ -128,8 +128,8 @@ class UtilisateursTest extends TestCase
         $agent = Agent::factory()->create(['matricule' => '106677']);
         $compte = User::factory()->avecRoles(CodeRole::Comite)->create(['login' => 'comite-1']);
 
-        $this->actingAs($this->admin)->get(route('utilisateurs.index'))->assertOk()->assertSee('Lier à un agent')->assertSee('106677 · '.$agent->nomComplet());
-        $this->post(route('utilisateurs.lier-agent', $compte), ['agent' => '106677 · '.$agent->nomComplet()])->assertSessionHasNoErrors();
+        $this->actingAs($this->admin)->get(route('utilisateurs.index'))->assertOk()->assertSee('Lier à un agent')->assertSee('<option value="106677" data-detail="106677">'.$agent->nomComplet().'</option>', false);
+        $this->post(route('utilisateurs.lier-agent', $compte), ['agent' => '106677'])->assertSessionHasNoErrors();
         $this->assertSame($agent->id, $compte->fresh()->agent_id);
 
         $autre = User::factory()->avecRoles(CodeRole::Observateur)->create();

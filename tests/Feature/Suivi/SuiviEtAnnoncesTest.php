@@ -8,6 +8,7 @@ use App\Actions\Scrutins\OuvrirScrutin;
 use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Vote\DeposerBulletin;
 use App\Enums\Acces\CodeRole;
+use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Livewire\Suivi\TableauDeBord;
@@ -95,7 +96,7 @@ class SuiviEtAnnoncesTest extends TestCase
         $this->get(route('tableau-de-bord', ['statut' => StatutScrutin::Ouvert->value]))
             ->assertSee('Scrutin départemental · Atlantique')->assertSee('Réinitialiser');
         $this->get(route('tableau-de-bord', ['statut' => StatutScrutin::Clos->value]))
-            ->assertDontSee('Scrutin départemental · Atlantique')->assertSee('Aucun scrutin ne correspond.');
+            ->assertDontSee('wire:key="scrutin-'.$this->scrutinAtl->id.'"', false)->assertSee('Aucun scrutin ne correspond.');
     }
 
     /**
@@ -105,9 +106,29 @@ class SuiviEtAnnoncesTest extends TestCase
     {
         Livewire::actingAs(User::factory()->avecRoles(CodeRole::Comite)->create())
             ->test(TableauDeBord::class)
-            ->assertSee('Scrutin départemental · Atlantique')
+            ->assertSeeHtml('wire:key="scrutin-'.$this->scrutinAtl->id.'"')
             ->set('statut', StatutScrutin::Clos->value)
-            ->assertDontSee('Scrutin départemental · Atlantique')->assertSee('Aucun scrutin ne correspond.');
+            ->assertDontSeeHtml('wire:key="scrutin-'.$this->scrutinAtl->id.'"')->assertSee('Aucun scrutin ne correspond.');
+    }
+
+    /**
+     * Module 08 : le tableau de bord montre ses donuts et se règle sur une édition passée choisie dans le filtre.
+     */
+    public function test_le_tableau_de_bord_filtre_par_edition_et_presente_ses_donuts(): void
+    {
+        Edition::factory()->avecPhases()->create(['annee' => 2025, 'statut' => StatutEdition::Cloturee, 'date_debut' => '2025-11-01', 'date_fin' => '2025-12-31', 'date_gel' => '2025-10-01']);
+        $comite = User::factory()->avecRoles(CodeRole::Comite)->create();
+
+        $this->actingAs($comite)->get(route('tableau-de-bord'))
+            ->assertOk()
+            ->assertSee('Édition 2026 · en cours')->assertSee('Édition 2025 · clôturée')
+            ->assertSeeInOrder(['Scrutins par statut', 'Ouverts', 'À venir'])
+            ->assertSee('Votants par pôle')
+            ->assertSeeHtml('wire:key="scrutin-'.$this->scrutinAtl->id.'"');
+
+        $this->get(route('tableau-de-bord', ['edition' => 2025]))
+            ->assertOk()
+            ->assertDontSeeHtml('wire:key="scrutin-'.$this->scrutinAtl->id.'"');
     }
 
     /**

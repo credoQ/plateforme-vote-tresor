@@ -157,6 +157,8 @@ document.addEventListener('alpine:init', () => {
 });
 
 // Après chaque mise à jour d'un composant Livewire, les icônes et les tableaux renvoyés par le serveur sont repréparés.
+// Un îlot (@island, rafraîchi seul, comme celui du tableau de bord) signale sa mise à jour par « island.morphed ».
 document.addEventListener('livewire:init', () => {
     window.Livewire.hook('morphed', () => requestAnimationFrame(preparerPage));
+    window.Livewire.hook('island.morphed', () => requestAnimationFrame(preparerPage));
 });

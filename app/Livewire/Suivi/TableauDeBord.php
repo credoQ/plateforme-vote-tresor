@@ -31,6 +31,12 @@ class TableauDeBord extends Component
 {
     use WithPagination;
 
+    /**
+     * Année de l'édition affichée ; vide : l'édition en cours, sinon la plus récente.
+     */
+    #[Url(as: 'edition')]
+    public string $annee = '';
+
     #[Url]
     public string $phase = '';
 
@@ -51,8 +57,13 @@ class TableauDeBord extends Component
         abort_unless($this->utilisateur()->can('observer') || $this->utilisateur()->can('controler-listes'), 403);
     }
 
-    public function updated(): void
+    public function updated(string $propriete): void
     {
+        // Une autre édition n'a pas les mêmes phases : on revient à sa phase par défaut.
+        if ($propriete === 'annee') {
+            $this->phase = '';
+        }
+
         $this->resetPage();
     }
 
@@ -65,8 +76,22 @@ class TableauDeBord extends Component
     #[Computed]
     public function edition(): ?Edition
     {
-        return Edition::with('phases')->where('statut', StatutEdition::EnCours->value)->first()
+        return ((int) $this->annee > 0 ? Edition::with('phases')->where('annee', (int) $this->annee)->first() : null)
+            ?? Edition::with('phases')->where('statut', StatutEdition::EnCours->value)->first()
             ?? Edition::with('phases')->orderByDesc('annee')->first();
+    }
+
+    /**
+     * Éditions proposées par le filtre, la plus récente d'abord : « Édition 2026 · en cours ».
+     *
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function editions(): array
+    {
+        return Edition::orderByDesc('annee')->get(['annee', 'statut'])
+            ->mapWithKeys(fn (Edition $e): array => [$e->annee => "Édition {$e->annee} · ".mb_strtolower($e->statut->libelle())])
+            ->all();
     }
 
     /**
@@ -123,7 +148,7 @@ class TableauDeBord extends Component
             return null;
         }
 
-        $scrutins = $this->participation['scrutins'];
+        $scrutins = $this->participation['scrutins']->map(fn (array $ligne): array => $ligne + ['detail' => $this->detail($ligne)]);
 
         return [
             'global' => $this->participation['global'],
@@ -132,6 +157,11 @@ class TableauDeBord extends Component
             'departements' => $this->participation['departements']->sortByDesc('taux')->values(),
             'structures' => $this->participation['structures'],
             'scrutins' => $this->paginer($this->filtrer($scrutins)),
+            'statuts' => $this->statuts($scrutins),
+            'poles' => $this->parPole($scrutins),
+            'ouverts' => $scrutins->filter(fn (array $l): bool => $l['scrutin']->statut === StatutScrutin::Ouvert)
+                ->sortBy(fn (array $l) => $l['scrutin']->date_heure_fermeture)->take(5)->values(),
+            'nombreOuverts' => $scrutins->filter(fn (array $l): bool => $l['scrutin']->statut === StatutScrutin::Ouvert)->count(),
             'misAJourLe' => now()->timezone('Africa/Porto-Novo'),
         ];
     }
@@ -140,6 +170,7 @@ class TableauDeBord extends Component
     {
         return view('livewire.suivi.tableau-de-bord', [
             'edition' => $this->edition,
+            'editions' => $this->editions,
             'phaseAffichee' => $this->phaseAffichee,
             'poles' => $this->poles(),
             'filtresActifs' => trim($this->recherche) !== '' || $this->pole !== '' || $this->statut !== '',
@@ -174,6 +205,87 @@ class TableauDeBord extends Component
             'fermeture' => $fermeture,
             'restant' => $fermeture === null || $fermeture->isPast() ? null : $this->duree(now()->diffInMinutes($fermeture)),
         ];
+    }
+
+    /**
+     * Contenu de la fenêtre « détail d'un scrutin », ouverte d'un clic sur sa ligne sans nouvelle requête.
+     *
+     * @param  array<string, mixed>  $ligne
+     * @return array<string, mixed>
+     */
+    private function detail(array $ligne): array
+    {
+        $scrutin = $ligne['scrutin'];
+        $format = fn ($date): ?string => $date?->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i');
+
+        return [
+            'libelle' => $scrutin->libelle,
+            'code' => $scrutin->code,
+            'statut' => $scrutin->statut->libelle(),
+            'badge' => $scrutin->statut->badge(),
+            'inscrits' => number_format($ligne['inscrits'], 0, ',', ' '),
+            'votants' => number_format($ligne['votants'], 0, ',', ' '),
+            'abstention' => number_format($ligne['inscrits'] - $ligne['votants'], 0, ',', ' '),
+            'taux' => (float) $ligne['taux'],
+            'tauxAffiche' => number_format($ligne['taux'], 1, ',', ' ').' %',
+            'candidates' => (int) $scrutin->candidates_actives,
+            'ouverture' => $format($scrutin->date_heure_ouverture) ?? 'À planifier',
+            'fermeture' => $format($scrutin->date_heure_fermeture) ?? 'À planifier',
+            'fiche' => route('scrutins.show', $scrutin),
+            'listeElectorale' => route('exports.liste-electorale', [$scrutin, 'format' => 'xlsx']),
+            'resultats' => $scrutin->statut === StatutScrutin::ResultatsPublies ? route('exports.resultats', [$scrutin, 'format' => 'xlsx']) : null,
+        ];
+    }
+
+    /**
+     * Scrutins par statut pour le donut, dans l'ordre et les couleurs fixes de la palette des graphiques (--tr-graph-N).
+     *
+     * @param  Collection<int, array<string, mixed>>  $scrutins
+     * @return list<array{libelle: string, valeur: int, couleur: int}>
+     */
+    private function statuts(Collection $scrutins): array
+    {
+        $groupes = [
+            ['Ouverts', [StatutScrutin::Ouvert], 1],
+            ['À venir', [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], 3],
+            ['Clos', [StatutScrutin::Clos, StatutScrutin::ResultatsValides], 5],
+            ['Résultats publiés', [StatutScrutin::ResultatsPublies], 2],
+            ['Annulés', [StatutScrutin::Annule], 6],
+        ];
+
+        return collect($groupes)
+            ->map(fn (array $groupe): array => [
+                'libelle' => $groupe[0],
+                'valeur' => $scrutins->filter(fn (array $l): bool => in_array($l['scrutin']->statut, $groupe[1], true))->count(),
+                'couleur' => $groupe[2],
+            ])
+            ->filter(fn (array $segment): bool => $segment['valeur'] > 0 || $segment['libelle'] !== 'Annulés')
+            ->values()
+            ->all();
+    }
+
+    /**
+     * Inscrits, votants et taux par pôle (ou pour toute la DGTCP), pour le donut des votants.
+     *
+     * @param  Collection<int, array<string, mixed>>  $scrutins
+     * @return list<array{libelle: string, inscrits: int, votants: int, taux: float, couleur: int}>
+     */
+    private function parPole(Collection $scrutins): array
+    {
+        $couleurs = [CodePoleElectoral::Departemental->value => 1, CodePoleElectoral::Structures->value => 2, Phase::COLLEGE_DGTCP => 3];
+
+        return $scrutins
+            ->groupBy(fn (array $l): string => $l['scrutin']->poleElectoral?->code->value ?? Phase::COLLEGE_DGTCP)
+            ->sortBy(fn (Collection $lignes, string $pole): int => array_search($pole, array_keys($couleurs), true))
+            ->map(fn (Collection $lignes, string $pole): array => [
+                'libelle' => $this->poles()[$pole],
+                'inscrits' => $inscrits = (int) $lignes->sum('inscrits'),
+                'votants' => $votants = (int) $lignes->sum('votants'),
+                'taux' => $inscrits === 0 ? 0.0 : round($votants * 100 / $inscrits, 1),
+                'couleur' => $couleurs[$pole],
+            ])
+            ->values()
+            ->all();
     }
 
     /**

@@ -80,7 +80,7 @@
             @endif
             @foreach (['edition', 'phase', 'scrutin', 'candidate', 'agent_id', 'date_fin', 'structure'] as $cleErreur)
                 @error($cleErreur)
-                    <div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $message }}</div></div>
+                    <x-erreur :message="$message" />
                 @enderror
             @endforeach
             {{ $slot }}

@@ -48,13 +48,11 @@
                         <label class="libelle" for="ouverture">Ouverture (heure du Bénin)</label>
                         <input id="ouverture" name="ouverture" type="datetime-local" class="champ" value="{{ old('ouverture', $scrutin->date_heure_ouverture?->timezone($fuseau)->format('Y-m-d\TH:i')) }}" required>
                         @error('ouverture')<p class="erreur-champ">{{ $message }}</p>@enderror
-                        @error('date_heure_ouverture')<p class="erreur-champ">{{ $message }}</p>@enderror
                     </div>
                     <div class="formulaire__groupe">
                         <label class="libelle" for="fermeture">Fermeture (heure du Bénin)</label>
                         <input id="fermeture" name="fermeture" type="datetime-local" class="champ" value="{{ old('fermeture', $scrutin->date_heure_fermeture?->timezone($fuseau)->format('Y-m-d\TH:i')) }}" required>
                         @error('fermeture')<p class="erreur-champ">{{ $message }}</p>@enderror
-                        @error('date_heure_fermeture')<p class="erreur-champ">{{ $message }}</p>@enderror
                     </div>
                     <button type="submit" class="btn btn-secondaire"><i data-lucide="calendar-clock"></i>Planifier le scrutin</button>
                 </form>

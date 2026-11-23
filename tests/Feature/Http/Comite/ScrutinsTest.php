@@ -57,6 +57,22 @@ class ScrutinsTest extends TestCase
     }
 
     /**
+     * R19 : un scrutin planifié hors des dates de sa phase est refusé, avec le message affiché sur la fiche.
+     */
+    public function test_r19_affiche_l_erreur_d_un_scrutin_planifie_hors_de_sa_phase(): void
+    {
+        $scrutin = $this->scrutinDia();
+        $scrutin->phase->update(['date_debut' => '2026-11-20', 'date_fin' => '2026-11-30']);
+
+        $this->actingAs($this->comite)->from(route('scrutins.show', $scrutin))
+            ->followingRedirects()
+            ->post(route('scrutins.planifier', $scrutin), ['ouverture' => '2026-11-16T09:44', 'fermeture' => '2026-11-24T09:44'])
+            ->assertSee('Le scrutin ne peut pas s’ouvrir avant le début de la phase, le 20/11/2026.', false)
+            ->assertSee('signalerErreur', false);
+        $this->assertNull($scrutin->fresh()->date_heure_ouverture);
+    }
+
+    /**
      * R19, R27 : planification, actualisation puis arrêt des listes ; les listes arrêtées ne s'actualisent plus.
      */
     public function test_r27_planifie_et_arrete_les_listes_d_un_scrutin(): void

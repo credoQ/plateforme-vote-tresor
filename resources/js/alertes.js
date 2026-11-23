@@ -67,6 +67,20 @@ export function avertir({ titre, texte = '', bouton = 'J’ai compris' } = {}) {
 }
 
 /**
+ * Erreur renvoyée par le serveur (action refusée) : fenêtre d'erreur à un seul bouton.
+ */
+export function signalerErreur(message) {
+    if (!message) return;
+    return Swal.fire({
+        icon: 'error',
+        text: message,
+        confirmButtonText: 'J’ai compris',
+        buttonsStyling: false,
+        customClass: classes(),
+    });
+}
+
+/**
  * Confirmation avec un motif facultatif (au plus 500 caractères) : renvoie { confirme, motif }.
  */
 export async function demanderMotif({ titre, texte = '', bouton = 'Confirmer', annuler = 'Annuler', danger = true } = {}) {
@@ -91,6 +105,7 @@ export async function demanderMotif({ titre, texte = '', bouton = 'Confirmer', a
 
 window.notifier = notifier;
 window.avertir = avertir;
+window.signalerErreur = signalerErreur;
 window.confirmer = confirmer;
 window.demanderMotif = demanderMotif;
 

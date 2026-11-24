@@ -159,5 +159,22 @@
                 </div>
             </div>
         </section>
+
+        <section class="carte">
+            <div class="carte__entete"><h2>Parcours des phases (.frise-phases) et tâches d’une phase (.taches-phase)</h2></div>
+            <nav class="frise-phases" aria-label="Phases de l’édition">
+                <ol>
+                    <li class="frise-phases__etape est-faite"><a href="#"><span class="frise-phases__puce"><i data-lucide="check"></i></span><span class="frise-phases__texte"><span class="frise-phases__numero">Étape 1 sur 3</span><strong>Phase 1 · primaires</strong><small>Du 29/11/2026 au 04/12/2026</small><span class="badge badge--accent">Clôturée</span></span></a></li>
+                    <li class="frise-phases__etape est-choisie"><a href="#" aria-current="step"><span class="frise-phases__puce">2</span><span class="frise-phases__texte"><span class="frise-phases__numero">Étape 2 sur 3</span><strong>Phase 2 · demi-finales</strong><small>Du 05/12/2026 au 14/12/2026</small><span class="badge badge--info">Scrutins générés</span></span></a></li>
+                    <li class="frise-phases__etape"><a href="#"><span class="frise-phases__puce">3</span><span class="frise-phases__texte"><span class="frise-phases__numero">Étape 3 sur 3</span><strong>Phase 3 · finale</strong><small>Dates à planifier</small><span class="badge">À planifier</span></span></a></li>
+                </ol>
+            </nav>
+            <ol class="taches-phase">
+                <li class="taches-phase__tache est-faite"><span class="taches-phase__puce"><i data-lucide="calendar-check"></i></span><div><div class="taches-phase__titre">Planifier la phase</div><div class="taches-phase__detail">Du samedi 05/12/2026 au lundi 14/12/2026 (10 jours).</div></div><div class="taches-phase__action"><button class="btn btn-tertiaire btn--sm"><i data-lucide="pencil"></i>Modifier les dates</button></div></li>
+                <li class="taches-phase__tache est-faite"><span class="taches-phase__puce"><i data-lucide="wand-sparkles"></i></span><div><div class="taches-phase__titre">Générer les scrutins</div><div class="taches-phase__detail">2 scrutin(s) générés, un par zone de vote.</div></div><div class="taches-phase__action"><span class="badge badge--succes">Fait</span></div></li>
+                <li class="taches-phase__tache est-courante"><span class="taches-phase__puce"><i data-lucide="lock"></i></span><div><div class="taches-phase__titre">Arrêter les listes électorales</div><div class="taches-phase__detail">2 scrutin(s) aux listes encore modifiables.</div></div><div class="taches-phase__action"><button class="btn btn-primaire"><i data-lucide="lock"></i>Arrêter les listes</button></div></li>
+                <li class="taches-phase__tache est-a-venir"><span class="taches-phase__puce"><i data-lucide="play"></i></span><div><div class="taches-phase__titre">Ouvrir la phase</div><div class="taches-phase__detail">Chaque scrutin s’ouvrira ensuite automatiquement à sa date-heure d’ouverture.</div></div><div class="taches-phase__action"><button class="btn btn-secondaire"><i data-lucide="play"></i>Ouvrir la phase</button></div></li>
+            </ol>
+        </section>
     </div>
 </x-layouts.maquette>

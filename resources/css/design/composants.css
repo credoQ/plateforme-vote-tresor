@@ -126,22 +126,40 @@
   .pastilles { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 0; padding: 0; list-style: none; }
   .pastilles li { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon); background: var(--tr-surface); font-size: 12px; color: var(--tr-texte-2); }
   .pastilles strong { color: var(--tr-texte); }
-  .frise-phases { padding: 16px 20px; }
+  /* parcours des phases d'une édition, en étapes (Étape 1 sur 3, dates, état) */
+  .frise-phases { padding: 20px 24px; }
   .frise-phases ol { display: flex; margin: 0; padding: 0; list-style: none; }
   .frise-phases__etape { flex: 1; display: flex; align-items: flex-start; min-width: 0; }
-  .frise-phases__etape:not(:last-child)::after { content: ""; flex: 1; height: 2px; margin: 15px 12px 0; background: var(--tr-bordure); }
+  .frise-phases__etape:not(:last-child)::after { content: ""; flex: 1; height: 2px; margin: 17px 16px 0; border-radius: 2px; background: var(--tr-bordure); }
   .frise-phases__etape.est-faite::after { background: var(--tr-succes-500); }
   .frise-phases__etape:last-child { flex: none; }
-  .frise-phases a { display: flex; align-items: flex-start; gap: 12px; padding: 0 4px; border-radius: var(--tr-rayon); color: inherit; text-decoration: none; }
-  .frise-phases__puce { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border: 1.5px solid var(--tr-gris-300); border-radius: 50%; background: var(--tr-surface); font-weight: 700; font-size: 13px; color: var(--tr-texte-2); }
-  .frise-phases__puce svg { width: 16px; height: 16px; }
+  .frise-phases a { display: flex; align-items: flex-start; gap: 12px; padding: 6px 10px 6px 6px; border-radius: var(--tr-rayon); color: inherit; text-decoration: none; }
+  .frise-phases a:hover { background: var(--tr-surface-2); }
+  .frise-phases__puce { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border: 1.5px solid var(--tr-gris-300); border-radius: 50%; background: var(--tr-surface); font-weight: 700; font-size: 14px; color: var(--tr-texte-2); }
+  .frise-phases__puce svg { width: 18px; height: 18px; }
   .est-faite .frise-phases__puce { border-color: var(--tr-succes-500); background: var(--tr-succes-500); color: #fff; }
-  .est-choisie .frise-phases__puce { border-color: var(--tr-primaire); background: var(--tr-primaire); color: var(--tr-sur-primaire); box-shadow: 0 0 0 4px var(--tr-primaire-doux); }
+  .est-choisie .frise-phases__puce { border-color: var(--tr-primaire); background: var(--tr-primaire); color: var(--tr-sur-primaire); box-shadow: 0 0 0 5px var(--tr-primaire-doux); }
   .frise-phases__texte { display: grid; gap: 2px; justify-items: start; }
-  .frise-phases__texte strong { font-weight: 700; }
-  .frise-phases a:hover strong { color: var(--tr-primaire-texte); }
+  .frise-phases__numero { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--tr-texte-3); }
+  .frise-phases__texte strong { font-size: 14px; font-weight: 700; }
+  .est-choisie .frise-phases__texte strong, .frise-phases a:hover strong { color: var(--tr-primaire-texte); }
   .frise-phases__texte small { font-size: 12px; color: var(--tr-texte-2); }
-  .frise-phases__texte .badge { margin-top: 6px; }
+  .frise-phases__texte .badge { margin-top: 4px; }
+  /* tâches d'une phase : préparation puis déroulement, la tâche courante porte l'action principale */
+  .taches-phase { margin: 0; padding: 8px 0; list-style: none; }
+  .taches-phase__tache { position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 24px; }
+  .taches-phase__tache:not(:last-child)::after { content: ""; position: absolute; left: 43px; top: 54px; bottom: -14px; width: 2px; background: var(--tr-bordure); }
+  .taches-phase__tache.est-faite:not(:last-child)::after { background: var(--tr-succes-500); }
+  .taches-phase__puce { position: relative; z-index: 1; width: 40px; height: 40px; display: grid; place-items: center; border: 1.5px solid var(--tr-gris-300); border-radius: 50%; background: var(--tr-surface); color: var(--tr-texte-3); }
+  .taches-phase__puce svg { width: 18px; height: 18px; }
+  .taches-phase__tache.est-faite .taches-phase__puce { border-color: var(--tr-succes-500); background: var(--tr-succes-50); color: var(--tr-succes-700); }
+  .taches-phase__tache.est-courante { background: var(--tr-primaire-doux); }
+  .taches-phase__tache.est-courante .taches-phase__puce { border-color: var(--tr-primaire); background: var(--tr-primaire); color: var(--tr-sur-primaire); }
+  .taches-phase__titre { font-weight: 700; }
+  .taches-phase__detail { margin-top: 2px; font-size: 13px; color: var(--tr-texte-2); }
+  .taches-phase__tache.est-a-venir .taches-phase__titre, .taches-phase__tache.est-a-venir .taches-phase__detail { color: var(--tr-texte-3); }
+  .taches-phase__action { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .taches-phase__action form { margin: 0; }
   .carte--choisie { border-color: var(--tr-bleu-200); box-shadow: 0 0 0 4px var(--tr-primaire-doux); margin-bottom: 20px; }
   .carte__entete-fin { margin-left: auto; display: flex; align-items: center; gap: 12px; }
   .carte__entete-fin .aide { margin-top: 0; }
@@ -150,6 +168,9 @@
   @media (max-width: 900px) {
     .frise-phases ol { flex-direction: column; gap: 14px; }
     .frise-phases__etape::after { display: none; }
+    .taches-phase__tache { grid-template-columns: 40px minmax(0, 1fr); padding: 14px 16px; }
+    .taches-phase__tache:not(:last-child)::after { left: 35px; }
+    .taches-phase__action { grid-column: 2; justify-content: flex-start; }
     .carte__entete { flex-wrap: wrap; }
   }
   /* page de formulaire (x-layouts.app centre) : colonne centrée, actions alignées à droite */

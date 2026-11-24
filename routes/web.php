@@ -82,7 +82,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/scrutins/{scrutin}/rouvrir', [ScrutinController::class, 'rouvrir'])->name('scrutins.rouvrir');
         Route::get('/femmes-modeles', [FemmeModeleController::class, 'index'])->name('femmes-modeles.index');
         Route::get('/femmes-modeles/ajouter', [FemmeModeleController::class, 'create'])->name('femmes-modeles.create');
-        Route::post('/femmes-modeles', [FemmeModeleController::class, 'store'])->name('femmes-modeles.store');
         Route::post('/femmes-modeles/{femmeModele}/supprimer', [FemmeModeleController::class, 'destroy'])->name('femmes-modeles.destroy');
         Route::post('/scrutins/{scrutin}/nominations', [NominationController::class, 'store'])->name('nominations.store');
         Route::post('/candidates/{candidate}/retirer-nomination', [NominationController::class, 'destroy'])->name('nominations.destroy');

@@ -78,7 +78,7 @@
             @if (session('succes'))
                 <x-notification :message="session('succes')" />
             @endif
-            @foreach (['edition', 'phase', 'scrutin', 'candidate', 'agent_id', 'date_fin', 'structure'] as $cleErreur)
+            @foreach (['edition', 'phase', 'scrutin', 'candidate', 'agent_id', 'date_fin', 'structure', 'role_electeur'] as $cleErreur)
                 @error($cleErreur)
                     <x-erreur :message="$message" />
                 @enderror

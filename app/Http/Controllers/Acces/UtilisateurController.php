@@ -3,14 +3,11 @@
 namespace App\Http\Controllers\Acces;
 
 use App\Actions\Acces\EnregistrerUtilisateur;
-use App\Enums\Acces\CodeRole;
 use App\Http\Controllers\Controller;
 use App\Models\Agent;
-use App\Models\Structure;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
@@ -28,39 +25,17 @@ class UtilisateurController extends Controller
         ]);
     }
 
+    /**
+     * Pages de création et de modification : le formulaire est le composant Livewire Acces\FormulaireUtilisateur.
+     */
     public function create(): View
     {
-        return view('utilisateurs.formulaire', ['utilisateur' => new User, 'rolesDuCompte' => [], 'structures' => $this->structures(), 'pointFocal' => $this->pointFocal([])]);
-    }
-
-    public function store(Request $request, EnregistrerUtilisateur $enregistrer): RedirectResponse
-    {
-        $utilisateur = $enregistrer->handle($this->donnees($request));
-
-        return redirect()->route('utilisateurs.edit', $utilisateur)->with('succes', "Le compte {$utilisateur->login} est créé.");
+        return view('utilisateurs.formulaire', ['utilisateur' => new User]);
     }
 
     public function edit(User $utilisateur): View
     {
-        $roles = $utilisateur->load(['roles', 'agent'])->roles->map(fn ($role) => $role->code->value)->all();
-
-        return view('utilisateurs.formulaire', [
-            'utilisateur' => $utilisateur,
-            'rolesDuCompte' => $roles,
-            'structures' => $this->structures(),
-            'pointFocal' => $this->pointFocal($roles),
-        ]);
-    }
-
-    public function update(Request $request, User $utilisateur, EnregistrerUtilisateur $enregistrer): RedirectResponse
-    {
-        if ($utilisateur->is($request->user()) && ! $request->boolean('actif')) {
-            throw ValidationException::withMessages(['actif' => 'Vous ne pouvez pas désactiver votre propre compte.']);
-        }
-
-        $enregistrer->handle($this->donnees($request, $utilisateur), $utilisateur);
-
-        return redirect()->route('utilisateurs.edit', $utilisateur)->with('succes', 'Le compte est enregistré.');
+        return view('utilisateurs.formulaire', ['utilisateur' => $utilisateur]);
     }
 
     /**
@@ -93,64 +68,5 @@ class UtilisateurController extends Controller
         ], $utilisateur);
 
         return redirect()->route('utilisateurs.index')->with('succes', "Le compte {$utilisateur->login} est lié à l’agent {$agent->nomComplet()}.");
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function donnees(Request $request, ?User $utilisateur = null): array
-    {
-        $roles = array_values((array) $request->input('roles', []));
-
-        return [
-            'name' => $request->input('name'),
-            'login' => $request->input('login'),
-            'email' => $request->input('email') ?: null,
-            'actif' => $request->boolean('actif'),
-            'agent_id' => $this->agentDuMatricule(trim((string) $request->input('login', '')), $utilisateur),
-            // La structure ne concerne que le point focal (R4) : elle est ignorée pour les autres rôles.
-            'structure_id' => in_array(CodeRole::PointFocal->value, $roles, true) ? ($request->integer('structure_id') ?: null) : null,
-            'roles' => $roles,
-        ];
-    }
-
-    /**
-     * Agent lié d'après l'identifiant (R3) : l'agent qui porte ce matricule, s'il n'a pas déjà un autre compte ;
-     * à défaut d'agent, le compte garde l'agent auquel il était lié.
-     *
-     * @throws ValidationException
-     */
-    private function agentDuMatricule(string $login, ?User $utilisateur): ?int
-    {
-        $agent = $login === '' ? null : Agent::where('matricule', $login)->first();
-
-        if ($agent === null) {
-            return $utilisateur?->agent_id;
-        }
-
-        if (User::where('agent_id', $agent->id)->when($utilisateur, fn ($query) => $query->whereKeyNot($utilisateur->id))->exists()) {
-            throw ValidationException::withMessages(['login' => "L’agent {$agent->nomComplet()} ({$login}) dispose déjà d’un compte."]);
-        }
-
-        return $agent->id;
-    }
-
-    /**
-     * Le rôle point focal est-il coché (saisie renvoyée après une erreur, sinon rôles du compte) ? La structure du
-     * point focal ne s'affiche qu'avec lui.
-     *
-     * @param  list<string>  $rolesDuCompte
-     */
-    private function pointFocal(array $rolesDuCompte): bool
-    {
-        return in_array(CodeRole::PointFocal->value, (array) old('roles', $rolesDuCompte), true);
-    }
-
-    /**
-     * @return Collection<int, Structure>
-     */
-    private function structures()
-    {
-        return Structure::actives()->orderBy('libelle')->get(['id', 'code', 'libelle']);
     }
 }

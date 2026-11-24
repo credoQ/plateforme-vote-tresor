@@ -97,7 +97,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:administrer')->group(function () {
         Route::resource('utilisateurs', UtilisateurController::class)
-            ->only(['index', 'create', 'store', 'edit', 'update'])
+            ->only(['index', 'create', 'edit'])
             ->parameters(['utilisateurs' => 'utilisateur']);
         Route::post('/utilisateurs/{utilisateur}/lier-agent', [UtilisateurController::class, 'lierAgent'])->name('utilisateurs.lier-agent');
 

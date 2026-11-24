@@ -3,10 +3,13 @@
 namespace Tests\Feature\Http\Acces;
 
 use App\Enums\Acces\CodeRole;
+use App\Livewire\Acces\FormulaireUtilisateur;
 use App\Models\Agent;
 use App\Models\Structure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Features\SupportTesting\Testable;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class UtilisateursTest extends TestCase
@@ -36,14 +39,11 @@ class UtilisateursTest extends TestCase
      */
     public function test_r2_cree_un_compte_avec_ses_roles_et_son_adresse(): void
     {
-        $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
-            'name' => 'KPADONOU Damien', 'login' => 'dkpadonou', 'roles' => [CodeRole::Comite->value], 'actif' => '1',
-        ])->assertSessionHasErrors('email');
-
-        $this->post(route('utilisateurs.store'), [
-            'name' => 'KPADONOU Damien', 'login' => 'dkpadonou', 'email' => 'dkpadonou@example.test',
-            'roles' => [CodeRole::Comite->value, CodeRole::Observateur->value], 'actif' => '1',
-        ])->assertSessionHasNoErrors();
+        $this->formulaire()
+            ->set('name', 'KPADONOU Damien')->set('login', 'dkpadonou')->set('roles', [CodeRole::Comite->value])
+            ->call('enregistrer')->assertHasErrors('email')
+            ->set('email', 'dkpadonou@example.test')->set('roles', [CodeRole::Comite->value, CodeRole::Observateur->value])
+            ->call('enregistrer')->assertHasNoErrors()->assertRedirect();
 
         $compte = User::where('login', 'dkpadonou')->firstOrFail();
         $this->assertNull($compte->password);
@@ -59,18 +59,15 @@ class UtilisateursTest extends TestCase
         $agent = Agent::factory()->create(['matricule' => '102345']);
         User::factory()->pourAgent($agent)->create();
 
-        $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
-            'name' => 'Doublon', 'login' => '102345', 'email' => 'doublon@example.test', 'roles' => [CodeRole::Electeur->value],
-        ])->assertSessionHasErrors('login');
+        $this->formulaire()
+            ->set('name', 'Doublon')->set('login', '102345')->set('email', 'doublon@example.test')->set('roles', [CodeRole::Electeur->value])
+            ->call('enregistrer')->assertHasErrors('login');
 
-        $this->post(route('utilisateurs.store'), [
-            'name' => 'Point focal', 'login' => 'pf-dia', 'email' => 'pf@example.test', 'roles' => [CodeRole::PointFocal->value],
-        ])->assertSessionHasErrors('structure_id');
-
-        $this->post(route('utilisateurs.store'), [
-            'name' => 'Point focal', 'login' => 'pf-dia', 'email' => 'pf@example.test', 'roles' => [CodeRole::PointFocal->value],
-            'structure_id' => Structure::where('code', 'DIA')->value('id'),
-        ])->assertSessionHasNoErrors();
+        $this->formulaire()
+            ->set('name', 'Point focal')->set('login', 'pf-dia')->set('email', 'pf@example.test')->set('roles', [CodeRole::PointFocal->value])
+            ->call('enregistrer')->assertHasErrors('structure_id')
+            ->set('structureId', (string) Structure::where('code', 'DIA')->value('id'))
+            ->call('enregistrer')->assertHasNoErrors();
     }
 
     /**
@@ -78,35 +75,31 @@ class UtilisateursTest extends TestCase
      */
     public function test_r3_refuse_le_role_electeur_a_un_compte_sans_agent(): void
     {
-        $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
-            'name' => 'Observatrice externe', 'login' => 'obs.externe', 'email' => 'obs@example.test',
-            'roles' => [CodeRole::Observateur->value, CodeRole::Electeur->value], 'actif' => '1',
-        ])->assertSessionHasErrors('role_electeur');
+        $this->formulaire()
+            ->set('name', 'Observatrice externe')->set('login', 'obs.externe')->set('email', 'obs@example.test')
+            ->set('roles', [CodeRole::Observateur->value, CodeRole::Electeur->value])
+            ->call('enregistrer')->assertHasErrors('role_electeur')
+            ->assertDispatched('erreur', message: 'Le rôle Électeur est réservé aux comptes liés à un agent : l’identifiant doit être le matricule d’un agent.');
         $this->assertDatabaseMissing('users', ['login' => 'obs.externe']);
 
         $agent = Agent::factory()->create(['matricule' => '104999', 'email' => 'agent.104999@example.test']);
-        $this->post(route('utilisateurs.store'), [
-            'name' => $agent->nomComplet(), 'login' => '104999', 'email' => 'compte.104999@example.test',
-            'roles' => [CodeRole::Electeur->value], 'actif' => '1',
-        ])->assertSessionHasNoErrors();
+        $this->formulaire()
+            ->set('name', $agent->nomComplet())->set('login', '104999')->set('email', 'compte.104999@example.test')->set('roles', [CodeRole::Electeur->value])
+            ->call('enregistrer')->assertHasNoErrors();
     }
 
     public function test_desactive_un_compte(): void
     {
         $compte = User::factory()->avecRoles(CodeRole::Comite)->create();
 
-        $this->actingAs($this->admin)->put(route('utilisateurs.update', $compte), [
-            'name' => $compte->name, 'login' => $compte->login, 'email' => $compte->email, 'roles' => [CodeRole::Comite->value],
-        ])->assertSessionHasNoErrors();
+        $this->formulaire($compte)->set('actif', false)->call('enregistrer')->assertHasNoErrors();
 
         $this->assertFalse($compte->fresh()->actif);
     }
 
     public function test_l_administrateur_ne_peut_pas_desactiver_son_propre_compte(): void
     {
-        $this->actingAs($this->admin)->put(route('utilisateurs.update', $this->admin), [
-            'name' => $this->admin->name, 'login' => $this->admin->login, 'email' => $this->admin->email, 'roles' => [CodeRole::Administrateur->value],
-        ])->assertSessionHasErrors('actif');
+        $this->formulaire($this->admin)->set('actif', false)->call('enregistrer')->assertHasErrors('actif');
 
         $this->assertTrue($this->admin->fresh()->actif);
     }
@@ -124,13 +117,12 @@ class UtilisateursTest extends TestCase
     public function test_r3_lie_le_compte_a_l_agent_qui_porte_l_identifiant(): void
     {
         $agent = Agent::factory()->create(['matricule' => '104455', 'email' => 'agent@example.test']);
-        $donnees = [
-            'name' => $agent->nomComplet(), 'login' => '104455', 'roles' => [CodeRole::Comite->value], 'actif' => '1',
-            'structure_id' => Structure::where('code', 'DIA')->value('id'),
-        ];
-
-        $this->actingAs($this->admin)->post(route('utilisateurs.store'), $donnees)->assertSessionHasErrors('email');
-        $this->post(route('utilisateurs.store'), [...$donnees, 'email' => 'compte@example.test'])->assertSessionHasNoErrors();
+        $this->formulaire()
+            ->set('name', $agent->nomComplet())->set('login', '104455')->set('roles', [CodeRole::Comite->value])
+            ->set('structureId', (string) Structure::where('code', 'DIA')->value('id'))
+            ->call('enregistrer')->assertHasErrors('email')
+            ->set('email', 'compte@example.test')
+            ->call('enregistrer')->assertHasNoErrors();
 
         $compte = User::where('login', '104455')->firstOrFail();
         $this->assertSame($agent->id, $compte->agent_id);
@@ -153,5 +145,10 @@ class UtilisateursTest extends TestCase
         $autre = User::factory()->avecRoles(CodeRole::Observateur)->create();
         $this->post(route('utilisateurs.lier-agent', $autre), ['agent' => '106677'])->assertSessionHasErrors('agent');
         $this->assertNull($autre->fresh()->agent_id);
+    }
+
+    private function formulaire(?User $utilisateur = null): Testable
+    {
+        return Livewire::actingAs($this->admin)->test(FormulaireUtilisateur::class, ['utilisateur' => $utilisateur]);
     }
 }

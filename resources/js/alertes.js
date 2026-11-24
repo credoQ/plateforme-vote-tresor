@@ -111,6 +111,8 @@ window.demanderMotif = demanderMotif;
 
 // Message envoyé par un composant Livewire : $this->dispatch('notifier', message: '…', ton: 'succes').
 window.addEventListener('notifier', (e) => notifier(e.detail?.message, e.detail?.ton));
+// Action refusée par un composant Livewire (formulaire envoyé sans recharger la page) : $this->dispatch('erreur', message: '…').
+window.addEventListener('erreur', (e) => signalerErreur(e.detail?.message));
 
 /**
  * Actions sensibles : <x-modale-confirmation> produit un formulaire masqué (form.confirmation) que le bouton

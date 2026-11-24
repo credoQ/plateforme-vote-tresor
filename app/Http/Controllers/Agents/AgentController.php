@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Agents;
 
 use App\Actions\Agents\AffecterAgent;
-use App\Actions\Agents\EnregistrerAgent;
 use App\Actions\Agents\TerminerAffectation;
 use App\Actions\Audit\Journaliser;
 use App\Enums\Acces\CodeRole;
@@ -40,27 +39,14 @@ class AgentController extends Controller
         return view('agents.index', ['restreint' => $perimetre !== null]);
     }
 
+    /**
+     * Formulaire de saisie : l'envoi passe par le composant Livewire Agents\FormulaireAgent.
+     */
     public function create(): View
     {
         Gate::authorize('create', Agent::class);
 
-        return view('agents.formulaire', ['agent' => new Agent, 'structures' => $this->structures(null)]);
-    }
-
-    public function store(Request $request, EnregistrerAgent $enregistrer, AffecterAgent $affecter): RedirectResponse
-    {
-        Gate::authorize('create', Agent::class);
-        ['structure' => $structure, 'date' => $date] = $this->affectation($request);
-
-        $agent = DB::transaction(function () use ($request, $enregistrer, $affecter, $structure, $date): Agent {
-            $agent = $enregistrer->handle($this->donnees($request));
-            $affecter->handle($agent, $structure, $date);
-            $this->journal->handle(ActionAuditee::AgentEnregistre, $agent, ['matricule' => $agent->matricule, 'creation' => true, 'structure' => $structure->code]);
-
-            return $agent;
-        });
-
-        return redirect()->route('agents.show', $agent)->with('succes', "L’agent {$agent->matricule} est enregistré et affecté à {$structure->code}.");
+        return view('agents.formulaire', ['agent' => new Agent]);
     }
 
     public function show(Request $request, Agent $agent): View
@@ -84,19 +70,7 @@ class AgentController extends Controller
     {
         Gate::authorize('update', $agent);
 
-        return view('agents.formulaire', ['agent' => $agent, 'structures' => $this->structures(null)]);
-    }
-
-    public function update(Request $request, Agent $agent, EnregistrerAgent $enregistrer): RedirectResponse
-    {
-        Gate::authorize('update', $agent);
-
-        DB::transaction(function () use ($request, $agent, $enregistrer): void {
-            $enregistrer->handle($this->donnees($request), $agent);
-            $this->journal->handle(ActionAuditee::AgentEnregistre, $agent, ['matricule' => $agent->matricule, 'creation' => false, 'modifications' => array_keys($agent->getChanges())]);
-        });
-
-        return redirect()->route('agents.show', $agent)->with('succes', 'La fiche de l’agent est enregistrée.');
+        return view('agents.formulaire', ['agent' => $agent]);
     }
 
     /**
@@ -130,20 +104,6 @@ class AgentController extends Controller
         });
 
         return redirect()->route('agents.show', $agent)->with('succes', "L’affectation de l’agent prend fin le {$date->format('d/m/Y')}.");
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private function donnees(Request $request): array
-    {
-        return collect($request->only(['matricule', 'npi', 'nom', 'prenoms', 'sexe', 'date_naissance', 'date_prise_service', 'telephone', 'email', 'fonction', 'statut']))
-            ->map(fn ($valeur) => is_string($valeur) ? (trim($valeur) === '' ? null : trim($valeur)) : $valeur)
-            ->put('matricule', trim((string) $request->input('matricule')))
-            ->put('nom', mb_strtoupper(trim((string) $request->input('nom'))))
-            ->put('prenoms', trim((string) $request->input('prenoms')))
-            ->put('sexe', (string) $request->input('sexe'))
-            ->all();
     }
 
     /**

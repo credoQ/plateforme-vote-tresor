@@ -34,19 +34,15 @@ class VoteController extends Controller
             return view('vote.etat', ['inscription' => $inscription, 'scrutin' => $inscription?->scrutin]);
         }
 
-        $recherche = trim((string) $request->query('recherche', ''));
-        $structureId = $request->integer('structure') ?: null;
         $candidates = $this->candidates($inscription->scrutin);
 
         return view('vote.bulletin', [
             'inscription' => $inscription,
             'scrutin' => $inscription->scrutin,
-            'candidates' => $candidates->filter(fn (array $c): bool => ($recherche === '' || str_contains(mb_strtolower($c['nom']), mb_strtolower($recherche)))
-                && ($structureId === null || $c['structure_id'] === $structureId)),
+            // Toutes les candidates : la recherche et le choix d'une structure filtrent dans la page (filtre-bulletin.js).
+            'candidates' => $candidates,
             'total' => $candidates->count(),
             'structures' => $candidates->pluck('structure', 'structure_id')->sort(),
-            'recherche' => $recherche,
-            'structureId' => $structureId,
             'blancAutorise' => $inscription->scrutin->phase->edition->vote_blanc_autorise,
         ]);
     }

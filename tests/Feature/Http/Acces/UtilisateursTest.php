@@ -81,7 +81,7 @@ class UtilisateursTest extends TestCase
         $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
             'name' => 'Observatrice externe', 'login' => 'obs.externe', 'email' => 'obs@example.test',
             'roles' => [CodeRole::Observateur->value, CodeRole::Electeur->value], 'actif' => '1',
-        ])->assertSessionHasErrors('roles');
+        ])->assertSessionHasErrors('role_electeur');
         $this->assertDatabaseMissing('users', ['login' => 'obs.externe']);
 
         $agent = Agent::factory()->create(['matricule' => '104999', 'email' => 'agent.104999@example.test']);

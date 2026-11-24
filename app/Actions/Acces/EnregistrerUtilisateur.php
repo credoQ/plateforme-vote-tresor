@@ -53,7 +53,7 @@ class EnregistrerUtilisateur
         ])->after(function ($validateur) use ($donnees): void {
             // R2, R3 : seul un agent vote ; un compte sans agent (administrateur technique, observateur externe) n'est pas électeur.
             if (in_array(CodeRole::Electeur->value, (array) ($donnees['roles'] ?? []), true) && blank($donnees['agent_id'] ?? null)) {
-                $validateur->errors()->add('roles', 'Le rôle Électeur est réservé aux comptes liés à un agent : l’identifiant doit être le matricule d’un agent.');
+                $validateur->errors()->add('role_electeur', 'Le rôle Électeur est réservé aux comptes liés à un agent : l’identifiant doit être le matricule d’un agent.');
             }
         })->validate();
 

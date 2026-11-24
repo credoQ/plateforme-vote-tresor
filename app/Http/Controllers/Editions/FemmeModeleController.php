@@ -17,29 +17,14 @@ use Illuminate\View\View;
  */
 class FemmeModeleController extends Controller
 {
-    public function index(Request $request): View
+    /**
+     * Historique des femmes modèles : la liste filtrée est dans le composant Livewire Editions\ListeFemmesModeles.
+     */
+    public function index(): View
     {
         $edition = Edition::courante();
-        $ineligibles = $edition?->ineligibles() ?? collect();
-        $recherche = trim((string) $request->query('recherche', ''));
-        $annee = $request->integer('annee') ?: null;
 
-        $femmesModeles = FemmeModele::query()
-            ->when($recherche !== '', fn ($q) => $q->where(fn ($r) => $r
-                ->whereLike('nom_complet', "%{$recherche}%")->orWhereLike('matricule', "%{$recherche}%")))
-            ->when($annee !== null, fn ($q) => $q->where('annee', $annee))
-            ->orderByDesc('annee')->orderBy('nom_complet')
-            ->paginate(config('app.lignes_par_page'))
-            ->withQueryString();
-
-        return view('femmes-modeles.index', [
-            'femmesModeles' => $femmesModeles,
-            'annees' => FemmeModele::query()->distinct()->orderByDesc('annee')->pluck('annee'),
-            'recherche' => $recherche,
-            'annee' => $annee,
-            'edition' => $edition,
-            'ineligibles' => $ineligibles,
-        ]);
+        return view('femmes-modeles.index', ['edition' => $edition]);
     }
 
     public function create(): View

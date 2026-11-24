@@ -4,8 +4,10 @@ namespace Tests\Feature\Livewire;
 
 use App\Actions\Scrutins\GenererScrutins;
 use App\Enums\Acces\CodeRole;
+use App\Livewire\Agents\HistoriqueAffectations;
 use App\Livewire\Editions\ScrutinsDeLaPhase;
 use App\Livewire\Scrutins\ContenuDuScrutin;
+use App\Models\Affectation;
 use App\Models\Agent;
 use App\Models\Edition;
 use App\Models\Phase;
@@ -86,6 +88,25 @@ class OngletsTest extends TestCase
 
         Livewire::actingAs(User::factory()->pourAgent(Agent::factory()->create())->avecRoles(CodeRole::Electeur)->create())
             ->test(ContenuDuScrutin::class, ['scrutin' => $scrutin])
+            ->assertForbidden();
+    }
+
+    /**
+     * R4, R12 : l'historique des affectations se filtre sur place ; un point focal n'y accède pas hors de son périmètre.
+     */
+    public function test_r12_l_historique_des_affectations_se_filtre_sur_place(): void
+    {
+        $agent = Agent::factory()->affecteA(Structure::where('code', 'DIA')->firstOrFail(), Carbon::parse('2024-01-01'))->create();
+        Affectation::factory()->terminee('2023-12-31')->create(['agent_id' => $agent->id, 'structure_id' => Structure::where('code', 'TD-ZOU')->value('id'), 'date_debut' => '2020-01-01']);
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Administrateur)->create())
+            ->test(HistoriqueAffectations::class, ['agent' => $agent])
+            ->assertSee('TD-ZOU')->assertSee('DIA')
+            ->set('periode', 'en-cours')
+            ->assertDontSee('TD-ZOU')->assertSee('Direction de l&#039;Informatique', false);
+
+        Livewire::actingAs(User::factory()->pointFocalDe(Structure::where('code', 'DR')->firstOrFail())->create())
+            ->test(HistoriqueAffectations::class, ['agent' => $agent])
             ->assertForbidden();
     }
 }

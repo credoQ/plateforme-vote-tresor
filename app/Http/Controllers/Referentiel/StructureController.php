@@ -9,7 +9,6 @@ use App\Enums\Audit\ActionAuditee;
 use App\Enums\Referentiel\CodeTypeStructure;
 use App\Http\Controllers\Controller;
 use App\Models\Departement;
-use App\Models\PoleElectoral;
 use App\Models\Structure;
 use App\Models\TypeStructure;
 use Illuminate\Database\Eloquent\Builder;
@@ -42,35 +41,14 @@ class StructureController extends Controller
      * Types de structure (filtrés par pôle et par recherche) et départements (filtrés par recherche) : chaque
      * tableau a ses propres paramètres, pour que filtrer l'un ne vide pas l'autre.
      */
-    public function organisation(Request $request): View
+    /**
+     * Ancienne adresse des types et départements : ils forment désormais un onglet de la liste des structures.
+     */
+    public function organisation(): RedirectResponse
     {
         Gate::authorize('viewAny', Structure::class);
 
-        $filtres = [
-            'type' => trim((string) $request->query('type', '')),
-            'pole' => (string) $request->query('pole', ''),
-            'departement' => trim((string) $request->query('departement', '')),
-        ];
-        $contient = fn (string $texte, string $terme): bool => $terme === '' || str_contains(mb_strtolower($texte), mb_strtolower($terme));
-
-        $poles = PoleElectoral::with(['typesStructure' => fn ($q) => $q->withCount(['structures' => fn (Builder $s) => $s->where('actif', true)])->orderBy('libelle')])
-            ->orderBy('libelle')->get();
-
-        return view('referentiel.organisation', [
-            'types' => $poles
-                ->filter(fn (PoleElectoral $pole): bool => $filtres['pole'] === '' || $pole->code->value === $filtres['pole'])
-                ->flatMap(fn (PoleElectoral $pole) => $pole->typesStructure->map(fn ($type): array => ['pole' => $pole, 'type' => $type]))
-                ->filter(fn (array $ligne): bool => $contient($ligne['type']->code->libelle().' '.$ligne['type']->code->value, $filtres['type']))
-                ->values(),
-            'poles' => $poles,
-            'departements' => Departement::query()
-                ->with('tresorerieDepartementale')
-                ->withCount('tresoreriesCommunales')
-                ->orderBy('libelle')->get()
-                ->filter(fn (Departement $departement): bool => $contient($departement->code.' '.$departement->libelle, $filtres['departement']))
-                ->values(),
-            'filtres' => $filtres,
-        ]);
+        return redirect()->route('structures.index', ['onglet' => 'organisation']);
     }
 
     public function create(Request $request): View
@@ -104,23 +82,8 @@ class StructureController extends Controller
     {
         Gate::authorize('view', $structure);
 
-        $recherche = trim((string) $request->query('recherche', ''));
-        $statut = (string) $request->query('statut', 'toutes');
-
         return view('referentiel.structures.show', [
             'structure' => $structure->load(['typeStructure.poleElectoral', 'departement', 'structureParente']),
-            'structuresFilles' => $structure->structuresFilles()
-                ->with('typeStructure')
-                ->withCount(['affectations as agents_en_service_count' => fn (Builder $q) => $q->enCoursLe()])
-                ->when($recherche !== '', fn ($q) => $q->where(fn ($r) => $r
-                    ->whereLike('code', "%{$recherche}%")->orWhereLike('sigle', "%{$recherche}%")->orWhereLike('libelle', "%{$recherche}%")))
-                ->when($statut === 'actives', fn ($q) => $q->where('actif', true))
-                ->when($statut === 'desactivees', fn ($q) => $q->where('actif', false))
-                ->orderBy('code')
-                ->paginate(config('app.lignes_par_page'))
-                ->withQueryString(),
-            'recherche' => $recherche,
-            'statut' => $statut,
             'agentsEnService' => $structure->affectations()->enCoursLe()->count(),
         ]);
     }

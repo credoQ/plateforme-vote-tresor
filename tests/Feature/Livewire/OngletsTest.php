@@ -6,6 +6,8 @@ use App\Actions\Scrutins\GenererScrutins;
 use App\Enums\Acces\CodeRole;
 use App\Livewire\Agents\HistoriqueAffectations;
 use App\Livewire\Editions\ScrutinsDeLaPhase;
+use App\Livewire\Referentiel\OngletsReferentiel;
+use App\Livewire\Referentiel\StructuresRattachees;
 use App\Livewire\Scrutins\ContenuDuScrutin;
 use App\Models\Affectation;
 use App\Models\Agent;
@@ -107,6 +109,35 @@ class OngletsTest extends TestCase
 
         Livewire::actingAs(User::factory()->pointFocalDe(Structure::where('code', 'DR')->firstOrFail())->create())
             ->test(HistoriqueAffectations::class, ['agent' => $agent])
+            ->assertForbidden();
+    }
+
+    /**
+     * R7, R8 : le référentiel passe des structures aux types et départements sur place, et les structures
+     * rattachées d'une structure se filtrent sans recharger sa fiche.
+     */
+    public function test_r7_le_referentiel_et_les_structures_rattachees_se_filtrent_sur_place(): void
+    {
+        $admin = User::factory()->avecRoles(CodeRole::Administrateur)->create();
+
+        Livewire::actingAs($admin)
+            ->test(OngletsReferentiel::class)
+            ->assertSet('onglet', 'structures')
+            ->call('choisirOnglet', 'organisation')
+            ->assertSee('Agence comptable de la Dette')->assertSee('TD-ZOU')
+            ->set('pole', 'STRUCTURES')
+            ->assertDontSee('Trésorerie communale')
+            ->set('rechercheDepartement', 'zou')
+            ->assertSee('TD-ZOU')->assertDontSee('TD-ATL');
+
+        Livewire::actingAs($admin)
+            ->test(StructuresRattachees::class, ['structure' => Structure::where('code', 'TD-ATL')->firstOrFail()])
+            ->assertSee('TC-OUIDAH')->assertSee('TC-ALLADA')
+            ->set('recherche', 'ouidah')
+            ->assertSee('TC-OUIDAH')->assertDontSee('TC-ALLADA');
+
+        Livewire::actingAs(User::factory()->pourAgent(Agent::factory()->create())->avecRoles(CodeRole::Electeur)->create())
+            ->test(OngletsReferentiel::class)
             ->assertForbidden();
     }
 }

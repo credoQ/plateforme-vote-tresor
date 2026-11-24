@@ -146,7 +146,8 @@ class GestionDuReferentielTest extends TestCase
      */
     public function test_r7_affiche_les_types_par_pole_et_les_departements(): void
     {
-        $this->actingAs($this->admin)->get(route('structures.organisation'))->assertOk()
+        $this->actingAs($this->admin)->get(route('structures.organisation'))->assertRedirect(route('structures.index', ['onglet' => 'organisation']));
+        $this->get(route('structures.index', ['onglet' => 'organisation']))->assertOk()
             ->assertSeeInOrder(['Pôle départemental', 'Trésorerie communale'])
             ->assertSee('Agence comptable de la Dette')
             ->assertSee(Departement::where('code', 'ZOU')->value('libelle'))
@@ -155,11 +156,9 @@ class GestionDuReferentielTest extends TestCase
 
     public function test_filtre_les_types_par_pole_et_les_departements_sans_perdre_l_autre_filtre(): void
     {
-        $this->actingAs($this->admin)->get(route('structures.organisation', ['pole' => 'STRUCTURES', 'departement' => 'zou']))->assertOk()
+        $this->actingAs($this->admin)->get(route('structures.index', ['onglet' => 'organisation', 'pole' => 'STRUCTURES', 'departement_recherche' => 'zou']))->assertOk()
             ->assertSee('Agence comptable de la Dette')->assertDontSee('Trésorerie communale')
-            ->assertSee('TD-ZOU')->assertDontSee('TD-ATL')
-            ->assertSee('<input type="hidden" name="departement" value="zou">', false)
-            ->assertSee('<input type="hidden" name="pole" value="STRUCTURES">', false);
+            ->assertSee('TD-ZOU')->assertDontSee('TD-ATL');
     }
 
     public function test_filtre_les_structures_rattachees_d_une_structure(): void

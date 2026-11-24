@@ -4,6 +4,7 @@ namespace Tests\Feature\Http\Agents;
 
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
+use App\Livewire\Agents\FormulaireAgent;
 use App\Models\Affectation;
 use App\Models\Agent;
 use App\Models\JournalAudit;
@@ -11,6 +12,8 @@ use App\Models\Structure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Livewire\Features\SupportTesting\Testable;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class GestionDesAgentsTest extends TestCase
@@ -58,10 +61,12 @@ class GestionDesAgentsTest extends TestCase
         $dia = $this->structure('DIA');
 
         $this->actingAs($this->admin)->get(route('agents.create'))->assertOk()->assertSee('Enregistrer l’agent');
-        $this->post(route('agents.store'), [
-            'matricule' => '300100', 'npi' => '1234567890', 'nom' => 'ahouansou', 'prenoms' => 'Clarisse', 'sexe' => 'F', 'email' => 'clarisse@example.test',
-            'date_naissance' => '1985-03-12', 'structure_id' => $dia->id, 'date_debut' => '2024-01-02', 'fonction' => '',
-        ])->assertSessionHasNoErrors();
+        $this->formulaire()
+            ->set(['fiche.matricule' => '300100', 'fiche.npi' => '1234567890', 'fiche.nom' => 'ahouansou', 'fiche.prenoms' => 'Clarisse', 'fiche.sexe' => 'F',
+                'fiche.email' => 'clarisse@example.test', 'fiche.date_naissance' => '1985-03-12', 'fiche.fonction' => '',
+                'structureId' => (string) $dia->id, 'dateDebut' => '2024-01-02'])
+            ->call('enregistrer')
+            ->assertHasNoErrors()->assertRedirect(route('agents.show', Agent::where('matricule', '300100')->firstOrFail()));
 
         $agent = Agent::where('matricule', '300100')->firstOrFail();
         $this->assertSame('AHOUANSOU', $agent->nom);
@@ -69,9 +74,10 @@ class GestionDesAgentsTest extends TestCase
         $this->assertSame('DIA', $agent->affectationLe()->structure->code);
         $this->assertSame(1, JournalAudit::where('action', ActionAuditee::AgentEnregistre->value)->count());
 
-        $this->post(route('agents.store'), [
-            'matricule' => '300100', 'nom' => 'X', 'prenoms' => 'Y', 'sexe' => 'M', 'structure_id' => $dia->id, 'date_debut' => '2024-01-02',
-        ])->assertSessionHasErrors('matricule');
+        $this->formulaire()
+            ->set(['fiche.matricule' => '300100', 'fiche.nom' => 'X', 'fiche.prenoms' => 'Y', 'fiche.sexe' => 'M', 'structureId' => (string) $dia->id, 'dateDebut' => '2024-01-02'])
+            ->call('enregistrer')
+            ->assertHasErrors('matricule')->assertDispatched('formulaire-erreurs')->assertNoRedirect();
         $this->assertSame(1, Agent::where('matricule', '300100')->count(), 'Rien n’est enregistré en cas d’erreur.');
     }
 
@@ -99,11 +105,13 @@ class GestionDesAgentsTest extends TestCase
         $agent = Agent::factory()->homme()->affecteA($this->structure('DIA'))->create();
 
         $this->actingAs($this->admin)->get(route('agents.edit', $agent))->assertOk();
-        $this->put(route('agents.update', $agent), [
-            'matricule' => $agent->matricule, 'nom' => 'DOSSOU', 'prenoms' => 'Marc', 'sexe' => 'M', 'email' => 'marc@example.test', 'fonction' => 'Chef de service',
-        ])->assertSessionHasNoErrors();
+        $this->formulaire($agent)
+            ->set(['fiche.nom' => 'dossou', 'fiche.prenoms' => 'Marc', 'fiche.email' => 'marc@example.test', 'fiche.fonction' => 'Chef de service'])
+            ->call('enregistrer')
+            ->assertHasNoErrors()->assertRedirect(route('agents.show', $agent));
 
         $this->assertSame('Chef de service', $agent->fresh()->fonction);
+        $this->assertSame('DOSSOU', $agent->fresh()->nom);
     }
 
     /**
@@ -142,5 +150,10 @@ class GestionDesAgentsTest extends TestCase
     private function structure(string $code): Structure
     {
         return Structure::where('code', $code)->firstOrFail();
+    }
+
+    private function formulaire(?Agent $agent = null): Testable
+    {
+        return Livewire::test(FormulaireAgent::class, ['agent' => $agent]);
     }
 }

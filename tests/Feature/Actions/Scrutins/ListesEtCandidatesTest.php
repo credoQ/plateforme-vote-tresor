@@ -2,6 +2,8 @@
 
 namespace Tests\Feature\Actions\Scrutins;
 
+use App\Actions\Agents\AffecterAgent;
+use App\Actions\Agents\TerminerAffectation;
 use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\ConstituerListes;
 use App\Actions\Scrutins\DesactiverCandidate;
@@ -84,7 +86,7 @@ class ListesEtCandidatesTest extends TestCase
     public function test_r34_reactive_une_candidate_apres_l_arret_des_listes_mais_pas_apres_l_ouverture(): void
     {
         app(DesactiverCandidate::class)->handle($this->candidate, null, 'Erreur');
-        app(ArreterListes::class)->handle($this->scrutin);
+        app(ArreterListes::class)->handle($this->scrutin->phase);
 
         app(ReactiverCandidate::class)->handle($this->candidate->fresh());
         $this->assertTrue($this->candidate->fresh()->estActive());
@@ -101,7 +103,8 @@ class ListesEtCandidatesTest extends TestCase
      */
     public function test_r27_les_listes_arretees_ne_sont_plus_modifiables(): void
     {
-        $scrutin = app(ArreterListes::class)->handle($this->scrutin);
+        app(ArreterListes::class)->handle($this->scrutin->phase);
+        $scrutin = $this->scrutin;
         $this->assertSame(StatutScrutin::ListesArretees, $scrutin->fresh()->statut);
 
         Agent::factory()->femme()->affecteA(Structure::where('code', 'DIA')->firstOrFail(), Carbon::parse('2020-01-01'))->create();
@@ -117,7 +120,7 @@ class ListesEtCandidatesTest extends TestCase
     public function test_r27_rouvre_les_listes_pour_les_corriger_puis_les_arrete_de_nouveau(): void
     {
         app(DesactiverCandidate::class)->handle($this->candidate, User::factory()->create(), null);
-        app(ArreterListes::class)->handle($this->scrutin);
+        app(ArreterListes::class)->handle($this->scrutin->phase);
         $omise = Agent::factory()->femme()->affecteA(Structure::where('code', 'DIA')->firstOrFail(), Carbon::parse('2020-01-01'))->create();
 
         app(RouvrirListes::class)->handle($this->scrutin->fresh(), 'Agente omise de l’import RH');
@@ -125,7 +128,8 @@ class ListesEtCandidatesTest extends TestCase
         $journal = JournalAudit::where('action', ActionAuditee::ListesRouvertes->value)->sole();
         $this->assertSame('Agente omise de l’import RH', $journal->details['motif']);
 
-        $scrutin = app(ArreterListes::class)->handle($this->scrutin->fresh());
+        app(ArreterListes::class)->handle($this->scrutin->phase);
+        $scrutin = $this->scrutin;
         $this->assertSame(StatutScrutin::ListesArretees, $scrutin->fresh()->statut);
         $this->assertTrue($scrutin->inscriptions()->where('agent_id', $omise->id)->exists());
         $this->assertTrue($scrutin->candidates()->where('agent_id', $omise->id)->exists());
@@ -137,7 +141,7 @@ class ListesEtCandidatesTest extends TestCase
      */
     public function test_r27_refuse_de_rouvrir_les_listes_d_un_scrutin_ouvert(): void
     {
-        app(ArreterListes::class)->handle($this->scrutin);
+        app(ArreterListes::class)->handle($this->scrutin->phase);
         $this->scrutin->update(['statut' => StatutScrutin::Ouvert]);
 
         $this->expectException(ValidationException::class);
@@ -145,13 +149,54 @@ class ListesEtCandidatesTest extends TestCase
     }
 
     /**
-     * R14 : les listes ne s'arrêtent qu'à partir de la date de gel.
+     * R14, R16 : le premier arrêt des listes de l'édition fixe sa date de gel au jour même ; un nouvel arrêt ne la
+     * change pas. R15 : une mutation postérieure au gel ne modifie pas les listes, même recalculées après une réouverture.
      */
-    public function test_r14_refuse_d_arreter_les_listes_avant_la_date_de_gel(): void
+    public function test_r14_le_premier_arret_fixe_la_date_de_gel_et_les_mutations_suivantes_n_y_changent_rien(): void
     {
-        $this->travelTo(Carbon::parse('2026-09-30'));
+        $edition = $this->scrutin->phase->edition;
+        $edition->update(['date_gel' => null]);
+        $this->travelTo(Carbon::parse('2026-11-20 10:00'));
 
-        $this->expectException(ValidationException::class);
-        app(ArreterListes::class)->handle($this->scrutin);
+        app(ArreterListes::class)->handle($this->scrutin->phase);
+
+        $this->assertSame('2026-11-20', $edition->fresh()->date_gel->toDateString());
+        $this->assertSame('2026-11-20', JournalAudit::where('action', ActionAuditee::ListesArretees->value)->sole()->details['date_gel']);
+
+        $this->travelTo(Carbon::parse('2026-11-25 10:00'));
+        app(TerminerAffectation::class)->handle($this->candidate->agent, Carbon::parse('2026-11-22'));
+        app(AffecterAgent::class)->handle($this->candidate->agent, Structure::where('code', 'DR')->firstOrFail(), Carbon::parse('2026-11-23'));
+        app(RouvrirListes::class)->handle($this->scrutin->fresh(), 'Vérification');
+        app(ArreterListes::class)->handle($this->scrutin->phase);
+
+        $this->assertSame('2026-11-20', $edition->fresh()->date_gel->toDateString());
+        $this->assertTrue($this->scrutin->inscriptions()->where('agent_id', $this->candidate->agent_id)->exists());
+    }
+
+    /**
+     * R27 : l'arrêt porte sur toute la phase, en tout ou rien : un scrutin sans électeur bloque l'arrêt des autres,
+     * et la date de gel n'est pas fixée.
+     */
+    public function test_r27_un_scrutin_incomplet_empeche_l_arret_de_toute_la_phase(): void
+    {
+        $edition = $this->scrutin->phase->edition;
+        $edition->update(['date_gel' => null]);
+        $dmg = Structure::where('code', 'DMG')->firstOrFail();
+        $phase = $edition->phase(Phase::PRIMAIRES);
+        $phase->scrutins()->delete();
+        $partante = Agent::factory()->femme()->affecteA($dmg, Carbon::parse('2020-01-01'))->create();
+        app(GenererScrutins::class)->handle($phase->fresh());
+        $partante->affectations()->update(['date_fin' => Carbon::yesterday()]);
+
+        try {
+            app(ArreterListes::class)->handle($phase);
+            $this->fail('L’arrêt devait être refusé.');
+        } catch (ValidationException $exception) {
+            $this->assertStringContainsString('Aucune liste n’est arrêtée', $exception->errors()['listes'][0]);
+            $this->assertStringContainsString('liste électorale vide', $exception->errors()['listes'][1]);
+        }
+
+        $this->assertNull($edition->fresh()->date_gel);
+        $this->assertSame(0, $phase->scrutins()->where('statut', StatutScrutin::ListesArretees->value)->count());
     }
 }

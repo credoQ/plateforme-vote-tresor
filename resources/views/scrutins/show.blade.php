@@ -65,7 +65,7 @@
                             @csrf
                             <button type="submit" class="btn btn-secondaire"><i data-lucide="refresh-cw"></i>Actualiser les listes</button>
                         </form>
-                        <button type="button" class="btn btn-primaire" data-ouvrir="modale-arreter"><i data-lucide="lock"></i>Arrêter les listes</button>
+                        <a wire:navigate href="{{ route('editions.show', [$scrutin->phase->edition, 'phase' => $scrutin->phase->numero]) }}" class="btn btn-tertiaire"><i data-lucide="lock"></i>Arrêter les listes de la phase</a>
                     </div>
                 @else
                     <div class="formulaire__actions">
@@ -238,11 +238,6 @@
     </section>
 
     <x-slot:modales>
-        @if ($pilote && $scrutin->listesSontModifiables())
-            <x-modale-confirmation id="modale-arreter" :titre="'Arrêter les listes de « '.$scrutin->libelle.' » ?'" :action="route('scrutins.arreter', $scrutin)" bouton="Arrêter les listes" icone="lock">
-                Les listes sont actualisées une dernière fois d’après les affectations à la date de gel, puis figées. Seules les désactivations et réactivations de candidates resteront possibles jusqu’à l’ouverture.
-            </x-modale-confirmation>
-        @endif
         @if ($pilote && $scrutin->listesPeuventEtreRouvertes())
             <x-modale-confirmation id="modale-rouvrir" :titre="'Rouvrir les listes de « '.$scrutin->libelle.' » ?'" :action="route('scrutins.rouvrir', $scrutin)" bouton="Rouvrir les listes" icone="lock-open">
                 La décision et son motif sont tracés au journal. Le scrutin ne s’ouvrira pas tant que les listes ne seront pas de nouveau arrêtées. Les candidates désactivées le restent.

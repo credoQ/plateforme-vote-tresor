@@ -77,7 +77,7 @@ class DepouillementEtResultatsTest extends TestCase
         app(GenererScrutins::class)->handle($this->edition->phase(Phase::PRIMAIRES));
         $this->edition->phase(Phase::PRIMAIRES)->update(['statut' => StatutPhase::Ouverte]);
         $this->scrutin = Scrutin::where('code', 'STR-DIA')->firstOrFail();
-        app(ArreterListes::class)->handle($this->scrutin);
+        app(ArreterListes::class)->handle($this->scrutin->phase);
         app(PlanifierScrutin::class)->handle($this->scrutin->fresh(), now()->subMinutes(15), now()->addHours(4));
         app(OuvrirScrutin::class)->handle($this->scrutin);
     }

@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Concerns\IdentifieParUuid;
+use Carbon\CarbonInterface;
 use Database\Factories\EditionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -168,6 +170,23 @@ class Edition extends Model
     public function organisationEstModifiable(): bool
     {
         return $this->estModifiable() && ! $this->scrutins()->exists();
+    }
+
+    /**
+     * Les listes de l'édition sont gelées dès le premier arrêt des listes d'une phase (R14, R16).
+     */
+    public function listesSontGelees(): bool
+    {
+        return $this->date_gel !== null;
+    }
+
+    /**
+     * Date à laquelle se lisent les affectations pour les listes et les candidates (R14, R15, R29) : la date de gel,
+     * ou, tant que les listes ne sont pas gelées, le jour même (listes provisoires).
+     */
+    public function dateDeReference(): CarbonInterface
+    {
+        return $this->date_gel ?? Carbon::today();
     }
 
     #[Scope]

@@ -13,7 +13,7 @@ use Illuminate\Validation\ValidationException;
  * Rouvre les listes arrêtées d'un scrutin sur décision motivée du comité, tracée au journal (R27).
  *
  * Les listes restent calculées depuis les agents et leurs affectations à la date de gel : la réouverture permet de
- * corriger ces données, d'actualiser les listes puis de les arrêter de nouveau. Les désactivations de candidates sont
+ * corriger ces données, d'actualiser les listes puis de les arrêter de nouveau depuis la phase (ArreterListes). Les désactivations de candidates sont
  * conservées (R33). Impossible une fois le scrutin ouvert ; tant que les listes ne sont pas de nouveau arrêtées,
  * le scrutin ne s'ouvre pas.
  */

@@ -59,7 +59,7 @@ class SuiviEtAnnoncesTest extends TestCase
         app(GenererScrutins::class)->handle($this->edition->phase(Phase::PRIMAIRES));
         $this->edition->phase(Phase::PRIMAIRES)->update(['statut' => StatutPhase::Ouverte]);
         $this->scrutinAtl = Scrutin::where('code', 'DEP-ATL')->firstOrFail();
-        app(ArreterListes::class)->handle($this->scrutinAtl);
+        app(ArreterListes::class)->handle($this->scrutinAtl->phase);
         app(PlanifierScrutin::class)->handle($this->scrutinAtl->fresh(), now()->subMinute(), now()->addHours(6));
         app(OuvrirScrutin::class)->handle($this->scrutinAtl);
     }

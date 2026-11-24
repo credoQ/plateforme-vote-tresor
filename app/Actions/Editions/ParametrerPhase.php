@@ -12,7 +12,7 @@ use Illuminate\Validation\ValidationException;
 /**
  * Planifie une phase (dates de début et de fin) et fixe son nombre de qualifiées par scrutin (R52).
  *
- * Les phases se suivent sans se chevaucher, après le gel des listes et dans le calendrier de l'édition (R17).
+ * Les phases se suivent sans se chevaucher, dans le calendrier de l'édition (R17).
  */
 class ParametrerPhase
 {
@@ -49,10 +49,6 @@ class ParametrerPhase
 
         if ($debut < $edition->date_debut->toDateString() || $fin > $edition->date_fin->toDateString()) {
             $this->echouer('phase', "La phase doit se dérouler pendant l’édition, du {$edition->date_debut->format('d/m/Y')} au {$edition->date_fin->format('d/m/Y')}.");
-        }
-
-        if ($debut <= $edition->date_gel->toDateString()) {
-            $this->echouer('phase', 'Une phase ne peut commencer qu’après le gel des listes électorales.');
         }
 
         $voisines = $edition->phases()->whereKeyNot($phase->id)->get();

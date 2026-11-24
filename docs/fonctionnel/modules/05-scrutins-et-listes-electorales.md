@@ -23,7 +23,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] Action `DecouperCirconscriptions` : département pour les structures situées dans un département (TD, TC, antennes, R25), structure électorale sinon ; puis découpage selon les collèges de la phase : par circonscription, par pôle, ou toute la DGTCP
 - [x] Action `GenererScrutins` : scrutins de chaque phase, circonscriptions sans agent femme écartées et signalées pour un collège aux candidates d'office (R20, R37)
 - [x] Action `ConstituerListes` : électeurs à la date de gel (R14, R15, R29), candidates selon le collège : d'office (R28), nominées conservées (R58), lauréates de la phase précédente (R35) ; actualisable jusqu'à l'arrêt
-- [x] Action `ArreterListes` : arrêt à partir de la date de gel, listes figées ensuite (R27, R30)
+- [x] Action `ArreterListes` : arrêt des listes de toute une phase, en tout ou rien ; le premier arrêt de l'édition fixe sa date de gel ; listes figées ensuite (R14, R27, R30)
 - [x] Actions `DesactiverCandidate` et `ReactiverCandidate` : jusqu'à l'ouverture du scrutin, avec date, auteur et motif (R32 à R34)
 - [x] Tests des règles R14, R15, R20 à R30, R32 à R35 et R37
 - [x] Écrans : génération depuis l'édition, fiche du scrutin (planification à l'heure du Bénin, actualisation et arrêt des listes, candidates, liste électorale avec recherche, export) ; le point focal consulte et désactive dans sa structure
@@ -31,6 +31,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] Annulation d'un scrutin dont toutes les candidates sont désactivées (R38), à l'ouverture du scrutin (module 06)
 - [x] Nomination par le comité (R28, R58) : actions `NominerCandidate` et `RetirerNomination`, saisie du matricule et de la référence de la décision sur la fiche du scrutin, jusqu'à l'arrêt des listes, sans limite de nombre ; tracées au journal
 - [x] Inéligibilité (R59) : délai de rééligibilité paramétré sur l'édition ; historique `femmes_modeles` alimenté à la clôture de la dernière phase et complété par saisie du comité (bouton « Ajouter une femme modèle ») pour les éditions antérieures ; femme modèle inéligible écartée des candidates d'office et refusée à la nomination, signalée sur la fiche du scrutin et sur sa fiche agent ; écran `/femmes-modeles` (comité)
+- [x] Zone de vote sans aucun agent en service : pas de scrutin, quel que soit le périmètre ; signalée au comité à la génération (R37)
 - [ ] Remplacement d'une lauréate qui se désiste (R36), point à confirmer par le métier
 - [x] Exports CSV, Excel et PDF des listes, avec QR code de vérification sur le PDF (module 08)
 
@@ -49,7 +50,8 @@ SCRUTIN, COUVRIR, INSCRIRE (liste électorale), CANDIDATE, QUALIFIER
 ## Écrans
 
 - `/editions/{édition}` : génération des scrutins d'une phase (comité)
-- `/scrutins/{scrutin}` : planification, listes, candidates, arrêt, exports (comité ; point focal pour sa structure)
+- `/scrutins/{scrutin}` : planification, listes, candidates, réouverture, exports (comité ; point focal pour sa structure)
+- `/phases/{phase}/arreter-listes` : arrêt des listes de la phase, depuis la fiche de l'édition (comité)
 
 ## Règles de gestion
 
@@ -65,7 +67,7 @@ Règles R24 à R27, R28 à R38, R58 et R59, extraites de [regles-de-gestion.md](
   - scrutin de l’ensemble de la DGTCP : toutes les structures de la DGTCP.
 - **R25** · Un agent vote dans la circonscription de son poste d’affectation : les agents d’une structure centrale en poste dans une Trésorerie départementale (par exemple les antennes de la DIA) votent avec le département.
 - **R26** · Pour une phase donnée, un agent est inscrit sur au plus une liste électorale ; il vote donc au plus une fois par phase (il ne vote pas dans une phase où sa structure n’a pas de scrutin).
-- **R27** · Les listes électorales sont arrêtées par le comité avant l’ouverture du scrutin et ne peuvent plus être modifiées, sauf décision motivée du comité tracée au journal.
+- **R27** · Les listes électorales sont arrêtées par le comité pour toute une phase à la fois, avant l’ouverture de ses scrutins : si un scrutin n’a pas d’électeur ou pas de candidate, aucune liste de la phase n’est arrêtée. Elles ne peuvent plus être modifiées, sauf décision motivée du comité tracée au journal, qui rouvre les listes d’un scrutin ; l’arrêt de la phase reprend ensuite les scrutins rouverts.
 
 ### Candidates
 
@@ -78,7 +80,7 @@ Règles R24 à R27, R28 à R38, R58 et R59, extraites de [regles-de-gestion.md](
 - **R34** · Une candidate désactivée peut être réactivée, par les mêmes acteurs, tant que le scrutin n’est pas ouvert.
 - **R35** · Pour un collège à qualification, les candidates sont les lauréates de la phase précédente pour le même pôle (toutes les lauréates de la phase précédente pour un collège de l’ensemble de la DGTCP) ; chaque candidate conserve le lien avec sa participation d’origine. La qualification n’est pas possible en phase 1.
 - **R36** · Une lauréate qualifiée peut se désister avant l’ouverture de la phase suivante ; elle est alors remplacée par la candidate classée immédiatement après elle dans son scrutin d’origine.
-- **R37** · Pour un collège aux candidates d’office, aucun scrutin n’est généré pour une circonscription qui ne compte aucune agent de sexe féminin en service à la date de gel : elle n’a pas de lauréate et ses agents ne votent pas dans cette phase.
+- **R37** · Pour un collège aux candidates d’office, aucun scrutin n’est généré pour une circonscription qui ne compte aucune agent de sexe féminin en service à la date de gel : elle n’a pas de lauréate et ses agents ne votent pas dans cette phase. Quel que soit le collège, une circonscription sans aucun agent en service n’a pas de scrutin.
 - **R38** · Si toutes les candidates d’un scrutin sont désactivées avant son ouverture, le scrutin est annulé.
 - **R58** · Pour un collège à nomination, le comité saisit les nominées de chaque scrutin jusqu’à l’arrêt des listes : une agent de sexe féminin inscrite sur la liste électorale du scrutin, avec la référence de la décision (procès-verbal, fiche de nomination). Le nombre de nominées n’est pas limité. Il peut retirer une nomination saisie par erreur dans les mêmes conditions. Chaque nomination et chaque retrait sont tracés au journal.
 - **R59** · Une femme modèle du Trésor élue l’année A ne peut être de nouveau candidate, d’office ou nominée, à l’édition de l’année N tant que N − A ≤ délai de rééligibilité, paramètre de l’édition (3 ans par défaut) : élue en 2024 avec un délai de 3 ans, elle est de nouveau candidate en 2028. Elle reste électrice. L’historique des femmes modèles est alimenté à la clôture de la dernière phase de chaque édition et complété par le comité, femme modèle par femme modèle, pour les éditions antérieures à la plateforme.

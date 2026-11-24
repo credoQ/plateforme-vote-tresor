@@ -60,6 +60,7 @@ class EditionController extends Controller
             'scrutins',
             'scrutins as scrutins_termines_count' => fn ($s) => $s->whereIn('statut', [StatutScrutin::ResultatsPublies->value, StatutScrutin::Annule->value]),
             'scrutins as scrutins_a_valider_count' => fn ($s) => $s->whereIn('statut', [StatutScrutin::Clos->value, StatutScrutin::ResultatsValides->value]),
+            'scrutins as scrutins_en_preparation_count' => fn ($s) => $s->where('statut', StatutScrutin::EnPreparation->value),
         ]), 'phases.colleges.poleElectoral']);
 
         $phase = ($request->integer('phase') ? $edition->phases->firstWhere('numero', $request->integer('phase')) : null)
@@ -235,7 +236,6 @@ class EditionController extends Controller
             'libelle' => $request->input('libelle'),
             'date_debut' => $request->input('date_debut'),
             'date_fin' => $request->input('date_fin'),
-            'date_gel' => $request->input('date_gel'),
             'vote_blanc_autorise' => $request->boolean('vote_blanc_autorise'),
             'vote_pour_soi_autorise' => $request->boolean('vote_pour_soi_autorise'),
             'quorum' => $request->filled('quorum') ? $request->input('quorum') : null,

@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Scrutins;
 
-use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\ConstituerListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\PlanifierScrutin;
@@ -43,7 +42,8 @@ class ScrutinController extends Controller
 
         return redirect()->route('editions.show', [$phase->edition, 'phase' => $phase->numero])
             ->with('succes', "{$rapport->scrutins->count()} scrutin(s) générés pour la {$phase->libelle}.")
-            ->with('sans_femme', $rapport->circonscriptionsSansFemme);
+            ->with('sans_femme', $rapport->circonscriptionsSansFemme)
+            ->with('sans_agent', $rapport->circonscriptionsSansAgent);
     }
 
     public function show(Request $request, Scrutin $scrutin): View
@@ -235,17 +235,6 @@ class ScrutinController extends Controller
             ->with('succes', "Listes actualisées : {$scrutin->inscriptions_count} inscrit(s), {$scrutin->candidates_count} candidate(s).");
     }
 
-    public function arreter(Scrutin $scrutin, ArreterListes $arreter): RedirectResponse
-    {
-        try {
-            $arreter->handle($scrutin);
-        } catch (ValidationException $exception) {
-            return redirect()->route('scrutins.show', $scrutin)->withErrors($exception->errors());
-        }
-
-        return redirect()->route('scrutins.show', $scrutin)->with('succes', 'Les listes sont arrêtées : elles ne seront plus modifiées.');
-    }
-
     /**
      * R27 : réouverture motivée des listes arrêtées, pour les corriger avant l'ouverture du scrutin.
      */
@@ -262,6 +251,6 @@ class ScrutinController extends Controller
             return redirect()->route('scrutins.show', $scrutin)->withErrors($exception->errors());
         }
 
-        return redirect()->route('scrutins.show', $scrutin)->with('succes', 'Les listes sont rouvertes : corrigez les agents, actualisez puis arrêtez de nouveau les listes.');
+        return redirect()->route('scrutins.show', $scrutin)->with('succes', 'Les listes sont rouvertes : corrigez les agents, actualisez, puis arrêtez de nouveau les listes depuis la phase.');
     }
 }

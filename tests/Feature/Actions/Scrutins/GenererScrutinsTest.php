@@ -72,7 +72,7 @@ class GenererScrutinsTest extends TestCase
 
         $this->assertSame(['DEP-ATL', 'DEP-ZOU', 'STR-DIA', 'STR-DR'], $rapport->scrutins->pluck('code')->all());
         $this->assertContains('Scrutin de structure · Direction des Moyens généraux', $rapport->circonscriptionsSansFemme);
-        $this->assertContains('Scrutin départemental · Borgou', $rapport->circonscriptionsSansFemme);
+        $this->assertContains('Scrutin départemental · Borgou', $rapport->circonscriptionsSansAgent, 'Aucun agent en service : pas de scrutin.');
 
         // R24 : le scrutin départemental couvre la TD, les Trésoreries communales et les antennes du département.
         $this->assertEqualsCanonicalizing(['TD-ATL', 'TC-ABOMEY-CALAVI', 'TC-ALLADA', 'TC-KPOMASSE', 'TC-OUIDAH', 'TC-SO-AVA', 'TC-TOFFO', 'TC-TORI-BOSSITO', 'TC-ZE'], $this->scrutin('DEP-ATL')->structures->pluck('code')->all());
@@ -131,7 +131,8 @@ class GenererScrutinsTest extends TestCase
 
         $rapport = $this->generer(Phase::PRIMAIRES);
 
-        $this->assertCount(13, $rapport->scrutins, '12 départements et le pôle structures.');
+        $this->assertSame(['DEP-ATL', 'DEP-ZOU', 'POLE-STRUCTURES'], $rapport->scrutins->pluck('code')->sort()->values()->all(), 'Les départements sans agent en service n’ont pas de scrutin, même à nomination.');
+        $this->assertCount(10, $rapport->circonscriptionsSansAgent);
         $this->assertSame([], $rapport->circonscriptionsSansFemme);
         $this->assertSame(0, $this->scrutin('DEP-ATL')->candidates->count(), 'Les nominées sont saisies par le comité.');
 

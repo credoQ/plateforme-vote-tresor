@@ -39,12 +39,12 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 - **R11** · Un agent est identifié par son matricule, unique ; il possède un NPI, un nom, des prénoms, un sexe, une date de naissance et une adresse e-mail, obligatoire, qui reçoit ses codes de connexion. La date de prise de service, le téléphone, la fonction et le statut peuvent figurer dans la fiche à titre informatif, mais ne sont pas gérés par la plateforme : aucune règle ne s’appuie sur eux.
 - **R12** · Un agent est affecté à une seule structure à une date donnée ; l’historique des affectations est conservé.
 - **R13** · Un agent est considéré en service lorsqu’il figure dans la liste des agents avec une affectation en cours dans une structure de la DGTCP ; la tenue à jour de cette liste relève de l’import des agents et des affectations.
-- **R14** · Est électeur tout agent en service à la date de gel des listes électorales (les catégories exactes d’agents admis à voter sont à confirmer par le métier).
+- **R14** · Est électeur tout agent en service à la date de gel des listes électorales (les catégories exactes d’agents admis à voter sont à confirmer par le métier). La date de gel n’est pas saisie : c’est le jour du premier arrêt des listes de l’édition ; jusque-là, les listes sont provisoires et se calculent à la date du jour.
 - **R15** · Les mutations intervenues après la date de gel ne modifient pas les listes électorales de l’édition en cours.
 
 ## Gestion des éditions, des phases et des scrutins
 
-- **R16** · Une édition est identifiée par un id et possède une année, un libellé, des dates de début et de fin, une date de gel des listes et un statut ; une seule édition peut être en cours.
+- **R16** · Une édition est identifiée par un id et possède une année, un libellé, des dates de début et de fin, une date de gel des listes (fixée au premier arrêt des listes, R14) et un statut ; une seule édition peut être en cours.
 - **R17** · Une édition comporte une à trois phases ordonnées, paramétrées par le comité à la création de l’édition : le libellé de chaque phase et ses collèges (R20). Ce paramétrage se modifie tant que l’édition est en préparation et qu’aucun scrutin n’est généré ; il est ensuite figé. L’organisation proposée par défaut est décrite en R23.
 - **R18** · Une phase ne peut être ouverte que si les résultats de tous les scrutins de la phase précédente ont été validés et publiés.
 - **R19** · Une phase comporte un ou plusieurs scrutins ; un scrutin appartient à une seule phase et possède une date-heure d’ouverture et de fermeture.
@@ -63,7 +63,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
   - scrutin de l’ensemble de la DGTCP : toutes les structures de la DGTCP.
 - **R25** · Un agent vote dans la circonscription de son poste d’affectation : les agents d’une structure centrale en poste dans une Trésorerie départementale (par exemple les antennes de la DIA) votent avec le département.
 - **R26** · Pour une phase donnée, un agent est inscrit sur au plus une liste électorale ; il vote donc au plus une fois par phase (il ne vote pas dans une phase où sa structure n’a pas de scrutin).
-- **R27** · Les listes électorales sont arrêtées par le comité avant l’ouverture du scrutin et ne peuvent plus être modifiées, sauf décision motivée du comité tracée au journal.
+- **R27** · Les listes électorales sont arrêtées par le comité pour toute une phase à la fois, avant l’ouverture de ses scrutins : si un scrutin n’a pas d’électeur ou pas de candidate, aucune liste de la phase n’est arrêtée. Elles ne peuvent plus être modifiées, sauf décision motivée du comité tracée au journal, qui rouvre les listes d’un scrutin ; l’arrêt de la phase reprend ensuite les scrutins rouverts.
 
 ## Candidates
 
@@ -76,7 +76,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 - **R34** · Une candidate désactivée peut être réactivée, par les mêmes acteurs, tant que le scrutin n’est pas ouvert.
 - **R35** · Pour un collège à qualification, les candidates sont les lauréates de la phase précédente pour le même pôle (toutes les lauréates de la phase précédente pour un collège de l’ensemble de la DGTCP) ; chaque candidate conserve le lien avec sa participation d’origine. La qualification n’est pas possible en phase 1.
 - **R36** · Une lauréate qualifiée peut se désister avant l’ouverture de la phase suivante ; elle est alors remplacée par la candidate classée immédiatement après elle dans son scrutin d’origine.
-- **R37** · Pour un collège aux candidates d’office, aucun scrutin n’est généré pour une circonscription qui ne compte aucune agent de sexe féminin en service à la date de gel : elle n’a pas de lauréate et ses agents ne votent pas dans cette phase.
+- **R37** · Pour un collège aux candidates d’office, aucun scrutin n’est généré pour une circonscription qui ne compte aucune agent de sexe féminin en service à la date de gel : elle n’a pas de lauréate et ses agents ne votent pas dans cette phase. Quel que soit le collège, une circonscription sans aucun agent en service n’a pas de scrutin.
 - **R38** · Si toutes les candidates d’un scrutin sont désactivées avant son ouverture, le scrutin est annulé.
 - **R58** · Pour un collège à nomination, le comité saisit les nominées de chaque scrutin jusqu’à l’arrêt des listes : une agent de sexe féminin inscrite sur la liste électorale du scrutin, avec la référence de la décision (procès-verbal, fiche de nomination). Le nombre de nominées n’est pas limité. Il peut retirer une nomination saisie par erreur dans les mêmes conditions. Chaque nomination et chaque retrait sont tracés au journal.
 - **R59** · Une femme modèle du Trésor élue l’année A ne peut être de nouveau candidate, d’office ou nominée, à l’édition de l’année N tant que N − A ≤ délai de rééligibilité, paramètre de l’édition (3 ans par défaut) : élue en 2024 avec un délai de 3 ans, elle est de nouveau candidate en 2028. Elle reste électrice. L’historique des femmes modèles est alimenté à la clôture de la dernière phase de chaque édition et complété par le comité, femme modèle par femme modèle, pour les éditions antérieures à la plateforme.

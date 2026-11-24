@@ -29,13 +29,10 @@
             <section class="carte etape-panneau" data-etape="1" x-show="estAffichee(1)">
                 <div class="carte__entete"><h2>Étape 1 sur 4 · Édition</h2></div>
                 <div class="carte__corps formulaire formulaire--deux-colonnes">
-                    @foreach ([['annee', 'Année', 'number'], ['libelle', 'Libellé', 'text'], ['date_debut', 'Début de l’édition', 'date'], ['date_fin', 'Fin de l’édition', 'date'], ['date_gel', 'Gel des listes électorales', 'date']] as [$champ, $libelle, $type])
+                    @foreach ([['annee', 'Année', 'number'], ['libelle', 'Libellé', 'text'], ['date_debut', 'Début de l’édition', 'date'], ['date_fin', 'Fin de l’édition', 'date']] as [$champ, $libelle, $type])
                         <div class="formulaire__groupe">
                             <label class="libelle" for="{{ $champ }}">{{ $libelle }} <span class="requis">*</span></label>
                             <input id="{{ $champ }}" name="{{ $champ }}" type="{{ $type }}" class="champ" value="{{ old($champ, $type === 'date' ? $edition->{$champ}?->format('Y-m-d') : $edition->{$champ}) }}" required>
-                            @if ($champ === 'date_gel')
-                                <p class="aide">Les agents en service à cette date forment les listes électorales et les candidates d’office. Une mutation après cette date n’y change rien.</p>
-                            @endif
                             @error($champ)<p class="erreur-champ">{{ $message }}</p>@enderror
                         </div>
                     @endforeach
@@ -146,7 +143,6 @@
                         <div><dt>Année</dt><dd x-text="valeur('annee')"></dd></div>
                         <div><dt>Libellé</dt><dd x-text="valeur('libelle')"></dd></div>
                         <div><dt>Calendrier</dt><dd>du <span x-text="valeur('date_debut')"></span> au <span x-text="valeur('date_fin')"></span></dd></div>
-                        <div><dt>Gel des listes électorales</dt><dd x-text="valeur('date_gel')"></dd></div>
                         <div><dt>Vote blanc autorisé</dt><dd x-text="valeur('vote_blanc_autorise')"></dd></div>
                         <div><dt>Vote pour soi-même autorisé</dt><dd x-text="valeur('vote_pour_soi_autorise')"></dd></div>
                         <div><dt>Délai de rééligibilité</dt><dd><span x-text="valeur('delai_reeligibilite')"></span> an(s)</dd></div>

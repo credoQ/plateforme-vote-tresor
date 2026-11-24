@@ -60,7 +60,7 @@ class DeposerBulletinTest extends TestCase
         app(GenererScrutins::class)->handle($this->edition->phase(Phase::PRIMAIRES));
         $this->edition->phase(Phase::PRIMAIRES)->update(['statut' => StatutPhase::Ouverte]);
         $this->scrutin = Scrutin::where('code', 'STR-DIA')->firstOrFail();
-        app(ArreterListes::class)->handle($this->scrutin);
+        app(ArreterListes::class)->handle($this->scrutin->phase);
         app(PlanifierScrutin::class)->handle($this->scrutin->fresh(), now()->subHour(), now()->addHours(8));
         app(OuvrirScrutin::class)->handle($this->scrutin);
         $this->scrutin->refresh();

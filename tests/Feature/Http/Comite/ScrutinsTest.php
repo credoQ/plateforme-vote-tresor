@@ -73,7 +73,7 @@ class ScrutinsTest extends TestCase
     }
 
     /**
-     * R19, R27 : planification, actualisation puis arrêt des listes ; les listes arrêtées ne s'actualisent plus.
+     * R19, R27 : planification, actualisation puis arrêt des listes de la phase ; les listes arrêtées ne s'actualisent plus.
      */
     public function test_r27_planifie_et_arrete_les_listes_d_un_scrutin(): void
     {
@@ -85,7 +85,7 @@ class ScrutinsTest extends TestCase
         $this->assertSame('2026-11-20 07:00:00', $scrutin->fresh()->date_heure_ouverture->utc()->format('Y-m-d H:i:s'), 'Heure du Bénin convertie en UTC.');
 
         $this->post(route('scrutins.actualiser', $scrutin))->assertSessionHas('succes');
-        $this->post(route('scrutins.arreter', $scrutin))->assertSessionHasNoErrors();
+        $this->post(route('phases.arreter-listes', $scrutin->phase))->assertSessionHasNoErrors();
         $this->assertSame(StatutScrutin::ListesArretees, $scrutin->fresh()->statut);
 
         $this->post(route('scrutins.actualiser', $scrutin))->assertSessionHasErrors('scrutin');
@@ -99,7 +99,7 @@ class ScrutinsTest extends TestCase
     {
         $scrutin = $this->scrutinDia();
         $pointFocal = User::factory()->pointFocalDe(Structure::where('code', 'DIA')->firstOrFail())->create();
-        $this->actingAs($this->comite)->post(route('scrutins.arreter', $scrutin))->assertSessionHasNoErrors();
+        $this->actingAs($this->comite)->post(route('phases.arreter-listes', $scrutin->phase))->assertSessionHasNoErrors();
 
         $this->get(route('scrutins.show', $scrutin))->assertSee('Rouvrir les listes');
         $this->post(route('scrutins.rouvrir', $scrutin), ['motif' => ''])->assertSessionHasErrors('motif');
@@ -126,7 +126,7 @@ class ScrutinsTest extends TestCase
 
         $scrutinDr = Scrutin::where('code', 'STR-DR')->firstOrFail();
         $this->get(route('scrutins.show', $scrutinDr))->assertOk()->assertDontSee('KPADE');
-        $this->post(route('scrutins.arreter', $scrutin))->assertForbidden();
+        $this->post(route('phases.arreter-listes', $scrutin->phase))->assertForbidden();
     }
 
     public function test_un_electeur_n_accede_pas_aux_scrutins(): void

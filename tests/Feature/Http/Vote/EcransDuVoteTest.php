@@ -227,7 +227,7 @@ class EcransDuVoteTest extends TestCase
 
     private function ouvrir(): void
     {
-        app(ArreterListes::class)->handle($this->scrutin->fresh());
+        app(ArreterListes::class)->handle($this->scrutin->phase);
         app(PlanifierScrutin::class)->handle($this->scrutin->fresh(), now()->subMinutes(10), now()->addHours(6));
         app(OuvrirScrutin::class)->handle($this->scrutin);
     }

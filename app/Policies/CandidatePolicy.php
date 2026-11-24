@@ -30,7 +30,7 @@ class CandidatePolicy
         $structureId = Inscription::where('scrutin_id', $candidate->scrutin_id)
             ->where('agent_id', $candidate->agent_id)
             ->value('structure_id')
-            ?? $candidate->agent?->affectationLe($candidate->scrutin?->phase?->edition?->date_gel)?->structure_id;
+            ?? $candidate->agent?->affectationLe($candidate->scrutin?->phase?->edition?->dateDeReference())?->structure_id;
 
         return $structureId !== null && in_array($structureId, $user->perimetre(), true);
     }

@@ -6,7 +6,7 @@
         <div>
             <div class="titre-page__surtitre"><span class="surtitre">Édition {{ $edition->annee }}</span><span class="badge {{ $edition->statut->badge() }}">{{ $edition->statut->libelle() }}</span></div>
             <h1>{{ $edition->libelle }}</h1>
-            <p>Du {{ $edition->date_debut->format('d/m/Y') }} au {{ $edition->date_fin->format('d/m/Y') }} · listes gelées au {{ $edition->date_gel->format('d/m/Y') }}</p>
+            <p>Du {{ $edition->date_debut->format('d/m/Y') }} au {{ $edition->date_fin->format('d/m/Y') }} · {{ $edition->date_gel ? 'listes gelées au '.$edition->date_gel->format('d/m/Y') : 'listes non encore gelées' }}</p>
         </div>
         <div class="titre-page__actions">
             @if ($edition->estModifiable())
@@ -52,6 +52,9 @@
                     @if ($phase->scrutins_count > 0)
                         <span class="aide">{{ $phase->scrutins_termines_count }} scrutin(s) terminé(s) sur {{ $phase->scrutins_count }}</span>
                     @endif
+                    @if ($phase->scrutins_en_preparation_count > 0 && $phase->statut !== StatutPhase::Cloturee)
+                        <button type="button" class="btn btn-secondaire" data-ouvrir="modale-arreter-listes-{{ $phase->id }}"><i data-lucide="lock"></i>Arrêter les listes</button>
+                    @endif
                     @if ($edition->statut === StatutEdition::EnCours)
                         @if ($phase->statut === StatutPhase::Planifiee)
                             <button type="button" class="btn btn-primaire" data-ouvrir="modale-ouvrir-{{ $phase->id }}"><i data-lucide="play"></i>Ouvrir la phase</button>
@@ -61,6 +64,18 @@
                     @endif
                 </div>
             </div>
+
+            @if ($errors->has('listes'))
+                <div class="carte__bandeau">
+                    <div class="alerte alerte--erreur" role="alert"><i data-lucide="circle-alert"></i>
+                        <div>
+                            @foreach ($errors->get('listes') as $message)
+                                <p>{{ $message }}</p>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+            @endif
 
             @if ($phase->statut === StatutPhase::Planifiee && $edition->statut !== StatutEdition::Cloturee)
                 <form method="POST" action="{{ route('phases.update', $phase) }}" class="formulaire-ligne carte__bandeau">
@@ -165,7 +180,12 @@
 
         @if (session('sans_femme') && $phase->numero === 1 && $phase->scrutins_count > 0)
             <div class="alerte alerte--info espace-bloc"><i data-lucide="info"></i>
-                <div><strong>{{ count(session('sans_femme')) }} zone(s) de vote sans scrutin</strong>, faute d’agent femme en service à la date de gel : {{ implode(', ', session('sans_femme')) }}. Leurs agents voteront aux phases 2 et 3.</div>
+                <div><strong>{{ count(session('sans_femme')) }} zone(s) de vote sans scrutin</strong>, faute d’agent femme en service : {{ implode(', ', session('sans_femme')) }}. Leurs agents voteront aux phases 2 et 3.</div>
+            </div>
+        @endif
+        @if (session('sans_agent') && $phase->scrutins_count > 0)
+            <div class="alerte alerte--info espace-bloc"><i data-lucide="info"></i>
+                <div><strong>{{ count(session('sans_agent')) }} zone(s) de vote sans scrutin</strong>, faute d’agent en service : {{ implode(', ', session('sans_agent')) }}.</div>
             </div>
         @endif
     @endif
@@ -174,6 +194,17 @@
         @if ($edition->estModifiable())
             <x-modale-confirmation id="modale-lancer" :titre="'Lancer l’édition '.$edition->annee.' ?'" :action="route('editions.lancer', $edition)" bouton="Lancer l’édition" icone="rocket">
                 L’édition passera en cours et ne pourra plus être modifiée. Toutes les phases doivent être planifiées, les scrutins de la première phase générés, et aucune autre édition ne doit être en cours.
+            </x-modale-confirmation>
+        @endif
+        @if ($phase && $phase->scrutins_en_preparation_count > 0 && $phase->statut !== StatutPhase::Cloturee)
+            <x-modale-confirmation :id="'modale-arreter-listes-'.$phase->id" :titre="'Arrêter les listes de la '.$phase->libelle.' ?'" :action="route('phases.arreter-listes', $phase)" bouton="Arrêter les listes" icone="lock">
+                Les listes des {{ $phase->scrutins_en_preparation_count }} scrutin(s) en préparation sont actualisées une dernière fois, puis figées.
+                @if ($edition->date_gel)
+                    Elles se calculent d’après les affectations au {{ $edition->date_gel->format('d/m/Y') }}, date de gel de l’édition.
+                @else
+                    C’est le premier arrêt de l’édition : la date de gel est fixée à aujourd’hui, et toutes les listes de l’édition, phases suivantes comprises, se calculeront d’après les affectations à cette date.
+                @endif
+                Si un scrutin n’a pas d’électeur ou pas de candidate, aucune liste n’est arrêtée.
             </x-modale-confirmation>
         @endif
         @foreach ($edition->phases as $etape)

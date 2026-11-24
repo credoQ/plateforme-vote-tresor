@@ -24,7 +24,7 @@
                         <td class="reference">{{ $edition->annee }}</td>
                         <td>{{ $edition->libelle }}</td>
                         <td>du {{ $edition->date_debut->format('d/m/Y') }} au {{ $edition->date_fin->format('d/m/Y') }}</td>
-                        <td>{{ $edition->date_gel->format('d/m/Y') }}</td>
+                        <td>{{ $edition->date_gel?->format('d/m/Y') ?? 'Non gelées' }}</td>
                         <td class="nombre">{{ $edition->scrutins_count }}</td>
                         <td><span class="badge {{ $edition->statut->badge() }}">{{ $edition->statut->libelle() }}</span></td>
                         <td class="actions"><a href="{{ route('editions.show', $edition) }}" class="btn btn-tertiaire btn--sm" wire:navigate><i data-lucide="eye"></i>Ouvrir</a></td>

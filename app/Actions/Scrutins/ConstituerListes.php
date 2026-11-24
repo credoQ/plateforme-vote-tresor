@@ -16,7 +16,8 @@ use Illuminate\Validation\ValidationException;
 /**
  * Constitue, ou actualise tant qu'elles ne sont pas arrêtées, la liste électorale et la liste des candidates d'un scrutin.
  *
- * - Électeurs : agents dont l'affectation à la date de gel est dans la circonscription (R14, R15, R24, R29).
+ * - Électeurs : agents dont l'affectation à la date de gel est dans la circonscription (R14, R15, R24, R29) ; tant que
+ *   les listes de l'édition ne sont pas gelées, à la date du jour (listes provisoires).
  * - Candidates selon le collège du scrutin (R28) : d'office, toutes les électrices ; par qualification, les lauréates
  *   de la phase précédente pour le même pôle, une fois celle-ci clôturée (R35) ; par nomination, celles saisies par le comité.
  *
@@ -35,7 +36,7 @@ class ConstituerListes
 
         return DB::transaction(function () use ($scrutin): Scrutin {
             $scrutin->loadMissing('phase.edition', 'college', 'structures');
-            $gel = $scrutin->phase->edition->date_gel;
+            $gel = $scrutin->phase->edition->dateDeReference();
 
             /** @var Collection<int, int> $electeurs agent_id => structure_id à la date de gel */
             $electeurs = Affectation::enCoursLe($gel)

@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Actions\Editions\OrganiserPhases;
 use App\Actions\Resultats\DepouillerScrutin;
-use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\FermerScrutin;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
@@ -14,6 +13,7 @@ use App\Actions\Vote\EmpreinteBulletin;
 use App\Enums\Agents\Sexe;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
+use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Agent;
 use App\Models\Candidate;
 use App\Models\Edition;
@@ -161,7 +161,9 @@ class SimulerChargeVoteCommand extends Command
         $phase->update(['statut' => StatutPhase::Ouverte]);
 
         $scrutin = Scrutin::findOrFail(Inscription::query()->where('phase_id', $phase->id)->value('scrutin_id'));
-        app(ArreterListes::class)->handle($scrutin);
+        // Seul ce scrutin est peuplé : ses listes, constituées à la génération, sont figées directement (les autres scrutins
+        // de la phase, vides, bloqueraient l'arrêt de la phase entière).
+        $scrutin->update(['statut' => StatutScrutin::ListesArretees]);
         app(PlanifierScrutin::class)->handle($scrutin->fresh(), now()->subMinute(), now()->addHours(6));
 
         return app(OuvrirScrutin::class)->handle($scrutin->fresh());

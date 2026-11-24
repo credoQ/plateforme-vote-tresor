@@ -75,6 +75,13 @@
                         </div>
                     </div>
                 </div>
+                {{-- Fenêtre d'erreur SweetAlert (resources/js/alertes.js) ; le détail des scrutins reste dans l'encadré. --}}
+                <script>
+                    (() => {
+                        const afficher = () => window.signalerErreur?.(@js(count($errors->get('listes')) > 1 ? $errors->first('listes').' Le détail est affiché sur la phase.' : $errors->first('listes')));
+                        document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', afficher) : afficher();
+                    })();
+                </script>
             @endif
 
             @if ($phase->statut === StatutPhase::Planifiee && $edition->statut !== StatutEdition::Cloturee)

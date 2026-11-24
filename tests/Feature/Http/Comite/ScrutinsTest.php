@@ -93,6 +93,22 @@ class ScrutinsTest extends TestCase
     }
 
     /**
+     * R27 : un arrêt refusé pour toute la phase s'affiche sur la phase (détail des scrutins) et en fenêtre d'erreur.
+     */
+    public function test_r27_un_arret_refuse_s_affiche_sur_la_phase_et_en_fenetre_d_erreur(): void
+    {
+        $scrutin = $this->scrutinDia();
+        $this->femmeDia->affectations()->update(['date_fin' => '2026-11-17']);
+        $this->edition->update(['date_gel' => null]);
+
+        $this->actingAs($this->comite)->followingRedirects()->post(route('phases.arreter-listes', $scrutin->phase))
+            ->assertSee('Aucune liste n’est arrêtée : 1 scrutin(s) à compléter.', false)
+            ->assertSee('liste électorale vide', false)
+            ->assertSee('signalerErreur', false);
+        $this->assertSame(StatutScrutin::EnPreparation, $scrutin->fresh()->statut);
+    }
+
+    /**
      * R27 : le comité rouvre des listes arrêtées par une décision motivée, puis les arrête de nouveau ; le point focal ne le peut pas.
      */
     public function test_r27_le_comite_rouvre_les_listes_arretees_avec_un_motif(): void

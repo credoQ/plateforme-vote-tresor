@@ -1,7 +1,6 @@
 import { createIcons, icons } from 'lucide';
 import './alertes';
 import formulaireEtapes from './formulaire-etapes';
-import { retablirPosition } from './garder-position';
 import lecteurVideo from './lecteur-video';
 import organisationPhases from './organisation-phases';
 import saisieCode from './saisie-code';
@@ -147,7 +146,6 @@ function preparerPage() {
     synchroniserBoutonMenu();
 }
 document.addEventListener('livewire:navigated', preparerPage);
-document.addEventListener('livewire:navigated', retablirPosition);
 
 // Composants Alpine : menu de l'avatar, notifications, listes avec recherche, formulaire en étapes, saisie du code.
 document.addEventListener('alpine:init', () => {

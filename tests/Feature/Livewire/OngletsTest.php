@@ -5,19 +5,24 @@ namespace Tests\Feature\Livewire;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Enums\Acces\CodeRole;
 use App\Livewire\Agents\HistoriqueAffectations;
+use App\Livewire\Editions\ListeFemmesModeles;
 use App\Livewire\Editions\ScrutinsDeLaPhase;
 use App\Livewire\Referentiel\OngletsReferentiel;
 use App\Livewire\Referentiel\StructuresRattachees;
 use App\Livewire\Scrutins\ContenuDuScrutin;
+use App\Livewire\Suivi\ListeTachesEchouees;
 use App\Models\Affectation;
 use App\Models\Agent;
 use App\Models\Edition;
+use App\Models\FemmeModele;
 use App\Models\Phase;
 use App\Models\Scrutin;
 use App\Models\Structure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -138,6 +143,45 @@ class OngletsTest extends TestCase
 
         Livewire::actingAs(User::factory()->pourAgent(Agent::factory()->create())->avecRoles(CodeRole::Electeur)->create())
             ->test(OngletsReferentiel::class)
+            ->assertForbidden();
+    }
+
+    /**
+     * R59 : l'historique des femmes modèles se filtre par année sur place, pour le comité seulement.
+     */
+    public function test_r59_l_historique_des_femmes_modeles_se_filtre_sur_place(): void
+    {
+        FemmeModele::factory()->create(['annee' => 2023, 'nom_complet' => 'AHOUANSOU Clarisse']);
+        FemmeModele::factory()->create(['annee' => 2024, 'nom_complet' => 'KPADE Inès']);
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Comite)->create())
+            ->test(ListeFemmesModeles::class)
+            ->assertSee('AHOUANSOU Clarisse')->assertSee('KPADE Inès')
+            ->set('annee', '2024')
+            ->assertSee('KPADE Inès')->assertDontSee('AHOUANSOU Clarisse');
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Observateur)->create())
+            ->test(ListeFemmesModeles::class)
+            ->assertForbidden();
+    }
+
+    public function test_les_taches_en_echec_se_filtrent_sur_place_pour_l_administrateur(): void
+    {
+        foreach (['urgent' => 'EnvoyerCodeConnexion', 'mails' => 'AnnoncerOuverture'] as $file => $tache) {
+            DB::table('failed_jobs')->insert([
+                'uuid' => (string) Str::uuid(), 'connection' => 'database', 'queue' => $file,
+                'payload' => json_encode(['displayName' => 'App\\Jobs\\'.$tache]), 'exception' => 'Erreur de test', 'failed_at' => now(),
+            ]);
+        }
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Administrateur)->create())
+            ->test(ListeTachesEchouees::class)
+            ->assertSee('EnvoyerCodeConnexion')->assertSee('AnnoncerOuverture')
+            ->set('file', 'mails')
+            ->assertSee('AnnoncerOuverture')->assertDontSee('EnvoyerCodeConnexion');
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Comite)->create())
+            ->test(ListeTachesEchouees::class)
             ->assertForbidden();
     }
 }

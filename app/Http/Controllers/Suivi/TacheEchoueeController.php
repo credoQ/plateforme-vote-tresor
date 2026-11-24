@@ -6,11 +6,8 @@ use App\Actions\Audit\Journaliser;
 use App\Enums\Audit\ActionAuditee;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 /**
@@ -19,47 +16,15 @@ use Illuminate\View\View;
  */
 class TacheEchoueeController extends Controller
 {
-    private const FUSEAU = 'Africa/Porto-Novo';
-
     public function __construct(private Journaliser $journal) {}
 
-    public function index(Request $request): View
+    /**
+     * Tâches en échec : la liste filtrée est dans le composant Livewire Suivi\ListeTachesEchouees.
+     */
+    public function index(): View
     {
-        $recherche = trim((string) $request->query('recherche', ''));
-        $file = (string) $request->query('file', '');
-        $jour = $request->date('jour');
-
-        $taches = DB::table('failed_jobs')
-            ->when($recherche !== '', fn ($q) => $q->where(fn ($r) => $r->whereLike('payload', "%{$recherche}%")->orWhereLike('exception', "%{$recherche}%")))
-            ->when($file !== '', fn ($q) => $q->where('queue', $file))
-            ->when($jour !== null, fn ($q) => $q->whereBetween('failed_at', [
-                $jour->copy()->shiftTimezone(self::FUSEAU)->startOfDay()->utc(),
-                $jour->copy()->shiftTimezone(self::FUSEAU)->endOfDay()->utc(),
-            ]))
-            ->orderByDesc('failed_at')
-            ->paginate(config('app.lignes_par_page'))
-            ->through(function (object $ligne): object {
-                $charge = json_decode($ligne->payload, true) ?? [];
-
-                return (object) [
-                    'uuid' => $ligne->uuid,
-                    'tache' => class_basename($charge['displayName'] ?? 'Tâche inconnue'),
-                    'file' => $ligne->queue,
-                    'tentatives' => $charge['attempts'] ?? null,
-                    'echec' => Carbon::parse($ligne->failed_at),
-                    'erreur' => Str::of($ligne->exception)->before("\n")->limit(220)->toString(),
-                    'trace' => Str::limit($ligne->exception, 4000),
-                ];
-            })
-            ->withQueryString();
-
         return view('suivi.taches-echouees', [
-            'taches' => $taches,
             'totalEchecs' => DB::table('failed_jobs')->count(),
-            'files' => DB::table('failed_jobs')->distinct()->orderBy('queue')->pluck('queue'),
-            'recherche' => $recherche,
-            'file' => $file,
-            'jour' => $jour?->format('Y-m-d'),
             'enAttente' => DB::table('jobs')->count(),
         ]);
     }

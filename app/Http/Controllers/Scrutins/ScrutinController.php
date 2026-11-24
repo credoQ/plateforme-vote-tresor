@@ -36,6 +36,11 @@ class ScrutinController extends Controller
 
     private const PAGE_CANDIDATES = 'page_candidates';
 
+    /**
+     * Onglets de la fiche d'un scrutin.
+     */
+    private const ONGLETS = ['candidates', 'liste', 'zone', 'resultats'];
+
     public function generer(Phase $phase, GenererScrutins $generer): RedirectResponse
     {
         $rapport = $generer->handle($phase);
@@ -79,6 +84,8 @@ class ScrutinController extends Controller
             ->paginate(config('app.lignes_par_page'))
             ->withQueryString();
 
+        $deroulement = $this->deroulement($scrutin);
+
         return view('scrutins.show', [
             'scrutin' => $scrutin,
             'candidates' => $candidates,
@@ -94,7 +101,108 @@ class ScrutinController extends Controller
             'circonscription' => $this->circonscription($scrutin),
             'participation' => $scrutin->participation(),
             ...$this->resultats($scrutin, $candidates, $utilisateur),
+            'deroulement' => $deroulement,
+            'rappels' => $this->rappels($scrutin, $deroulement['courante'], $candidates),
+            'consignePlanification' => $scrutin->phase->date_debut === null
+                ? 'La phase n’est pas encore planifiée.'
+                : "Le vote se déroule pendant la {$scrutin->phase->libelle}, du {$scrutin->phase->date_debut->format('d/m/Y')} au {$scrutin->phase->date_fin->format('d/m/Y')}.",
+            'onglet' => $this->onglet($request, $scrutin, $utilisateur),
+            'onglets' => [
+                'candidates' => ['libelle' => 'Candidates', 'compteur' => $candidates->count()],
+                'liste' => ['libelle' => 'Liste électorale', 'compteur' => $inscriptions->total()],
+                'zone' => ['libelle' => 'Zone de vote', 'compteur' => $scrutin->structures->count()],
+                'resultats' => ['libelle' => 'Résultats', 'compteur' => null],
+            ],
         ]);
+    }
+
+    /**
+     * Étapes terminées rappelées sous l'étape courante, avec l'action encore possible (réouverture des listes,
+     * modification des horaires).
+     *
+     * @param  Collection<int, Candidate>  $candidates
+     * @return list<array{texte: string, action: string|null}>
+     */
+    private function rappels(Scrutin $scrutin, ?string $courante, Collection $candidates): array
+    {
+        $rappels = [];
+
+        if ($scrutin->statut !== StatutScrutin::EnPreparation && $courante !== 'listes') {
+            $rappels[] = [
+                'texte' => 'Listes arrêtées : '.$scrutin->inscriptions()->count().' inscrit(s), '.$candidates->filter->estActive()->count().' candidate(s) active(s)',
+                'action' => $scrutin->listesPeuventEtreRouvertes() ? 'rouvrir' : null,
+            ];
+        }
+
+        if ($scrutin->date_heure_ouverture !== null && ! in_array($courante, ['horaires', 'vote'], true)) {
+            $rappels[] = [
+                'texte' => 'Vote du '.$scrutin->date_heure_ouverture->timezone(self::FUSEAU)->format('d/m/Y à H:i').' au '.$scrutin->date_heure_fermeture->timezone(self::FUSEAU)->format('d/m/Y à H:i'),
+                'action' => $scrutin->accepteLesDesistements() ? 'planifier' : null,
+            ];
+        }
+
+        return $rappels;
+    }
+
+    /**
+     * Onglet affiché : celui demandé (?onglet=), sinon les résultats dès qu'ils sont visibles, sinon les candidates.
+     */
+    private function onglet(Request $request, Scrutin $scrutin, User $utilisateur): string
+    {
+        $demande = (string) $request->query('onglet', '');
+        if (in_array($demande, self::ONGLETS, true)) {
+            return $demande;
+        }
+
+        $resultatsVisibles = $scrutin->procesVerbal !== null
+            && ($scrutin->statut === StatutScrutin::ResultatsPublies || $utilisateur->can('piloter') || $utilisateur->can('observer'));
+
+        return $resultatsVisibles ? 'resultats' : 'candidates';
+    }
+
+    /**
+     * Déroulement du scrutin en cinq étapes (R19, R27, R39, R47 à R51) : listes, horaires, vote, dépouillement et
+     * résultats. La première étape non terminée est l'étape courante ; les étapes terminées sont rappelées avec
+     * leurs actions encore possibles.
+     *
+     * @return array{etapes: list<array{cle: string, titre: string, detail: string, faite: bool, courante: bool}>, courante: string|null, annule: bool}
+     */
+    private function deroulement(Scrutin $scrutin): array
+    {
+        $statut = $scrutin->statut;
+        $ouverture = $scrutin->date_heure_ouverture?->timezone(self::FUSEAU);
+        $fermeture = $scrutin->date_heure_fermeture?->timezone(self::FUSEAU);
+        $voteTermine = in_array($statut, [StatutScrutin::Clos, StatutScrutin::ResultatsValides, StatutScrutin::ResultatsPublies], true);
+
+        $etapes = [
+            ['cle' => 'listes', 'titre' => 'Listes', 'faite' => $statut !== StatutScrutin::EnPreparation,
+                'detail' => $statut === StatutScrutin::EnPreparation ? 'En préparation' : 'Arrêtées'],
+            ['cle' => 'horaires', 'titre' => 'Horaires', 'faite' => $ouverture !== null,
+                'detail' => $ouverture === null ? 'À fixer' : 'Le '.$ouverture->format('d/m à H:i')],
+            ['cle' => 'vote', 'titre' => 'Vote', 'faite' => $voteTermine,
+                'detail' => match (true) {
+                    $statut === StatutScrutin::Ouvert => 'En cours',
+                    $statut === StatutScrutin::Annule => 'Annulé',
+                    $voteTermine => 'Clos le '.$fermeture?->format('d/m à H:i'),
+                    default => 'Ouverture automatique',
+                }],
+            ['cle' => 'depouillement', 'titre' => 'Dépouillement', 'faite' => $scrutin->procesVerbal !== null,
+                'detail' => $scrutin->procesVerbal !== null ? 'Voix comptées' : 'Après la fermeture'],
+            ['cle' => 'resultats', 'titre' => 'Résultats', 'faite' => $statut === StatutScrutin::ResultatsPublies,
+                'detail' => match ($statut) {
+                    StatutScrutin::ResultatsPublies => 'Publiés',
+                    StatutScrutin::ResultatsValides => 'Validés, à publier',
+                    default => 'Validation, publication',
+                }],
+        ];
+
+        $courante = $statut === StatutScrutin::Annule ? null : collect($etapes)->first(fn (array $etape): bool => ! $etape['faite'])['cle'] ?? null;
+
+        return [
+            'etapes' => array_map(fn (array $etape): array => [...$etape, 'courante' => $etape['cle'] === $courante], $etapes),
+            'courante' => $courante,
+            'annule' => $statut === StatutScrutin::Annule,
+        ];
     }
 
     /**

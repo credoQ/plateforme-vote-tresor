@@ -160,6 +160,19 @@
   .taches-phase__tache.est-a-venir .taches-phase__titre, .taches-phase__tache.est-a-venir .taches-phase__detail { color: var(--tr-texte-3); }
   .taches-phase__action { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
   .taches-phase__action form { margin: 0; }
+  /* étape en cours d'un scrutin, sous le déroulement : ce qu'il faut faire maintenant, puis le rappel des étapes faites */
+  .etape-courante { border-color: var(--tr-primaire); box-shadow: 0 0 0 4px var(--tr-primaire-doux); }
+  .etape-courante .carte__entete { gap: 10px; }
+  .etape-courante__corps { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 20px 24px; }
+  .etape-courante__texte { flex: 1; min-width: 240px; }
+  .etape-courante__texte strong { display: block; font-size: 15px; }
+  .etape-courante__texte p { margin-top: 2px; font-size: 13px; color: var(--tr-texte-2); }
+  .etape-courante__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .etape-courante__actions form { margin: 0; }
+  .etape-courante__rappel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin: 0; padding: 12px 24px; border-top: 1px solid var(--tr-bordure-legere); font-size: 13px; color: var(--tr-texte-2); }
+  .etape-courante__rappel > span { display: inline-flex; align-items: center; gap: 6px; }
+  .etape-courante__rappel svg { width: 16px; height: 16px; color: var(--tr-succes-500); }
+  .etape-courante__rappel .lien { padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
   .carte--choisie { border-color: var(--tr-bleu-200); box-shadow: 0 0 0 4px var(--tr-primaire-doux); margin-bottom: 20px; }
   .carte__entete-fin { margin-left: auto; display: flex; align-items: center; gap: 12px; }
   .carte__entete-fin .aide { margin-top: 0; }
@@ -267,6 +280,7 @@
   .lien svg { width: 14px; height: 14px; }
 
   .grille-tuiles { display: grid; grid-template-columns: 1.25fr repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  .grille-tuiles--trois { grid-template-columns: repeat(3, 1fr); }
   .tuile { padding: 18px 20px; background: var(--tr-surface); border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon-carte); box-shadow: var(--tr-ombre-1); display: flex; flex-direction: column; gap: 8px; }
   .tuile__haut { display: flex; align-items: center; justify-content: space-between; }
   .tuile__icone { width: 32px; height: 32px; border-radius: var(--tr-rayon); display: grid; place-items: center; background: var(--tr-primaire-doux); color: var(--tr-primaire); }

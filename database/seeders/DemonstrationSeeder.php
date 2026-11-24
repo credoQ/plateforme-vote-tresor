@@ -62,12 +62,12 @@ class DemonstrationSeeder extends Seeder
             app(ParametrerPhase::class)->handle($edition->phase($numero), ['date_debut' => $debut->toDateString(), 'date_fin' => $fin->toDateString()]);
         }
 
-        app(LancerEdition::class)->handle($edition);
         $primaires = $edition->fresh()->phase(Phase::PRIMAIRES);
         app(GenererScrutins::class)->handle($primaires);
-        app(OuvrirPhase::class)->handle($primaires);
-
+        app(LancerEdition::class)->handle($edition->fresh());
         app(ArreterListes::class)->handle($primaires);
+        app(OuvrirPhase::class)->handle($primaires->fresh());
+
         foreach ($primaires->scrutins()->get() as $scrutin) {
             app(PlanifierScrutin::class)->handle($scrutin->fresh(), now()->subMinutes(5), now()->addDays(7)->setTime(18, 0));
             app(OuvrirScrutin::class)->handle($scrutin->fresh());

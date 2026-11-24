@@ -610,10 +610,15 @@
   .organisation-phases { display: grid; gap: 20px; }
   .organisation-phase { display: grid; gap: 12px; min-width: 0; margin: 0; padding: 16px; border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon-carte); }
   .organisation-phase .formulaire__groupe { max-width: 420px; }
-  .organisation-phase .tableau select.champ, .organisation-phase .tableau .champ { height: 40px; }
+  /* périmètre d'une phase dans le formulaire d'édition : son nom, puis ses trois réglages côte à côte */
+  .perimetre-phase { display: grid; gap: 12px; padding: 14px 16px; border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon); }
+  .perimetre-phase__titre { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .perimetre-phase__titre svg { width: 18px; height: 18px; color: var(--tr-primaire); }
+  .perimetre-phase__champs { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.5fr) minmax(130px, .5fr); align-items: end; gap: 12px; }
+  .organisation-phase .perimetre-phase .formulaire__groupe { max-width: none; }
+  @media (max-width: 720px) { .perimetre-phase__champs { grid-template-columns: 1fr; } }
   .organisation-phase__titre { display: flex; align-items: center; gap: 10px; padding: 0 4px; font-weight: 700; }
   .organisation-phase__numero { display: inline-grid; place-items: center; width: 26px; height: 26px; flex: none; border-radius: 50%; background: var(--tr-primaire); color: var(--tr-sur-primaire); font-size: 12px; font-weight: 700; }
-  .organisation-phase .tableau td { height: 60px; }
   .organisation-phase .select-recherche { min-width: 200px; }
   .organisation-phase__retirer { justify-self: start; }
 
@@ -621,6 +626,8 @@
   .titre-page--centre { justify-content: center; text-align: center; }
   .etapes-formulaire { margin: 0 0 24px; padding: 0; list-style: none; }
   .etapes-formulaire .etape { flex: none; }
+  /* frise d'un formulaire en étapes : sous 760 px, seule l'étape en cours garde son libellé */
+  @media (max-width: 760px) { .etapes-formulaire .etape__texte { display: none; } .etapes-formulaire .etape.est-en-cours .etape__texte { display: block; } }
   .etape__bouton { display: flex; align-items: center; gap: 10px; padding: 4px; border: 0; border-radius: var(--tr-rayon); background: none; color: var(--tr-texte); font: inherit; cursor: pointer; }
   .etape__bouton:disabled { cursor: default; }
   .etape__bouton:not(:disabled):hover .etape__texte { color: var(--tr-primaire-texte); }

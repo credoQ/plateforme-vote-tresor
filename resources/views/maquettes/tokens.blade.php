@@ -83,13 +83,13 @@
                         <legend class="libelle">Phase 2</legend>
                         <label class="case case--interrupteur"><input type="checkbox" role="switch" checked> Comité d’organisation</label>
                         <div class="formulaire__groupe"><label class="libelle" for="exemple-phase">Libellé</label><input id="exemple-phase" class="champ" value="Phase 2 · demi-finales"></div>
-                        <div class="tableau-defilant">
-                            <table class="tableau">
-                                <thead><tr><th>Périmètre</th><th>Scrutins</th><th>Candidates</th><th class="nombre">Élues par scrutin</th></tr></thead>
-                                <tbody>
-                                    <tr><td>Pôle structures</td><td><select class="champ"><option>Un seul scrutin</option></select></td><td><select class="champ"><option>Nomination par le comité</option></select></td><td class="nombre"><input type="number" class="champ champ--court" value="3"></td></tr>
-                                </tbody>
-                            </table>
+                        <div class="perimetre-phase">
+                            <div class="perimetre-phase__titre"><i data-lucide="building-2"></i>Pôle structures</div>
+                            <div class="perimetre-phase__champs">
+                                <div class="formulaire__groupe"><label class="libelle">Scrutins</label><select class="champ"><option>Un seul scrutin pour tout le périmètre</option></select></div>
+                                <div class="formulaire__groupe"><label class="libelle">Candidates</label><select class="champ"><option>Nomination par le comité</option></select></div>
+                                <div class="formulaire__groupe"><label class="libelle">Élues par scrutin</label><input type="number" class="champ" value="3"></div>
+                            </div>
                         </div>
                     </fieldset>
                     <ul class="colleges-phase" style="margin-top:16px"><li><i data-lucide="users-round"></i>Pôle structures · Un seul scrutin · Nomination par le comité · 3 élue(s) par scrutin</li></ul>

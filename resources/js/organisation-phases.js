@@ -21,13 +21,13 @@ export default function organisationPhases(phases = 1) {
 
         griserSansScrutin(select) {
             const sansScrutin = select.value === AUCUN;
-            for (const champ of select.closest('tr').querySelectorAll('[data-parametre-college]')) champ.disabled = sansScrutin;
+            for (const champ of select.closest('[data-perimetre]').querySelectorAll('[data-parametre-college]')) champ.disabled = sansScrutin;
         },
 
         collegeExclusif(select) {
             if (select.value === AUCUN) return;
             const dgtcp = select.dataset.college === DGTCP;
-            for (const autre of select.closest('tbody').querySelectorAll('select[data-college]')) {
+            for (const autre of select.closest('.organisation-phase').querySelectorAll('select[data-college]')) {
                 if (autre === select || autre.value === AUCUN || (!dgtcp && autre.dataset.college !== DGTCP)) continue;
                 autre.value = AUCUN;
                 autre.dispatchEvent(new Event('change', { bubbles: true }));

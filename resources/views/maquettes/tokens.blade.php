@@ -176,5 +176,15 @@
                 <li class="taches-phase__tache est-a-venir"><span class="taches-phase__puce"><i data-lucide="play"></i></span><div><div class="taches-phase__titre">Ouvrir la phase</div><div class="taches-phase__detail">Chaque scrutin s’ouvrira ensuite automatiquement à sa date-heure d’ouverture.</div></div><div class="taches-phase__action"><button class="btn btn-secondaire"><i data-lucide="play"></i>Ouvrir la phase</button></div></li>
             </ol>
         </section>
+
+        <section class="carte etape-courante">
+            <div class="carte__entete"><span class="frise-phases__numero">Étape 2 sur 5</span><h2>Planifier le scrutin (.etape-courante)</h2></div>
+            <div class="etape-courante__corps">
+                <span class="pastille-icone"><i data-lucide="calendar-clock"></i></span>
+                <div class="etape-courante__texte"><strong>Quand le vote s’ouvre-t-il et se ferme-t-il ?</strong><p>Le scrutin s’ouvrira et se fermera seul à ces heures, une fois la phase ouverte.</p></div>
+                <div class="etape-courante__actions"><button class="btn btn-primaire"><i data-lucide="calendar-clock"></i>Planifier le scrutin</button></div>
+            </div>
+            <div class="etape-courante__rappel"><span><i data-lucide="circle-check"></i>Listes arrêtées : 412 inscrit(s), 38 candidate(s) active(s)</span><button type="button" class="lien">Rouvrir les listes</button></div>
+        </section>
     </div>
 </x-layouts.maquette>

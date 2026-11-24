@@ -117,6 +117,6 @@ class ResultatController extends Controller
 
     private function retour(Scrutin $scrutin, string $message): RedirectResponse
     {
-        return redirect()->to(route('scrutins.show', $scrutin).'#resultats')->with('succes', $message);
+        return redirect()->to(route('scrutins.show', [$scrutin, 'onglet' => 'resultats']).'#resultats')->with('succes', $message);
     }
 }

@@ -164,7 +164,7 @@
                                     <td><span class="badge {{ $ligne['scrutin']->statut->badge() }}">{{ $ligne['scrutin']->statut->libelle() }}</span></td>
                                     <td class="actions">
                                         @if ($onglet === 'resultats')
-                                            <a href="{{ route('scrutins.show', $ligne['scrutin']) }}#resultats" class="btn btn-tertiaire btn--sm"><i data-lucide="badge-check"></i>Valider</a>
+                                            <a href="{{ route('scrutins.show', [$ligne['scrutin'], 'onglet' => 'resultats']) }}#resultats" class="btn btn-tertiaire btn--sm"><i data-lucide="badge-check"></i>Valider</a>
                                         @else
                                             <a wire:navigate href="{{ route('scrutins.show', $ligne['scrutin']) }}" class="btn btn-tertiaire btn--sm"><i data-lucide="eye"></i>Ouvrir</a>
                                         @endif

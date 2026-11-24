@@ -282,6 +282,7 @@
   .barre-filtres .champ { height: 40px; }
   .barre-filtres > .champ-icone { flex: 1 1 260px; max-width: 340px; }
   .barre-filtres > select.champ { width: 190px; }
+  .tableau-defilant { overflow-x: auto; }
   .tableau { width: 100%; border-collapse: collapse; }
   .tableau th { height: 40px; padding: 0 16px; text-align: left; font-size: 11px; line-height: 16px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--tr-texte-3); background: var(--tr-surface-2); border-bottom: 1px solid var(--tr-bordure); }
   .tableau td { height: 52px; padding: 0 16px; border-bottom: 1px solid var(--tr-bordure-legere); vertical-align: middle; }
@@ -754,7 +755,7 @@
     .portail__onglets a svg { width: 22px; height: 22px; }
     .portail__onglets a.est-actif { color: var(--tr-primaire); }
   }
-  @media (max-width: 600px) { .grille-tuiles { grid-template-columns: 1fr; } .barre { grid-template-columns: 100px 1fr 48px; } .tableau-defilant { overflow-x: auto; } }
+  @media (max-width: 600px) { .grille-tuiles { grid-template-columns: 1fr; } .barre { grid-template-columns: 100px 1fr 48px; } }
   /* barre du bulletin sur téléphone : le bouton principal passe sur sa propre ligne, pleine largeur. */
   @media (max-width: 600px) {
     .barre-vote { flex-wrap: wrap; gap: 10px 12px; }

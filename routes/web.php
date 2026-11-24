@@ -48,7 +48,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/agents/{agent}/terminer', [AgentController::class, 'terminer'])->name('agents.terminer');
 
     Route::get('/structures/organisation', [StructureController::class, 'organisation'])->name('structures.organisation');
-    Route::resource('structures', StructureController::class)->except(['destroy']);
+    Route::resource('structures', StructureController::class)->except(['destroy', 'store', 'update']);
     Route::post('/structures/{structure}/desactiver', [StructureController::class, 'desactiver'])->name('structures.desactiver');
     Route::post('/structures/{structure}/reactiver', [StructureController::class, 'reactiver'])->name('structures.reactiver');
 

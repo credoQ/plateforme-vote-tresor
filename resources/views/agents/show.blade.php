@@ -96,48 +96,7 @@
     </section>
 
     <section class="carte">
-        <div class="carte__entete"><h2>Historique des affectations</h2><span class="etiquette">{{ $affectations->total() }}</span></div>
-        @if ($avecFiltres)
-            <x-barre-filtres :total="$affectations->total()" libelle="affectation(s)">
-                <x-filtre libelle="Structure" pour="filtre-recherche" large>
-                    <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Code ou libellé"></div>
-                </x-filtre>
-                <x-filtre libelle="Période" pour="filtre-periode">
-                    <x-select-recherche compact soumettre>
-                        <select id="filtre-periode" name="periode" class="champ">
-                            <option value="">Toutes</option>
-                            <option value="en-cours" @selected($periode === 'en-cours')>En cours</option>
-                            <option value="terminees" @selected($periode === 'terminees')>Terminées</option>
-                        </select>
-                    </x-select-recherche>
-                </x-filtre>
-            </x-barre-filtres>
-        @endif
-        <div class="tableau-defilant">
-            <table class="tableau tableau--fiches">
-                <thead><tr><th>Structure</th><th>Du</th><th>Au</th><th>Durée</th><th>Statut</th></tr></thead>
-                <tbody>
-                    @forelse ($affectations as $ligne)
-                        <tr>
-                            <td>{{ $ligne->structure->code }}<div class="aide">{{ $ligne->structure->libelle }}</div></td>
-                            <td>{{ $ligne->date_debut->format('d/m/Y') }}</td>
-                            <td>{{ $ligne->date_fin?->format('d/m/Y') ?? '-' }}</td>
-                            <td>{{ $ligne->duree }}</td>
-                            <td>
-                                @if ($ligne->date_fin === null)
-                                    <span class="badge badge--succes">En cours</span>
-                                @else
-                                    <span class="badge badge--info">Terminée</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="5"><div class="etat-vide"><p>{{ $recherche !== '' || $periode !== '' ? 'Aucune affectation ne correspond aux filtres.' : 'Aucune affectation enregistrée.' }}</p></div></td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        {{ $affectations->onEachSide(1)->links('pagination.tresor', ['libelle' => 'affectations']) }}
+        <livewire:agents.historique-affectations :agent="$agent" />
     </section>
 
     <x-slot:modales>

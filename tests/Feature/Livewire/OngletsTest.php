@@ -1,0 +1,187 @@
+<?php
+
+namespace Tests\Feature\Livewire;
+
+use App\Actions\Scrutins\GenererScrutins;
+use App\Enums\Acces\CodeRole;
+use App\Livewire\Agents\HistoriqueAffectations;
+use App\Livewire\Editions\ListeFemmesModeles;
+use App\Livewire\Editions\ScrutinsDeLaPhase;
+use App\Livewire\Referentiel\OngletsReferentiel;
+use App\Livewire\Referentiel\StructuresRattachees;
+use App\Livewire\Scrutins\ContenuDuScrutin;
+use App\Livewire\Suivi\ListeTachesEchouees;
+use App\Models\Affectation;
+use App\Models\Agent;
+use App\Models\Edition;
+use App\Models\FemmeModele;
+use App\Models\Phase;
+use App\Models\Scrutin;
+use App\Models\Structure;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Livewire\Livewire;
+use Tests\TestCase;
+
+/**
+ * Zones à onglets, filtres et pagination converties en composants Livewire : seule la zone est mise à jour, et les
+ * droits sont contrôlés à chaque requête du composant.
+ */
+class OngletsTest extends TestCase
+{
+    use RefreshDatabase;
+
+    public function test_les_onglets_de_la_phase_changent_sans_recharger_la_page(): void
+    {
+        $edition = Edition::factory()->avecPhases()->enCours()->create(['annee' => 2026, 'date_debut' => '2026-11-01', 'date_fin' => '2026-12-31', 'date_gel' => '2026-10-01']);
+        $depuis = Carbon::parse('2020-01-01');
+        Agent::factory()->femme()->affecteA(Structure::where('code', 'DIA')->firstOrFail(), $depuis)->create();
+        Agent::factory()->femme()->affecteA(Structure::where('code', 'TD-ATL')->firstOrFail(), $depuis)->create();
+        $phase = $edition->phase(Phase::PRIMAIRES);
+        app(GenererScrutins::class)->handle($phase);
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Comite)->create())
+            ->test(ScrutinsDeLaPhase::class, ['phase' => $phase])
+            ->assertSee('Scrutin de structure · Direction de l&#039;Informatique et des Archives', false)->assertSee('Atlantique')
+            ->set('recherche', 'atl')
+            ->assertSee('Atlantique')->assertDontSee('Informatique')
+            ->call('choisirOnglet', 'colleges')
+            ->assertSet('onglet', 'colleges')->assertSet('statut', '')
+            ->assertSee('Pôle départemental · Un scrutin par département ou par structure')
+            ->call('choisirOnglet', 'resultats')
+            ->assertSee('Aucun résultat à valider.');
+    }
+
+    public function test_les_onglets_de_la_phase_sont_reserves_au_comite(): void
+    {
+        $phase = Edition::factory()->avecPhases()->create()->phase(Phase::PRIMAIRES);
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Observateur)->create())
+            ->test(ScrutinsDeLaPhase::class, ['phase' => $phase])
+            ->assertForbidden();
+    }
+
+    /**
+     * R4 : sur la fiche d'un scrutin, les onglets changent sur place ; le point focal ne voit que son périmètre.
+     */
+    public function test_r4_les_onglets_du_scrutin_changent_et_respectent_le_perimetre(): void
+    {
+        $edition = Edition::factory()->avecPhases()->enCours()->create(['annee' => 2026, 'date_debut' => '2026-11-01', 'date_fin' => '2026-12-31', 'date_gel' => '2026-10-01']);
+        $depuis = Carbon::parse('2020-01-01');
+        Agent::factory()->femme()->affecteA(Structure::where('code', 'TD-ATL')->firstOrFail(), $depuis)->create(['nom' => 'HOUNSOU']);
+        Agent::factory()->femme()->affecteA(Structure::where('code', 'TC-OUIDAH')->firstOrFail(), $depuis)->create(['nom' => 'AKPLOGAN']);
+        app(GenererScrutins::class)->handle($edition->phase(Phase::PRIMAIRES));
+        $scrutin = Scrutin::where('code', 'DEP-ATL')->firstOrFail();
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Comite)->create())
+            ->test(ContenuDuScrutin::class, ['scrutin' => $scrutin])
+            ->assertSet('onglet', 'candidates')
+            ->assertSee('HOUNSOU')->assertSee('AKPLOGAN')
+            ->set('rechercheCandidate', 'akplogan')
+            ->assertSee('AKPLOGAN')->assertDontSee('HOUNSOU')
+            ->call('choisirOnglet', 'zone')
+            ->assertSee('TC-OUIDAH')
+            ->call('choisirOnglet', 'resultats')
+            ->assertSee('Les résultats seront disponibles après le dépouillement.');
+
+        Livewire::actingAs(User::factory()->pointFocalDe(Structure::where('code', 'TC-OUIDAH')->firstOrFail())->create())
+            ->test(ContenuDuScrutin::class, ['scrutin' => $scrutin])
+            ->assertSee('AKPLOGAN')->assertDontSee('HOUNSOU')
+            ->call('choisirOnglet', 'liste')
+            ->assertSee('AKPLOGAN')->assertDontSee('HOUNSOU');
+
+        Livewire::actingAs(User::factory()->pourAgent(Agent::factory()->create())->avecRoles(CodeRole::Electeur)->create())
+            ->test(ContenuDuScrutin::class, ['scrutin' => $scrutin])
+            ->assertForbidden();
+    }
+
+    /**
+     * R4, R12 : l'historique des affectations se filtre sur place ; un point focal n'y accède pas hors de son périmètre.
+     */
+    public function test_r12_l_historique_des_affectations_se_filtre_sur_place(): void
+    {
+        $agent = Agent::factory()->affecteA(Structure::where('code', 'DIA')->firstOrFail(), Carbon::parse('2024-01-01'))->create();
+        Affectation::factory()->terminee('2023-12-31')->create(['agent_id' => $agent->id, 'structure_id' => Structure::where('code', 'TD-ZOU')->value('id'), 'date_debut' => '2020-01-01']);
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Administrateur)->create())
+            ->test(HistoriqueAffectations::class, ['agent' => $agent])
+            ->assertSee('TD-ZOU')->assertSee('DIA')
+            ->set('periode', 'en-cours')
+            ->assertDontSee('TD-ZOU')->assertSee('Direction de l&#039;Informatique', false);
+
+        Livewire::actingAs(User::factory()->pointFocalDe(Structure::where('code', 'DR')->firstOrFail())->create())
+            ->test(HistoriqueAffectations::class, ['agent' => $agent])
+            ->assertForbidden();
+    }
+
+    /**
+     * R7, R8 : le référentiel passe des structures aux types et départements sur place, et les structures
+     * rattachées d'une structure se filtrent sans recharger sa fiche.
+     */
+    public function test_r7_le_referentiel_et_les_structures_rattachees_se_filtrent_sur_place(): void
+    {
+        $admin = User::factory()->avecRoles(CodeRole::Administrateur)->create();
+
+        Livewire::actingAs($admin)
+            ->test(OngletsReferentiel::class)
+            ->assertSet('onglet', 'structures')
+            ->call('choisirOnglet', 'organisation')
+            ->assertSee('Agence comptable de la Dette')->assertSee('TD-ZOU')
+            ->set('pole', 'STRUCTURES')
+            ->assertDontSee('Trésorerie communale')
+            ->set('rechercheDepartement', 'zou')
+            ->assertSee('TD-ZOU')->assertDontSee('TD-ATL');
+
+        Livewire::actingAs($admin)
+            ->test(StructuresRattachees::class, ['structure' => Structure::where('code', 'TD-ATL')->firstOrFail()])
+            ->assertSee('TC-OUIDAH')->assertSee('TC-ALLADA')
+            ->set('recherche', 'ouidah')
+            ->assertSee('TC-OUIDAH')->assertDontSee('TC-ALLADA');
+
+        Livewire::actingAs(User::factory()->pourAgent(Agent::factory()->create())->avecRoles(CodeRole::Electeur)->create())
+            ->test(OngletsReferentiel::class)
+            ->assertForbidden();
+    }
+
+    /**
+     * R59 : l'historique des femmes modèles se filtre par année sur place, pour le comité seulement.
+     */
+    public function test_r59_l_historique_des_femmes_modeles_se_filtre_sur_place(): void
+    {
+        FemmeModele::factory()->create(['annee' => 2023, 'nom_complet' => 'AHOUANSOU Clarisse']);
+        FemmeModele::factory()->create(['annee' => 2024, 'nom_complet' => 'KPADE Inès']);
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Comite)->create())
+            ->test(ListeFemmesModeles::class)
+            ->assertSee('AHOUANSOU Clarisse')->assertSee('KPADE Inès')
+            ->set('annee', '2024')
+            ->assertSee('KPADE Inès')->assertDontSee('AHOUANSOU Clarisse');
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Observateur)->create())
+            ->test(ListeFemmesModeles::class)
+            ->assertForbidden();
+    }
+
+    public function test_les_taches_en_echec_se_filtrent_sur_place_pour_l_administrateur(): void
+    {
+        foreach (['urgent' => 'EnvoyerCodeConnexion', 'mails' => 'AnnoncerOuverture'] as $file => $tache) {
+            DB::table('failed_jobs')->insert([
+                'uuid' => (string) Str::uuid(), 'connection' => 'database', 'queue' => $file,
+                'payload' => json_encode(['displayName' => 'App\\Jobs\\'.$tache]), 'exception' => 'Erreur de test', 'failed_at' => now(),
+            ]);
+        }
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Administrateur)->create())
+            ->test(ListeTachesEchouees::class)
+            ->assertSee('EnvoyerCodeConnexion')->assertSee('AnnoncerOuverture')
+            ->set('file', 'mails')
+            ->assertSee('AnnoncerOuverture')->assertDontSee('EnvoyerCodeConnexion');
+
+        Livewire::actingAs(User::factory()->avecRoles(CodeRole::Comite)->create())
+            ->test(ListeTachesEchouees::class)
+            ->assertForbidden();
+    }
+}

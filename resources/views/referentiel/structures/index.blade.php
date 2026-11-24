@@ -10,11 +10,5 @@
         @endcan
     </div>
 
-    <div class="carte">
-        <div class="onglets">
-            <a wire:navigate href="{{ route('structures.index') }}" class="onglet est-actif">Structures</a>
-            <a wire:navigate href="{{ route('structures.organisation') }}" class="onglet">Types et départements</a>
-        </div>
-        <livewire:referentiel.liste-structures />
-    </div>
+    <livewire:referentiel.onglets-referentiel />
 </x-layouts.app>

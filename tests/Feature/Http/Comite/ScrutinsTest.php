@@ -206,8 +206,7 @@ class ScrutinsTest extends TestCase
         $this->actingAs($this->comite)->get(route('scrutins.show', [$scrutin, 'candidate' => 'ahouansou']))
             ->assertOk()->assertSee('<b class="chiffres">1</b> candidate(s)', false);
         $this->get(route('scrutins.show', [$scrutin, 'candidate' => 'inconnue', 'recherche' => 'ahouansou']))
-            ->assertSee('Aucune candidate ne correspond aux filtres.')
-            ->assertSee('<input type="hidden" name="recherche" value="ahouansou">', false);
+            ->assertSee('Aucune candidate ne correspond aux filtres.');
         $this->get(route('scrutins.show', [$scrutin, 'statut_candidate' => 'DESACTIVEE']))
             ->assertSee('Aucune candidate ne correspond aux filtres.');
     }

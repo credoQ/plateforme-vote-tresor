@@ -28,11 +28,6 @@ class EditionController extends Controller
      */
     private const AUCUN_SCRUTIN = 'AUCUN';
 
-    /**
-     * Onglets de la phase affichée sur la fiche de l'édition.
-     */
-    private const ONGLETS = ['scrutins', 'colleges', 'resultats'];
-
     public function index(): View
     {
         // La liste et ses filtres sont dans le composant Livewire Editions\ListeEditions.
@@ -52,8 +47,9 @@ class EditionController extends Controller
     }
 
     /**
-     * Fiche de l'édition : frise des phases, puis la phase choisie (?phase=) avec ses scrutins, ses collèges
-     * ou ses résultats à valider (?onglet=). Par défaut, la phase ouverte, sinon la première non clôturée.
+     * Fiche de l'édition : frise des phases, puis la phase choisie (?phase=) avec ses tâches ; ses scrutins, ses
+     * collèges et ses résultats à valider sont dans le composant Livewire Editions\ScrutinsDeLaPhase.
+     * Par défaut, la phase ouverte, sinon la première non clôturée.
      */
     public function show(Request $request, Edition $edition): View
     {
@@ -69,43 +65,9 @@ class EditionController extends Controller
             ?? $edition->phases->first(fn (Phase $p): bool => $p->statut !== StatutPhase::Cloturee)
             ?? $edition->phases->last();
 
-        $onglet = in_array($request->query('onglet'), self::ONGLETS, true) ? $request->query('onglet') : 'scrutins';
-        $recherche = trim((string) $request->query('recherche', ''));
-        $college = (string) $request->query('college', '');
-        $statut = StatutScrutin::tryFrom((string) $request->query('statut', ''));
-
-        $scrutins = $phase === null ? null : $phase->scrutins()
-            ->withCount([
-                'inscriptions',
-                'inscriptions as votants_count' => fn ($i) => $i->where('a_vote', true),
-                'candidates as candidates_actives_count' => fn ($c) => $c->actives(),
-            ])
-            ->when($onglet === 'resultats', fn ($q) => $q->whereIn('statut', [StatutScrutin::Clos->value, StatutScrutin::ResultatsValides->value]))
-            ->when($recherche !== '', fn ($q) => $q->where(fn ($r) => $r->whereLike('libelle', "%{$recherche}%")->orWhereLike('code', "%{$recherche}%")))
-            ->when($college === Phase::COLLEGE_DGTCP, fn ($q) => $q->whereNull('pole_electoral_id'))
-            ->when(CodePoleElectoral::tryFrom($college) !== null, fn ($q) => $q->whereHas('poleElectoral', fn ($p) => $p->where('code', $college)))
-            ->when($statut !== null, fn ($q) => $q->where('statut', $statut->value))
-            ->orderBy('code')
-            ->paginate(config('app.lignes_par_page'))
-            ->withQueryString()
-            ->through(fn (Scrutin $scrutin): array => [
-                'scrutin' => $scrutin,
-                'taux' => $scrutin->inscriptions_count === 0 ? null : round($scrutin->votants_count * 100 / $scrutin->inscriptions_count, 1),
-            ]);
-
         return view('editions.show', [
             'edition' => $edition,
             'phase' => $phase,
-            'onglet' => $onglet,
-            'scrutins' => $scrutins,
-            'recherche' => $recherche,
-            'college' => $college,
-            'statut' => $statut,
-            'colleges' => [
-                CodePoleElectoral::Departemental->value => CodePoleElectoral::Departemental->libelle(),
-                CodePoleElectoral::Structures->value => CodePoleElectoral::Structures->libelle(),
-                Phase::COLLEGE_DGTCP => 'Ensemble de la DGTCP',
-            ],
             'etatsDesPhases' => $edition->phases->mapWithKeys(fn (Phase $etape): array => [$etape->id => $this->etatDeLaPhase($etape)])->all(),
             'taches' => $phase === null ? [] : $this->tachesDeLaPhase($edition, $phase),
             'bornesPlanification' => $phase === null ? null : $this->bornesPlanification($edition, $phase),

@@ -41,6 +41,20 @@ class Affectation extends Model
     }
 
     /**
+     * Durée de l'affectation en années et mois (« 8 ans 3 mois »), jusqu'à aujourd'hui si elle est en cours.
+     */
+    public function duree(): string
+    {
+        $intervalle = $this->date_debut->diff(($this->date_fin ?? now())->copy()->addDay());
+        $parties = array_filter([
+            $intervalle->y > 0 ? $intervalle->y.' an'.($intervalle->y > 1 ? 's' : '') : null,
+            $intervalle->m > 0 ? $intervalle->m.' mois' : null,
+        ]);
+
+        return $parties === [] ? 'Moins d’un mois' : implode(' ', $parties);
+    }
+
+    /**
      * Affectations qui couvrent la date donnée, bornes incluses (aujourd'hui par défaut).
      */
     #[Scope]

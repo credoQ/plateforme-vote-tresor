@@ -5,6 +5,7 @@ namespace Tests\Feature\Http\Referentiel;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
 use App\Enums\Referentiel\CodeTypeStructure;
+use App\Livewire\Referentiel\FormulaireStructure;
 use App\Models\Agent;
 use App\Models\Departement;
 use App\Models\JournalAudit;
@@ -13,6 +14,8 @@ use App\Models\TypeStructure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
+use Livewire\Features\SupportTesting\Testable;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class GestionDuReferentielTest extends TestCase
@@ -38,11 +41,12 @@ class GestionDuReferentielTest extends TestCase
         $td = $this->structure('TD-ATL');
 
         $this->actingAs($this->admin)->get(route('structures.create'))->assertOk()->assertSee('Enregistrer la structure');
-        $this->post(route('structures.store'), [
-            'code' => 'tc-test', 'sigle' => '', 'libelle' => 'Trésorerie communale de test', 'niveau' => '1',
-            'type_structure_id' => (string) $this->type(CodeTypeStructure::TresorerieCommunale),
-            'departement_id' => (string) $td->departement_id, 'structure_parente_id' => (string) $td->id,
-        ])->assertSessionHasNoErrors()->assertRedirect(route('structures.show', $this->structure('TC-TEST')));
+        $this->formulaire()
+            ->set(['code' => 'tc-test', 'sigle' => '', 'libelle' => 'Trésorerie communale de test', 'niveau' => '1',
+                'typeStructureId' => (string) $this->type(CodeTypeStructure::TresorerieCommunale),
+                'departementId' => (string) $td->departement_id, 'structureParenteId' => (string) $td->id])
+            ->call('enregistrer')
+            ->assertHasNoErrors()->assertRedirect(route('structures.show', $this->structure('TC-TEST')));
 
         $tc = $this->structure('TC-TEST');
         $this->assertNull($tc->sigle);
@@ -57,10 +61,13 @@ class GestionDuReferentielTest extends TestCase
      */
     public function test_r9_refuse_une_td_sans_departement(): void
     {
-        $this->actingAs($this->admin)->post(route('structures.store'), [
-            'code' => 'TD-TEST', 'libelle' => 'TD de test', 'niveau' => '1',
-            'type_structure_id' => (string) $this->type(CodeTypeStructure::TresorerieDepartementale),
-        ])->assertSessionHasErrors(['departement_id' => 'Une Trésorerie départementale ou communale doit être située dans un département.']);
+        $this->actingAs($this->admin);
+        $this->formulaire()
+            ->set(['code' => 'TD-TEST', 'libelle' => 'TD de test', 'niveau' => '1',
+                'typeStructureId' => (string) $this->type(CodeTypeStructure::TresorerieDepartementale)])
+            ->call('enregistrer')
+            ->assertHasErrors(['departement_id' => 'Une Trésorerie départementale ou communale doit être située dans un département.'])
+            ->assertDispatched('formulaire-erreurs')->assertNoRedirect();
 
         $this->assertDatabaseMissing('structures', ['code' => 'TD-TEST']);
         $this->assertSame(0, JournalAudit::count());
@@ -74,10 +81,11 @@ class GestionDuReferentielTest extends TestCase
         $cabinet = $this->structure('CAB');
         $cellule = Structure::factory()->deType(CodeTypeStructure::Cellule)->create(['code' => 'CELL-TEST', 'structure_parente_id' => $cabinet->id]);
 
-        $this->actingAs($this->admin)->put(route('structures.update', $cabinet), [
-            'code' => $cabinet->code, 'libelle' => $cabinet->libelle, 'niveau' => '1',
-            'type_structure_id' => (string) $cabinet->type_structure_id, 'structure_parente_id' => (string) $cellule->id,
-        ])->assertSessionHasErrors(['structure_parente_id' => 'Une structure ne peut pas être rattachée à l’une de ses structures rattachées.']);
+        $this->actingAs($this->admin);
+        $this->formulaire($cabinet)
+            ->set(['niveau' => '2', 'structureParenteId' => (string) $cellule->id])
+            ->call('enregistrer')
+            ->assertHasErrors(['structure_parente_id' => 'Une structure ne peut pas être rattachée à l’une de ses structures rattachées.']);
 
         $this->assertNull($cabinet->fresh()->structure_parente_id);
     }
@@ -87,10 +95,10 @@ class GestionDuReferentielTest extends TestCase
         $dmg = $this->structure('DMG');
 
         $this->actingAs($this->admin)->get(route('structures.edit', $dmg))->assertOk();
-        $this->put(route('structures.update', $dmg), [
-            'code' => 'DMG', 'sigle' => 'DMG', 'libelle' => 'Direction des Moyens généraux et du Patrimoine', 'niveau' => '1',
-            'type_structure_id' => (string) $dmg->type_structure_id,
-        ])->assertSessionHasNoErrors()->assertRedirect(route('structures.show', $dmg));
+        $this->formulaire($dmg)
+            ->set(['sigle' => 'DMG', 'libelle' => 'Direction des Moyens généraux et du Patrimoine'])
+            ->call('enregistrer')
+            ->assertHasNoErrors()->assertRedirect(route('structures.show', $dmg));
 
         $this->assertSame('Direction des Moyens généraux et du Patrimoine', $dmg->fresh()->libelle);
         $this->assertSame(['libelle', 'updated_at'], JournalAudit::where('action', ActionAuditee::StructureEnregistree->value)->sole()->details['modifications']);
@@ -206,5 +214,10 @@ class GestionDuReferentielTest extends TestCase
     private function type(CodeTypeStructure $type): int
     {
         return TypeStructure::where('code', $type->value)->value('id');
+    }
+
+    private function formulaire(?Structure $structure = null): Testable
+    {
+        return Livewire::test(FormulaireStructure::class, ['structure' => $structure]);
     }
 }

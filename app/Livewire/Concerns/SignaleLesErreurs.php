@@ -23,6 +23,8 @@ trait SignaleLesErreurs
     {
         $erreurs = $exception->validator->errors();
         $this->setErrorBag($erreurs);
+        // Formulaire en étapes : rouvre la première étape qui porte une erreur (resources/js/formulaire-etapes.js).
+        $this->dispatch('formulaire-erreurs');
 
         foreach ($this->clesEnFenetre as $cle) {
             if ($erreurs->has($cle)) {

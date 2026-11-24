@@ -1,6 +1,6 @@
 // Formulaire en plusieurs étapes (composant Alpine) : un seul <form>, envoyé à la dernière étape, dont les
 // panneaux [data-etape] s'affichent l'un après l'autre. « Suivant » vérifie les champs de l'étape ; après un
-// renvoi du serveur, le formulaire rouvre la première étape qui porte une erreur. Le récapitulatif lit les
+// renvoi du serveur, ou après l'envoi par un composant Livewire, le formulaire rouvre la première étape qui porte une erreur. Le récapitulatif lit les
 // champs avec valeur('nom') et coche('nom'). Sans JavaScript, toutes les étapes restent visibles.
 
 function formaterDate(valeur) {
@@ -18,9 +18,23 @@ export default function formulaireEtapes() {
         init() {
             this.panneaux = [...this.$root.querySelectorAll('[data-etape]')];
             this.nombre = this.panneaux.length;
-            const enErreur = this.panneaux.findIndex((p) => p.querySelector('.erreur-champ, .alerte--erreur'));
-            this.etape = enErreur >= 0 ? enErreur + 1 : 1;
+            const enErreur = this.etapeEnErreur();
+            this.etape = enErreur ?? 1;
             this.$root.dataset.pret = '';
+        },
+
+        // Première étape qui porte une erreur, ou null.
+        etapeEnErreur() {
+            const index = this.panneaux.findIndex((p) => p.querySelector('.erreur-champ, .alerte--erreur'));
+            return index >= 0 ? index + 1 : null;
+        },
+        // Formulaire envoyé par Livewire, sans recharger la page (événement « formulaire-erreurs ») : une fois les
+        // erreurs affichées, rouvre la première étape qui en porte une.
+        rouvrirEtapeEnErreur() {
+            this.$nextTick(() => {
+                const enErreur = this.etapeEnErreur();
+                if (enErreur !== null && enErreur !== this.etape) this.allerA(enErreur);
+            });
         },
 
         estAffichee(numero) {

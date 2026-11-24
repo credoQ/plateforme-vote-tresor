@@ -1,5 +1,6 @@
 import { createIcons, icons } from 'lucide';
 import './alertes';
+import filtreBulletin from './filtre-bulletin';
 import formulaireEtapes from './formulaire-etapes';
 import lecteurVideo from './lecteur-video';
 import organisationPhases from './organisation-phases';
@@ -151,6 +152,7 @@ document.addEventListener('livewire:navigated', preparerPage);
 document.addEventListener('alpine:init', () => {
     window.Alpine.data('selectRecherche', selectRecherche);
     window.Alpine.data('formulaireEtapes', formulaireEtapes);
+    window.Alpine.data('filtreBulletin', filtreBulletin);
     window.Alpine.data('organisationPhases', organisationPhases);
     window.Alpine.data('saisieCode', saisieCode);
     window.Alpine.data('lecteurVideo', lecteurVideo);

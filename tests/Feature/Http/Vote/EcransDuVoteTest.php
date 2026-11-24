@@ -78,7 +78,7 @@ class EcransDuVoteTest extends TestCase
         $this->actingAs($this->electeur)->get(route('vote'))
             ->assertOk()->assertSee('AHOUANSOU Clarisse')->assertSee('KPADE Inès')->assertDontSee('Vote blanc')
             ->assertSee('Étape 1 sur 2')->assertDontSee('Navigation principale');
-        $this->get(route('vote', ['recherche' => 'kpade']))->assertSee('KPADE Inès')->assertDontSee('AHOUANSOU Clarisse');
+        $this->get(route('vote'))->assertSee('x-data="filtreBulletin"', false)->assertSee('data-nom="KPADE Inès"', false)->assertDontSee('Filtrer</button>', false);
 
         $this->post(route('vote.confirmer'), ['candidate' => $clarisse->id])
             ->assertOk()->assertSee('Confirmer mon vote')->assertSee('AHOUANSOU Clarisse');
@@ -227,7 +227,7 @@ class EcransDuVoteTest extends TestCase
 
     private function ouvrir(): void
     {
-        app(ArreterListes::class)->handle($this->scrutin->fresh());
+        app(ArreterListes::class)->handle($this->scrutin->phase);
         app(PlanifierScrutin::class)->handle($this->scrutin->fresh(), now()->subMinutes(10), now()->addHours(6));
         app(OuvrirScrutin::class)->handle($this->scrutin);
     }

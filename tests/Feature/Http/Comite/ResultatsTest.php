@@ -57,7 +57,7 @@ class ResultatsTest extends TestCase
         app(GenererScrutins::class)->handle($edition->phase(Phase::PRIMAIRES));
         $edition->phase(Phase::PRIMAIRES)->update(['statut' => StatutPhase::Ouverte]);
         $this->scrutin = Scrutin::where('code', 'STR-DIA')->firstOrFail();
-        app(ArreterListes::class)->handle($this->scrutin);
+        app(ArreterListes::class)->handle($this->scrutin->phase);
         app(PlanifierScrutin::class)->handle($this->scrutin->fresh(), now()->subMinutes(5), now()->addHours(2));
         app(OuvrirScrutin::class)->handle($this->scrutin);
     }

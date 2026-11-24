@@ -100,10 +100,10 @@ class NominationTest extends TestCase
      */
     public function test_r58_les_nominations_se_figent_a_l_arret_des_listes(): void
     {
-        $this->attendreErreur('scrutin', 'aucune candidate', fn () => app(ArreterListes::class)->handle($this->scrutin));
+        $this->attendreErreur('listes', 'aucune candidate', fn () => app(ArreterListes::class)->handle($this->scrutin->phase));
 
         $candidate = $this->nominer('104876', 'PV 1');
-        app(ArreterListes::class)->handle($this->scrutin->fresh());
+        app(ArreterListes::class)->handle($this->scrutin->phase);
 
         $this->assertSame(StatutScrutin::ListesArretees, $this->scrutin->fresh()->statut);
         $this->assertSame(1, $this->scrutin->candidates()->count(), 'L’actualisation finale conserve les nominées.');

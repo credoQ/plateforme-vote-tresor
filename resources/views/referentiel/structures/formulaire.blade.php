@@ -69,7 +69,7 @@
                             <label class="choix-carte">
                                 <input type="radio" name="niveau" value="{{ Structure::NIVEAU_STRUCTURE_ELECTORALE }}" x-model="niveau" @checked($niveau === Structure::NIVEAU_STRUCTURE_ELECTORALE) required>
                                 <span class="choix-carte__icone"><i data-lucide="vote"></i></span>
-                                <span><strong>Structure électorale</strong><small>Elle constitue sa propre circonscription.</small></span>
+                                <span><strong>Structure électorale</strong><small>Elle forme sa propre zone de vote.</small></span>
                             </label>
                             <label class="choix-carte">
                                 <input type="radio" name="niveau" value="{{ Structure::NIVEAU_SERVICE }}" x-model="niveau" @checked($niveau === Structure::NIVEAU_SERVICE)>

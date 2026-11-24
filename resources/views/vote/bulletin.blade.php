@@ -10,22 +10,22 @@
         </div>
     </div>
 
-    <section class="carte">
-        <form method="GET" action="{{ route('vote') }}" class="barre-filtres">
-            <div class="champ-icone"><i data-lucide="search"></i><input name="recherche" class="champ" value="{{ $recherche }}" placeholder="Rechercher une candidate par nom" aria-label="Rechercher une candidate"></div>
+    <section class="carte" x-data="filtreBulletin">
+        {{-- Filtre appliqué dans la page pendant la saisie : rien n'est rechargé, le choix coché est conservé. --}}
+        <div class="barre-filtres" role="search">
+            <div class="champ-icone"><i data-lucide="search"></i><input type="search" class="champ" x-model="recherche" placeholder="Rechercher une candidate par nom" aria-label="Rechercher une candidate"></div>
             @if ($structures->count() > 1)
-                <x-select-recherche compact soumettre>
-                    <select name="structure" class="champ" aria-label="Filtrer par structure">
+                <x-select-recherche compact>
+                    <select class="champ" x-model="structure" aria-label="Filtrer par structure">
                         <option value="">Toutes les structures</option>
                         @foreach ($structures as $id => $libelle)
-                            <option value="{{ $id }}" @selected($structureId === $id)>{{ $libelle }}</option>
+                            <option value="{{ $id }}">{{ $libelle }}</option>
                         @endforeach
                     </select>
                 </x-select-recherche>
             @endif
-            <button type="submit" class="btn btn-secondaire"><i data-lucide="filter"></i>Filtrer</button>
-            <span class="aide"><b class="chiffres">{{ $candidates->count() }}</b> candidate(s) sur {{ $total }}</span>
-        </form>
+            <span class="aide" aria-live="polite"><b class="chiffres" x-text="nombreVisibles">{{ $total }}</b> candidate(s) sur {{ $total }}</span>
+        </div>
 
         <form method="POST" action="{{ route('vote.confirmer') }}" novalidate data-choix-requis="candidate"
               @if ($blancAutorise)
@@ -38,16 +38,15 @@
             <div class="carte__corps">
                 <fieldset class="grille-candidates">
                     <legend class="sr-only">Candidates du scrutin</legend>
-                    @forelse ($candidates as $candidate)
-                        <label class="carte-candidate">
+                    @foreach ($candidates as $candidate)
+                        <label class="carte-candidate" data-candidate data-nom="{{ $candidate['nom'] }}" data-structure="{{ $candidate['structure_id'] }}" x-show="correspond($el)">
                             <input type="radio" name="candidate" value="{{ $candidate['id'] }}" required @checked((string) old('candidate') === (string) $candidate['id'])>
                             <span class="carte-candidate__coche"><i data-lucide="check"></i></span>
                             <span class="avatar avatar--grand avatar--sans-anneau">{{ $candidate['initiales'] }}</span>
                             <span><span class="carte-candidate__nom">{{ $candidate['nom'] }}</span><br><span class="carte-candidate__structure">{{ $candidate['structure'] }}</span></span>
                         </label>
-                    @empty
-                        <div class="etat-vide"><i data-lucide="search-x"></i><p>Aucune candidate ne correspond à la recherche.</p></div>
-                    @endforelse
+                    @endforeach
+                    <div class="etat-vide" x-show="nombreVisibles === 0" x-cloak><i data-lucide="search-x"></i><p>Aucune candidate ne correspond à la recherche.</p></div>
                     @if ($blancAutorise)
                         <label class="carte-candidate">
                             <input type="radio" name="candidate" value="{{ \App\Http\Controllers\Vote\VoteController::BLANC }}" required>

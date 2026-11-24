@@ -100,21 +100,24 @@ class UtilisateursTest extends TestCase
     }
 
     /**
-     * R3 : l'identifiant qui est le matricule d'un agent sans compte lie le compte à cet agent ; son adresse suffit.
+     * R3 : l'identifiant qui est le matricule d'un agent sans compte lie le compte à cet agent. R42 : l'adresse
+     * de connexion est obligatoire à la création du compte, même si la fiche de l'agent en porte une.
      */
     public function test_r3_lie_le_compte_a_l_agent_qui_porte_l_identifiant(): void
     {
         $agent = Agent::factory()->create(['matricule' => '104455', 'email' => 'agent@example.test']);
-
-        $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
+        $donnees = [
             'name' => $agent->nomComplet(), 'login' => '104455', 'roles' => [CodeRole::Comite->value], 'actif' => '1',
             'structure_id' => Structure::where('code', 'DIA')->value('id'),
-        ])->assertSessionHasNoErrors();
+        ];
+
+        $this->actingAs($this->admin)->post(route('utilisateurs.store'), $donnees)->assertSessionHasErrors('email');
+        $this->post(route('utilisateurs.store'), [...$donnees, 'email' => 'compte@example.test'])->assertSessionHasNoErrors();
 
         $compte = User::where('login', '104455')->firstOrFail();
         $this->assertSame($agent->id, $compte->agent_id);
         $this->assertNull($compte->structure_id);
-        $this->assertSame('agent@example.test', $compte->adresseDeConnexion());
+        $this->assertSame('compte@example.test', $compte->adresseDeConnexion());
     }
 
     /**
@@ -125,8 +128,8 @@ class UtilisateursTest extends TestCase
         $agent = Agent::factory()->create(['matricule' => '106677']);
         $compte = User::factory()->avecRoles(CodeRole::Comite)->create(['login' => 'comite-1']);
 
-        $this->actingAs($this->admin)->get(route('utilisateurs.index'))->assertOk()->assertSee('Lier à un agent')->assertSee('106677 · '.$agent->nomComplet());
-        $this->post(route('utilisateurs.lier-agent', $compte), ['agent' => '106677 · '.$agent->nomComplet()])->assertSessionHasNoErrors();
+        $this->actingAs($this->admin)->get(route('utilisateurs.index'))->assertOk()->assertSee('Lier à un agent')->assertSee('<option value="106677" data-detail="106677">'.$agent->nomComplet().'</option>', false);
+        $this->post(route('utilisateurs.lier-agent', $compte), ['agent' => '106677'])->assertSessionHasNoErrors();
         $this->assertSame($agent->id, $compte->fresh()->agent_id);
 
         $autre = User::factory()->avecRoles(CodeRole::Observateur)->create();

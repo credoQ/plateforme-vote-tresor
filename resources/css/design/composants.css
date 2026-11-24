@@ -119,7 +119,6 @@
   /* fiche d'une personne : avatar à gauche du nom, matricule et statut en étiquettes sous le nom */
   .titre-page__identite { display: flex; align-items: center; gap: 16px; min-width: 0; }
   .titre-page__identite .titre-page__surtitre { flex-wrap: wrap; margin: 6px 0 0; }
-  .affectation-mutation { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--tr-bordure-legere); }
   .titre-page__actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
   .titre-page__surtitre { display: flex; align-items: center; gap: 10px; margin-bottom: 4px; }
 
@@ -127,22 +126,53 @@
   .pastilles { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 0; padding: 0; list-style: none; }
   .pastilles li { display: inline-flex; align-items: center; gap: 8px; height: 32px; padding: 0 12px; border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon); background: var(--tr-surface); font-size: 12px; color: var(--tr-texte-2); }
   .pastilles strong { color: var(--tr-texte); }
-  .frise-phases { padding: 16px 20px; }
+  /* parcours des phases d'une édition, en étapes (Étape 1 sur 3, dates, état) */
+  .frise-phases { padding: 20px 24px; }
   .frise-phases ol { display: flex; margin: 0; padding: 0; list-style: none; }
   .frise-phases__etape { flex: 1; display: flex; align-items: flex-start; min-width: 0; }
-  .frise-phases__etape:not(:last-child)::after { content: ""; flex: 1; height: 2px; margin: 15px 12px 0; background: var(--tr-bordure); }
+  .frise-phases__etape:not(:last-child)::after { content: ""; flex: 1; height: 2px; margin: 17px 16px 0; border-radius: 2px; background: var(--tr-bordure); }
   .frise-phases__etape.est-faite::after { background: var(--tr-succes-500); }
   .frise-phases__etape:last-child { flex: none; }
-  .frise-phases a { display: flex; align-items: flex-start; gap: 12px; padding: 0 4px; border-radius: var(--tr-rayon); color: inherit; text-decoration: none; }
-  .frise-phases__puce { width: 32px; height: 32px; flex: none; display: grid; place-items: center; border: 1.5px solid var(--tr-gris-300); border-radius: 50%; background: var(--tr-surface); font-weight: 700; font-size: 13px; color: var(--tr-texte-2); }
-  .frise-phases__puce svg { width: 16px; height: 16px; }
+  .frise-phases a { display: flex; align-items: flex-start; gap: 12px; padding: 6px 10px 6px 6px; border-radius: var(--tr-rayon); color: inherit; text-decoration: none; }
+  .frise-phases a:hover { background: var(--tr-surface-2); }
+  .frise-phases__puce { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border: 1.5px solid var(--tr-gris-300); border-radius: 50%; background: var(--tr-surface); font-weight: 700; font-size: 14px; color: var(--tr-texte-2); }
+  .frise-phases__puce svg { width: 18px; height: 18px; }
   .est-faite .frise-phases__puce { border-color: var(--tr-succes-500); background: var(--tr-succes-500); color: #fff; }
-  .est-choisie .frise-phases__puce { border-color: var(--tr-primaire); background: var(--tr-primaire); color: var(--tr-sur-primaire); box-shadow: 0 0 0 4px var(--tr-primaire-doux); }
+  .est-choisie .frise-phases__puce { border-color: var(--tr-primaire); background: var(--tr-primaire); color: var(--tr-sur-primaire); box-shadow: 0 0 0 5px var(--tr-primaire-doux); }
   .frise-phases__texte { display: grid; gap: 2px; justify-items: start; }
-  .frise-phases__texte strong { font-weight: 700; }
-  .frise-phases a:hover strong { color: var(--tr-primaire-texte); }
+  .frise-phases__numero { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--tr-texte-3); }
+  .frise-phases__texte strong { font-size: 14px; font-weight: 700; }
+  .est-choisie .frise-phases__texte strong, .frise-phases a:hover strong { color: var(--tr-primaire-texte); }
   .frise-phases__texte small { font-size: 12px; color: var(--tr-texte-2); }
-  .frise-phases__texte .badge { margin-top: 6px; }
+  .frise-phases__texte .badge { margin-top: 4px; }
+  /* tâches d'une phase : préparation puis déroulement, la tâche courante porte l'action principale */
+  .taches-phase { margin: 0; padding: 8px 0; list-style: none; }
+  .taches-phase__tache { position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; gap: 16px; align-items: center; padding: 14px 24px; }
+  .taches-phase__tache:not(:last-child)::after { content: ""; position: absolute; left: 43px; top: 54px; bottom: -14px; width: 2px; background: var(--tr-bordure); }
+  .taches-phase__tache.est-faite:not(:last-child)::after { background: var(--tr-succes-500); }
+  .taches-phase__puce { position: relative; z-index: 1; width: 40px; height: 40px; display: grid; place-items: center; border: 1.5px solid var(--tr-gris-300); border-radius: 50%; background: var(--tr-surface); color: var(--tr-texte-3); }
+  .taches-phase__puce svg { width: 18px; height: 18px; }
+  .taches-phase__tache.est-faite .taches-phase__puce { border-color: var(--tr-succes-500); background: var(--tr-succes-50); color: var(--tr-succes-700); }
+  .taches-phase__tache.est-courante { background: var(--tr-primaire-doux); }
+  .taches-phase__tache.est-courante .taches-phase__puce { border-color: var(--tr-primaire); background: var(--tr-primaire); color: var(--tr-sur-primaire); }
+  .taches-phase__titre { font-weight: 700; }
+  .taches-phase__detail { margin-top: 2px; font-size: 13px; color: var(--tr-texte-2); }
+  .taches-phase__tache.est-a-venir .taches-phase__titre, .taches-phase__tache.est-a-venir .taches-phase__detail { color: var(--tr-texte-3); }
+  .taches-phase__action { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
+  .taches-phase__action form { margin: 0; }
+  /* étape en cours d'un scrutin, sous le déroulement : ce qu'il faut faire maintenant, puis le rappel des étapes faites */
+  .etape-courante { border-color: var(--tr-primaire); box-shadow: 0 0 0 4px var(--tr-primaire-doux); }
+  .etape-courante .carte__entete { gap: 10px; }
+  .etape-courante__corps { display: flex; flex-wrap: wrap; align-items: center; gap: 16px; padding: 20px 24px; }
+  .etape-courante__texte { flex: 1; min-width: 240px; }
+  .etape-courante__texte strong { display: block; font-size: 15px; }
+  .etape-courante__texte p { margin-top: 2px; font-size: 13px; color: var(--tr-texte-2); }
+  .etape-courante__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+  .etape-courante__actions form { margin: 0; }
+  .etape-courante__rappel { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin: 0; padding: 12px 24px; border-top: 1px solid var(--tr-bordure-legere); font-size: 13px; color: var(--tr-texte-2); }
+  .etape-courante__rappel > span { display: inline-flex; align-items: center; gap: 6px; }
+  .etape-courante__rappel svg { width: 16px; height: 16px; color: var(--tr-succes-500); }
+  .etape-courante__rappel .lien { padding: 0; border: 0; background: none; font: inherit; cursor: pointer; }
   .carte--choisie { border-color: var(--tr-bleu-200); box-shadow: 0 0 0 4px var(--tr-primaire-doux); margin-bottom: 20px; }
   .carte__entete-fin { margin-left: auto; display: flex; align-items: center; gap: 12px; }
   .carte__entete-fin .aide { margin-top: 0; }
@@ -151,6 +181,9 @@
   @media (max-width: 900px) {
     .frise-phases ol { flex-direction: column; gap: 14px; }
     .frise-phases__etape::after { display: none; }
+    .taches-phase__tache { grid-template-columns: 40px minmax(0, 1fr); padding: 14px 16px; }
+    .taches-phase__tache:not(:last-child)::after { left: 35px; }
+    .taches-phase__action { grid-column: 2; justify-content: flex-start; }
     .carte__entete { flex-wrap: wrap; }
   }
   /* page de formulaire (x-layouts.app centre) : colonne centrée, actions alignées à droite */
@@ -247,6 +280,7 @@
   .lien svg { width: 14px; height: 14px; }
 
   .grille-tuiles { display: grid; grid-template-columns: 1.25fr repeat(3, 1fr); gap: 16px; margin-bottom: 20px; }
+  .grille-tuiles--trois { grid-template-columns: repeat(3, 1fr); }
   .tuile { padding: 18px 20px; background: var(--tr-surface); border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon-carte); box-shadow: var(--tr-ombre-1); display: flex; flex-direction: column; gap: 8px; }
   .tuile__haut { display: flex; align-items: center; justify-content: space-between; }
   .tuile__icone { width: 32px; height: 32px; border-radius: var(--tr-rayon); display: grid; place-items: center; background: var(--tr-primaire-doux); color: var(--tr-primaire); }
@@ -283,6 +317,7 @@
   .barre-filtres .champ { height: 40px; }
   .barre-filtres > .champ-icone { flex: 1 1 260px; max-width: 340px; }
   .barre-filtres > select.champ { width: 190px; }
+  .tableau-defilant { overflow-x: auto; }
   .tableau { width: 100%; border-collapse: collapse; }
   .tableau th { height: 40px; padding: 0 16px; text-align: left; font-size: 11px; line-height: 16px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--tr-texte-3); background: var(--tr-surface-2); border-bottom: 1px solid var(--tr-bordure); }
   .tableau td { height: 52px; padding: 0 16px; border-bottom: 1px solid var(--tr-bordure-legere); vertical-align: middle; }
@@ -575,10 +610,15 @@
   .organisation-phases { display: grid; gap: 20px; }
   .organisation-phase { display: grid; gap: 12px; min-width: 0; margin: 0; padding: 16px; border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon-carte); }
   .organisation-phase .formulaire__groupe { max-width: 420px; }
-  .organisation-phase .tableau select.champ, .organisation-phase .tableau .champ { height: 40px; }
+  /* périmètre d'une phase dans le formulaire d'édition : son nom, puis ses trois réglages côte à côte */
+  .perimetre-phase { display: grid; gap: 12px; padding: 14px 16px; border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon); }
+  .perimetre-phase__titre { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+  .perimetre-phase__titre svg { width: 18px; height: 18px; color: var(--tr-primaire); }
+  .perimetre-phase__champs { display: grid; grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.5fr) minmax(130px, .5fr); align-items: end; gap: 12px; }
+  .organisation-phase .perimetre-phase .formulaire__groupe { max-width: none; }
+  @media (max-width: 720px) { .perimetre-phase__champs { grid-template-columns: 1fr; } }
   .organisation-phase__titre { display: flex; align-items: center; gap: 10px; padding: 0 4px; font-weight: 700; }
   .organisation-phase__numero { display: inline-grid; place-items: center; width: 26px; height: 26px; flex: none; border-radius: 50%; background: var(--tr-primaire); color: var(--tr-sur-primaire); font-size: 12px; font-weight: 700; }
-  .organisation-phase .tableau td { height: 60px; }
   .organisation-phase .select-recherche { min-width: 200px; }
   .organisation-phase__retirer { justify-self: start; }
 
@@ -586,6 +626,8 @@
   .titre-page--centre { justify-content: center; text-align: center; }
   .etapes-formulaire { margin: 0 0 24px; padding: 0; list-style: none; }
   .etapes-formulaire .etape { flex: none; }
+  /* frise d'un formulaire en étapes : sous 760 px, seule l'étape en cours garde son libellé */
+  @media (max-width: 760px) { .etapes-formulaire .etape__texte { display: none; } .etapes-formulaire .etape.est-en-cours .etape__texte { display: block; } }
   .etape__bouton { display: flex; align-items: center; gap: 10px; padding: 4px; border: 0; border-radius: var(--tr-rayon); background: none; color: var(--tr-texte); font: inherit; cursor: pointer; }
   .etape__bouton:disabled { cursor: default; }
   .etape__bouton:not(:disabled):hover .etape__texte { color: var(--tr-primaire-texte); }
@@ -755,7 +797,7 @@
     .portail__onglets a svg { width: 22px; height: 22px; }
     .portail__onglets a.est-actif { color: var(--tr-primaire); }
   }
-  @media (max-width: 600px) { .grille-tuiles { grid-template-columns: 1fr; } .barre { grid-template-columns: 100px 1fr 48px; } .tableau-defilant { overflow-x: auto; } }
+  @media (max-width: 600px) { .grille-tuiles { grid-template-columns: 1fr; } .barre { grid-template-columns: 100px 1fr 48px; } }
   /* barre du bulletin sur téléphone : le bouton principal passe sur sa propre ligne, pleine largeur. */
   @media (max-width: 600px) {
     .barre-vote { flex-wrap: wrap; gap: 10px 12px; }

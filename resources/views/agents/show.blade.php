@@ -30,7 +30,7 @@
         <div class="alerte alerte--attente espace-bloc"><i data-lucide="crown"></i><div>{{ ucfirst($ineligibilite) }}.</div></div>
     @endif
 
-    <section class="carte espace-bloc" x-data="{ mutation: @js($errors->hasAny(['structure_id', 'date_debut'])) }">
+    <section class="carte espace-bloc">
         <div class="carte__entete"><h2>Affectation actuelle</h2></div>
         <div class="carte__corps">
             @if ($affectation)
@@ -58,40 +58,13 @@
                 </div>
             @endif
 
-            @if ($peutModifier)
-                <form method="POST" action="{{ route('agents.affecter', $agent) }}" class="formulaire formulaire--deux-colonnes affectation-mutation" x-show="mutation" x-cloak>
-                    @csrf
-                    <div class="formulaire__groupe">
-                        <label class="libelle" for="structure_id">Nouvelle structure <span class="requis">*</span></label>
-                        <x-select-recherche>
-                            <select id="structure_id" name="structure_id" class="champ" required>
-                                <option value="">Choisir</option>
-                                @foreach ($structures as $structure)
-                                    <option value="{{ $structure->id }}" data-detail="{{ $structure->libelle }}" @selected((int) old('structure_id') === $structure->id)>{{ $structure->code }}</option>
-                                @endforeach
-                            </select>
-                        </x-select-recherche>
-                        @error('structure_id')<p class="erreur-champ">{{ $message }}</p>@enderror
-                    </div>
-                    <div class="formulaire__groupe">
-                        <label class="libelle" for="date_debut">À partir du <span class="requis">*</span></label>
-                        <input id="date_debut" name="date_debut" type="date" class="champ champ--moyen" value="{{ old('date_debut', now()->toDateString()) }}" required>
-                        @if ($affectation)<p class="aide">L’affectation à {{ $affectation->structure->code }} sera close la veille.</p>@endif
-                        @error('date_debut')<p class="erreur-champ">{{ $message }}</p>@enderror
-                    </div>
-                    <div class="formulaire__actions formulaire__groupe--pleine">
-                        <button type="button" class="btn btn-tertiaire" x-on:click="mutation = false">Annuler</button>
-                        <button type="submit" class="btn btn-primaire"><i data-lucide="arrow-right-left"></i>Enregistrer la mutation</button>
-                    </div>
-                </form>
-            @endif
         </div>
         @if ($peutModifier)
-            <div class="carte__pied" x-show="! mutation">
+            <div class="carte__pied">
                 @if ($affectation)
-                    <button type="button" class="btn btn-danger-contour" data-ouvrir="modale-terminer"><i data-lucide="log-out"></i>Mettre fin à l’affectation</button>
+                    <button type="button" class="btn btn-danger-contour" x-on:click="$dispatch('ouvrir-modale', 'terminer')"><i data-lucide="log-out"></i>Mettre fin à l’affectation</button>
                 @endif
-                <button type="button" class="btn btn-primaire" x-on:click="mutation = true"><i data-lucide="arrow-right-left"></i>{{ $affectation ? 'Muter l’agent' : 'Affecter l’agent' }}</button>
+                <button type="button" class="btn btn-primaire" x-on:click="$dispatch('ouvrir-modale', 'mutation')"><i data-lucide="arrow-right-left"></i>{{ $affectation ? 'Muter l’agent' : 'Affecter l’agent' }}</button>
             </div>
         @endif
     </section>
@@ -123,59 +96,77 @@
     </section>
 
     <section class="carte">
-        <div class="carte__entete"><h2>Historique des affectations</h2><span class="etiquette">{{ $affectations->total() }}</span></div>
-        @if ($avecFiltres)
-            <x-barre-filtres :total="$affectations->total()" libelle="affectation(s)">
-                <x-filtre libelle="Structure" pour="filtre-recherche" large>
-                    <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" name="recherche" class="champ" value="{{ $recherche }}" placeholder="Code ou libellé"></div>
-                </x-filtre>
-                <x-filtre libelle="Période" pour="filtre-periode">
-                    <x-select-recherche compact soumettre>
-                        <select id="filtre-periode" name="periode" class="champ">
-                            <option value="">Toutes</option>
-                            <option value="en-cours" @selected($periode === 'en-cours')>En cours</option>
-                            <option value="terminees" @selected($periode === 'terminees')>Terminées</option>
-                        </select>
-                    </x-select-recherche>
-                </x-filtre>
-            </x-barre-filtres>
-        @endif
-        <div class="tableau-defilant">
-            <table class="tableau tableau--fiches">
-                <thead><tr><th>Structure</th><th>Du</th><th>Au</th><th>Durée</th><th>Statut</th></tr></thead>
-                <tbody>
-                    @forelse ($affectations as $ligne)
-                        <tr>
-                            <td>{{ $ligne->structure->code }}<div class="aide">{{ $ligne->structure->libelle }}</div></td>
-                            <td>{{ $ligne->date_debut->format('d/m/Y') }}</td>
-                            <td>{{ $ligne->date_fin?->format('d/m/Y') ?? '-' }}</td>
-                            <td>{{ $ligne->duree }}</td>
-                            <td>
-                                @if ($ligne->date_fin === null)
-                                    <span class="badge badge--succes">En cours</span>
-                                @else
-                                    <span class="badge badge--info">Terminée</span>
-                                @endif
-                            </td>
-                        </tr>
-                    @empty
-                        <tr><td colspan="5"><div class="etat-vide"><p>{{ $recherche !== '' || $periode !== '' ? 'Aucune affectation ne correspond aux filtres.' : 'Aucune affectation enregistrée.' }}</p></div></td></tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-        {{ $affectations->onEachSide(1)->links('pagination.tresor', ['libelle' => 'affectations']) }}
+        <livewire:agents.historique-affectations :agent="$agent" />
     </section>
 
     <x-slot:modales>
+        @if ($peutModifier)
+            {{-- Mutation (ou première affectation) : rouverte d'elle-même si la saisie est refusée. --}}
+            <div class="voile" x-data="{ ouvert: @js($errors->hasAny(['structure_id', 'date_debut'])) }" x-show="ouvert" x-cloak
+                 x-on:ouvrir-modale.window="ouvert = $event.detail === 'mutation'" x-on:keydown.escape.window="ouvert = false" x-on:click.self="ouvert = false">
+                <form method="POST" action="{{ route('agents.affecter', $agent) }}" class="modale" role="dialog" aria-modal="true" aria-labelledby="titre-mutation">
+                    @csrf
+                    <div class="modale__entete">
+                        <span class="pastille-icone"><i data-lucide="arrow-right-left"></i></span>
+                        <div>
+                            <h2 id="titre-mutation">{{ $affectation ? 'Muter' : 'Affecter' }} {{ $agent->nomComplet() }}</h2>
+                            @if ($affectation)<p>L’affectation à {{ $affectation->structure->code }} sera close la veille de la nouvelle affectation.</p>@endif
+                        </div>
+                        <button type="button" class="icone-bouton modale__fermer" aria-label="Fermer" x-on:click="ouvert = false"><i data-lucide="x"></i></button>
+                    </div>
+                    <div class="modale__corps formulaire">
+                        <div class="formulaire__groupe">
+                            <label class="libelle" for="structure_id">Nouvelle structure <span class="requis">*</span></label>
+                            <x-select-recherche>
+                                <select id="structure_id" name="structure_id" class="champ" required>
+                                    <option value="">Choisir</option>
+                                    @foreach ($structures as $structure)
+                                        <option value="{{ $structure->id }}" data-detail="{{ $structure->libelle }}" @selected((int) old('structure_id') === $structure->id)>{{ $structure->code }}</option>
+                                    @endforeach
+                                </select>
+                            </x-select-recherche>
+                            @error('structure_id')<p class="erreur-champ">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="formulaire__groupe">
+                            <label class="libelle" for="date_debut">À partir du <span class="requis">*</span></label>
+                            <input id="date_debut" name="date_debut" type="date" class="champ" value="{{ old('date_debut', now()->toDateString()) }}" required>
+                            @error('date_debut')<p class="erreur-champ">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                    <div class="modale__pied">
+                        <button type="button" class="btn btn-secondaire" x-on:click="ouvert = false">Annuler</button>
+                        <button type="submit" class="btn btn-primaire"><i data-lucide="arrow-right-left"></i>{{ $affectation ? 'Enregistrer la mutation' : 'Enregistrer l’affectation' }}</button>
+                    </div>
+                </form>
+            </div>
+        @endif
+
         @if ($peutModifier && $affectation)
-            <x-modale-confirmation id="modale-terminer" :titre="'Mettre fin à l’affectation de '.$agent->nomComplet().' ?'" :action="route('agents.terminer', $agent)" bouton="Mettre fin à l’affectation" icone="log-out" :danger="true">
-                En cas de départ (retraite, fin de détachement), l’affectation à {{ $affectation->structure->code }} est close : l’agent ne sera plus en service après cette date.
-                <x-slot:champs>
-                    <label class="libelle" for="date_fin">Dernier jour de service</label>
-                    <input id="date_fin" name="date_fin" type="date" class="champ" value="{{ now()->toDateString() }}" required>
-                </x-slot:champs>
-            </x-modale-confirmation>
+            <div class="voile" x-data="{ ouvert: @js($errors->has('date_fin')) }" x-show="ouvert" x-cloak
+                 x-on:ouvrir-modale.window="ouvert = $event.detail === 'terminer'" x-on:keydown.escape.window="ouvert = false" x-on:click.self="ouvert = false">
+                <form method="POST" action="{{ route('agents.terminer', $agent) }}" class="modale" role="dialog" aria-modal="true" aria-labelledby="titre-terminer">
+                    @csrf
+                    <div class="modale__entete">
+                        <span class="pastille-icone pastille-icone--danger"><i data-lucide="log-out"></i></span>
+                        <div>
+                            <h2 id="titre-terminer">Mettre fin à l’affectation de {{ $agent->nomComplet() }}</h2>
+                            <p>En cas de départ (retraite, fin de détachement), l’affectation à {{ $affectation->structure->code }} est close : l’agent ne sera plus en service après cette date.</p>
+                        </div>
+                        <button type="button" class="icone-bouton modale__fermer" aria-label="Fermer" x-on:click="ouvert = false"><i data-lucide="x"></i></button>
+                    </div>
+                    <div class="modale__corps formulaire">
+                        <div class="formulaire__groupe">
+                            <label class="libelle" for="date_fin">Dernier jour de service <span class="requis">*</span></label>
+                            <input id="date_fin" name="date_fin" type="date" class="champ" value="{{ old('date_fin', now()->toDateString()) }}" required>
+                            @error('date_fin')<p class="erreur-champ">{{ $message }}</p>@enderror
+                        </div>
+                    </div>
+                    <div class="modale__pied">
+                        <button type="button" class="btn btn-secondaire" x-on:click="ouvert = false">Annuler</button>
+                        <button type="submit" class="btn btn-danger"><i data-lucide="log-out"></i>Mettre fin à l’affectation</button>
+                    </div>
+                </form>
+            </div>
         @endif
     </x-slot:modales>
 </x-layouts.app>

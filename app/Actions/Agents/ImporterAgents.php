@@ -20,11 +20,11 @@ use Throwable;
  * (export du SI RH).
  *
  * Colonnes attendues (en-tête en première ligne, dans n'importe quel ordre ; en CSV, séparateur « ; » ou « , ») :
- * matricule, npi, nom, prenoms, sexe, date_naissance, structure (code), date_debut (de l'affectation),
- * et, à titre informatif, date_prise_service, telephone, email, fonction, statut.
+ * matricule, npi, nom, prenoms, sexe, date_naissance, structure (code), date_debut (de l'affectation), email
+ * (obligatoire : il reçoit les codes de connexion), et, à titre informatif, date_prise_service, telephone, fonction, statut.
  *
- * Un agent est repéré par son matricule : il est créé ou mis à jour. Une ligne incomplète (sexe ou
- * structure absents), en doublon dans le fichier ou en conflit de NPI est rejetée sans bloquer les autres
+ * Un agent est repéré par son matricule : il est créé ou mis à jour. Une ligne incomplète (sexe, structure ou
+ * adresse e-mail absents), en doublon dans le fichier ou en conflit de NPI est rejetée sans bloquer les autres
  * (R11 à R13). Les agents absents du fichier ne sont pas modifiés.
  */
 class ImporterAgents
@@ -32,7 +32,7 @@ class ImporterAgents
     /**
      * @var list<string>
      */
-    public const COLONNES_OBLIGATOIRES = ['matricule', 'nom', 'prenoms', 'sexe', 'structure'];
+    public const COLONNES_OBLIGATOIRES = ['matricule', 'nom', 'prenoms', 'sexe', 'structure', 'email'];
 
     public function __construct(
         private LireTableau $lecteur,
@@ -74,6 +74,10 @@ class ImporterAgents
                 $motifs[] = 'Structure d’affectation absente.';
             } elseif ($structureId === null) {
                 $motifs[] = "Structure « {$ligne['structure']} » inconnue du référentiel.";
+            }
+
+            if ($ligne['email'] === '') {
+                $motifs[] = 'Adresse e-mail absente.';
             }
 
             $dateDebut = $this->date($ligne['date_debut'] ?? '', $motifs, 'date de début d’affectation') ?? $dateEffet;

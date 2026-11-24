@@ -77,19 +77,19 @@
                 </div>
             </section>
             <section class="carte">
-                <div class="carte__entete"><h2>Édition · paramétrage d’une phase et de ses collèges</h2></div>
+                <div class="carte__entete"><h2>Édition · paramétrage d’une phase et de ses périmètres</h2></div>
                 <div class="carte__corps">
                     <fieldset class="organisation-phase">
                         <legend class="libelle">Phase 2</legend>
                         <label class="case case--interrupteur"><input type="checkbox" role="switch" checked> Comité d’organisation</label>
                         <div class="formulaire__groupe"><label class="libelle" for="exemple-phase">Libellé</label><input id="exemple-phase" class="champ" value="Phase 2 · demi-finales"></div>
-                        <div class="tableau-defilant">
-                            <table class="tableau">
-                                <thead><tr><th>Collège</th><th>Scrutins</th><th>Candidates</th><th class="nombre">Élues par scrutin</th></tr></thead>
-                                <tbody>
-                                    <tr><td>Pôle structures</td><td><select class="champ"><option>Un seul scrutin</option></select></td><td><select class="champ"><option>Nomination par le comité</option></select></td><td class="nombre"><input type="number" class="champ champ--court" value="3"></td></tr>
-                                </tbody>
-                            </table>
+                        <div class="perimetre-phase">
+                            <div class="perimetre-phase__titre"><i data-lucide="building-2"></i>Pôle structures</div>
+                            <div class="perimetre-phase__champs">
+                                <div class="formulaire__groupe"><label class="libelle">Scrutins</label><select class="champ"><option>Un seul scrutin pour tout le périmètre</option></select></div>
+                                <div class="formulaire__groupe"><label class="libelle">Candidates</label><select class="champ"><option>Nomination par le comité</option></select></div>
+                                <div class="formulaire__groupe"><label class="libelle">Élues par scrutin</label><input type="number" class="champ" value="3"></div>
+                            </div>
                         </div>
                     </fieldset>
                     <ul class="colleges-phase" style="margin-top:16px"><li><i data-lucide="users-round"></i>Pôle structures · Un seul scrutin · Nomination par le comité · 3 élue(s) par scrutin</li></ul>
@@ -158,6 +158,33 @@
                     <x-donut :segments="[['libelle' => 'Actives', 'valeur' => 312, 'couleur' => 2], ['libelle' => 'Désistements', 'valeur' => 4, 'couleur' => 6]]" valeur="312" petit />
                 </div>
             </div>
+        </section>
+
+        <section class="carte">
+            <div class="carte__entete"><h2>Parcours des phases (.frise-phases) et tâches d’une phase (.taches-phase)</h2></div>
+            <nav class="frise-phases" aria-label="Phases de l’édition">
+                <ol>
+                    <li class="frise-phases__etape est-faite"><a href="#"><span class="frise-phases__puce"><i data-lucide="check"></i></span><span class="frise-phases__texte"><span class="frise-phases__numero">Étape 1 sur 3</span><strong>Phase 1 · primaires</strong><small>Du 29/11/2026 au 04/12/2026</small><span class="badge badge--accent">Clôturée</span></span></a></li>
+                    <li class="frise-phases__etape est-choisie"><a href="#" aria-current="step"><span class="frise-phases__puce">2</span><span class="frise-phases__texte"><span class="frise-phases__numero">Étape 2 sur 3</span><strong>Phase 2 · demi-finales</strong><small>Du 05/12/2026 au 14/12/2026</small><span class="badge badge--info">Scrutins générés</span></span></a></li>
+                    <li class="frise-phases__etape"><a href="#"><span class="frise-phases__puce">3</span><span class="frise-phases__texte"><span class="frise-phases__numero">Étape 3 sur 3</span><strong>Phase 3 · finale</strong><small>Dates à planifier</small><span class="badge">À planifier</span></span></a></li>
+                </ol>
+            </nav>
+            <ol class="taches-phase">
+                <li class="taches-phase__tache est-faite"><span class="taches-phase__puce"><i data-lucide="calendar-check"></i></span><div><div class="taches-phase__titre">Planifier la phase</div><div class="taches-phase__detail">Du samedi 05/12/2026 au lundi 14/12/2026 (10 jours).</div></div><div class="taches-phase__action"><button class="btn btn-tertiaire btn--sm"><i data-lucide="pencil"></i>Modifier les dates</button></div></li>
+                <li class="taches-phase__tache est-faite"><span class="taches-phase__puce"><i data-lucide="wand-sparkles"></i></span><div><div class="taches-phase__titre">Générer les scrutins</div><div class="taches-phase__detail">2 scrutin(s) générés, un par zone de vote.</div></div><div class="taches-phase__action"><span class="badge badge--succes">Fait</span></div></li>
+                <li class="taches-phase__tache est-courante"><span class="taches-phase__puce"><i data-lucide="lock"></i></span><div><div class="taches-phase__titre">Arrêter les listes électorales</div><div class="taches-phase__detail">2 scrutin(s) aux listes encore modifiables.</div></div><div class="taches-phase__action"><button class="btn btn-primaire"><i data-lucide="lock"></i>Arrêter les listes</button></div></li>
+                <li class="taches-phase__tache est-a-venir"><span class="taches-phase__puce"><i data-lucide="play"></i></span><div><div class="taches-phase__titre">Ouvrir la phase</div><div class="taches-phase__detail">Chaque scrutin s’ouvrira ensuite automatiquement à sa date-heure d’ouverture.</div></div><div class="taches-phase__action"><button class="btn btn-secondaire"><i data-lucide="play"></i>Ouvrir la phase</button></div></li>
+            </ol>
+        </section>
+
+        <section class="carte etape-courante">
+            <div class="carte__entete"><span class="frise-phases__numero">Étape 2 sur 5</span><h2>Planifier le scrutin (.etape-courante)</h2></div>
+            <div class="etape-courante__corps">
+                <span class="pastille-icone"><i data-lucide="calendar-clock"></i></span>
+                <div class="etape-courante__texte"><strong>Quand le vote s’ouvre-t-il et se ferme-t-il ?</strong><p>Le scrutin s’ouvrira et se fermera seul à ces heures, une fois la phase ouverte.</p></div>
+                <div class="etape-courante__actions"><button class="btn btn-primaire"><i data-lucide="calendar-clock"></i>Planifier le scrutin</button></div>
+            </div>
+            <div class="etape-courante__rappel"><span><i data-lucide="circle-check"></i>Listes arrêtées : 412 inscrit(s), 38 candidate(s) active(s)</span><button type="button" class="lien">Rouvrir les listes</button></div>
         </section>
     </div>
 </x-layouts.maquette>

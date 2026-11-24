@@ -5,7 +5,7 @@
         </div>
 
         <ol class="etapes etapes-formulaire" aria-label="Étapes du formulaire">
-            @foreach (['Édition', 'Paramètres du vote', 'Phases et collèges', 'Récapitulatif'] as $nomEtape)
+            @foreach (['Édition', 'Paramètres du vote', 'Phases et périmètres', 'Récapitulatif'] as $nomEtape)
                 <li class="etape" x-bind:class="etat({{ $loop->iteration }})" x-bind:aria-current="etape === {{ $loop->iteration }} ? 'step' : null">
                     <button type="button" class="etape__bouton" x-on:click="allerA({{ $loop->iteration }})" x-bind:disabled="{{ $loop->iteration }} > etape">
                         <span class="etape__puce">
@@ -29,13 +29,10 @@
             <section class="carte etape-panneau" data-etape="1" x-show="estAffichee(1)">
                 <div class="carte__entete"><h2>Étape 1 sur 4 · Édition</h2></div>
                 <div class="carte__corps formulaire formulaire--deux-colonnes">
-                    @foreach ([['annee', 'Année', 'number'], ['libelle', 'Libellé', 'text'], ['date_debut', 'Début de l’édition', 'date'], ['date_fin', 'Fin de l’édition', 'date'], ['date_gel', 'Gel des listes électorales', 'date']] as [$champ, $libelle, $type])
+                    @foreach ([['annee', 'Année', 'number'], ['libelle', 'Libellé', 'text'], ['date_debut', 'Début de l’édition', 'date'], ['date_fin', 'Fin de l’édition', 'date']] as [$champ, $libelle, $type])
                         <div class="formulaire__groupe">
                             <label class="libelle" for="{{ $champ }}">{{ $libelle }} <span class="requis">*</span></label>
                             <input id="{{ $champ }}" name="{{ $champ }}" type="{{ $type }}" class="champ" value="{{ old($champ, $type === 'date' ? $edition->{$champ}?->format('Y-m-d') : $edition->{$champ}) }}" required>
-                            @if ($champ === 'date_gel')
-                                <p class="aide">Les agents en service à cette date forment les listes électorales et les candidates d’office. Une mutation après cette date n’y change rien.</p>
-                            @endif
                             @error($champ)<p class="erreur-champ">{{ $message }}</p>@enderror
                         </div>
                     @endforeach
@@ -69,10 +66,10 @@
             </section>
 
             <section class="carte etape-panneau" data-etape="3" x-show="estAffichee(3)">
-                <div class="carte__entete"><h2>Étape 3 sur 4 · Phases et collèges</h2></div>
+                <div class="carte__entete"><h2>Étape 3 sur 4 · Phases et périmètres</h2></div>
                 <div class="carte__corps">
                     @if (! $organisationModifiable)
-                        <div class="alerte alerte--info"><i data-lucide="lock"></i><div>Les scrutins sont générés : les phases et leurs collèges ne se modifient plus.</div></div>
+                        <div class="alerte alerte--info"><i data-lucide="lock"></i><div>Les scrutins sont générés : les phases et leurs périmètres ne se modifient plus.</div></div>
                     @else
                         @error('phases')<div class="alerte alerte--erreur espace-bloc" role="alert"><i data-lucide="circle-alert"></i><div>{{ $message }}</div></div>@enderror
                         @if ($errors->has('phases.*'))
@@ -90,42 +87,40 @@
                                         <label class="libelle" for="phase-{{ $numero }}-libelle">Libellé</label>
                                         <input id="phase-{{ $numero }}-libelle" name="phases[{{ $numero }}][libelle]" class="champ" maxlength="80" value="{{ old("phases.$numero.libelle", $phase['libelle']) }}">
                                     </div>
-                                    <div class="tableau-defilant">
-                                        <table class="tableau">
-                                            <thead><tr><th>Collège</th><th>Scrutins</th><th>Candidates</th><th class="nombre">Élues par scrutin</th></tr></thead>
-                                            <tbody>
-                                                @foreach ($colleges as $cle => $libelleCollege)
-                                                    <tr>
-                                                        <td>{{ $libelleCollege }}</td>
-                                                        <td>
-                                                            <x-select-recherche compact>
-                                                                <select name="phases[{{ $numero }}][colleges][{{ $cle }}][decoupage]" class="champ" data-college="{{ $cle }}" x-on:change="choisirDecoupage($el)" aria-label="Scrutins du collège {{ $libelleCollege }}, phase {{ $numero }}">
-                                                                    <option value="AUCUN">Aucun scrutin</option>
-                                                                    @foreach ($decoupages as $valeur => $libelle)
-                                                                        @if ($cle !== 'DGTCP' || $valeur === 'ENSEMBLE')
-                                                                            <option value="{{ $valeur }}" @selected(old("phases.$numero.colleges.$cle.decoupage", $phase['colleges'][$cle]['decoupage']) === $valeur)>{{ $libelle }}</option>
-                                                                        @endif
-                                                                    @endforeach
-                                                                </select>
-                                                            </x-select-recherche>
-                                                        </td>
-                                                        <td>
-                                                            <x-select-recherche compact>
-                                                                <select name="phases[{{ $numero }}][colleges][{{ $cle }}][origine]" class="champ" data-parametre-college aria-label="Candidates du collège {{ $libelleCollege }}, phase {{ $numero }}">
-                                                                    @foreach ($origines as $valeur => $libelle)
-                                                                        <option value="{{ $valeur }}" @selected(old("phases.$numero.colleges.$cle.origine", $phase['colleges'][$cle]['origine']) === $valeur)>{{ $libelle }}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </x-select-recherche>
-                                                        </td>
-                                                        <td class="nombre">
-                                                            <input type="number" min="1" max="20" name="phases[{{ $numero }}][colleges][{{ $cle }}][nb_elues]" class="champ champ--court" data-parametre-college value="{{ old("phases.$numero.colleges.$cle.nb_elues", $phase['colleges'][$cle]['nb_elues']) }}" aria-label="Élues par scrutin, collège {{ $libelleCollege }}, phase {{ $numero }}">
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
+                                    @foreach ($colleges as $cle => $libelleCollege)
+                                        <div class="perimetre-phase" data-perimetre>
+                                            <div class="perimetre-phase__titre"><i data-lucide="{{ $iconesColleges[$cle] }}"></i>{{ $libelleCollege }}</div>
+                                            <div class="perimetre-phase__champs">
+                                                <div class="formulaire__groupe">
+                                                    <label class="libelle" for="phase-{{ $numero }}-{{ $cle }}-decoupage">Scrutins</label>
+                                                    <x-select-recherche>
+                                                        <select id="phase-{{ $numero }}-{{ $cle }}-decoupage" name="phases[{{ $numero }}][colleges][{{ $cle }}][decoupage]" class="champ" data-college="{{ $cle }}" x-on:change="choisirDecoupage($el)">
+                                                            <option value="AUCUN">Aucun scrutin</option>
+                                                            @foreach ($decoupages as $valeur => $libelle)
+                                                                @if ($cle !== 'DGTCP' || $valeur === 'ENSEMBLE')
+                                                                    <option value="{{ $valeur }}" @selected(old("phases.$numero.colleges.$cle.decoupage", $phase['colleges'][$cle]['decoupage']) === $valeur)>{{ $libelle }}</option>
+                                                                @endif
+                                                            @endforeach
+                                                        </select>
+                                                    </x-select-recherche>
+                                                </div>
+                                                <div class="formulaire__groupe">
+                                                    <label class="libelle" for="phase-{{ $numero }}-{{ $cle }}-origine">Candidates</label>
+                                                    <x-select-recherche>
+                                                        <select id="phase-{{ $numero }}-{{ $cle }}-origine" name="phases[{{ $numero }}][colleges][{{ $cle }}][origine]" class="champ" data-parametre-college>
+                                                            @foreach ($origines as $valeur => $libelle)
+                                                                <option value="{{ $valeur }}" @selected(old("phases.$numero.colleges.$cle.origine", $phase['colleges'][$cle]['origine']) === $valeur)>{{ $libelle }}</option>
+                                                            @endforeach
+                                                        </select>
+                                                    </x-select-recherche>
+                                                </div>
+                                                <div class="formulaire__groupe">
+                                                    <label class="libelle" for="phase-{{ $numero }}-{{ $cle }}-elues">Élues par scrutin</label>
+                                                    <input id="phase-{{ $numero }}-{{ $cle }}-elues" type="number" min="1" max="20" name="phases[{{ $numero }}][colleges][{{ $cle }}][nb_elues]" class="champ" data-parametre-college value="{{ old("phases.$numero.colleges.$cle.nb_elues", $phase['colleges'][$cle]['nb_elues']) }}">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    @endforeach
                                     @if ($numero > 1)
                                         <button type="button" class="btn btn-tertiaire organisation-phase__retirer" x-show="phases === {{ $numero }}" x-on:click="phases--"><i data-lucide="x"></i>Retirer la phase {{ $numero }}</button>
                                     @endif
@@ -146,7 +141,6 @@
                         <div><dt>Année</dt><dd x-text="valeur('annee')"></dd></div>
                         <div><dt>Libellé</dt><dd x-text="valeur('libelle')"></dd></div>
                         <div><dt>Calendrier</dt><dd>du <span x-text="valeur('date_debut')"></span> au <span x-text="valeur('date_fin')"></span></dd></div>
-                        <div><dt>Gel des listes électorales</dt><dd x-text="valeur('date_gel')"></dd></div>
                         <div><dt>Vote blanc autorisé</dt><dd x-text="valeur('vote_blanc_autorise')"></dd></div>
                         <div><dt>Vote pour soi-même autorisé</dt><dd x-text="valeur('vote_pour_soi_autorise')"></dd></div>
                         <div><dt>Délai de rééligibilité</dt><dd><span x-text="valeur('delai_reeligibilite')"></span> an(s)</dd></div>
@@ -154,7 +148,7 @@
                     </dl>
 
                     @if ($organisationModifiable)
-                        <h3 class="recapitulatif__titre">Phases et collèges</h3>
+                        <h3 class="recapitulatif__titre">Phases et périmètres</h3>
                         <div class="recapitulatif__phases">
                             @foreach ($organisation as $numero => $phase)
                                 <div class="recapitulatif__phase" @if ($numero > 1) x-show="brut('phases[{{ $numero }}][active]') === '1'" @endif>

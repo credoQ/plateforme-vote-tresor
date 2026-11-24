@@ -8,7 +8,7 @@ Ce module permet au comité d’organisation de paramétrer et piloter chaque é
 
 ## Fonctionnalités
 
-- [x] La création d’une édition (année, libellé, calendrier, date de gel des listes électorales).
+- [x] La création d’une édition (année, libellé, calendrier) ; la date de gel des listes électorales est fixée au premier arrêt des listes.
 - [x] Le paramétrage des règles de l’édition (vote blanc autorisé, quorum).
 - [x] Le paramétrage des phases à la création de l’édition (une à trois, avec leurs collèges : découpage, origine des candidates, nombre d’élues) et la planification de leurs dates.
 - [x] L’ouverture et la clôture des phases, dans l’ordre, après validation des résultats de la phase précédente.
@@ -19,7 +19,7 @@ Ce module permet au comité d’organisation de paramétrer et piloter chaque é
 - [x] Enums `StatutEdition`, `StatutPhase` et `StatutScrutin`
 - [x] Modèles `Edition`, `Phase` et `Scrutin`
 - [x] Action `EnregistrerEdition` : création avec ses phases (R16, R17), vote blanc et quorum en paramètres de l'édition
-- [x] Action `ParametrerPhase` : calendrier ordonné, après le gel et dans l'édition
+- [x] Action `ParametrerPhase` : calendrier ordonné et dans l'édition
 - [x] Actions `LancerEdition`, `OuvrirPhase` et `CloturerPhase` : enchaînement des phases selon R16 et R18 ; la clôture de la dernière phase clôture l'édition
 - [x] Migration `colleges` et action `OrganiserPhases` : une à trois phases, collèges par pôle ou pour l'ensemble de la DGTCP, découpage, origine des candidates (d'office, nomination, qualification) et nombre d'élues par scrutin (R17, R20 à R23, R28, R52) ; paramétrage figé dès que des scrutins sont générés ; éditions existantes reprises avec l'organisation par défaut
 - [x] Tests des règles R16 à R23, R52
@@ -48,7 +48,7 @@ Règles R16 à R23, extraites de [regles-de-gestion.md](../regles-de-gestion.md)
 
 ### Gestion des éditions, des phases et des scrutins
 
-- **R16** · Une édition est identifiée par un id et possède une année, un libellé, des dates de début et de fin, une date de gel des listes et un statut ; une seule édition peut être en cours.
+- **R16** · Une édition est identifiée par un id et possède une année, un libellé, des dates de début et de fin, une date de gel des listes (fixée au premier arrêt des listes, R14) et un statut ; une seule édition peut être en cours.
 - **R17** · Une édition comporte une à trois phases ordonnées, paramétrées par le comité à la création de l’édition : le libellé de chaque phase et ses collèges (R20). Ce paramétrage se modifie tant que l’édition est en préparation et qu’aucun scrutin n’est généré ; il est ensuite figé. L’organisation proposée par défaut est décrite en R23.
 - **R18** · Une phase ne peut être ouverte que si les résultats de tous les scrutins de la phase précédente ont été validés et publiés.
 - **R19** · Une phase comporte un ou plusieurs scrutins ; un scrutin appartient à une seule phase et possède une date-heure d’ouverture et de fermeture.

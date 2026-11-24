@@ -1,19 +1,6 @@
 @use('App\Enums\Scrutins\StatutScrutin')
-@if ($pilote && ($scrutin->fermetureDepassee() || ($nonValide && $pv === null)))
-    <section class="carte espace-bloc" id="resultats">
-        <div class="carte__entete"><h2>Dépouillement</h2></div>
-        <div class="carte__corps">
-            @if ($scrutin->fermetureDepassee())
-                <form method="POST" action="{{ route('scrutins.fermer', $scrutin) }}">@csrf<button type="submit" class="btn btn-secondaire"><i data-lucide="lock"></i>Fermer le scrutin maintenant</button></form>
-            @else
-                <form method="POST" action="{{ route('resultats.depouiller', $scrutin) }}">@csrf<button type="submit" class="btn btn-primaire"><i data-lucide="calculator"></i>Dépouiller le scrutin</button></form>
-            @endif
-        </div>
-    </section>
-@endif
-
 @if ($voitResultats)
-    <section class="carte espace-bloc" id="resultats">
+    <div id="resultats">
         <div class="carte__entete">
             <h2>Résultats {{ $scrutin->statut === StatutScrutin::ResultatsPublies ? 'publiés' : ($pv->numero ? 'validés' : 'provisoires') }}</h2>
             @if ($pv->numero)<span class="badge badge--primaire">PV n° {{ $pv->numero }}</span>@endif
@@ -106,7 +93,9 @@
                 @endif
             </div>
         @endif
-    </section>
+    </div>
+@else
+    <div class="etat-vide" id="resultats"><i data-lucide="trophy"></i><p>Les résultats seront disponibles après le dépouillement.</p></div>
 @endif
 
 @if ($pilote && $pv !== null)

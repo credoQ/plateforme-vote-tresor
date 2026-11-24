@@ -16,6 +16,7 @@
 
 - L'interface, les messages, les libellés de validation et les e-mails sont en français (`APP_LOCALE=fr`).
 - Le vocabulaire métier reste en français dans le code (classes, tables, colonnes, routes) pour coller au MCD : `Edition`, `Phase`, `Scrutin`, `Candidate`, `Bulletin`, `ProcesVerbal`, `Structure`, `TypeStructure`, `PoleElectoral`, `Departement`, `Agent`. Les mots techniques Laravel (controller, request, policy, job) restent en anglais.
+- À l'écran (libellés, messages, e-mails, documents), le collège se dit « périmètre » et la circonscription « zone de vote » ; le code, les tables et les valeurs enregistrées gardent `college` et `circonscription`. Le découpage s'affiche « Un scrutin par département ou par structure » ou « Un seul scrutin pour tout le périmètre », et un électeur « vote avec les agents de sa structure (ou de son département) », sans jargon.
 
 ## Déroulement électoral
 
@@ -29,7 +30,7 @@
 - Il n'y a pas de dépôt de candidature : selon le collège, les candidates sont d'office (toutes les agents de sexe féminin en service dans la circonscription à la date de gel), nominées par le comité, ou les lauréates qualifiées de la phase précédente. Les femmes modèles sont les lauréates de la dernière phase.
 - Pour un collège aux candidates d'office, aucun scrutin n'est créé pour une circonscription sans agent femme en service : ses agents ne votent pas dans cette phase.
 - Une candidate peut être désactivée (désistement par elle-même, ou par le point focal, le comité ou l'administrateur à sa demande) jusqu'à l'ouverture du scrutin. Chaque désactivation et chaque réactivation sont tracées.
-- « En service » signifie : figurer dans la liste des agents avec une affectation en cours. Les champs `date_prise_service`, `telephone`, `email`, `fonction` et `statut` de l'agent sont informatifs : aucune règle ne doit s'appuyer dessus.
+- « En service » signifie : figurer dans la liste des agents avec une affectation en cours. L'`email` de l'agent est obligatoire (il reçoit les codes de connexion) ; les champs `date_prise_service`, `telephone`, `fonction` et `statut` sont informatifs : aucune règle ne doit s'appuyer dessus.
 - Hors périmètre : le dépôt et la validation de dossiers de candidature, l'évaluation des candidates (grille de notation), les réclamations et le calendrier opérationnel du métier. Ne pas les implémenter. La nomination se limite à la saisie, par le comité, d'une décision déjà prise.
 
 ## Notifications

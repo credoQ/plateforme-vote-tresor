@@ -73,7 +73,7 @@ class ScrutinsTest extends TestCase
     }
 
     /**
-     * R19, R27 : planification, actualisation puis arrêt des listes ; les listes arrêtées ne s'actualisent plus.
+     * R19, R27 : planification, actualisation puis arrêt des listes de la phase ; les listes arrêtées ne s'actualisent plus.
      */
     public function test_r27_planifie_et_arrete_les_listes_d_un_scrutin(): void
     {
@@ -85,11 +85,49 @@ class ScrutinsTest extends TestCase
         $this->assertSame('2026-11-20 07:00:00', $scrutin->fresh()->date_heure_ouverture->utc()->format('Y-m-d H:i:s'), 'Heure du Bénin convertie en UTC.');
 
         $this->post(route('scrutins.actualiser', $scrutin))->assertSessionHas('succes');
-        $this->post(route('scrutins.arreter', $scrutin))->assertSessionHasNoErrors();
+        $this->post(route('phases.arreter-listes', $scrutin->phase))->assertSessionHasNoErrors();
         $this->assertSame(StatutScrutin::ListesArretees, $scrutin->fresh()->statut);
 
         $this->post(route('scrutins.actualiser', $scrutin))->assertSessionHasErrors('scrutin');
         $this->get(route('scrutins.show', $scrutin))->assertDontSee('Actualiser les listes');
+    }
+
+    /**
+     * R19, R27 : la fiche suit le déroulement du scrutin (étape courante, rappel des étapes faites) et répartit
+     * son contenu en onglets.
+     */
+    public function test_r27_la_fiche_presente_l_etape_courante_et_ses_onglets(): void
+    {
+        $scrutin = $this->scrutinDia();
+
+        $this->actingAs($this->comite)->get(route('scrutins.show', $scrutin))->assertOk()
+            ->assertSee('Arrêter les listes électorales')->assertSee('Arrêter les listes de la phase')->assertSee('AHOUANSOU');
+
+        $this->post(route('phases.arreter-listes', $scrutin->phase))->assertSessionHasNoErrors();
+        $this->get(route('scrutins.show', $scrutin))
+            ->assertSee('Quand le vote s’ouvre-t-il et se ferme-t-il ?', false)->assertSee('Enregistrer les horaires')->assertSee('Rouvrir les listes');
+
+        $this->post(route('scrutins.planifier', $scrutin), ['ouverture' => '2026-11-20T08:00', 'fermeture' => '2026-11-20T18:00'])->assertSessionHasNoErrors();
+        $this->get(route('scrutins.show', $scrutin))->assertSee('Le scrutin s’ouvrira seul le 20/11/2026 à 08:00.', false);
+
+        $this->get(route('scrutins.show', [$scrutin, 'onglet' => 'liste']))->assertSee($this->femmeDia->matricule);
+        $this->get(route('scrutins.show', [$scrutin, 'onglet' => 'resultats']))->assertSee('Les résultats seront disponibles après le dépouillement.');
+    }
+
+    /**
+     * R27 : un arrêt refusé pour toute la phase s'affiche sur la phase (détail des scrutins) et en fenêtre d'erreur.
+     */
+    public function test_r27_un_arret_refuse_s_affiche_sur_la_phase_et_en_fenetre_d_erreur(): void
+    {
+        $scrutin = $this->scrutinDia();
+        $this->femmeDia->affectations()->update(['date_fin' => '2026-11-17']);
+        $this->edition->update(['date_gel' => null]);
+
+        $this->actingAs($this->comite)->followingRedirects()->post(route('phases.arreter-listes', $scrutin->phase))
+            ->assertSee('Aucune liste n’est arrêtée : 1 scrutin(s) à compléter.', false)
+            ->assertSee('liste électorale vide', false)
+            ->assertSee('signalerErreur', false);
+        $this->assertSame(StatutScrutin::EnPreparation, $scrutin->fresh()->statut);
     }
 
     /**
@@ -99,7 +137,7 @@ class ScrutinsTest extends TestCase
     {
         $scrutin = $this->scrutinDia();
         $pointFocal = User::factory()->pointFocalDe(Structure::where('code', 'DIA')->firstOrFail())->create();
-        $this->actingAs($this->comite)->post(route('scrutins.arreter', $scrutin))->assertSessionHasNoErrors();
+        $this->actingAs($this->comite)->post(route('phases.arreter-listes', $scrutin->phase))->assertSessionHasNoErrors();
 
         $this->get(route('scrutins.show', $scrutin))->assertSee('Rouvrir les listes');
         $this->post(route('scrutins.rouvrir', $scrutin), ['motif' => ''])->assertSessionHasErrors('motif');
@@ -126,7 +164,7 @@ class ScrutinsTest extends TestCase
 
         $scrutinDr = Scrutin::where('code', 'STR-DR')->firstOrFail();
         $this->get(route('scrutins.show', $scrutinDr))->assertOk()->assertDontSee('KPADE');
-        $this->post(route('scrutins.arreter', $scrutin))->assertForbidden();
+        $this->post(route('phases.arreter-listes', $scrutin->phase))->assertForbidden();
     }
 
     public function test_un_electeur_n_accede_pas_aux_scrutins(): void
@@ -168,8 +206,7 @@ class ScrutinsTest extends TestCase
         $this->actingAs($this->comite)->get(route('scrutins.show', [$scrutin, 'candidate' => 'ahouansou']))
             ->assertOk()->assertSee('<b class="chiffres">1</b> candidate(s)', false);
         $this->get(route('scrutins.show', [$scrutin, 'candidate' => 'inconnue', 'recherche' => 'ahouansou']))
-            ->assertSee('Aucune candidate ne correspond aux filtres.')
-            ->assertSee('<input type="hidden" name="recherche" value="ahouansou">', false);
+            ->assertSee('Aucune candidate ne correspond aux filtres.');
         $this->get(route('scrutins.show', [$scrutin, 'statut_candidate' => 'DESACTIVEE']))
             ->assertSee('Aucune candidate ne correspond aux filtres.');
     }

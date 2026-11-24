@@ -36,7 +36,7 @@
                         <td class="actions">
                             <a href="{{ route('utilisateurs.edit', $utilisateur) }}" class="btn btn-tertiaire btn--sm" wire:navigate><i data-lucide="pencil"></i>Modifier</a>
                             @if ($utilisateur->agent_id === null)
-                                <button type="button" class="btn btn-tertiaire btn--sm" data-ouvrir="modale-lier-agent" data-action="{{ route('utilisateurs.lier-agent', $utilisateur) }}" data-titre="Lier le compte {{ $utilisateur->login }} à un agent ?"><i data-lucide="link"></i>Lier à un agent</button>
+                                <button type="button" class="btn btn-tertiaire btn--sm" x-on:click="$dispatch('ouvrir-liaison', { action: @js(route('utilisateurs.lier-agent', $utilisateur)), login: @js($utilisateur->login) })"><i data-lucide="link"></i>Lier à un agent</button>
                             @endif
                         </td>
                     </tr>

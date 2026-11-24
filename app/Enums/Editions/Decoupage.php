@@ -14,8 +14,8 @@ enum Decoupage: string
     public function libelle(): string
     {
         return match ($this) {
-            self::ParCirconscription => 'Un scrutin par circonscription',
-            self::Ensemble => 'Un seul scrutin',
+            self::ParCirconscription => 'Un scrutin par département ou par structure',
+            self::Ensemble => 'Un seul scrutin pour tout le périmètre',
         };
     }
 }

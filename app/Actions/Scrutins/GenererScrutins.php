@@ -21,6 +21,8 @@ use Illuminate\Validation\ValidationException;
  *
  * Pour un collège aux candidates d'office, une circonscription sans agent femme en service à la date de gel
  * n'a pas de scrutin : elle est signalée au comité et ses agents ne votent pas dans cette phase (R20, R37).
+ * Une circonscription sans aucun agent en service n'a pas de scrutin non plus, quel que soit le collège : sans
+ * électeur, elle bloquerait l'arrêt des listes de la phase (R27). Elle est signalée de même.
  */
 class GenererScrutins
 {
@@ -46,12 +48,19 @@ class GenererScrutins
         }
 
         return DB::transaction(function () use ($phase): RapportGeneration {
-            $gel = $phase->edition->date_gel;
+            $gel = $phase->edition->dateDeReference();
             $poles = PoleElectoral::all()->keyBy(fn (PoleElectoral $pole): string => $pole->code->value);
             $scrutins = collect();
             $sansFemme = [];
+            $sansAgent = [];
 
             foreach ($this->decouper->handle($phase) as $circonscription) {
+                if (! $this->compteUnAgentEnService($circonscription['structures'], $gel)) {
+                    $sansAgent[] = $circonscription['libelle'];
+
+                    continue;
+                }
+
                 if ($circonscription['college']->origine_candidates === OrigineCandidate::Automatique && ! $this->compteUneFemmeEnService($circonscription['structures'], $gel)) {
                     $sansFemme[] = $circonscription['libelle'];
 
@@ -70,10 +79,18 @@ class GenererScrutins
                 $scrutins->push($this->constituerListes->handle($scrutin));
             }
 
-            $this->journal->handle(ActionAuditee::ScrutinsGeneres, $phase, ['phase' => $phase->libelle, 'scrutins' => $scrutins->count(), 'sans_femme' => $sansFemme]);
+            $this->journal->handle(ActionAuditee::ScrutinsGeneres, $phase, ['phase' => $phase->libelle, 'scrutins' => $scrutins->count(), 'sans_femme' => $sansFemme, 'sans_agent' => $sansAgent]);
 
-            return new RapportGeneration($scrutins, $sansFemme);
+            return new RapportGeneration($scrutins, $sansFemme, $sansAgent);
         });
+    }
+
+    /**
+     * @param  list<int>  $structureIds
+     */
+    private function compteUnAgentEnService(array $structureIds, CarbonInterface $gel): bool
+    {
+        return Affectation::enCoursLe($gel)->whereIn('structure_id', $structureIds)->exists();
     }
 
     /**

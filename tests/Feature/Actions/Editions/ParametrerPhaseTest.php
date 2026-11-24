@@ -52,12 +52,9 @@ class ParametrerPhaseTest extends TestCase
         $this->parametrer(2, '2027-03-20', '2027-04-10');
     }
 
-    public function test_rejette_une_phase_hors_du_calendrier_de_l_edition_ou_avant_le_gel(): void
+    public function test_rejette_une_phase_hors_du_calendrier_de_l_edition(): void
     {
         $this->attendreErreur('phase', fn () => $this->parametrer(3, '2027-04-20', '2027-05-10'));
-
-        $this->edition->update(['date_gel' => '2027-03-01']);
-        $this->attendreErreur('phase', fn () => $this->parametrer(1, '2027-03-01', '2027-03-10'));
     }
 
     public function test_refuse_de_replanifier_une_phase_ouverte(): void

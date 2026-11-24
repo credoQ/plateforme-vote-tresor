@@ -264,6 +264,7 @@ class EditionController extends Controller
                 'STRUCTURES' => CodePoleElectoral::Structures->libelle(),
                 Phase::COLLEGE_DGTCP => 'Ensemble de la DGTCP',
             ],
+            'iconesColleges' => ['DEPARTEMENTAL' => 'map-pin', 'STRUCTURES' => 'building-2', Phase::COLLEGE_DGTCP => 'landmark'],
             'decoupages' => collect(Decoupage::cases())->mapWithKeys(fn (Decoupage $d): array => [$d->value => $d->libelle()])->all(),
             'origines' => collect(OrigineCandidate::cases())->mapWithKeys(fn (OrigineCandidate $o): array => [$o->value => $o->libelleCollege()])->all(),
         ]);

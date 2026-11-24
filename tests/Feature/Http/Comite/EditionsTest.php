@@ -139,7 +139,7 @@ class EditionsTest extends TestCase
 
         $this->post(route('phases.cloturer', $phase))->assertSessionHasErrors('phase');
         $this->get(route('editions.show', $edition))->assertOk()
-            ->assertSee('0 scrutin(s) terminé(s) sur 1')->assertSee('title="Tous les résultats doivent être publiés"', false)
+            ->assertSee('0 scrutin(s) terminé(s) sur 1')->assertSee('data-ouvrir="modale-cloturer-'.$phase->id.'" disabled', false)
             ->assertSee($scrutin->libelle);
         $scrutin->update(['statut' => 'CLOS']);
         $this->get(route('editions.show', [$edition, 'phase' => 1, 'onglet' => 'resultats']))->assertSee($scrutin->libelle)->assertSee('Valider');

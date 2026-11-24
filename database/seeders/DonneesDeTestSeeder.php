@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Enums\Acces\CodeRole;
+use App\Enums\Agents\Sexe;
 use App\Enums\Editions\SourceFemmeModele;
 use App\Models\Agent;
 use App\Models\FemmeModele;
@@ -10,7 +11,6 @@ use App\Models\Role;
 use App\Models\Structure;
 use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use RuntimeException;
@@ -20,7 +20,8 @@ use RuntimeException;
  * comité, point focal, administrateur, observateur) et une femme modèle d'il y a deux ans, inéligible.
  * À lancer sur une base sans agents : php artisan db:seed --class=DonneesDeTestSeeder
  *
- * Les agents sont créés par les factories : Faker doit être installé (dépendance de développement).
+ * Valeurs fixes, sans factory : le seeder fonctionne aussi en production, où Faker (dépendance de développement)
+ * n'est pas installé.
  */
 class DonneesDeTestSeeder extends Seeder
 {
@@ -74,12 +75,16 @@ class DonneesDeTestSeeder extends Seeder
         foreach (self::AGENTS as $code => $liste) {
             $structure = Structure::where('code', $code)->firstOrFail();
             foreach ($liste as [$nom, $prenoms, $sexe]) {
-                $agent = Agent::factory()->{$sexe === 'F' ? 'femme' : 'homme'}()->affecteA($structure, Carbon::parse('2018-01-02'))->create([
+                $agent = Agent::create([
                     'matricule' => (string) ++$matricule,
+                    'npi' => '10000'.$matricule,
                     'nom' => $nom,
                     'prenoms' => $prenoms,
+                    'sexe' => $sexe === 'F' ? Sexe::Feminin : Sexe::Masculin,
+                    'date_naissance' => '1985-06-15',
                     'email' => Str::slug("{$prenoms}.{$nom}", '.').'@demo.test',
                 ]);
+                $agent->affectations()->create(['structure_id' => $structure->id, 'date_debut' => '2018-01-02']);
                 $agents["{$nom} {$prenoms}"] = $agent;
             }
         }
@@ -108,8 +113,10 @@ class DonneesDeTestSeeder extends Seeder
         $pointFocal->update(['structure_id' => Structure::where('code', 'DIA')->value('id')]);
         $pointFocal->roles()->attach(Role::where('code', CodeRole::PointFocal->value)->firstOrFail());
 
-        User::factory()->avecRoles(CodeRole::Administrateur)->create(['name' => 'Administrateur technique', 'login' => 'ADMIN', 'email' => 'admin@demo.test']);
-        User::factory()->avecRoles(CodeRole::Observateur)->create(['name' => 'Observatrice externe', 'login' => 'OBSERVATEUR', 'email' => 'observateur@demo.test']);
+        User::create(['name' => 'Administrateur technique', 'login' => 'ADMIN', 'email' => 'admin@demo.test', 'actif' => true])
+            ->roles()->attach(Role::where('code', CodeRole::Administrateur->value)->firstOrFail());
+        User::create(['name' => 'Observatrice externe', 'login' => 'OBSERVATEUR', 'email' => 'observateur@demo.test', 'actif' => true])
+            ->roles()->attach(Role::where('code', CodeRole::Observateur->value)->firstOrFail());
 
         return [
             ['Comité d’organisation (et électeur)', $comite->login, $comite->email],

@@ -73,6 +73,24 @@ class UtilisateursTest extends TestCase
         ])->assertSessionHasNoErrors();
     }
 
+    /**
+     * R2, R3 : le rôle Électeur est réservé aux comptes liés à un agent ; un compte sans agent ne peut pas le recevoir.
+     */
+    public function test_r3_refuse_le_role_electeur_a_un_compte_sans_agent(): void
+    {
+        $this->actingAs($this->admin)->post(route('utilisateurs.store'), [
+            'name' => 'Observatrice externe', 'login' => 'obs.externe', 'email' => 'obs@example.test',
+            'roles' => [CodeRole::Observateur->value, CodeRole::Electeur->value], 'actif' => '1',
+        ])->assertSessionHasErrors('roles');
+        $this->assertDatabaseMissing('users', ['login' => 'obs.externe']);
+
+        $agent = Agent::factory()->create(['matricule' => '104999', 'email' => 'agent.104999@example.test']);
+        $this->post(route('utilisateurs.store'), [
+            'name' => $agent->nomComplet(), 'login' => '104999', 'email' => 'compte.104999@example.test',
+            'roles' => [CodeRole::Electeur->value], 'actif' => '1',
+        ])->assertSessionHasNoErrors();
+    }
+
     public function test_desactive_un_compte(): void
     {
         $compte = User::factory()->avecRoles(CodeRole::Comite)->create();

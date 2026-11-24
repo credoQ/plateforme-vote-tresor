@@ -50,7 +50,12 @@ class EnregistrerUtilisateur
             'roles.required' => 'Un utilisateur possède au moins un rôle.',
             'roles.min' => 'Un utilisateur possède au moins un rôle.',
             'required' => 'Le champ :attribute est obligatoire.',
-        ])->validate();
+        ])->after(function ($validateur) use ($donnees): void {
+            // R2, R3 : seul un agent vote ; un compte sans agent (administrateur technique, observateur externe) n'est pas électeur.
+            if (in_array(CodeRole::Electeur->value, (array) ($donnees['roles'] ?? []), true) && blank($donnees['agent_id'] ?? null)) {
+                $validateur->errors()->add('roles', 'Le rôle Électeur est réservé aux comptes liés à un agent : l’identifiant doit être le matricule d’un agent.');
+            }
+        })->validate();
 
         return DB::transaction(function () use ($donnees, $utilisateur): User {
             $creation = $utilisateur === null;

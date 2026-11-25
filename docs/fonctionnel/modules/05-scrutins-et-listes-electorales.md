@@ -23,7 +23,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] Enums `OrigineCandidate` et `StatutCandidate`, modèles `Inscription` et `Candidate`
 - [x] Action `DecouperCirconscriptions` : département pour les structures situées dans un département (TD, TC, antennes, R25), structure électorale sinon ; puis découpage selon les collèges de la phase : par circonscription, par pôle, ou toute la DGTCP
 - [x] Action `GenererScrutins` : scrutins de chaque phase, circonscriptions sans agent femme écartées et signalées pour un collège aux candidates d'office (R20, R37)
-- [x] Action `ConstituerListes` : électeurs à la date de gel (R14, R15, R29), candidates selon le collège : d'office (R28), nominées conservées (R58), lauréates de la phase précédente (R35) ; actualisable jusqu'à l'arrêt
+- [x] Action `ConstituerListes` : électeurs à la date de gel (R14, R15, R29), candidates selon le collège : d'office (R28), nominées conservées (R58), lauréates de la phase précédente (R35) ; mise à jour automatique jusqu'à l'arrêt (tâche `ActualiserListesElectorales`, lancée à chaque changement d'un agent, d'une affectation ou d'une structure, et à la réouverture)
 - [x] Action `ArreterListes` : arrêt des listes de toute une phase, en tout ou rien ; le premier arrêt de l'édition fixe sa date de gel ; listes figées ensuite (R14, R27, R30)
 - [x] Actions `DesactiverCandidate` et `ReactiverCandidate` : jusqu'à l'ouverture du scrutin, avec date, auteur et motif (R32 à R34)
 - [x] Tests des règles R14, R15, R20 à R30, R32 à R35 et R37

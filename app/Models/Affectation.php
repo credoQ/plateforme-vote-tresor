@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Observers\ActualiserListesSurChangement;
 use Carbon\CarbonInterface;
 use Database\Factories\AffectationFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,6 +21,7 @@ use Illuminate\Support\Carbon;
  */
 #[Table('affectations')]
 #[Fillable(['agent_id', 'structure_id', 'date_debut', 'date_fin'])]
+#[ObservedBy([ActualiserListesSurChangement::class])]
 class Affectation extends Model
 {
     /** @use HasFactory<AffectationFactory> */

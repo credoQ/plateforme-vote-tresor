@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Enums\Agents\Sexe;
 use App\Models\Concerns\IdentifieParUuid;
+use App\Observers\ActualiserListesSurChangement;
 use Carbon\CarbonInterface;
 use Database\Factories\AgentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'matricule', 'npi', 'nom', 'prenoms', 'sexe', 'date_naissance',
     'date_prise_service', 'telephone', 'email', 'fonction', 'statut',
 ])]
+#[ObservedBy([ActualiserListesSurChangement::class])]
 class Agent extends Model
 {
     /** @use HasFactory<AgentFactory> */

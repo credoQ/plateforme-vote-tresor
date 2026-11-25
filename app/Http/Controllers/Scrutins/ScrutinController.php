@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Scrutins;
 
-use App\Actions\Scrutins\ConstituerListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Scrutins\RouvrirListes;
@@ -160,14 +159,6 @@ class ScrutinController extends Controller
         );
 
         return redirect()->route('scrutins.show', $scrutin)->with('succes', 'Le scrutin est planifié.');
-    }
-
-    public function actualiser(Scrutin $scrutin, ConstituerListes $constituer): RedirectResponse
-    {
-        $scrutin = $constituer->handle($scrutin);
-
-        return redirect()->route('scrutins.show', $scrutin)
-            ->with('succes', "Listes actualisées : {$scrutin->inscriptions_count} inscrit(s), {$scrutin->candidates_count} candidate(s).");
     }
 
     /**

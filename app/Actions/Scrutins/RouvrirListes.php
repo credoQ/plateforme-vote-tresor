@@ -5,6 +5,7 @@ namespace App\Actions\Scrutins;
 use App\Actions\Audit\Journaliser;
 use App\Enums\Audit\ActionAuditee;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Jobs\Scrutins\ActualiserListesElectorales;
 use App\Models\Scrutin;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -13,8 +14,8 @@ use Illuminate\Validation\ValidationException;
  * Rouvre les listes arrêtées d'un scrutin sur décision motivée du comité, tracée au journal (R27).
  *
  * Les listes restent calculées depuis les agents et leurs affectations à la date de gel : la réouverture permet de
- * corriger ces données, d'actualiser les listes puis de les arrêter de nouveau depuis la phase (ArreterListes). Les désactivations de candidates sont
- * conservées (R33). Impossible une fois le scrutin ouvert ; tant que les listes ne sont pas de nouveau arrêtées,
+ * corriger ces données ; les listes rouvertes se mettent à jour d'elles-mêmes (ActualiserListesElectorales), puis
+ * s'arrêtent de nouveau depuis la phase (ArreterListes). Les désactivations de candidates sont conservées (R33). Impossible une fois le scrutin ouvert ; tant que les listes ne sont pas de nouveau arrêtées,
  * le scrutin ne s'ouvre pas.
  */
 class RouvrirListes
@@ -40,6 +41,8 @@ class RouvrirListes
                 'inscrits' => $scrutin->inscriptions()->count(),
                 'candidates' => $scrutin->candidates()->count(),
             ]);
+            // Les corrections faites pendant que les listes étaient arrêtées sont reprises tout de suite.
+            ActualiserListesElectorales::dispatch();
 
             return $scrutin;
         });

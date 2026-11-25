@@ -1,5 +1,6 @@
 import { createIcons, icons } from 'lucide';
 import './alertes';
+import { preparerCalendriers } from './calendrier';
 import filtreBulletin from './filtre-bulletin';
 import formulaireEtapes from './formulaire-etapes';
 import lecteurVideo from './lecteur-video';
@@ -194,6 +195,7 @@ document.addEventListener('click', (e) => {
 // Icônes Lucide (seule bibliothèque autorisée par la charte) : <i data-lucide="vote"></i>
 function preparerPage() {
     createIcons({ icons, attrs: { 'stroke-width': 2 } });
+    preparerCalendriers();
     preparerTableaux();
     synchroniserBoutonMenu();
 }

@@ -5,6 +5,7 @@
 @import './design/tresor-tokens.css';
 @import './design/tresor-theme.css';
 @import './design/polices.css';
+@import 'flatpickr/dist/flatpickr.css' layer(base);
 @import './design/composants.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';

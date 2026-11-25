@@ -86,7 +86,8 @@ export default function formulaireEtapes() {
             if (champ.tagName === 'SELECT') return champ.selectedOptions[0]?.textContent.trim() ?? '';
             if (champ.type === 'checkbox') return champ.checked ? 'Oui' : 'Non';
             if (champ.value === '') return 'Non renseigné';
-            return champ.type === 'date' ? formaterDate(champ.value) : champ.value;
+            // Un champ équipé du calendrier (calendrier.js) garde son type d'origine dans data-calendrier.
+            return (champ.dataset.calendrier ?? champ.type) === 'date' ? formaterDate(champ.value) : champ.value;
         },
         brut(nom) {
             void this.version;

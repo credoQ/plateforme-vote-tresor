@@ -73,6 +73,8 @@
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
                         <div><label class="libelle">Champ</label><input class="champ" placeholder="Saisie"></div>
                         <div><label class="libelle">Lecture seule</label><input class="champ" readonly value="Calculé par le système"></div>
+                        <div><label class="libelle" for="exemple-date">Date (calendrier)</label><input id="exemple-date" type="date" class="champ" value="2026-11-26"></div>
+                        <div><label class="libelle" for="exemple-date-heure">Date et heure</label><input id="exemple-date-heure" type="datetime-local" class="champ" value="2026-11-26T08:00"></div>
                     </div>
                 </div>
             </section>

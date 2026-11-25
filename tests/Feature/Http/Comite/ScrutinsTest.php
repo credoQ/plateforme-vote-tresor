@@ -100,7 +100,7 @@ class ScrutinsTest extends TestCase
         $scrutin = $this->scrutinDia();
 
         $this->actingAs($this->comite)->get(route('scrutins.show', $scrutin))->assertOk()
-            ->assertSee('Arrêter les listes électorales')->assertSee('Arrêter les listes de la phase')->assertSee('AHOUANSOU');
+            ->assertSee('Arrêter les listes électorales')->assertDontSee('Arrêter les listes de la phase')->assertSee('AHOUANSOU');
 
         $this->post(route('phases.arreter-listes', $scrutin->phase))->assertSessionHasNoErrors();
         $this->get(route('scrutins.show', $scrutin))

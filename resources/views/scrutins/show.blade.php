@@ -46,9 +46,6 @@
                     <div class="etape-courante__corps">
                         <span class="pastille-icone"><i data-lucide="lock"></i></span>
                         <div class="etape-courante__texte"><strong>Les listes sont encore modifiables.</strong><p>Elles se mettent à jour automatiquement après chaque correction d’un agent, d’une affectation ou d’une structure, jusqu’à leur arrêt. Elles s’arrêtent pour toute la phase, depuis la fiche de l’édition.</p></div>
-                        <div class="etape-courante__actions">
-                            <a wire:navigate href="{{ route('editions.show', [$scrutin->phase->edition, 'phase' => $scrutin->phase->numero]) }}" class="btn btn-primaire"><i data-lucide="lock"></i>Arrêter les listes de la phase</a>
-                        </div>
                     </div>
                     @break
                 @case('horaires')

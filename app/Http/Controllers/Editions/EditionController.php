@@ -144,11 +144,13 @@ class EditionController extends Controller
                 'detail' => match (true) {
                     $phase->scrutins_count === 0 => 'Chaque scrutin reçoit sa date-heure d’ouverture et de fermeture, pendant la phase.',
                     $planifiables === 0 => 'Les scrutins sont ouverts ou terminés.',
+                    ! $planifiee => 'Horaires figés depuis l’ouverture de la phase.',
                     $nonPlanifies > 0 => ($planifiables - $nonPlanifies)." scrutin(s) planifié(s) sur {$planifiables}. Un scrutin non planifié ne s’ouvre pas.",
                     default => "Les {$planifiables} scrutin(s) sont planifiés ; chacun reste modifiable depuis sa fiche.",
                 },
                 'faite' => $phase->scrutins_count > 0 && $nonPlanifies === 0,
-                'action' => $planifiables > 0 && $phase->date_debut !== null && ! $editionClose ? 'planifier-scrutins' : null,
+                // R19 : les horaires se figent à l'ouverture de la phase.
+                'action' => $planifiee && $planifiables > 0 && $phase->date_debut !== null && ! $editionClose ? 'planifier-scrutins' : null,
                 'libelleAction' => $nonPlanifies > 0 ? 'Planifier tous les scrutins' : 'Replanifier tous les scrutins',
                 'actionPossible' => true, 'motif' => null,
             ],

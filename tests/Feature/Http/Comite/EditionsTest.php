@@ -150,7 +150,7 @@ class EditionsTest extends TestCase
 
     /**
      * R18, R19 : la phase ne s'ouvre qu'avec tous ses scrutins planifiés ; ils se planifient d'un coup, puis la phase
-     * s'ouvre et se clôture depuis l'écran de l'édition.
+     * s'ouvre (leurs horaires sont alors figés) et se clôture depuis l'écran de l'édition.
      */
     public function test_r18_ouvre_et_cloture_une_phase(): void
     {
@@ -181,6 +181,14 @@ class EditionsTest extends TestCase
 
         $this->post(route('phases.ouvrir', $phase))->assertSessionHasNoErrors();
         $this->assertSame(StatutPhase::Ouverte, $phase->fresh()->statut);
+
+        // Phase ouverte : les horaires de ses scrutins sont figés.
+        $this->get(route('editions.show', $edition))->assertSee('Horaires figés depuis l’ouverture de la phase.', false)->assertDontSee('Replanifier tous les scrutins');
+        $this->get(route('scrutins.show', $scrutin))->assertOk()->assertDontSee('Modifier les horaires')->assertDontSee('Planifier le scrutin');
+        $this->post(route('phases.planifier-scrutins', $phase), ['ouverture' => '2026-12-03T08:00', 'fermeture' => '2026-12-03T18:00'])
+            ->assertSessionHasErrors(['scrutin' => 'La phase est ouverte : les horaires de ses scrutins sont figés.']);
+        $this->post(route('scrutins.planifier', $scrutin), ['ouverture' => '2026-12-03T08:00', 'fermeture' => '2026-12-03T18:00'])->assertSessionHasErrors('scrutin');
+        $this->assertSame('2026-12-02 07:00:00', $scrutin->fresh()->date_heure_ouverture->utc()->format('Y-m-d H:i:s'));
 
         $this->post(route('phases.cloturer', $phase))->assertSessionHasErrors('phase');
         $this->get(route('editions.show', $edition))->assertOk()

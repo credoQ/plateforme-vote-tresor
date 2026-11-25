@@ -124,7 +124,7 @@ class TableauDeBord extends Component
     }
 
     /**
-     * @return array{global: array{inscrits: int, votants: int, taux: float}, scrutins: Collection<int, array<string, mixed>>, departements: Collection<int, array<string, mixed>>, structures: Collection<int, array<string, mixed>>}|null
+     * @return array{global: array{inscrits: int, votants: int, taux: float}, scrutins: Collection<int, array<string, mixed>>, zones: array{departements: array<string, mixed>, structures: array<string, mixed>}, structures: Collection<int, array<string, mixed>>}|null
      */
     #[Computed]
     public function participation(): ?array
@@ -156,7 +156,7 @@ class TableauDeBord extends Component
             'global' => $this->participation['global'],
             'indicateurs' => $this->indicateurs($scrutins),
             'heures' => $this->heures(app(MesurerParticipation::class)->votesParHeure($this->phaseAffichee, $this->limite)),
-            'departements' => $this->participation['departements']->sortByDesc('taux')->values(),
+            'zones' => $this->participation['zones'],
             'structures' => $this->participation['structures'],
             'scrutins' => $this->paginer($this->filtrer($scrutins)),
             'statuts' => $this->statuts($scrutins),

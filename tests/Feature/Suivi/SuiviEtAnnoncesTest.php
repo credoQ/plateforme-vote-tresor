@@ -5,14 +5,17 @@ namespace Tests\Feature\Suivi;
 use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
+use App\Actions\Suivi\MesurerParticipation;
 use App\Actions\Vote\DeposerBulletin;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
+use App\Enums\Referentiel\CodeTypeStructure;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Livewire\Suivi\TableauDeBord;
 use App\Models\Agent;
 use App\Models\Edition;
+use App\Models\Inscription;
 use App\Models\JournalAudit;
 use App\Models\Phase;
 use App\Models\Scrutin;
@@ -80,6 +83,28 @@ class SuiviEtAnnoncesTest extends TestCase
             ->assertSee('TC-OUIDAH')
             ->assertSee('33,3 %')
             ->assertDontSee('Voix');
+    }
+
+    /**
+     * R24, R25, R46 : participation par zone de vote ; un département pour ses Trésoreries (communales comprises),
+     * la structure électorale sinon, un service comptant avec sa structure de rattachement.
+     */
+    public function test_r46_range_la_participation_par_zone_de_vote(): void
+    {
+        $dia = Structure::where('code', 'DIA')->firstOrFail();
+        $service = Structure::factory()->deType(CodeTypeStructure::Cellule)->create(['code' => 'CELL-DIA', 'structure_parente_id' => $dia->id, 'niveau' => Structure::NIVEAU_SERVICE]);
+        Inscription::factory()->create(['scrutin_id' => Scrutin::where('code', 'STR-DIA')->value('id'), 'phase_id' => $this->scrutinAtl->phase_id, 'agent_id' => Agent::factory()->create()->id, 'structure_id' => $service->id]);
+        app(DeposerBulletin::class)->handle($this->electriceAtl, $this->scrutinAtl, $this->scrutinAtl->candidates()->sole());
+
+        $zones = app(MesurerParticipation::class)->handle($this->scrutinAtl->phase)['zones'];
+
+        $this->assertSame([['code' => 'Atlantique', 'inscrits' => 2, 'votants' => 1, 'taux' => 50.0]], $zones['departements']['lignes']->map(fn (array $l): array => ['code' => $l['code'], 'inscrits' => $l['inscrits'], 'votants' => $l['votants'], 'taux' => $l['taux']])->all());
+        $this->assertSame([['code' => 'DIA', 'inscrits' => 2]], $zones['structures']['lignes']->map(fn (array $l): array => ['code' => $l['code'], 'inscrits' => $l['inscrits']])->all(), 'Le service compte avec la DIA.');
+
+        $this->actingAs(User::factory()->avecRoles(CodeRole::Comite)->create())->get(route('tableau-de-bord'))->assertOk()
+            ->assertSee('Participation par zone de vote')
+            ->assertSee('title="Atlantique : 1 votant(s) sur 2"', false)
+            ->assertSee('title="'.e($dia->libelle).' : 0 votant(s) sur 2"', false);
     }
 
     /**

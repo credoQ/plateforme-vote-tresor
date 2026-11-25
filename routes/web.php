@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
     });
     Route::post('/candidatures/{candidate}/desister', [CandidatureController::class, 'desister'])->name('candidatures.desister');
     Route::post('/candidatures/{candidate}/reactiver', [CandidatureController::class, 'reactiver'])->name('candidatures.reactiver');
+    Route::get('/candidates/{candidate}/photo', [CandidatureController::class, 'photo'])->name('candidates.photo');
 
     Route::get('/tableau-de-bord', TableauDeBordController::class)->name('tableau-de-bord');
     Route::get('/scrutins/{scrutin}', [ScrutinController::class, 'show'])->name('scrutins.show');

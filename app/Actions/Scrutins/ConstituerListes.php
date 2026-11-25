@@ -123,6 +123,8 @@ class ConstituerListes
     {
         $scrutin->candidates()->whereNotIn('agent_id', $attendues->keys())->delete();
         $existantes = $scrutin->candidates()->pluck('agent_id')->flip();
+        // Une qualifiée garde la photo de sa candidature précédente (même fichier, partagé).
+        $photos = Candidate::whereKey($attendues->filter()->values())->pluck('photo', 'id');
 
         foreach ($attendues as $agentId => $sourceId) {
             if ($existantes->has($agentId)) {
@@ -133,6 +135,7 @@ class ConstituerListes
                 'agent_id' => $agentId,
                 'origine' => $sourceId === null ? OrigineCandidate::Automatique : OrigineCandidate::Qualification,
                 'candidate_source_id' => $sourceId,
+                'photo' => $sourceId !== null ? $photos[$sourceId] ?? null : null,
             ]);
         }
     }

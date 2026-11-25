@@ -36,23 +36,31 @@
         >
             @csrf
             <div class="carte__corps">
-                <fieldset class="grille-candidates">
+                <fieldset class="grille-candidates grille-candidates--photos">
                     <legend class="sr-only">Candidates du scrutin</legend>
                     @foreach ($candidates as $candidate)
-                        <label class="carte-candidate" data-candidate data-nom="{{ $candidate['nom'] }}" data-structure="{{ $candidate['structure_id'] }}" x-show="correspond($el)">
+                        <label class="carte-candidate carte-candidate--photo" data-candidate data-nom="{{ $candidate['nom'] }}" data-structure="{{ $candidate['structure_id'] }}" x-show="correspond($el)">
                             <input type="radio" name="candidate" value="{{ $candidate['id'] }}" required @checked((string) old('candidate') === (string) $candidate['id'])>
                             <span class="carte-candidate__coche"><i data-lucide="check"></i></span>
-                            <span class="avatar avatar--grand avatar--sans-anneau">{{ $candidate['initiales'] }}</span>
-                            <span><span class="carte-candidate__nom">{{ $candidate['nom'] }}</span><br><span class="carte-candidate__structure">{{ $candidate['structure'] }}</span></span>
+                            <span class="carte-photo">
+                                @if ($candidate['photo'])
+                                    <img class="carte-photo__image" src="{{ $candidate['photo'] }}" alt="" loading="lazy">
+                                @else
+                                    <span class="carte-photo__initiales" aria-hidden="true">{{ $candidate['initiales'] }}</span>
+                                @endif
+                                <span class="carte-photo__legende"><span class="carte-candidate__nom">{{ $candidate['nom'] }}</span><span class="carte-candidate__structure">{{ $candidate['structure'] }}</span></span>
+                            </span>
                         </label>
                     @endforeach
                     <div class="etat-vide" x-show="nombreVisibles === 0" x-cloak><i data-lucide="search-x"></i><p>Aucune candidate ne correspond à la recherche.</p></div>
                     @if ($blancAutorise)
-                        <label class="carte-candidate">
+                        <label class="carte-candidate carte-candidate--photo">
                             <input type="radio" name="candidate" value="{{ \App\Http\Controllers\Vote\VoteController::BLANC }}" required>
                             <span class="carte-candidate__coche"><i data-lucide="check"></i></span>
-                            <span class="avatar avatar--grand avatar--sans-anneau"><i data-lucide="file"></i></span>
-                            <span><span class="carte-candidate__nom">Vote blanc</span><br><span class="carte-candidate__structure">Aucune candidate</span></span>
+                            <span class="carte-photo">
+                                <span class="carte-photo__initiales" aria-hidden="true"><i data-lucide="file"></i></span>
+                                <span class="carte-photo__legende"><span class="carte-candidate__nom">Vote blanc</span><span class="carte-candidate__structure">Aucune candidate</span></span>
+                            </span>
                         </label>
                     @endif
                 </fieldset>

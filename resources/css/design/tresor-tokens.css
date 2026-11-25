@@ -72,6 +72,11 @@
   --tr-sur-primaire:#FFFFFF;
   --tr-accent:var(--tr-or-500);
   --tr-accent-sur-primaire:#E0A800;
+  /* Texte posé sur une photo (carte du bulletin) : blanc sur un voile sombre, dans les deux thèmes. */
+  --tr-sur-photo:#FFFFFF;
+  --tr-sur-photo-2:rgba(255,255,255,.86);
+  --tr-voile-photo:rgba(10,20,35,.84);
+  --tr-voile-photo-leger:rgba(10,20,35,.45);
   --tr-rayon-sm:6px;
   --tr-rayon:8px;
   --tr-rayon-carte:12px;

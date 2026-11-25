@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 
 /**
@@ -50,6 +51,15 @@ class Accueil extends Component
 
         $this->executer(fn () => app(DesactiverCandidate::class)->handle($candidate, $this->utilisateur(), $motif !== '' ? $motif : null),
             'Votre candidature est retirée. Vous restez électrice.');
+    }
+
+    /**
+     * Photo ajoutée, remplacée ou retirée dans la fenêtre Scrutins\PhotoCandidate : les candidatures sont relues.
+     */
+    #[On('photo-candidate-modifiee')]
+    public function photoModifiee(): void
+    {
+        unset($this->candidatures);
     }
 
     public function reactiver(int $candidateId): void
@@ -107,6 +117,7 @@ class Accueil extends Component
             'nbCandidates' => $scrutin?->statut === StatutScrutin::Ouvert ? $scrutin->candidates()->actives()->count() : null,
             'resultatsPublies' => $this->resultatsPublies(),
             'candidatures' => $this->candidatures,
+            'initiales' => $this->utilisateur()->agent?->initiales() ?? '',
             'echeance' => $this->prochaineEcheance($scrutin),
         ]);
     }

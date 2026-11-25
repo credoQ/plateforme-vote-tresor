@@ -157,6 +157,7 @@
     </section>
 
     <x-slot:modales>
+        <livewire:scrutins.photo-candidate />
         @if ($pilote && $scrutin->accepteLesDesistements())
             <div class="voile" x-data="{ ouvert: @js($errors->hasAny(['ouverture', 'fermeture']) || ($errors->has('scrutin') && old('ouverture') !== null)) }" x-show="ouvert" x-cloak
                  x-on:ouvrir-modale.window="ouvert = $event.detail === 'planifier'" x-on:keydown.escape.window="ouvert = false" x-on:click.self="ouvert = false">

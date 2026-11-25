@@ -56,15 +56,24 @@
             <section class="carte" wire:key="candidature-{{ $candidature->id }}">
                 <div class="carte__entete"><h2>Ma candidature</h2></div>
                 <div class="carte__corps candidature">
-                    <div>
-                        <p><strong>{{ $candidature->scrutin->libelle }}</strong> · {{ $candidature->scrutin->phase->libelle }}</p>
-                        @if ($candidature->estActive())
-                            <p class="aide">{{ $candidature->origine->libelle() }}</p>
+                    <div class="cellule-photo">
+                        @if ($candidature->photo)
+                            <img class="vignette-photo" src="{{ $candidature->urlPhoto() }}" alt="Ma photo sur le bulletin">
                         @else
-                            <p class="aide">Candidature retirée le {{ $candidature->date_desistement->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.</p>
+                            <span class="vignette-photo" aria-hidden="true">{{ $initiales }}</span>
                         @endif
+                        <div>
+                            <p><strong>{{ $candidature->scrutin->libelle }}</strong> · {{ $candidature->scrutin->phase->libelle }}</p>
+                            @if ($candidature->estActive())
+                                <p class="aide">{{ $candidature->origine->libelle() }} · {{ $candidature->photo ? 'votre photo apparaît sur le bulletin' : 'vos initiales apparaissent sur le bulletin' }}</p>
+                            @else
+                                <p class="aide">Candidature retirée le {{ $candidature->date_desistement->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.</p>
+                            @endif
+                        </div>
                     </div>
                     @if ($candidature->estActive())
+                        <div class="candidature__actions">
+                        <button type="button" class="btn btn-secondaire" x-on:click="Livewire.dispatch('ouvrir-photo-candidate', { candidate: {{ $candidature->id }} })"><i data-lucide="{{ $candidature->photo ? 'image' : 'image-plus' }}"></i>{{ $candidature->photo ? 'Modifier ma photo' : 'Ajouter ma photo' }}</button>
                         <button type="button" class="btn btn-danger-contour" wire:loading.attr="disabled"
                                 x-on:click="window.demanderMotif({
                                     titre: 'Retirer votre candidature ?',
@@ -74,6 +83,7 @@
                                 }).then((reponse) => reponse.confirme && $wire.desister({{ $candidature->id }}, reponse.motif))">
                             <i data-lucide="user-x"></i>Retirer ma candidature
                         </button>
+                        </div>
                     @else
                         <button type="button" class="btn btn-secondaire" wire:click="reactiver({{ $candidature->id }})" wire:loading.attr="disabled"><i data-lucide="user-check"></i>Réactiver ma candidature</button>
                     @endif

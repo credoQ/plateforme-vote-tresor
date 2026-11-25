@@ -499,6 +499,47 @@
   .carte-candidate__coche svg { width: 14px; height: 14px; }
   .carte-candidate:has(input:checked) { border-color: var(--tr-primaire); box-shadow: 0 0 0 4px var(--tr-primaire-doux); }
   .carte-candidate:has(input:checked) .carte-candidate__coche { background: var(--tr-primaire); border-color: var(--tr-primaire); color: var(--tr-sur-primaire); }
+
+  /* Carte portrait d'une candidate : photo plein cadre (ou initiales), nom et structure sur un voile en bas.
+     Sert au bulletin et à l'aperçu du recadrage ; la photo est enregistrée à ce format (4 × 4,6). */
+  .carte-photo { position: relative; aspect-ratio: 4 / 4.6; overflow: hidden; background: var(--tr-primaire-doux); }
+  .carte-photo__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+  .carte-photo__initiales { position: absolute; inset: 0; display: grid; place-items: center; padding-bottom: 72px; font-size: 64px; font-weight: 700; color: var(--tr-primaire-texte); }
+  .carte-photo__initiales svg { width: 56px; height: 56px; }
+  .carte-photo__legende { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 2px; padding: 48px 16px 14px; text-align: left; color: var(--tr-sur-photo); background: linear-gradient(to top, var(--tr-voile-photo), var(--tr-voile-photo-leger) 60%, transparent); }
+  .carte-photo__legende .carte-candidate__nom { font-size: 15px; }
+  .carte-photo__legende .carte-candidate__structure { color: var(--tr-sur-photo-2); }
+  .grille-candidates--photos { grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
+  .carte-candidate--photo { padding: 0; gap: 0; overflow: hidden; align-items: stretch; }
+  .carte-candidate--photo .carte-candidate__coche { z-index: 1; }
+  .carte-candidate--photo:has(input:checked) { border-width: 2px; }
+  .carte-candidate--photo:has(input:focus-visible) { outline: 3px solid var(--tr-primaire); outline-offset: 2px; }
+  @media (max-width: 640px) {
+    .grille-candidates--photos { grid-template-columns: 1fr; gap: 12px; }
+    .carte-candidate--photo .carte-photo { aspect-ratio: 4 / 3.6; }
+    .carte-candidate--photo .carte-photo__image { object-position: center 25%; }
+    .carte-candidate--photo .carte-photo__initiales { padding-bottom: 56px; }
+  }
+
+  /* Recadrage d'une photo de candidate : on fait glisser la photo dans la carte du bulletin. */
+  .modale--photo { width: min(640px, 100%); }
+  .modale__pied-gauche { margin-right: auto; }
+  .recadrage-photo { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
+  .recadrage-photo__carte { border-radius: var(--tr-rayon-carte); border: 1.5px solid var(--tr-bordure); touch-action: none; }
+  .recadrage-photo__carte.est-deplacable { cursor: grab; }
+  .recadrage-photo__carte.est-deplacable:active { cursor: grabbing; }
+  .recadrage-photo__carte .carte-photo__image--libre { position: absolute; top: 0; left: 0; max-width: none; transform-origin: 0 0; user-select: none; -webkit-user-drag: none; }
+  .recadrage-photo__outils { display: grid; gap: 12px; }
+  .recadrage-photo__zoom { display: flex; align-items: center; gap: 10px; color: var(--tr-texte-2); }
+  .recadrage-photo__zoom input { flex: 1; accent-color: var(--tr-primaire); }
+  .recadrage-photo__zoom svg { width: 18px; height: 18px; }
+  .recadrage-photo__depot { border: 2px dashed var(--tr-bordure); border-radius: var(--tr-rayon-carte); padding: 20px 16px; display: grid; gap: 8px; justify-items: center; text-align: center; color: var(--tr-texte-2); }
+  .recadrage-photo__depot.est-survole { border-color: var(--tr-primaire); background: var(--tr-primaire-doux); }
+  @media (max-width: 640px) { .recadrage-photo { grid-template-columns: 1fr; } .recadrage-photo__carte { max-width: 260px; justify-self: center; width: 100%; } }
+
+  /* Vignette portrait d'une candidate dans un tableau. */
+  .vignette-photo { width: 40px; height: 46px; flex: none; border-radius: 8px; object-fit: cover; object-position: center 20%; background: var(--tr-primaire-doux); color: var(--tr-primaire-texte); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+  .cellule-photo { display: flex; align-items: center; gap: 12px; }
   .carte-candidate:has(input:focus-visible) { box-shadow: 0 0 0 4px color-mix(in srgb, var(--tr-bleu-400) 55%, transparent); }
   .barre-vote { position: sticky; bottom: 0; z-index: 10; display: flex; align-items: center; gap: 16px; margin: 24px -28px -28px; padding: 16px 28px; background: var(--tr-surface); border-top: 1px solid var(--tr-bordure); box-shadow: 0 -8px 24px -12px rgba(10,13,18,.12); }
 
@@ -746,7 +787,8 @@
   .isoloir__contenu { width: 100%; max-width: 1040px; margin: 0 auto; padding: 28px; flex: 1; }
   .isoloir .barre-vote { margin: 0; border-radius: 0 0 var(--tr-rayon-carte) var(--tr-rayon-carte); }
   .isoloir .confirmation-vote, .isoloir .accuse-vote, .isoloir__centre { max-width: 640px; margin-inline: auto; }
-  .candidature { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+  .candidature { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; }
+  .candidature__actions { display: flex; flex-wrap: wrap; gap: 8px; }
   @media print {
     .sidebar, .entete, .isoloir__entete, .portail__entete, .portail__onglets, .portail__pied, .bande-tricolore, .formulaire__actions, .alerte { display: none !important; }
     .app { display: block; }

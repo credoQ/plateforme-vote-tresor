@@ -21,6 +21,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\ViewErrorBag;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -112,6 +113,15 @@ class ContenuDuScrutin extends Component
         $utilisateur = $this->utilisateur();
 
         return $utilisateur->aLeRole(CodeRole::Comite, CodeRole::Observateur, CodeRole::Administrateur) ? null : $utilisateur->perimetre();
+    }
+
+    /**
+     * Photo ajoutée, remplacée ou retirée dans la fenêtre Scrutins\PhotoCandidate : la liste est relue.
+     */
+    #[On('photo-candidate-modifiee')]
+    public function photoModifiee(): void
+    {
+        unset($this->candidates, $this->pageCandidates);
     }
 
     /**

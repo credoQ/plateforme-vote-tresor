@@ -15,6 +15,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] La constitution de la liste des candidates de chaque scrutin selon son collège : d’office (agents de sexe féminin en service dans la circonscription), par nomination du comité, ou par reprise des lauréates qualifiées de la phase précédente.
 - [x] La désactivation d’une candidate qui ne souhaite pas concourir (désistement), par le point focal, le comité ou l’administrateur à sa demande, et sa réactivation éventuelle avant l’ouverture du scrutin.
 - [x] La publication et l’export des listes électorales et des listes de candidates.
+- [x] La photo facultative de chaque candidate sur le bulletin (ses initiales sinon), ajoutée, remplacée ou retirée jusqu’à l’ouverture du scrutin par la candidate, le point focal, le comité ou l’administrateur.
 
 ## Avancement
 
@@ -34,6 +35,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] Zone de vote sans aucun agent en service : pas de scrutin, quel que soit le périmètre ; signalée au comité à la génération (R37)
 - [ ] Remplacement d'une lauréate qui se désiste (R36), point à confirmer par le métier
 - [x] Exports CSV, Excel et PDF des listes, avec QR code de vérification sur le PDF (module 08)
+- [x] Photo des candidates : action `ChangerPhotoCandidate` (disque privé, recadrage au format de la carte dans le navigateur, journal), fenêtre Livewire `Scrutins\PhotoCandidate` (onglet Candidates et espace de la candidate), photo reprise par la qualifiée, bulletin en cartes portrait
 
 ## Acteurs
 

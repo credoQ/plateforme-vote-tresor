@@ -20,7 +20,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
  */
 #[Table('candidates')]
 #[Fillable([
-    'scrutin_id', 'agent_id', 'origine', 'reference_nomination', 'nommee_par_id', 'date_nomination', 'statut', 'date_desistement', 'motif_desistement',
+    'scrutin_id', 'agent_id', 'origine', 'reference_nomination', 'nommee_par_id', 'date_nomination', 'statut', 'date_desistement', 'motif_desistement', 'photo',
     'desactivee_par_id', 'candidate_source_id', 'nb_voix', 'pourcentage', 'rang', 'est_laureate',
 ])]
 class Candidate extends Model
@@ -117,5 +117,14 @@ class Candidate extends Model
             'rang' => 'integer',
             'est_laureate' => 'boolean',
         ];
+    }
+
+    /**
+     * Adresse de la photo affichée sur le bulletin, ou null (initiales) ; le nom du fichier change à chaque envoi,
+     * ce qui renouvelle le cache du navigateur.
+     */
+    public function urlPhoto(): ?string
+    {
+        return $this->photo !== null ? route('candidates.photo', ['candidate' => $this, 'v' => pathinfo($this->photo, PATHINFO_FILENAME)]) : null;
     }
 }

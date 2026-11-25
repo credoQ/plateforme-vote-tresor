@@ -79,7 +79,16 @@
                 <tbody>
                     @forelse ($this->pageCandidates as $candidate)
                         <tr wire:key="candidate-{{ $candidate->id }}">
-                            <td>{{ $candidate->agent->nomComplet() }}<div class="aide">{{ $candidate->agent->matricule }}</div></td>
+                            <td>
+                                <div class="cellule-photo">
+                                    @if ($candidate->photo)
+                                        <img class="vignette-photo" src="{{ $candidate->urlPhoto() }}" alt="" loading="lazy">
+                                    @else
+                                        <span class="vignette-photo" aria-hidden="true">{{ $candidate->agent->initiales() }}</span>
+                                    @endif
+                                    <div>{{ $candidate->agent->nomComplet() }}<div class="aide">{{ $candidate->agent->matricule }}</div></div>
+                                </div>
+                            </td>
                             <td>{{ $structures[$candidate->structure_inscription_id]->code ?? '' }}</td>
                             <td>
                                 {{ $candidate->origine->libelle() }}
@@ -100,6 +109,9 @@
                                     <button type="button" class="btn btn-tertiaire btn--sm" data-ouvrir="modale-retirer-nomination-{{ $candidate->id }}"><i data-lucide="user-minus"></i>Retirer la nomination</button>
                                 @endif
                                 @if ($scrutin->accepteLesDesistements())
+                                    @can('changerPhoto', $candidate)
+                                        <button type="button" class="btn btn-tertiaire btn--sm" x-on:click="Livewire.dispatch('ouvrir-photo-candidate', { candidate: {{ $candidate->id }} })"><i data-lucide="{{ $candidate->photo ? 'image' : 'image-plus' }}"></i>{{ $candidate->photo ? 'Modifier la photo' : 'Ajouter une photo' }}</button>
+                                    @endcan
                                     @if ($candidate->estActive())
                                         @can('desactiver', $candidate)
                                             <button type="button" class="btn btn-danger-contour btn--sm" data-ouvrir="modale-desactiver-{{ $candidate->id }}"><i data-lucide="user-x"></i>Désactiver</button>

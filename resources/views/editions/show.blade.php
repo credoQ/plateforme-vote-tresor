@@ -69,6 +69,10 @@
                 </script>
             @endif
 
+            @foreach ($alertesOuverture as $alerte)
+                <div class="alerte alerte--{{ $alerte['ton'] }} espace-bloc" role="status"><i data-lucide="{{ $alerte['ton'] === 'erreur' ? 'circle-alert' : 'alarm-clock' }}"></i><div>{{ $alerte['texte'] }}</div></div>
+            @endforeach
+
             <ol class="taches-phase" aria-label="Étapes de la {{ $phase->libelle }}">
                 @foreach ($taches as $tache)
                     <li @class(['taches-phase__tache', 'est-faite' => $tache['faite'], 'est-courante' => $tache['courante'], 'est-a-venir' => ! $tache['faite'] && ! $tache['courante']]) @if ($tache['courante']) aria-current="step" @endif>

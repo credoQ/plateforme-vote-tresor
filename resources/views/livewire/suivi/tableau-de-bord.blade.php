@@ -31,6 +31,13 @@
         </div>
     </div>
 
+    @foreach ($alertesOuverture as $alerte)
+        <div class="alerte alerte--{{ $alerte['ton'] }} espace-bloc" role="status">
+            <i data-lucide="{{ $alerte['ton'] === 'erreur' ? 'circle-alert' : 'alarm-clock' }}"></i>
+            <div>{{ $alerte['texte'] }} <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $alerte['phase']->numero]) }}">Voir la phase</a></div>
+        </div>
+    @endforeach
+
     @island(name: 'donnees', always: true)
         <div wire:poll.60s>
             @if ($this->donnees === null)
@@ -110,17 +117,28 @@
 
                 <div class="grille-large-etroite espace-bloc">
                     <section class="carte">
-                        <div class="carte__entete"><h2>Participation par département</h2></div>
-                        <div class="carte__corps barres-colonnes">
-                            @forelse ($this->donnees['departements'] as $ligne)
-                                <div class="barre-horizontale">
-                                    <span>{{ $ligne['libelle'] }}</span>
-                                    <span class="barre-horizontale__piste"><span style="width:{{ $ligne['taux'] }}%"></span></span>
-                                    <b>{{ number_format($ligne['taux'], 1, ',', ' ') }} %</b>
-                                </div>
-                            @empty
+                        <div class="carte__entete"><h2>Participation par zone de vote</h2><span class="aide carte__aide">triée par taux</span></div>
+                        <div class="carte__corps">
+                            @if ($this->donnees['zones']['departements']['lignes']->isEmpty() && $this->donnees['zones']['structures']['lignes']->isEmpty())
                                 <div class="etat-vide"><p>Aucun inscrit.</p></div>
-                            @endforelse
+                            @else
+                                <div class="zones-participation">
+                                    @foreach (['departements' => ['map-pin', 'Départements · pôle départemental'], 'structures' => ['building-2', 'Structures · pôle structures']] as $groupe => [$icone, $titre])
+                                        @if ($this->donnees['zones'][$groupe]['lignes']->isNotEmpty())
+                                            <div class="zones-participation__groupe">
+                                                <div class="zones-participation__titre"><span><i data-lucide="{{ $icone }}"></i>{{ $titre }}</span><b>{{ number_format($this->donnees['zones'][$groupe]['taux'], 1, ',', ' ') }} %</b></div>
+                                                @foreach ($this->donnees['zones'][$groupe]['lignes'] as $ligne)
+                                                    <div class="barre-horizontale" title="{{ $ligne['libelle'] }} : {{ number_format($ligne['votants'], 0, ',', ' ') }} votant(s) sur {{ number_format($ligne['inscrits'], 0, ',', ' ') }}">
+                                                        <span>{{ $ligne['code'] }}</span>
+                                                        <span class="barre-horizontale__piste"><span style="width:{{ $ligne['taux'] }}%"></span></span>
+                                                        <b>{{ number_format($ligne['taux'], 1, ',', ' ') }} %</b>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    @endforeach
+                                </div>
+                            @endif
                         </div>
                     </section>
                     <section class="carte">
@@ -221,7 +239,14 @@
                 <div x-show="vue === 'scrutins'"><x-fin-filtres :total="$totalScrutins" libelle="scrutin(s)" :actifs="$filtresActifs" :reinitialiser="route('tableau-de-bord')" /></div>
             </div>
 
-            @island(name: 'donnees', always: true)
+            @foreach ($alertesOuverture as $alerte)
+        <div class="alerte alerte--{{ $alerte['ton'] }} espace-bloc" role="status">
+            <i data-lucide="{{ $alerte['ton'] === 'erreur' ? 'circle-alert' : 'alarm-clock' }}"></i>
+            <div>{{ $alerte['texte'] }} <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $alerte['phase']->numero]) }}">Voir la phase</a></div>
+        </div>
+    @endforeach
+
+    @island(name: 'donnees', always: true)
                 <div class="tableau-defilant">
                     @if ($this->donnees !== null)
                         <table class="tableau tableau--fiches" x-show="vue === 'scrutins'">

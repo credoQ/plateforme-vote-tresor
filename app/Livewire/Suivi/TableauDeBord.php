@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Suivi;
 
+use App\Actions\Editions\SignalerOuverturesEnAttente;
 use App\Actions\Suivi\MesurerParticipation;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutEdition;
@@ -17,6 +18,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -122,7 +124,7 @@ class TableauDeBord extends Component
     }
 
     /**
-     * @return array{global: array{inscrits: int, votants: int, taux: float}, scrutins: Collection<int, array<string, mixed>>, departements: Collection<int, array<string, mixed>>, structures: Collection<int, array<string, mixed>>}|null
+     * @return array{global: array{inscrits: int, votants: int, taux: float}, scrutins: Collection<int, array<string, mixed>>, zones: array{departements: array<string, mixed>, structures: array<string, mixed>}, structures: Collection<int, array<string, mixed>>}|null
      */
     #[Computed]
     public function participation(): ?array
@@ -154,7 +156,7 @@ class TableauDeBord extends Component
             'global' => $this->participation['global'],
             'indicateurs' => $this->indicateurs($scrutins),
             'heures' => $this->heures(app(MesurerParticipation::class)->votesParHeure($this->phaseAffichee, $this->limite)),
-            'departements' => $this->participation['departements']->sortByDesc('taux')->values(),
+            'zones' => $this->participation['zones'],
             'structures' => $this->participation['structures'],
             'scrutins' => $this->paginer($this->filtrer($scrutins)),
             'statuts' => $this->statuts($scrutins),
@@ -176,6 +178,8 @@ class TableauDeBord extends Component
             'filtresActifs' => trim($this->recherche) !== '' || $this->pole !== '' || $this->statut !== '',
             'totalScrutins' => $this->donnees === null ? 0 : $this->donnees['scrutins']->total(),
             'restreint' => $this->limite !== null,
+            // Scrutins arrivés à leur heure d'ouverture sans que leur phase soit ouverte : à l'attention du comité.
+            'alertesOuverture' => $this->edition !== null && Gate::allows('piloter') ? app(SignalerOuverturesEnAttente::class)->handle($this->edition) : [],
         ]);
     }
 

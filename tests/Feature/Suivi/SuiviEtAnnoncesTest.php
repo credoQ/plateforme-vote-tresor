@@ -5,7 +5,6 @@ namespace Tests\Feature\Suivi;
 use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
-use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Vote\DeposerBulletin;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutEdition;
@@ -60,7 +59,7 @@ class SuiviEtAnnoncesTest extends TestCase
         $this->edition->phase(Phase::PRIMAIRES)->update(['statut' => StatutPhase::Ouverte]);
         $this->scrutinAtl = Scrutin::where('code', 'DEP-ATL')->firstOrFail();
         app(ArreterListes::class)->handle($this->scrutinAtl->phase);
-        app(PlanifierScrutin::class)->handle($this->scrutinAtl->fresh(), now()->subMinute(), now()->addHours(6));
+        $this->scrutinAtl->update(['date_heure_ouverture' => now()->subMinute(), 'date_heure_fermeture' => now()->addHours(6)]);
         app(OuvrirScrutin::class)->handle($this->scrutinAtl);
     }
 

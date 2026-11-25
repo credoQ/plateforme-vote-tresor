@@ -25,6 +25,11 @@ class Scrutin extends Model
     use HasFactory, IdentifieParUuid;
 
     /**
+     * Fuseau des horaires saisis et affichés (heure du Bénin) ; ils sont enregistrés en UTC.
+     */
+    public const FUSEAU = 'Africa/Porto-Novo';
+
+    /**
      * @var array<string, mixed>
      */
     protected $attributes = [

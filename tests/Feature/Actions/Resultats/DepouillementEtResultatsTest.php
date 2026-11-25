@@ -13,7 +13,6 @@ use App\Actions\Scrutins\DesactiverCandidate;
 use App\Actions\Scrutins\FermerScrutin;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
-use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Vote\DeposerBulletin;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutPhase;
@@ -78,7 +77,7 @@ class DepouillementEtResultatsTest extends TestCase
         $this->edition->phase(Phase::PRIMAIRES)->update(['statut' => StatutPhase::Ouverte]);
         $this->scrutin = Scrutin::where('code', 'STR-DIA')->firstOrFail();
         app(ArreterListes::class)->handle($this->scrutin->phase);
-        app(PlanifierScrutin::class)->handle($this->scrutin->fresh(), now()->subMinutes(15), now()->addHours(4));
+        $this->scrutin->update(['date_heure_ouverture' => now()->subMinutes(15), 'date_heure_fermeture' => now()->addHours(4)]);
         app(OuvrirScrutin::class)->handle($this->scrutin);
     }
 

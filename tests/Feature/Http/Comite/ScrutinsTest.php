@@ -66,7 +66,7 @@ class ScrutinsTest extends TestCase
 
         $this->actingAs($this->comite)->from(route('scrutins.show', $scrutin))
             ->followingRedirects()
-            ->post(route('scrutins.planifier', $scrutin), ['ouverture' => '2026-11-16T09:44', 'fermeture' => '2026-11-24T09:44'])
+            ->post(route('scrutins.planifier', $scrutin), ['ouverture' => '2026-11-19T09:44', 'fermeture' => '2026-11-24T09:44'])
             ->assertSee('Le scrutin ne peut pas s’ouvrir avant le début de la phase, le 20/11/2026.', false)
             ->assertSee('signalerErreur', false);
         $this->assertNull($scrutin->fresh()->date_heure_ouverture);

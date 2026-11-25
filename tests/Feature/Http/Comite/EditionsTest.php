@@ -127,6 +127,30 @@ class EditionsTest extends TestCase
             ->assertSee('<button type="button" class="btn btn-secondaire" data-ouvrir="modale-lancer">', false);
     }
 
+    /**
+     * R18, R19 : un scrutin arrivé à son heure d'ouverture sans que sa phase soit ouverte est signalé au comité
+     * (fiche de l'édition, tableau de bord) ; la phase ne s'ouvre pas tant qu'il n'est pas replanifié.
+     */
+    public function test_r19_signale_les_scrutins_arrives_a_leur_heure_sans_phase_ouverte(): void
+    {
+        $this->travelTo(Carbon::parse('2026-11-20 09:00:00'));
+        $edition = Edition::factory()->avecPhases()->enCours()->create(['date_debut' => '2026-11-01', 'date_fin' => '2026-12-31']);
+        $phase = $edition->phase(1);
+        $phase->update(['date_debut' => '2026-11-15', 'date_fin' => '2026-11-30']);
+        Scrutin::factory()->for($phase)->create(['code' => 'DEP-PASSE', 'date_heure_ouverture' => '2026-11-20 06:00:00', 'date_heure_fermeture' => '2026-11-20 17:00:00']);
+        Scrutin::factory()->for($phase)->create(['code' => 'DEP-PROCHE', 'date_heure_ouverture' => '2026-11-21 07:00:00', 'date_heure_fermeture' => '2026-11-21 17:00:00']);
+
+        $this->actingAs($this->comite)->get(route('editions.show', $edition))->assertOk()
+            ->assertSee('l’heure d’ouverture de 1 scrutin(s) est passée (DEP-PASSE)', false)
+            ->assertSee('1 scrutin(s) doivent s’ouvrir dans moins de 24 h (le premier le 21/11/2026 à 08:00)', false)
+            ->assertSee('1 scrutin(s) ont une heure d’ouverture déjà passée : replanifiez-les.', false);
+        $this->post(route('phases.ouvrir', $phase))
+            ->assertSessionHasErrors(['phase' => 'L’heure d’ouverture de 1 scrutin(s) est déjà passée (DEP-PASSE) : replanifiez-les avant d’ouvrir la phase.']);
+
+        $this->get(route('tableau-de-bord'))->assertOk()->assertSee('(DEP-PASSE)', false)->assertSee('Voir la phase');
+        $this->actingAs(User::factory()->avecRoles(CodeRole::Observateur)->create())->get(route('tableau-de-bord'))->assertOk()->assertDontSee('(DEP-PASSE)', false);
+    }
+
     public function test_les_adresses_portent_un_uuid_et_jamais_le_numero_de_la_ligne(): void
     {
         $edition = Edition::factory()->avecPhases()->create();

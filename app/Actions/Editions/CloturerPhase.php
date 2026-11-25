@@ -7,6 +7,7 @@ use App\Enums\Audit\ActionAuditee;
 use App\Enums\Editions\SourceFemmeModele;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
+use App\Jobs\Scrutins\ActualiserListesElectorales;
 use App\Models\Edition;
 use App\Models\FemmeModele;
 use App\Models\Phase;
@@ -41,6 +42,8 @@ class CloturerPhase
 
             $phase->update(['statut' => StatutPhase::Cloturee, 'date_cloture' => now()]);
             $this->journal->handle(ActionAuditee::PhaseCloturee, $phase, ['phase' => $phase->libelle]);
+            // R35 : les lauréates sont reprises tout de suite comme candidates de la phase suivante (listes non arrêtées).
+            ActualiserListesElectorales::dispatch();
 
             if ($phase->estLaDerniere()) {
                 $phase->edition->update(['statut' => StatutEdition::Cloturee]);

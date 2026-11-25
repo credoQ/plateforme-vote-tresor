@@ -47,25 +47,6 @@ class VoteController extends Controller
         ]);
     }
 
-    /**
-     * Étape de confirmation : le choix est rappelé avant l'enregistrement définitif (R40).
-     */
-    public function confirmer(Request $request): View|RedirectResponse
-    {
-        $inscription = $this->inscription($request);
-        if ($inscription === null || $inscription->a_vote || ! $this->estOuvert($inscription->scrutin)) {
-            return redirect()->route('vote');
-        }
-
-        $choix = $this->choix($request, $inscription->scrutin);
-
-        return view('vote.confirmation', [
-            'scrutin' => $inscription->scrutin,
-            'choix' => $choix,
-            'valeur' => $choix === null ? self::BLANC : $choix['id'],
-        ]);
-    }
-
     public function store(Request $request, DeposerBulletin $deposer, EnvoyerAccuseDeVote $envoyer): RedirectResponse
     {
         $inscription = $this->inscription($request);

@@ -147,12 +147,22 @@ document.addEventListener('submit', async (e) => {
         return;
     }
 
-    const memePage = new URL(redirection, window.location.href).pathname === window.location.pathname;
+    // Une adresse avec ancre (#resultats) vers la page actuelle ne serait qu'un défilement pour Livewire, sans
+    // recharger le contenu ni afficher le message : on navigue sans l'ancre, puis on défile jusqu'à elle.
+    const cible = new URL(redirection, window.location.href);
+    const ancre = cible.hash;
+    cible.hash = '';
+    const memePage = cible.pathname === window.location.pathname;
     const hauteur = window.scrollY;
-    if (memePage) {
-        document.addEventListener('livewire:navigated', () => requestAnimationFrame(() => window.scrollTo(0, hauteur)), { once: true });
-    }
-    window.Livewire.navigate(redirection);
+    document.addEventListener('livewire:navigated', () => requestAnimationFrame(() => {
+        const element = ancre ? document.getElementById(decodeURIComponent(ancre.slice(1))) : null;
+        if (element) {
+            element.scrollIntoView({ block: 'start' });
+        } else if (memePage) {
+            window.scrollTo(0, hauteur);
+        }
+    }), { once: true });
+    window.Livewire.navigate(cible.href);
 });
 // Retour arrière (page restaurée du cache) : les formulaires redeviennent utilisables.
 window.addEventListener('pageshow', (e) => {

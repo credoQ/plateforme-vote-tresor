@@ -117,7 +117,7 @@ class Accueil extends Component
             'nbCandidates' => $scrutin?->statut === StatutScrutin::Ouvert ? $scrutin->candidates()->actives()->count() : null,
             'resultatsPublies' => $this->resultatsPublies(),
             'candidatures' => $this->candidatures,
-            'initiales' => $this->utilisateur()->agent?->initiales() ?? '',
+            'avatar' => $this->utilisateur()->agent?->avatar() ?? ['tenue' => 1, 'peau' => 1, 'cheveux' => 1, 'coiffure' => 1],
             'echeance' => $this->prochaineEcheance($scrutin),
         ]);
     }

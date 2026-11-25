@@ -120,7 +120,7 @@ class Candidate extends Model
     }
 
     /**
-     * Adresse de la photo affichée sur le bulletin, ou null (initiales) ; le nom du fichier change à chaque envoi,
+     * Adresse de la photo affichée sur le bulletin, ou null (avatar dessiné) ; le nom du fichier change à chaque envoi,
      * ce qui renouvelle le cache du navigateur.
      */
     public function urlPhoto(): ?string

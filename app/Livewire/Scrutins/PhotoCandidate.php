@@ -42,7 +42,7 @@ class PhotoCandidate extends Component
     }
 
     /**
-     * @return array{candidate: Candidate, structure: string, initiales: string}|null
+     * @return array{candidate: Candidate, structure: string, avatar: array{tenue: int, peau: int, cheveux: int, coiffure: int}}|null
      */
     #[Computed]
     public function candidate(): ?array
@@ -58,7 +58,7 @@ class PhotoCandidate extends Component
         return [
             'candidate' => $candidate,
             'structure' => $structure?->libelle ?? '',
-            'initiales' => $candidate->agent->initiales(),
+            'avatar' => $candidate->agent->avatar(),
         ];
     }
 
@@ -69,7 +69,7 @@ class PhotoCandidate extends Component
 
     public function retirer(ChangerPhotoCandidate $changer): void
     {
-        $this->changer($changer, null, 'La photo est retirée : les initiales apparaissent sur le bulletin.');
+        $this->changer($changer, null, 'La photo est retirée : un avatar la remplace sur le bulletin.');
     }
 
     public function render(): View

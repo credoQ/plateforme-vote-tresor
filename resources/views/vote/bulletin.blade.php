@@ -46,7 +46,7 @@
                                 @if ($candidate['photo'])
                                     <img class="carte-photo__image" src="{{ $candidate['photo'] }}" alt="" loading="lazy">
                                 @else
-                                    <span class="carte-photo__initiales" aria-hidden="true">{{ $candidate['initiales'] }}</span>
+                                    <x-avatar-femme :variante="$candidate['avatar']" />
                                 @endif
                                 <span class="carte-photo__legende"><span class="carte-candidate__nom">{{ $candidate['nom'] }}</span><span class="carte-candidate__structure">{{ $candidate['structure'] }}</span></span>
                             </span>

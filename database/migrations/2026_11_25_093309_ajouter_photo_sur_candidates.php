@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Photo facultative d'une candidate, affichée sur le bulletin : chemin du fichier sur le disque privé, ou null
- * (la candidate apparaît alors avec ses initiales).
+ * (la candidate apparaît alors avec un avatar dessiné).
  */
 return new class extends Migration
 {

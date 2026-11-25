@@ -15,7 +15,7 @@ Ce module génère les scrutins de chaque phase et leurs corps électoraux.
 - [x] La constitution de la liste des candidates de chaque scrutin selon son collège : d’office (agents de sexe féminin en service dans la circonscription), par nomination du comité, ou par reprise des lauréates qualifiées de la phase précédente.
 - [x] La désactivation d’une candidate qui ne souhaite pas concourir (désistement), par le point focal, le comité ou l’administrateur à sa demande, et sa réactivation éventuelle avant l’ouverture du scrutin.
 - [x] La publication et l’export des listes électorales et des listes de candidates.
-- [x] La photo facultative de chaque candidate sur le bulletin (ses initiales sinon), ajoutée, remplacée ou retirée jusqu’à l’ouverture du scrutin par la candidate, le point focal, le comité ou l’administrateur.
+- [x] La photo facultative de chaque candidate sur le bulletin (un avatar dessiné sinon), ajoutée, remplacée ou retirée jusqu’à l’ouverture du scrutin par la candidate, le point focal, le comité ou l’administrateur.
 
 ## Avancement
 

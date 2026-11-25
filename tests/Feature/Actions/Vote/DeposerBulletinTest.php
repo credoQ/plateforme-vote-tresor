@@ -17,6 +17,7 @@ use App\Models\Candidate;
 use App\Models\Edition;
 use App\Models\Inscription;
 use App\Models\Phase;
+use App\Models\ProcesVerbal;
 use App\Models\Scrutin;
 use App\Models\Structure;
 use Illuminate\Database\QueryException;
@@ -223,13 +224,23 @@ class DeposerBulletinTest extends TestCase
         $this->assertSame(StatutScrutin::Annule, app(OuvrirScrutin::class)->handle($scrutin)->statut);
     }
 
-    public function test_la_commande_de_bascule_ferme_les_scrutins_arrives_a_echeance(): void
+    /**
+     * R47 : à la fermeture, la commande de bascule clôt le scrutin puis le dépouille aussitôt.
+     */
+    public function test_r47_la_commande_de_bascule_ferme_puis_depouille_les_scrutins_arrives_a_echeance(): void
     {
+        $this->voter($this->marc, $this->candidate($this->clarisse));
         $this->travelTo(Carbon::parse('2026-11-18 18:40:00'));
 
         $this->artisan('scrutins:basculer')->assertSuccessful();
 
-        $this->assertSame(StatutScrutin::Clos, $this->scrutin->fresh()->statut);
+        $scrutin = $this->scrutin->fresh();
+        $this->assertSame(StatutScrutin::Clos, $scrutin->statut);
+        $this->assertSame(1, $scrutin->procesVerbal->nb_votants);
+        $this->assertSame(1, $this->candidate($this->clarisse)->fresh()->nb_voix);
+
+        $this->artisan('scrutins:basculer')->assertSuccessful();
+        $this->assertSame(1, ProcesVerbal::where('scrutin_id', $scrutin->id)->count(), 'Un scrutin dépouillé ne l’est pas de nouveau.');
     }
 
     public function test_la_commande_de_bascule_ouvre_les_scrutins_dont_l_heure_est_venue(): void

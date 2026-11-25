@@ -169,3 +169,30 @@ document.addEventListener('submit', (e) => {
     e.preventDefault();
     avertir({ titre: formulaire.dataset.choixTitre, texte: formulaire.dataset.choixTexte });
 }, true);
+
+// Bulletin (data-confirmer-vote) : le vote part après une confirmation qui rappelle le choix. Ce gestionnaire vient
+// après celui du choix obligatoire : sans case cochée, l'envoi est déjà arrêté et rien n'est demandé.
+document.addEventListener('submit', async (e) => {
+    const formulaire = e.target.closest('form[data-confirmer-vote]');
+    if (!formulaire || e.defaultPrevented || formulaire.dataset.voteConfirme === 'oui') return;
+    e.preventDefault();
+
+    const carte = formulaire.querySelector('input[name="candidate"]:checked')?.closest('label');
+    const contenu = document.createElement('div');
+    contenu.className = 'fm-swal-contenu';
+    const choix = document.createElement('p');
+    choix.append('Votre choix : ');
+    const nom = document.createElement('strong');
+    nom.textContent = carte?.dataset.nom ?? '';
+    choix.append(nom);
+    const structure = carte?.querySelector('.carte-candidate__structure')?.textContent.trim();
+    if (structure && carte?.dataset.nom !== 'Vote blanc') choix.append(` · ${structure}`);
+    const avertissement = document.createElement('p');
+    avertissement.textContent = 'Votre vote est enregistré de façon anonyme et ne pourra plus être modifié. Vous recevrez un accusé de vote sans mention de votre choix.';
+    contenu.append(choix, avertissement);
+
+    const confirme = await confirmer({ titre: 'Confirmer votre vote ?', html: contenu, bouton: 'Confirmer mon vote', annuler: 'Revenir au bulletin' });
+    if (!confirme) return;
+    formulaire.dataset.voteConfirme = 'oui';
+    formulaire.requestSubmit();
+}, true);

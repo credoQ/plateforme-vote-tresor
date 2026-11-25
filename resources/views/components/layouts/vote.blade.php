@@ -1,5 +1,6 @@
-@props(['titre', 'contexte' => null, 'etape' => null])
-{{-- Gabarit de la page de vote : sans menu, l'électeur n'a que son bulletin sous les yeux. Étapes : 1 choisir, 2 confirmer. --}}
+@props(['titre', 'contexte' => null])
+{{-- Gabarit de la page de vote : sans menu, l'électeur n'a que son bulletin sous les yeux. Le vote se confirme dans le
+     bulletin, par une fenêtre qui rappelle le choix (alertes.js). --}}
 <!DOCTYPE html>
 <html lang="fr" data-theme="clair">
 <head>
@@ -18,19 +19,6 @@
             <img src="{{ asset('images/embleme-tresor.png') }}" alt="Trésor public">
             <div><strong>Femme modèle du Trésor</strong>@if ($contexte)<small>{{ $contexte }}</small>@endif</div>
         </div>
-        @if ($etape)
-            <div class="etapes isoloir__etapes" aria-label="Étape {{ $etape }} sur 2">
-                <div @class(['etape', 'est-en-cours' => $etape === 1, 'est-faite' => $etape === 2])>
-                    <span class="etape__puce">@if ($etape === 2)<i data-lucide="check"></i>@else 1 @endif</span>
-                    <span class="etape__texte">Choisir<small>votre candidate</small></span>
-                </div>
-                <span class="etape__trait"></span>
-                <div @class(['etape', 'est-en-cours' => $etape === 2]) @if ($etape === 2) aria-current="step" @endif>
-                    <span class="etape__puce">2</span>
-                    <span class="etape__texte">Confirmer<small>votre vote</small></span>
-                </div>
-            </div>
-        @endif
         <div class="isoloir__droite">
             <button type="button" class="icone-bouton" data-basculer-theme title="Basculer le thème clair / sombre"><i data-lucide="moon"></i></button>
             <a href="{{ route('espace') }}" class="btn btn-discret isoloir__quitter" title="Quitter le vote et revenir à l’accueil"><i data-lucide="x"></i><span>Quitter</span></a>

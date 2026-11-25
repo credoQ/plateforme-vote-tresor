@@ -54,7 +54,6 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:voter')->group(function () {
         Route::get('/vote', [VoteController::class, 'show'])->name('vote');
-        Route::post('/vote/confirmation', [VoteController::class, 'confirmer'])->name('vote.confirmer');
         Route::post('/vote', [VoteController::class, 'store'])->middleware('throttle:vote')->name('vote.store');
         Route::get('/vote/accuse/{numero}', [VoteController::class, 'accuse'])->name('vote.accuse');
     });

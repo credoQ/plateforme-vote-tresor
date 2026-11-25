@@ -73,7 +73,7 @@ class ScrutinsTest extends TestCase
     }
 
     /**
-     * R19, R27 : planification, actualisation puis arrêt des listes de la phase ; les listes arrêtées ne s'actualisent plus.
+     * R19, R27 : planification puis arrêt des listes de la phase ; les listes arrêtées ne se mettent plus à jour.
      */
     public function test_r27_planifie_et_arrete_les_listes_d_un_scrutin(): void
     {
@@ -84,12 +84,11 @@ class ScrutinsTest extends TestCase
         $this->post(route('scrutins.planifier', $scrutin), ['ouverture' => '2026-11-20T08:00', 'fermeture' => '2026-11-20T18:00'])->assertSessionHasNoErrors();
         $this->assertSame('2026-11-20 07:00:00', $scrutin->fresh()->date_heure_ouverture->utc()->format('Y-m-d H:i:s'), 'Heure du Bénin convertie en UTC.');
 
-        $this->post(route('scrutins.actualiser', $scrutin))->assertSessionHas('succes');
+        $this->get(route('scrutins.show', $scrutin))->assertSee('Elles se mettent à jour automatiquement', false)->assertDontSee('Actualiser les listes');
         $this->post(route('phases.arreter-listes', $scrutin->phase))->assertSessionHasNoErrors();
         $this->assertSame(StatutScrutin::ListesArretees, $scrutin->fresh()->statut);
 
-        $this->post(route('scrutins.actualiser', $scrutin))->assertSessionHasErrors('scrutin');
-        $this->get(route('scrutins.show', $scrutin))->assertDontSee('Actualiser les listes');
+        $this->get(route('scrutins.show', $scrutin))->assertDontSee('Elles se mettent à jour automatiquement', false);
     }
 
     /**
@@ -146,7 +145,7 @@ class ScrutinsTest extends TestCase
 
         $this->actingAs($this->comite)->post(route('scrutins.rouvrir', $scrutin), ['motif' => 'Agente omise de l’import RH'])->assertSessionHas('succes');
         $this->assertSame(StatutScrutin::EnPreparation, $scrutin->fresh()->statut);
-        $this->get(route('scrutins.show', $scrutin))->assertSee('Actualiser les listes')->assertSee('Arrêter les listes');
+        $this->get(route('scrutins.show', $scrutin))->assertSee('Elles se mettent à jour automatiquement', false)->assertSee('Arrêter les listes');
     }
 
     /**

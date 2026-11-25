@@ -69,6 +69,25 @@ class ListesEtCandidatesTest extends TestCase
     }
 
     /**
+     * R27, R30 : un agent ajouté ou muté met à jour seul les listes encore modifiables ; les listes arrêtées ne bougent
+     * plus, et une correction faite pendant l'arrêt est reprise dès la réouverture.
+     */
+    public function test_r27_les_listes_modifiables_se_mettent_a_jour_seules(): void
+    {
+        $dia = Structure::where('code', 'DIA')->firstOrFail();
+        $nouvelle = Agent::factory()->femme()->affecteA($dia, Carbon::parse('2020-01-01'))->create();
+        $this->assertTrue($this->scrutin->inscriptions()->where('agent_id', $nouvelle->id)->exists());
+        $this->assertTrue($this->scrutin->candidates()->where('agent_id', $nouvelle->id)->exists(), 'Candidate d’office dès sa saisie.');
+
+        app(ArreterListes::class)->handle($this->scrutin->phase);
+        $tardive = Agent::factory()->femme()->affecteA($dia, Carbon::parse('2020-01-01'))->create();
+        $this->assertFalse($this->scrutin->inscriptions()->where('agent_id', $tardive->id)->exists(), 'Listes arrêtées : figées.');
+
+        app(RouvrirListes::class)->handle($this->scrutin->fresh(), 'Agente omise');
+        $this->assertTrue($this->scrutin->inscriptions()->where('agent_id', $tardive->id)->exists(), 'Reprise à la réouverture.');
+    }
+
+    /**
      * R33 : une actualisation des listes ne réactive pas une candidate désactivée.
      */
     public function test_r33_une_candidate_desactivee_le_reste_apres_actualisation_des_listes(): void

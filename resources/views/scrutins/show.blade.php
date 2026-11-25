@@ -45,9 +45,8 @@
                     <div class="carte__entete"><span class="frise-phases__numero">Étape 1 sur 5</span><h2>Arrêter les listes électorales</h2></div>
                     <div class="etape-courante__corps">
                         <span class="pastille-icone"><i data-lucide="lock"></i></span>
-                        <div class="etape-courante__texte"><strong>Les listes sont encore modifiables.</strong><p>Actualisez-les après la correction d’un agent. Elles s’arrêtent pour toute la phase, depuis la fiche de l’édition.</p></div>
+                        <div class="etape-courante__texte"><strong>Les listes sont encore modifiables.</strong><p>Elles se mettent à jour automatiquement après chaque correction d’un agent, d’une affectation ou d’une structure, jusqu’à leur arrêt. Elles s’arrêtent pour toute la phase, depuis la fiche de l’édition.</p></div>
                         <div class="etape-courante__actions">
-                            <form method="POST" action="{{ route('scrutins.actualiser', $scrutin) }}">@csrf<button type="submit" class="btn btn-secondaire"><i data-lucide="refresh-cw"></i>Actualiser les listes</button></form>
                             <a wire:navigate href="{{ route('editions.show', [$scrutin->phase->edition, 'phase' => $scrutin->phase->numero]) }}" class="btn btn-primaire"><i data-lucide="lock"></i>Arrêter les listes de la phase</a>
                         </div>
                     </div>

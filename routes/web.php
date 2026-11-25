@@ -79,7 +79,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/phases/{phase}/arreter-listes', [PhaseController::class, 'arreterListes'])->name('phases.arreter-listes');
         Route::post('/phases/{phase}/scrutins', [ScrutinController::class, 'generer'])->name('phases.scrutins.generer');
         Route::post('/scrutins/{scrutin}/planifier', [ScrutinController::class, 'planifier'])->name('scrutins.planifier');
-        Route::post('/scrutins/{scrutin}/actualiser', [ScrutinController::class, 'actualiser'])->name('scrutins.actualiser');
         Route::post('/scrutins/{scrutin}/rouvrir', [ScrutinController::class, 'rouvrir'])->name('scrutins.rouvrir');
         Route::get('/femmes-modeles', [FemmeModeleController::class, 'index'])->name('femmes-modeles.index');
         Route::get('/femmes-modeles/ajouter', [FemmeModeleController::class, 'create'])->name('femmes-modeles.create');

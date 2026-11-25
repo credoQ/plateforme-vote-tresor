@@ -53,6 +53,13 @@ class OuvrirPhase
                 $this->echouer("{$nonPlanifies} scrutin(s) de la phase ne sont pas planifiés : planifiez-les avant d’ouvrir la phase.");
             }
 
+            // R19 : les horaires se figent à l'ouverture ; une heure d'ouverture passée raccourcirait le vote.
+            $passes = SignalerOuverturesEnAttente::scrutinsAvant($phase, now());
+            if ($passes->isNotEmpty()) {
+                $codes = $passes->take(5)->pluck('code')->implode(', ').($passes->count() > 5 ? '…' : '');
+                $this->echouer("L’heure d’ouverture de {$passes->count()} scrutin(s) est déjà passée ({$codes}) : replanifiez-les avant d’ouvrir la phase.");
+            }
+
             $phase->update(['statut' => StatutPhase::Ouverte, 'date_ouverture' => now()]);
             $this->journal->handle(ActionAuditee::PhaseOuverte, $phase, ['phase' => $phase->libelle]);
 

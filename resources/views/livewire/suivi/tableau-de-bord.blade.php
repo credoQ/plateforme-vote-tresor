@@ -31,6 +31,13 @@
         </div>
     </div>
 
+    @foreach ($alertesOuverture as $alerte)
+        <div class="alerte alerte--{{ $alerte['ton'] }} espace-bloc" role="status">
+            <i data-lucide="{{ $alerte['ton'] === 'erreur' ? 'circle-alert' : 'alarm-clock' }}"></i>
+            <div>{{ $alerte['texte'] }} <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $alerte['phase']->numero]) }}">Voir la phase</a></div>
+        </div>
+    @endforeach
+
     @island(name: 'donnees', always: true)
         <div wire:poll.60s>
             @if ($this->donnees === null)
@@ -221,7 +228,14 @@
                 <div x-show="vue === 'scrutins'"><x-fin-filtres :total="$totalScrutins" libelle="scrutin(s)" :actifs="$filtresActifs" :reinitialiser="route('tableau-de-bord')" /></div>
             </div>
 
-            @island(name: 'donnees', always: true)
+            @foreach ($alertesOuverture as $alerte)
+        <div class="alerte alerte--{{ $alerte['ton'] }} espace-bloc" role="status">
+            <i data-lucide="{{ $alerte['ton'] === 'erreur' ? 'circle-alert' : 'alarm-clock' }}"></i>
+            <div>{{ $alerte['texte'] }} <a wire:navigate href="{{ route('editions.show', [$edition, 'phase' => $alerte['phase']->numero]) }}">Voir la phase</a></div>
+        </div>
+    @endforeach
+
+    @island(name: 'donnees', always: true)
                 <div class="tableau-defilant">
                     @if ($this->donnees !== null)
                         <table class="tableau tableau--fiches" x-show="vue === 'scrutins'">

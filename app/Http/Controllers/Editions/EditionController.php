@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Editions;
 
 use App\Actions\Editions\LancerEdition;
+use App\Actions\Editions\SignalerOuverturesEnAttente;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
@@ -61,6 +62,10 @@ class EditionController extends Controller
             'taches' => $phase === null ? [] : $this->tachesDeLaPhase($edition, $phase),
             'bornesPlanification' => $phase === null ? null : $this->bornesPlanification($edition, $phase),
             'planificationScrutins' => $phase?->date_debut === null ? null : $this->planificationScrutins($phase),
+            'alertesOuverture' => $phase === null ? [] : array_values(array_filter(
+                app(SignalerOuverturesEnAttente::class)->handle($edition),
+                fn (array $alerte): bool => $alerte['phase']->is($phase),
+            )),
         ]);
     }
 
@@ -99,6 +104,7 @@ class EditionController extends Controller
         $nonPlanifies = (int) $phase->scrutins_non_planifies_count;
         $editionAlancer = $edition->statut !== StatutEdition::EnCours && ! $editionClose;
         $precedente = $edition->phases->firstWhere('numero', $phase->numero - 1);
+        $ouverturesPassees = $planifiee ? SignalerOuverturesEnAttente::scrutinsAvant($phase, now())->count() : 0;
 
         // Ce qui empêche d'ouvrir la phase, dit en clair (OuvrirPhase le refuse de toute façon).
         $blocages = array_values(array_filter([
@@ -106,6 +112,7 @@ class EditionController extends Controller
             $precedente !== null && $precedente->statut !== StatutPhase::Cloturee ? "La {$precedente->libelle} doit être clôturée." : null,
             $phase->scrutins_count === 0 ? 'Générez les scrutins.' : null,
             $nonPlanifies > 0 ? "{$nonPlanifies} scrutin(s) ne sont pas planifiés." : null,
+            $ouverturesPassees > 0 ? "{$ouverturesPassees} scrutin(s) ont une heure d’ouverture déjà passée : replanifiez-les." : null,
         ]));
 
         $taches = [

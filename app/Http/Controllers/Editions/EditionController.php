@@ -7,6 +7,7 @@ use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Http\Controllers\Controller;
+use App\Http\Controllers\Scrutins\ScrutinController;
 use App\Models\Edition;
 use App\Models\Phase;
 use Illuminate\Http\RedirectResponse;
@@ -44,6 +45,8 @@ class EditionController extends Controller
             'scrutins as scrutins_termines_count' => fn ($s) => $s->whereIn('statut', [StatutScrutin::ResultatsPublies->value, StatutScrutin::Annule->value]),
             'scrutins as scrutins_a_valider_count' => fn ($s) => $s->whereIn('statut', [StatutScrutin::Clos->value, StatutScrutin::ResultatsValides->value]),
             'scrutins as scrutins_en_preparation_count' => fn ($s) => $s->where('statut', StatutScrutin::EnPreparation->value),
+            'scrutins as scrutins_planifiables_count' => fn ($s) => $s->whereIn('statut', [StatutScrutin::EnPreparation->value, StatutScrutin::ListesArretees->value]),
+            'scrutins as scrutins_non_planifies_count' => fn ($s) => $s->whereIn('statut', [StatutScrutin::EnPreparation->value, StatutScrutin::ListesArretees->value])->whereNull('date_heure_ouverture'),
         ]), 'phases.colleges.poleElectoral']);
 
         $phase = ($request->integer('phase') ? $edition->phases->firstWhere('numero', $request->integer('phase')) : null)
@@ -57,6 +60,7 @@ class EditionController extends Controller
             'etatsDesPhases' => $edition->phases->mapWithKeys(fn (Phase $etape): array => [$etape->id => $this->etatDeLaPhase($etape)])->all(),
             'taches' => $phase === null ? [] : $this->tachesDeLaPhase($edition, $phase),
             'bornesPlanification' => $phase === null ? null : $this->bornesPlanification($edition, $phase),
+            'planificationScrutins' => $phase?->date_debut === null ? null : $this->planificationScrutins($phase),
         ]);
     }
 
@@ -78,10 +82,11 @@ class EditionController extends Controller
     }
 
     /**
-     * Préparation et déroulement de la phase en cinq tâches ordonnées (R17 à R19, R27) : la première tâche non
-     * terminée est la tâche courante, qui porte l'action principale.
+     * Préparation et déroulement de la phase en six tâches ordonnées (R17 à R19, R27) : la première tâche non
+     * terminée est la tâche courante, qui porte l'action principale. Une tâche bloquée dit ce qui manque (motif) et,
+     * quand c'est le lancement de l'édition, propose de le faire (lancer).
      *
-     * @return list<array{cle: string, icone: string, titre: string, detail: string, faite: bool, courante: bool, action: string|null, libelleAction: string, actionPossible: bool, motif: string|null}>
+     * @return list<array{cle: string, icone: string, titre: string, detail: string, faite: bool, courante: bool, action: string|null, libelleAction: string, actionPossible: bool, motif: string|null, lancer: bool}>
      */
     private function tachesDeLaPhase(Edition $edition, Phase $phase): array
     {
@@ -90,6 +95,18 @@ class EditionController extends Controller
         $listesArretees = $phase->scrutins_count > 0 && $phase->scrutins_en_preparation_count === 0;
         $clotureImpossible = $phase->scrutins_termines_count < $phase->scrutins_count;
         $gel = $edition->date_gel?->format('d/m/Y');
+        $planifiables = (int) $phase->scrutins_planifiables_count;
+        $nonPlanifies = (int) $phase->scrutins_non_planifies_count;
+        $editionAlancer = $edition->statut !== StatutEdition::EnCours && ! $editionClose;
+        $precedente = $edition->phases->firstWhere('numero', $phase->numero - 1);
+
+        // Ce qui empêche d'ouvrir la phase, dit en clair (OuvrirPhase le refuse de toute façon).
+        $blocages = array_values(array_filter([
+            $editionAlancer ? 'Lancez d’abord l’édition.' : null,
+            $precedente !== null && $precedente->statut !== StatutPhase::Cloturee ? "La {$precedente->libelle} doit être clôturée." : null,
+            $phase->scrutins_count === 0 ? 'Générez les scrutins.' : null,
+            $nonPlanifies > 0 ? "{$nonPlanifies} scrutin(s) ne sont pas planifiés." : null,
+        ]));
 
         $taches = [
             [
@@ -123,6 +140,19 @@ class EditionController extends Controller
                 'libelleAction' => 'Arrêter les listes', 'actionPossible' => true, 'motif' => null,
             ],
             [
+                'cle' => 'planifier-scrutins', 'icone' => 'calendar-clock', 'titre' => 'Planifier les scrutins',
+                'detail' => match (true) {
+                    $phase->scrutins_count === 0 => 'Chaque scrutin reçoit sa date-heure d’ouverture et de fermeture, pendant la phase.',
+                    $planifiables === 0 => 'Les scrutins sont ouverts ou terminés.',
+                    $nonPlanifies > 0 => ($planifiables - $nonPlanifies)." scrutin(s) planifié(s) sur {$planifiables}. Un scrutin non planifié ne s’ouvre pas.",
+                    default => "Les {$planifiables} scrutin(s) sont planifiés ; chacun reste modifiable depuis sa fiche.",
+                },
+                'faite' => $phase->scrutins_count > 0 && $nonPlanifies === 0,
+                'action' => $planifiables > 0 && $phase->date_debut !== null && ! $editionClose ? 'planifier-scrutins' : null,
+                'libelleAction' => $nonPlanifies > 0 ? 'Planifier tous les scrutins' : 'Replanifier tous les scrutins',
+                'actionPossible' => true, 'motif' => null,
+            ],
+            [
                 'cle' => 'ouvrir', 'icone' => 'play', 'titre' => 'Ouvrir la phase',
                 'detail' => $planifiee
                     ? 'Chaque scrutin s’ouvrira ensuite automatiquement à sa date-heure d’ouverture.'
@@ -130,8 +160,9 @@ class EditionController extends Controller
                 'faite' => ! $planifiee,
                 'action' => $planifiee && ! $editionClose ? 'ouvrir' : null,
                 'libelleAction' => 'Ouvrir la phase',
-                'actionPossible' => $edition->statut === StatutEdition::EnCours,
-                'motif' => $edition->statut === StatutEdition::EnCours ? null : 'Possible une fois l’édition lancée.',
+                'actionPossible' => $blocages === [],
+                'motif' => $blocages === [] ? null : 'Avant d’ouvrir : '.mb_lcfirst(implode(' ', $blocages)),
+                'lancer' => $planifiee && $editionAlancer,
             ],
             [
                 'cle' => 'cloturer', 'icone' => 'flag', 'titre' => 'Clôturer la phase',
@@ -148,7 +179,26 @@ class EditionController extends Controller
 
         $courante = collect($taches)->search(fn (array $tache): bool => ! $tache['faite']);
 
-        return array_map(fn (array $tache, int $rang): array => [...$tache, 'courante' => $rang === $courante], $taches, array_keys($taches));
+        return array_map(fn (array $tache, int $rang): array => ['lancer' => false, ...$tache, 'courante' => $rang === $courante], $taches, array_keys($taches));
+    }
+
+    /**
+     * Horaires proposés pour planifier d'un coup les scrutins de la phase (R19), à l'heure du Bénin : ceux du
+     * premier scrutin déjà planifié, sinon du premier jour de la phase à 8 h au dernier jour à 18 h.
+     *
+     * @return array{min: string, max: string, ouverture: string, fermeture: string}
+     */
+    private function planificationScrutins(Phase $phase): array
+    {
+        $planifie = $phase->scrutins()->whereNotNull('date_heure_ouverture')->orderBy('id')->first();
+        $fuseau = ScrutinController::FUSEAU;
+
+        return [
+            'min' => $phase->date_debut->format('Y-m-d').'T00:00',
+            'max' => $phase->date_fin->format('Y-m-d').'T23:59',
+            'ouverture' => $planifie?->date_heure_ouverture->timezone($fuseau)->format('Y-m-d\TH:i') ?? $phase->date_debut->format('Y-m-d').'T08:00',
+            'fermeture' => $planifie?->date_heure_fermeture->timezone($fuseau)->format('Y-m-d\TH:i') ?? $phase->date_fin->format('Y-m-d').'T18:00',
+        ];
     }
 
     /**

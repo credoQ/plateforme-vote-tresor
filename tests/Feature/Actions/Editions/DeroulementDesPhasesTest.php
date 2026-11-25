@@ -82,7 +82,7 @@ class DeroulementDesPhasesTest extends TestCase
     public function test_r18_deroule_les_trois_phases_dans_l_ordre_jusqu_a_la_cloture_de_l_edition(): void
     {
         $edition = $this->editionLancee(function (Edition $e): void {
-            Scrutin::factory()->for($e->phase(Phase::PRIMAIRES))->create();
+            Scrutin::factory()->for($e->phase(Phase::PRIMAIRES))->planifie()->create();
             Scrutin::factory()->for($e->phase(Phase::PRIMAIRES))->statut(StatutScrutin::Annule)->create();
         });
 
@@ -90,7 +90,7 @@ class DeroulementDesPhasesTest extends TestCase
             $phase = $edition->phase($numero);
             $scrutin = $numero === Phase::PRIMAIRES
                 ? $phase->scrutins()->where('statut', '!=', StatutScrutin::Annule->value)->sole()
-                : Scrutin::factory()->for($phase)->create();
+                : Scrutin::factory()->for($phase)->planifie()->create();
 
             $this->ouvrir($phase);
             $this->assertSame(StatutPhase::Ouverte, $phase->fresh()->statut);

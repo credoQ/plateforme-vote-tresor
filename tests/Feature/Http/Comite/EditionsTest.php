@@ -113,6 +113,19 @@ class EditionsTest extends TestCase
             ->assertHasErrors('date_fin')->assertNotDispatched('erreur');
     }
 
+    /**
+     * R16 : tant que l'édition n'est pas lancée, la tâche « Ouvrir la phase » le dit et propose de la lancer.
+     */
+    public function test_r16_la_tache_d_ouverture_propose_de_lancer_l_edition(): void
+    {
+        $edition = Edition::factory()->avecPhases()->create();
+        Scrutin::factory()->for($edition->phase(1))->create(['date_heure_ouverture' => '2030-03-02 07:00:00', 'date_heure_fermeture' => '2030-03-02 17:00:00']);
+
+        $this->actingAs($this->comite)->get(route('editions.show', $edition))->assertOk()
+            ->assertSee('Avant d’ouvrir : lancez d’abord l’édition.', false)
+            ->assertSee('<button type="button" class="btn btn-secondaire" data-ouvrir="modale-lancer">', false);
+    }
+
     public function test_les_adresses_portent_un_uuid_et_jamais_le_numero_de_la_ligne(): void
     {
         $edition = Edition::factory()->avecPhases()->create();
@@ -135,15 +148,28 @@ class EditionsTest extends TestCase
     }
 
     /**
-     * R18 : ouverture puis clôture d'une phase depuis l'écran de l'édition.
+     * R18, R19 : la phase ne s'ouvre qu'avec tous ses scrutins planifiés ; ils se planifient d'un coup, puis la phase
+     * s'ouvre et se clôture depuis l'écran de l'édition.
      */
     public function test_r18_ouvre_et_cloture_une_phase(): void
     {
         $edition = Edition::factory()->avecPhases()->enCours()->create();
         $phase = $edition->phase(1);
-        $scrutin = Scrutin::factory()->for($phase)->create();
+        $phase->update(['date_debut' => '2026-12-01', 'date_fin' => '2026-12-10']);
+        $scrutin = Scrutin::factory()->for($phase)->create(['date_heure_ouverture' => null, 'date_heure_fermeture' => null]);
 
-        $this->actingAs($this->comite)->post(route('phases.ouvrir', $phase))->assertSessionHasNoErrors();
+        $this->actingAs($this->comite)->get(route('editions.show', $edition))->assertOk()
+            ->assertSee('0 scrutin(s) planifié(s) sur 1')->assertSee('Planifier tous les scrutins')
+            ->assertSee('Avant d’ouvrir : 1 scrutin(s) ne sont pas planifiés.', false)
+            ->assertSee('data-ouvrir="modale-ouvrir-'.$phase->id.'" disabled', false);
+        $this->post(route('phases.ouvrir', $phase))->assertSessionHasErrors(['phase' => '1 scrutin(s) de la phase ne sont pas planifiés : planifiez-les avant d’ouvrir la phase.']);
+
+        $this->post(route('phases.planifier-scrutins', $phase), ['ouverture' => '2026-12-11T08:00', 'fermeture' => '2026-12-11T18:00'])->assertSessionHasErrors('scrutin');
+        $this->post(route('phases.planifier-scrutins', $phase), ['ouverture' => '2026-12-02T08:00', 'fermeture' => '2026-12-02T18:00'])
+            ->assertSessionHasNoErrors()->assertSessionHas('succes', '1 scrutin(s) planifié(s) : chacun reste modifiable depuis sa fiche.');
+        $this->assertSame('2026-12-02 07:00:00', $scrutin->fresh()->date_heure_ouverture->utc()->format('Y-m-d H:i:s'), 'Heure du Bénin convertie en UTC.');
+
+        $this->post(route('phases.ouvrir', $phase))->assertSessionHasNoErrors();
         $this->assertSame(StatutPhase::Ouverte, $phase->fresh()->statut);
 
         $this->post(route('phases.cloturer', $phase))->assertSessionHasErrors('phase');

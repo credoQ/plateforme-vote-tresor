@@ -77,6 +77,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/phases/{phase}/ouvrir', [PhaseController::class, 'ouvrir'])->name('phases.ouvrir');
         Route::post('/phases/{phase}/cloturer', [PhaseController::class, 'cloturer'])->name('phases.cloturer');
         Route::post('/phases/{phase}/arreter-listes', [PhaseController::class, 'arreterListes'])->name('phases.arreter-listes');
+        Route::post('/phases/{phase}/planifier-scrutins', [PhaseController::class, 'planifierScrutins'])->name('phases.planifier-scrutins');
         Route::post('/phases/{phase}/scrutins', [ScrutinController::class, 'generer'])->name('phases.scrutins.generer');
         Route::post('/scrutins/{scrutin}/planifier', [ScrutinController::class, 'planifier'])->name('scrutins.planifier');
         Route::post('/scrutins/{scrutin}/rouvrir', [ScrutinController::class, 'rouvrir'])->name('scrutins.rouvrir');

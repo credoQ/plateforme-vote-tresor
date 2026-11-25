@@ -75,7 +75,10 @@
                         <span class="taches-phase__puce"><i data-lucide="{{ $tache['icone'] }}"></i></span>
                         <div>
                             <div class="taches-phase__titre">{{ $tache['titre'] }}</div>
-                            <div class="taches-phase__detail">{{ $tache['detail'] }}@if ($tache['action'] && $tache['motif']) {{ $tache['motif'] }}@endif</div>
+                            <div class="taches-phase__detail">{{ $tache['detail'] }}</div>
+                            @if ($tache['action'] && $tache['motif'])
+                                <div class="taches-phase__blocage"><i data-lucide="circle-alert"></i>{{ $tache['motif'] }}</div>
+                            @endif
                         </div>
                         <div class="taches-phase__action">
                             @if ($tache['action'] === 'planifier')
@@ -87,7 +90,12 @@
                                 </form>
                             @elseif ($tache['action'] === 'arreter')
                                 <button type="button" @class(['btn', 'btn-primaire' => $tache['courante'], 'btn-secondaire' => ! $tache['courante']]) data-ouvrir="modale-arreter-listes-{{ $phase->id }}"><i data-lucide="lock"></i>{{ $tache['libelleAction'] }}</button>
+                            @elseif ($tache['action'] === 'planifier-scrutins')
+                                <button type="button" @class(['btn', 'btn-primaire' => $tache['courante'], 'btn-secondaire' => ! $tache['courante']]) x-data x-on:click="$dispatch('ouvrir-modale', 'planifier-scrutins')"><i data-lucide="calendar-clock"></i>{{ $tache['libelleAction'] }}</button>
                             @elseif ($tache['action'] === 'ouvrir')
+                                @if ($tache['lancer'])
+                                    <button type="button" class="btn btn-secondaire" data-ouvrir="modale-lancer"><i data-lucide="rocket"></i>Lancer l’édition</button>
+                                @endif
                                 <button type="button" @class(['btn', 'btn-primaire' => $tache['courante'], 'btn-secondaire' => ! $tache['courante']]) data-ouvrir="modale-ouvrir-{{ $phase->id }}" @disabled(! $tache['actionPossible'])><i data-lucide="play"></i>{{ $tache['libelleAction'] }}</button>
                             @elseif ($tache['action'] === 'cloturer')
                                 <button type="button" @class(['btn', 'btn-primaire' => $tache['courante'], 'btn-secondaire' => ! $tache['courante']]) data-ouvrir="modale-cloturer-{{ $phase->id }}" @disabled(! $tache['actionPossible'])><i data-lucide="flag"></i>{{ $tache['libelleAction'] }}</button>
@@ -148,6 +156,39 @@
                     <div class="modale__pied">
                         <button type="button" class="btn btn-secondaire" x-on:click="ouvert = false">Annuler</button>
                         <button type="submit" class="btn btn-primaire"><i data-lucide="calendar-check"></i>Enregistrer les dates</button>
+                    </div>
+                </form>
+            </div>
+        @endif
+        @if ($phase && collect($taches)->contains('action', 'planifier-scrutins'))
+            <div class="voile" x-data="{ ouvert: @js($errors->hasAny(['ouverture', 'fermeture'])) }" x-show="ouvert" x-cloak
+                 x-on:ouvrir-modale.window="ouvert = $event.detail === 'planifier-scrutins'" x-on:keydown.escape.window="ouvert = false" x-on:click.self="ouvert = false">
+                <form method="POST" action="{{ route('phases.planifier-scrutins', $phase) }}" class="modale" role="dialog" aria-modal="true" aria-labelledby="titre-planifier-scrutins">
+                    @csrf
+                    <div class="modale__entete">
+                        <span class="pastille-icone"><i data-lucide="calendar-clock"></i></span>
+                        <div>
+                            <h2 id="titre-planifier-scrutins">Planifier les scrutins de la {{ $phase->libelle }}</h2>
+                            <p>Les {{ $phase->scrutins_planifiables_count }} scrutin(s) s’ouvrent et se ferment à ces heures. Chacun reste ajustable depuis sa fiche.</p>
+                        </div>
+                        <button type="button" class="icone-bouton modale__fermer" aria-label="Fermer" x-on:click="ouvert = false"><i data-lucide="x"></i></button>
+                    </div>
+                    <div class="modale__corps formulaire formulaire--deux-colonnes">
+                        <div class="formulaire__groupe">
+                            <label class="libelle" for="scrutins-ouverture">Ouverture <span class="requis">*</span></label>
+                            <input id="scrutins-ouverture" name="ouverture" type="datetime-local" class="champ" min="{{ $planificationScrutins['min'] }}" max="{{ $planificationScrutins['max'] }}" value="{{ old('ouverture', $planificationScrutins['ouverture']) }}" required>
+                            @error('ouverture')<p class="erreur-champ">{{ $message }}</p>@enderror
+                        </div>
+                        <div class="formulaire__groupe">
+                            <label class="libelle" for="scrutins-fermeture">Fermeture <span class="requis">*</span></label>
+                            <input id="scrutins-fermeture" name="fermeture" type="datetime-local" class="champ" min="{{ $planificationScrutins['min'] }}" max="{{ $planificationScrutins['max'] }}" value="{{ old('fermeture', $planificationScrutins['fermeture']) }}" required>
+                            @error('fermeture')<p class="erreur-champ">{{ $message }}</p>@enderror
+                        </div>
+                        <p class="aide formulaire__groupe--pleine">Heure du Bénin. Le vote se déroule pendant la phase, du {{ $phase->date_debut?->format('d/m/Y') }} au {{ $phase->date_fin?->format('d/m/Y') }}.</p>
+                    </div>
+                    <div class="modale__pied">
+                        <button type="button" class="btn btn-secondaire" x-on:click="ouvert = false">Annuler</button>
+                        <button type="submit" class="btn btn-primaire"><i data-lucide="calendar-check"></i>Planifier les scrutins</button>
                     </div>
                 </form>
             </div>

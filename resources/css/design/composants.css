@@ -157,6 +157,8 @@
   .taches-phase__tache.est-courante .taches-phase__puce { border-color: var(--tr-primaire); background: var(--tr-primaire); color: var(--tr-sur-primaire); }
   .taches-phase__titre { font-weight: 700; }
   .taches-phase__detail { margin-top: 2px; font-size: 13px; color: var(--tr-texte-2); }
+  .taches-phase__blocage { display: flex; align-items: flex-start; gap: 6px; margin-top: 4px; font-size: 13px; color: var(--tr-texte-2); }
+  .taches-phase__blocage svg { width: 15px; height: 15px; flex: none; margin-top: 2px; color: var(--tr-attente-500); }
   .taches-phase__tache.est-a-venir .taches-phase__titre, .taches-phase__tache.est-a-venir .taches-phase__detail { color: var(--tr-texte-3); }
   .taches-phase__action { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
   .taches-phase__action form { margin: 0; }

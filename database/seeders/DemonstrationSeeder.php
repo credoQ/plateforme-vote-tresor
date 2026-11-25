@@ -66,10 +66,13 @@ class DemonstrationSeeder extends Seeder
         app(GenererScrutins::class)->handle($primaires);
         app(LancerEdition::class)->handle($edition->fresh());
         app(ArreterListes::class)->handle($primaires);
+        // Les scrutins sont planifiés avant l'ouverture de la phase (R19), puis s'ouvrent aussitôt.
+        foreach ($primaires->scrutins()->get() as $scrutin) {
+            app(PlanifierScrutin::class)->handle($scrutin->fresh(), now()->subMinutes(5), now()->addDays(7)->setTime(18, 0));
+        }
         app(OuvrirPhase::class)->handle($primaires->fresh());
 
         foreach ($primaires->scrutins()->get() as $scrutin) {
-            app(PlanifierScrutin::class)->handle($scrutin->fresh(), now()->subMinutes(5), now()->addDays(7)->setTime(18, 0));
             app(OuvrirScrutin::class)->handle($scrutin->fresh());
         }
 

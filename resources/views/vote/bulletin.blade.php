@@ -1,4 +1,4 @@
-<x-layouts.vote titre="Voter" :contexte="$scrutin->phase->libelle.' · '.$scrutin->libelle" :etape="1">
+<x-layouts.vote titre="Voter" :contexte="$scrutin->phase->libelle.' · '.$scrutin->libelle">
     <div class="titre-page">
         <div>
             <h1>Choisissez votre candidate</h1>
@@ -27,7 +27,8 @@
             <span class="aide" aria-live="polite"><b class="chiffres" x-text="nombreVisibles">{{ $total }}</b> candidate(s) sur {{ $total }}</span>
         </div>
 
-        <form method="POST" action="{{ route('vote.confirmer') }}" novalidate data-choix-requis="candidate"
+        {{-- Le vote part directement, après une confirmation qui rappelle le choix (data-confirmer-vote, alertes.js). --}}
+        <form method="POST" action="{{ route('vote.store') }}" novalidate data-choix-requis="candidate" data-confirmer-vote
               @if ($blancAutorise)
                   data-choix-titre="Aucun choix" data-choix-texte="Choisissez une candidate, ou le vote blanc, avant de continuer."
               @else
@@ -54,7 +55,7 @@
                     @endforeach
                     <div class="etat-vide" x-show="nombreVisibles === 0" x-cloak><i data-lucide="search-x"></i><p>Aucune candidate ne correspond à la recherche.</p></div>
                     @if ($blancAutorise)
-                        <label class="carte-candidate carte-candidate--photo">
+                        <label class="carte-candidate carte-candidate--photo" data-nom="Vote blanc">
                             <input type="radio" name="candidate" value="{{ \App\Http\Controllers\Vote\VoteController::BLANC }}" required>
                             <span class="carte-candidate__coche"><i data-lucide="check"></i></span>
                             <span class="carte-photo">
@@ -67,10 +68,10 @@
             </div>
 
             <div class="barre-vote">
-                <div><div class="surtitre">Étape 1 sur 2</div><b>Sélectionnez votre candidate</b></div>
+                <div><div class="surtitre">Votre choix</div><b>Sélectionnez votre candidate, puis votez</b></div>
                 <div class="barre-vote__actions">
                     <a href="{{ route('espace') }}" class="btn btn-discret">Plus tard</a>
-                    <button type="submit" class="btn btn-primaire btn--lg"><i data-lucide="vote"></i>Continuer vers la confirmation</button>
+                    <button type="submit" class="btn btn-primaire btn--lg"><i data-lucide="vote"></i>Voter</button>
                 </div>
             </div>
         </form>

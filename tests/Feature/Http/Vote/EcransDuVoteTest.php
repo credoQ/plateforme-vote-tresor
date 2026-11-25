@@ -90,21 +90,18 @@ class EcransDuVoteTest extends TestCase
     }
 
     /**
-     * R40, R43 : bulletin, confirmation, vote définitif et accusé sans le choix.
+     * R40, R43 : bulletin (le vote part après une confirmation dans la page), vote définitif et accusé sans le choix.
      */
-    public function test_r40_vote_en_deux_etapes_puis_affiche_l_accuse_sans_le_choix(): void
+    public function test_r40_vote_depuis_le_bulletin_puis_affiche_l_accuse_sans_le_choix(): void
     {
         $this->ouvrir();
         $clarisse = $this->candidate($this->clarisse);
 
         $this->actingAs($this->electeur)->get(route('vote'))
             ->assertOk()->assertSee('AHOUANSOU Clarisse')->assertSee('KPADE Inès')->assertDontSee('Vote blanc')
-            ->assertSee('Étape 1 sur 2')->assertDontSee('Navigation principale');
+            ->assertSee('data-confirmer-vote', false)->assertSee('action="'.route('vote.store').'"', false)->assertSee('Voter</button>', false)
+            ->assertDontSee('Navigation principale');
         $this->get(route('vote'))->assertSee('x-data="filtreBulletin"', false)->assertSee('data-nom="KPADE Inès"', false)->assertDontSee('Filtrer</button>', false);
-
-        $this->post(route('vote.confirmer'), ['candidate' => $clarisse->id])
-            ->assertOk()->assertSee('Confirmer mon vote')->assertSee('AHOUANSOU Clarisse');
-        $this->assertSame(0, Bulletin::count(), 'La confirmation n’enregistre rien.');
 
         $this->post(route('vote.store'), ['candidate' => $clarisse->id])->assertRedirect(route('vote'));
 
@@ -199,7 +196,7 @@ class EcransDuVoteTest extends TestCase
     {
         $this->ouvrir();
 
-        $this->actingAs($this->electeur)->post(route('vote.confirmer'), ['candidate' => Candidate::factory()->create()->id])
+        $this->actingAs($this->electeur)->post(route('vote.store'), ['candidate' => Candidate::factory()->create()->id])
             ->assertRedirect(route('vote'))->assertSessionHasErrors('candidate');
         $this->post(route('vote.store'), ['candidate' => 'blanc'])->assertSessionHasErrors('candidate');
         $this->get(route('vote'))->assertSee('Le vote blanc n’est pas autorisé')->assertDontSee('Vote blanc');

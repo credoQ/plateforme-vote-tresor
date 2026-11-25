@@ -63,7 +63,7 @@ class AppServiceProvider extends ServiceProvider
 
         // En développement (« composer run dev »), le processus de file traite aussi les files des e-mails, par priorité,
         // avec une pause de 2 secondes entre deux tâches : la boîte de test Mailtrap refuse plusieurs e-mails par seconde.
-        DevCommands::artisan('queue:listen --queue=urgent,mails,default --tries=1 --timeout=0 --rest=2', 'queue');
+        DevCommands::artisan('queue:listen --queue=urgent,default,mails --tries=1 --timeout=0 --rest=2', 'queue');
         DevCommands::artisan('schedule:work', 'planificateur');
     }
 

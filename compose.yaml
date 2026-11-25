@@ -48,7 +48,7 @@ services:
   # WORKER_PAUSE : secondes entre deux tâches, pour un serveur SMTP qui limite le nombre d'e-mails par seconde.
   worker:
     <<: *application
-    command: ["php", "artisan", "queue:work", "--queue=urgent,mails,default", "--sleep=3", "--timeout=120", "--rest=${WORKER_PAUSE:-0}"]
+    command: ["php", "artisan", "queue:work", "--queue=urgent,default,mails", "--sleep=3", "--timeout=120", "--rest=${WORKER_PAUSE:-0}"]
     depends_on:
       app:
         condition: service_started

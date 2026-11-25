@@ -87,8 +87,8 @@
                     <div class="carte__entete"><span class="frise-phases__numero">Étape 4 sur 5</span><h2>Dépouiller le scrutin</h2></div>
                     <div class="etape-courante__corps">
                         <span class="pastille-icone"><i data-lucide="calculator"></i></span>
-                        <div class="etape-courante__texte"><strong>Le vote est clos.</strong><p>Le dépouillement compte les voix et désigne les lauréates ; les résultats restent provisoires jusqu’à leur validation.</p></div>
-                        <div class="etape-courante__actions"><form method="POST" action="{{ route('resultats.depouiller', $scrutin) }}">@csrf<button type="submit" class="btn btn-primaire"><i data-lucide="calculator"></i>Dépouiller le scrutin</button></form></div>
+                        <div class="etape-courante__texte"><strong>Le vote est clos.</strong><p>Le dépouillement se fait automatiquement dans la minute qui suit la fermeture : il compte les voix et désigne les lauréates, à titre provisoire jusqu’à la validation. S’il n’a pas eu lieu, lancez-le ici.</p></div>
+                        <div class="etape-courante__actions"><form method="POST" action="{{ route('resultats.depouiller', $scrutin) }}">@csrf<button type="submit" class="btn btn-secondaire"><i data-lucide="calculator"></i>Dépouiller maintenant</button></form></div>
                     </div>
                     @break
                 @case('resultats')

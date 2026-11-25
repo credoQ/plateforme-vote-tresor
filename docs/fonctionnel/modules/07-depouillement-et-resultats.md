@@ -25,6 +25,7 @@ Ce module calcule les résultats à la clôture du scrutin et organise la qualif
 - [x] Femmes modèles du Trésor, lauréates de la dernière phase (`Edition::femmesModeles()`), et palmarès de l'édition (`EtablirPalmares`) (R53)
 - [x] Tests des règles R44, R47 à R55
 - [x] Procès-verbal en PDF (dompdf) aux en-tête et bas de page de la DGTCP, avec QR code de vérification ; affiché dans le navigateur ou téléchargé ; génération relançable
+- [x] Dépouillement automatique à la fermeture (R47), par la commande de bascule lancée chaque minute ; relance possible depuis la fiche du scrutin. Procès-verbal généré avant les annonces par e-mail (file `default` avant `mails`)
 - [x] Écrans : fermeture manuelle si l'heure est passée, dépouillement, résultats provisoires réservés au comité et à l'observateur, départage des ex-æquo, prolongation, validation, publication, procès-verbal, palmarès pour tous
 - [x] Journalisation de la validation et de la publication (R56, module 08)
 - [x] Notification des lauréates à la publication : qualification pour la phase suivante (R35, R52), proclamation des femmes modèles du Trésor à la dernière phase (R53) ; e-mail (file « mails ») et bandeau sur l'accueil

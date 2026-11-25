@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\Actions\Scrutins;
 
+use App\Actions\Editions\CloturerPhase;
 use App\Actions\Scrutins\ConstituerListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\RapportGeneration;
@@ -167,6 +168,33 @@ class GenererScrutinsTest extends TestCase
         $this->assertTrue($candidate->candidateSource->is($laureateAtl));
         $this->assertSame('photos-candidates/atl.jpg', $candidate->photo, 'La qualifiée garde sa photo.');
         $this->assertSame([$this->agents['femme_dia']->id], $this->scrutin('POLE-STRUCTURES')->candidates->pluck('agent_id')->all());
+    }
+
+    /**
+     * R35 : à la clôture de la phase 1, les lauréates deviennent aussitôt candidates des scrutins de la phase 2 dont
+     * les listes ne sont pas arrêtées, sans action du comité ; la commande listes:actualiser fait de même à la demande.
+     */
+    public function test_r35_la_cloture_de_la_phase_reprend_aussitot_les_laureates_en_phase_suivante(): void
+    {
+        $this->generer(Phase::PRIMAIRES);
+        $this->generer(Phase::DEMI_FINALES);
+        $demiDep = $this->scrutin('POLE-DEPARTEMENTAL');
+        $this->assertSame(0, $demiDep->candidates()->count(), 'Phase 1 non clôturée : aucune qualifiée.');
+
+        $laureate = $this->scrutin('DEP-ATL')->candidates->sole();
+        $laureate->update(['est_laureate' => true, 'rang' => 1, 'nb_voix' => 1]);
+        $primaires = $this->edition->phase(Phase::PRIMAIRES);
+        $primaires->scrutins()->update(['statut' => StatutScrutin::ResultatsPublies]);
+        $primaires->update(['statut' => StatutPhase::Ouverte]);
+
+        app(CloturerPhase::class)->handle($primaires);
+
+        $this->assertSame([$laureate->agent_id], $demiDep->candidates()->pluck('agent_id')->all());
+        $this->assertSame(OrigineCandidate::Qualification, $demiDep->candidates()->sole()->origine);
+
+        $demiDep->candidates()->delete();
+        $this->artisan('listes:actualiser')->expectsOutputToContain('scrutin(s) mis à jour')->assertSuccessful();
+        $this->assertSame([$laureate->agent_id], $demiDep->candidates()->pluck('agent_id')->all());
     }
 
     public function test_refuse_de_generer_deux_fois_les_scrutins_d_une_phase(): void

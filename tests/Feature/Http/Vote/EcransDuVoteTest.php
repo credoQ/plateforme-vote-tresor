@@ -6,7 +6,6 @@ use App\Actions\Documents\LienVerification;
 use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
-use App\Actions\Scrutins\PlanifierScrutin;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutCandidate;
@@ -251,7 +250,7 @@ class EcransDuVoteTest extends TestCase
     private function ouvrir(): void
     {
         app(ArreterListes::class)->handle($this->scrutin->phase);
-        app(PlanifierScrutin::class)->handle($this->scrutin->fresh(), now()->subMinutes(10), now()->addHours(6));
+        $this->scrutin->update(['date_heure_ouverture' => now()->subMinutes(10), 'date_heure_fermeture' => now()->addHours(6)]);
         app(OuvrirScrutin::class)->handle($this->scrutin);
     }
 

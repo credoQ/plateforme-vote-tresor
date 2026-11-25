@@ -7,7 +7,6 @@ use App\Actions\Resultats\DepouillerScrutin;
 use App\Actions\Scrutins\FermerScrutin;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
-use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Vote\DeposerBulletin;
 use App\Actions\Vote\EmpreinteBulletin;
 use App\Enums\Agents\Sexe;
@@ -164,7 +163,8 @@ class SimulerChargeVoteCommand extends Command
         // Seul ce scrutin est peuplé : ses listes, constituées à la génération, sont figées directement (les autres scrutins
         // de la phase, vides, bloqueraient l'arrêt de la phase entière).
         $scrutin->update(['statut' => StatutScrutin::ListesArretees]);
-        app(PlanifierScrutin::class)->handle($scrutin->fresh(), now()->subMinute(), now()->addHours(6));
+        // Simulation : horaires posés directement, pour ouvrir le vote tout de suite (la planification refuse une ouverture passée).
+        $scrutin->update(['date_heure_ouverture' => now()->subMinute(), 'date_heure_fermeture' => now()->addHours(6)]);
 
         return app(OuvrirScrutin::class)->handle($scrutin->fresh());
     }

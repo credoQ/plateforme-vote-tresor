@@ -3,7 +3,9 @@
 namespace App\Actions\Editions;
 
 use App\Enums\Editions\StatutPhase;
+use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Phase;
+use App\Models\Scrutin;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -62,6 +64,19 @@ class ParametrerPhase
 
         if ($suivante?->date_debut !== null && $fin >= $suivante->date_debut->toDateString()) {
             $this->echouer('phase', "La phase doit se terminer avant le début de la phase {$suivante->numero}.");
+        }
+
+        // R19 : les scrutins déjà planifiés doivent rester dans les nouvelles dates de la phase.
+        $horsDates = $phase->scrutins()
+            ->whereIn('statut', [StatutScrutin::EnPreparation->value, StatutScrutin::ListesArretees->value])
+            ->whereNotNull('date_heure_ouverture')
+            ->orderBy('code')
+            ->get()
+            ->filter(fn (Scrutin $scrutin): bool => $scrutin->date_heure_ouverture->setTimezone(Scrutin::FUSEAU)->toDateString() < $debut
+                || $scrutin->date_heure_fermeture->setTimezone(Scrutin::FUSEAU)->toDateString() > $fin);
+        if ($horsDates->isNotEmpty()) {
+            $codes = $horsDates->take(5)->pluck('code')->implode(', ').($horsDates->count() > 5 ? '…' : '');
+            $this->echouer('phase', "Les horaires de {$horsDates->count()} scrutin(s) sortiraient de ces dates ({$codes}) : replanifiez-les d’abord, ou choisissez des dates qui les contiennent.");
         }
 
         DB::transaction(function () use ($phase, $donnees): void {

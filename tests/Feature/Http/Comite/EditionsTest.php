@@ -10,6 +10,7 @@ use App\Models\Edition;
 use App\Models\Scrutin;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -153,7 +154,8 @@ class EditionsTest extends TestCase
      */
     public function test_r18_ouvre_et_cloture_une_phase(): void
     {
-        $edition = Edition::factory()->avecPhases()->enCours()->create();
+        $this->travelTo(Carbon::parse('2026-11-20 09:00:00'));
+        $edition = Edition::factory()->avecPhases()->enCours()->create(['date_debut' => '2026-11-01', 'date_fin' => '2026-12-31']);
         $phase = $edition->phase(1);
         $phase->update(['date_debut' => '2026-12-01', 'date_fin' => '2026-12-10']);
         $scrutin = Scrutin::factory()->for($phase)->create(['date_heure_ouverture' => null, 'date_heure_fermeture' => null]);
@@ -165,9 +167,17 @@ class EditionsTest extends TestCase
         $this->post(route('phases.ouvrir', $phase))->assertSessionHasErrors(['phase' => '1 scrutin(s) de la phase ne sont pas planifiés : planifiez-les avant d’ouvrir la phase.']);
 
         $this->post(route('phases.planifier-scrutins', $phase), ['ouverture' => '2026-12-11T08:00', 'fermeture' => '2026-12-11T18:00'])->assertSessionHasErrors('scrutin');
+        $this->post(route('phases.planifier-scrutins', $phase), ['ouverture' => now()->subDay()->format('Y-m-d\TH:i'), 'fermeture' => '2026-12-02T18:00'])
+            ->assertSessionHasErrors(['scrutin' => 'L’ouverture est déjà passée : choisissez une date et une heure à venir.']);
         $this->post(route('phases.planifier-scrutins', $phase), ['ouverture' => '2026-12-02T08:00', 'fermeture' => '2026-12-02T18:00'])
             ->assertSessionHasNoErrors()->assertSessionHas('succes', '1 scrutin(s) planifié(s) : chacun reste modifiable depuis sa fiche.');
         $this->assertSame('2026-12-02 07:00:00', $scrutin->fresh()->date_heure_ouverture->utc()->format('Y-m-d H:i:s'), 'Heure du Bénin convertie en UTC.');
+
+        // Les dates de la phase ne peuvent plus exclure un scrutin déjà planifié.
+        $this->put(route('phases.update', $phase), ['date_debut' => '2026-12-03', 'date_fin' => '2026-12-10'])
+            ->assertSessionHasErrors(['phase' => "Les horaires de 1 scrutin(s) sortiraient de ces dates ({$scrutin->code}) : replanifiez-les d’abord, ou choisissez des dates qui les contiennent."]);
+        $this->assertSame('2026-12-01', $phase->fresh()->date_debut->toDateString());
+        $this->put(route('phases.update', $phase), ['date_debut' => '2026-12-02', 'date_fin' => '2026-12-09'])->assertSessionHasNoErrors();
 
         $this->post(route('phases.ouvrir', $phase))->assertSessionHasNoErrors();
         $this->assertSame(StatutPhase::Ouverte, $phase->fresh()->statut);

@@ -1,9 +1,11 @@
 import { createIcons, icons } from 'lucide';
 import './alertes';
+import { preparerCalendriers } from './calendrier';
 import filtreBulletin from './filtre-bulletin';
 import formulaireEtapes from './formulaire-etapes';
 import lecteurVideo from './lecteur-video';
 import organisationPhases from './organisation-phases';
+import recadragePhoto from './recadrage-photo';
 import saisieCode from './saisie-code';
 import selectRecherche from './select-recherche';
 
@@ -102,6 +104,56 @@ document.addEventListener('submit', (e) => {
     bouton?.classList.add('est-en-cours');
     bouton?.setAttribute('aria-busy', 'true');
 });
+
+// Formulaire d'action d'une page de la console (gabarit marqué data-sans-rechargement, confirmations comprises,
+// que la fenêtre déplace hors du contenu) : envoyé en arrière-plan, puis la page cible s'ouvre par la navigation
+// Livewire, sans rechargement complet ; on reste à la même hauteur si c'est la même page. Un formulaire
+// data-rechargement (déconnexion) part normalement. Le serveur répond { redirection } (middleware
+// EnvoiSansRechargement) ; le message de succès ou d'erreur est en session.
+document.addEventListener('submit', async (e) => {
+    const formulaire = e.target;
+    if (e.defaultPrevented || formulaire.method.toLowerCase() !== 'post') return;
+    if (!document.querySelector('[data-sans-rechargement]') || formulaire.closest('[data-rechargement]')) return;
+    e.preventDefault();
+
+    const finir = () => {
+        delete formulaire.dataset.envoi;
+        formulaire.querySelectorAll('.est-en-cours').forEach((bouton) => {
+            bouton.classList.remove('est-en-cours');
+            bouton.removeAttribute('aria-busy');
+        });
+    };
+
+    let reponse;
+    try {
+        reponse = await fetch(formulaire.action, {
+            method: 'POST',
+            body: new FormData(formulaire, e.submitter),
+            headers: { 'X-Envoi-Sans-Rechargement': '1', Accept: 'text/html' },
+            credentials: 'same-origin',
+        });
+    } catch {
+        finir();
+        window.signalerErreur?.('La plateforme ne répond pas. Vérifiez votre connexion, puis recommencez.');
+        return;
+    }
+
+    const redirection = reponse.ok && reponse.headers.get('Content-Type')?.includes('application/json')
+        ? (await reponse.json()).redirection
+        : null;
+    if (!redirection) {
+        // Réponse inattendue (droits, session expirée…) : la page est rechargée pour afficher son état réel.
+        window.location.reload();
+        return;
+    }
+
+    const memePage = new URL(redirection, window.location.href).pathname === window.location.pathname;
+    const hauteur = window.scrollY;
+    if (memePage) {
+        document.addEventListener('livewire:navigated', () => requestAnimationFrame(() => window.scrollTo(0, hauteur)), { once: true });
+    }
+    window.Livewire.navigate(redirection);
+});
 // Retour arrière (page restaurée du cache) : les formulaires redeviennent utilisables.
 window.addEventListener('pageshow', (e) => {
     if (!e.persisted) return;
@@ -143,6 +195,7 @@ document.addEventListener('click', (e) => {
 // Icônes Lucide (seule bibliothèque autorisée par la charte) : <i data-lucide="vote"></i>
 function preparerPage() {
     createIcons({ icons, attrs: { 'stroke-width': 2 } });
+    preparerCalendriers();
     preparerTableaux();
     synchroniserBoutonMenu();
 }
@@ -156,6 +209,7 @@ document.addEventListener('alpine:init', () => {
     window.Alpine.data('organisationPhases', organisationPhases);
     window.Alpine.data('saisieCode', saisieCode);
     window.Alpine.data('lecteurVideo', lecteurVideo);
+    window.Alpine.data('recadragePhoto', recadragePhoto);
 });
 
 // Après chaque mise à jour d'un composant Livewire, les icônes et les tableaux renvoyés par le serveur sont repréparés.

@@ -4,9 +4,11 @@ namespace App\Models;
 
 use App\Enums\Agents\Sexe;
 use App\Models\Concerns\IdentifieParUuid;
+use App\Observers\ActualiserListesSurChangement;
 use Carbon\CarbonInterface;
 use Database\Factories\AgentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,6 +26,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
     'matricule', 'npi', 'nom', 'prenoms', 'sexe', 'date_naissance',
     'date_prise_service', 'telephone', 'email', 'fonction', 'statut',
 ])]
+#[ObservedBy([ActualiserListesSurChangement::class])]
 class Agent extends Model
 {
     /** @use HasFactory<AgentFactory> */
@@ -93,6 +96,24 @@ class Agent extends Model
     public function initiales(): string
     {
         return mb_strtoupper(mb_substr($this->nom, 0, 1).mb_substr($this->prenoms ?? '', 0, 1));
+    }
+
+    /**
+     * Variante de l'avatar dessiné d'une candidate sans photo (components/avatar-femme) : tirée du matricule,
+     * elle reste la même pour l'agent d'un scrutin à l'autre.
+     *
+     * @return array{tenue: int, peau: int, cheveux: int, coiffure: int}
+     */
+    public function avatar(): array
+    {
+        $empreinte = crc32((string) ($this->matricule ?? $this->id));
+
+        return [
+            'tenue' => $empreinte % 5 + 1,
+            'peau' => ($empreinte >> 3) % 4 + 1,
+            'cheveux' => ($empreinte >> 6) % 3 + 1,
+            'coiffure' => ($empreinte >> 8) % 4 + 1,
+        ];
     }
 
     /**

@@ -4,11 +4,13 @@ namespace Tests\Feature\Http\Comite;
 
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\SourceFemmeModele;
+use App\Livewire\Editions\FormulaireFemmeModele;
 use App\Models\Edition;
 use App\Models\FemmeModele;
 use App\Models\Structure;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 /**
@@ -35,10 +37,16 @@ class FemmesModelesTest extends TestCase
             ->assertSee('Ajouter une femme modèle')->assertDontSee('Importer');
 
         $this->get(route('femmes-modeles.create'))->assertOk()->assertSee('Ajouter à l’historique');
-        $this->post(route('femmes-modeles.store'), ['matricule' => '104876', 'annee' => '2024', 'nom' => 'AHOUANSOU Clarisse'])
-            ->assertRedirect(route('femmes-modeles.index'))->assertSessionHas('succes', 'AHOUANSOU Clarisse (2024) est ajoutée à l’historique.');
-        $this->post(route('femmes-modeles.store'), ['matricule' => '104877', 'annee' => '2021', 'nom' => 'KPADE Inès', 'scrutin' => 'Finale']);
-        $this->post(route('femmes-modeles.store'), ['matricule' => '', 'annee' => '1950'])->assertSessionHasErrors(['matricule', 'annee']);
+        Livewire::test(FormulaireFemmeModele::class)
+            ->set('matricule', '104876')->set('annee', '2024')->set('nom', 'AHOUANSOU Clarisse')
+            ->call('enregistrer')->assertRedirect(route('femmes-modeles.index'));
+        $this->assertSame('AHOUANSOU Clarisse (2024) est ajoutée à l’historique.', session('succes'));
+        Livewire::test(FormulaireFemmeModele::class)
+            ->set('matricule', '104877')->set('annee', '2021')->set('nom', 'KPADE Inès')->set('scrutin', 'Finale')
+            ->call('enregistrer')->assertHasNoErrors();
+        Livewire::test(FormulaireFemmeModele::class)
+            ->set('matricule', '')->set('annee', '1950')
+            ->call('enregistrer')->assertHasErrors(['matricule', 'annee'])->assertNoRedirect();
 
         $this->get(route('femmes-modeles.index'))->assertSee('AHOUANSOU Clarisse')->assertSee('Inéligible jusqu’en 2027')->assertSee('KPADE Inès');
         $this->assertSame(SourceFemmeModele::Saisie, FemmeModele::where('matricule', '104876')->sole()->source);
@@ -66,6 +74,6 @@ class FemmesModelesTest extends TestCase
 
         $this->actingAs($pointFocal)->get(route('femmes-modeles.index'))->assertForbidden();
         $this->get(route('femmes-modeles.create'))->assertForbidden();
-        $this->post(route('femmes-modeles.store'), ['matricule' => '104876', 'annee' => '2024'])->assertForbidden();
+        Livewire::test(FormulaireFemmeModele::class)->assertForbidden();
     }
 }

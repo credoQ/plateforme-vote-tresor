@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers\Editions;
 
-use App\Actions\Editions\AjouterFemmeModele;
 use App\Actions\Editions\SupprimerFemmeModele;
 use App\Http\Controllers\Controller;
 use App\Models\Edition;
 use App\Models\FemmeModele;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 /**
@@ -27,21 +25,12 @@ class FemmeModeleController extends Controller
         return view('femmes-modeles.index', ['edition' => $edition]);
     }
 
+    /**
+     * Page d'ajout : le formulaire est le composant Livewire Editions\FormulaireFemmeModele.
+     */
     public function create(): View
     {
-        return view('femmes-modeles.formulaire', ['anneeMaximale' => now()->year, 'anneeMinimale' => AjouterFemmeModele::ANNEE_MINIMALE]);
-    }
-
-    public function store(Request $request, AjouterFemmeModele $ajouter): RedirectResponse
-    {
-        $femmeModele = $ajouter->handle([
-            'matricule' => (string) $request->input('matricule', ''),
-            'annee' => $request->input('annee'),
-            'nom' => $request->input('nom'),
-            'scrutin' => $request->input('scrutin'),
-        ]);
-
-        return redirect()->route('femmes-modeles.index')->with('succes', "{$femmeModele->nom_complet} ({$femmeModele->annee}) est ajoutée à l’historique.");
+        return view('femmes-modeles.formulaire');
     }
 
     public function destroy(FemmeModele $femmeModele, SupprimerFemmeModele $supprimer): RedirectResponse

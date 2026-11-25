@@ -72,6 +72,16 @@
   --tr-sur-primaire:#FFFFFF;
   --tr-accent:var(--tr-or-500);
   --tr-accent-sur-primaire:#E0A800;
+  /* Texte posé sur une photo (carte du bulletin) : blanc sur un voile sombre, dans les deux thèmes. */
+  --tr-sur-photo:#FFFFFF;
+  --tr-sur-photo-2:rgba(255,255,255,.86);
+  --tr-voile-photo:rgba(10,20,35,.84);
+  --tr-voile-photo-leger:rgba(10,20,35,.45);
+  /* Avatar dessiné d'une candidate sans photo : fond pastel et tenue (5 teintes), teint (4), cheveux (3). */
+  --tr-avatar-fond-1:#DCE7F3; --tr-avatar-fond-2:#DDEEE4; --tr-avatar-fond-3:#F4E1E8; --tr-avatar-fond-4:#E7E2F3; --tr-avatar-fond-5:#F5EADB;
+  --tr-avatar-tenue-1:#1F5FA8; --tr-avatar-tenue-2:#1B7A5A; --tr-avatar-tenue-3:#8E2F55; --tr-avatar-tenue-4:#5B3F8F; --tr-avatar-tenue-5:#B4572A;
+  --tr-avatar-peau-1:#E8B48C; --tr-avatar-peau-2:#C68A5C; --tr-avatar-peau-3:#9A6440; --tr-avatar-peau-4:#6E4429;
+  --tr-avatar-cheveux-1:#241812; --tr-avatar-cheveux-2:#4A2E1E; --tr-avatar-cheveux-3:#6B4226;
   --tr-rayon-sm:6px;
   --tr-rayon:8px;
   --tr-rayon-carte:12px;
@@ -85,6 +95,7 @@
 }
 [data-theme="sombre"]{
   color-scheme:dark;
+  --tr-avatar-fond-1:#1C2B3D; --tr-avatar-fond-2:#1B2E26; --tr-avatar-fond-3:#33212A; --tr-avatar-fond-4:#272238; --tr-avatar-fond-5:#33291D;
   --tr-fond:#0B0F14;
   --tr-surface:#121820;
   --tr-surface-2:#161E28;

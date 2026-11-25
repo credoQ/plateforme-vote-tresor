@@ -157,6 +157,8 @@
   .taches-phase__tache.est-courante .taches-phase__puce { border-color: var(--tr-primaire); background: var(--tr-primaire); color: var(--tr-sur-primaire); }
   .taches-phase__titre { font-weight: 700; }
   .taches-phase__detail { margin-top: 2px; font-size: 13px; color: var(--tr-texte-2); }
+  .taches-phase__blocage { display: flex; align-items: flex-start; gap: 6px; margin-top: 4px; font-size: 13px; color: var(--tr-texte-2); }
+  .taches-phase__blocage svg { width: 15px; height: 15px; flex: none; margin-top: 2px; color: var(--tr-attente-500); }
   .taches-phase__tache.est-a-venir .taches-phase__titre, .taches-phase__tache.est-a-venir .taches-phase__detail { color: var(--tr-texte-3); }
   .taches-phase__action { display: flex; align-items: center; gap: 8px; justify-content: flex-end; }
   .taches-phase__action form { margin: 0; }
@@ -488,6 +490,37 @@
   .legende span { display: inline-flex; align-items: center; gap: 6px; }
   .legende i { width: 10px; height: 10px; border-radius: 3px; }
 
+  /* ---------------------------------------------------------------- calendrier (Flatpickr, resources/js/calendrier.js) */
+  .champ-calendrier { cursor: pointer; }
+  .champ-calendrier[readonly] { background: var(--tr-surface); }
+  .flatpickr-calendar { z-index: 60; background: var(--tr-surface); border: 1px solid var(--tr-bordure); border-radius: 14px; box-shadow: var(--tr-ombre-3); font-family: var(--tr-police); color: var(--tr-texte); }
+  .flatpickr-calendar.arrowTop::before, .flatpickr-calendar.arrowTop::after, .flatpickr-calendar.arrowBottom::before, .flatpickr-calendar.arrowBottom::after { display: none; }
+  .flatpickr-months { padding: 6px 4px 0; }
+  .flatpickr-months .flatpickr-month { height: 40px; color: var(--tr-texte); fill: var(--tr-texte); }
+  .flatpickr-months .flatpickr-prev-month, .flatpickr-months .flatpickr-next-month { top: 6px; height: 40px; padding: 12px; color: var(--tr-texte-2); fill: var(--tr-texte-2); }
+  .flatpickr-months .flatpickr-prev-month:hover svg, .flatpickr-months .flatpickr-next-month:hover svg { fill: var(--tr-primaire); }
+  .flatpickr-current-month { font-size: 14px; font-weight: 700; padding-top: 10px; }
+  .flatpickr-current-month .flatpickr-monthDropdown-months { font-weight: 700; color: var(--tr-texte); background: transparent; }
+  .flatpickr-current-month .flatpickr-monthDropdown-months:hover, .flatpickr-current-month input.cur-year:hover, .numInputWrapper:hover { background: var(--tr-surface-2); border-radius: 6px; }
+  .flatpickr-current-month .flatpickr-monthDropdown-months .flatpickr-monthDropdown-month { background: var(--tr-surface); color: var(--tr-texte); }
+  .flatpickr-current-month input.cur-year { font-weight: 600; color: var(--tr-texte-2); }
+  .numInputWrapper span.arrowUp::after { border-bottom-color: var(--tr-texte-2); }
+  .numInputWrapper span.arrowDown::after { border-top-color: var(--tr-texte-2); }
+  span.flatpickr-weekday { color: var(--tr-texte-3); font-size: 11px; font-weight: 600; text-transform: uppercase; }
+  .flatpickr-day { color: var(--tr-texte); border-radius: 10px; font-weight: 500; }
+  .flatpickr-day:hover, .flatpickr-day:focus { background: var(--tr-surface-2); border-color: transparent; }
+  .flatpickr-day.today { border-color: var(--tr-bordure); font-weight: 700; }
+  .flatpickr-day.today:hover { background: var(--tr-surface-2); color: var(--tr-texte); border-color: var(--tr-bordure); }
+  .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay { color: var(--tr-texte-3); opacity: .55; }
+  .flatpickr-day.flatpickr-disabled, .flatpickr-day.flatpickr-disabled:hover { color: var(--tr-texte-3); opacity: .45; text-decoration: line-through; background: transparent; }
+  .flatpickr-day.selected, .flatpickr-day.selected:hover, .flatpickr-day.selected:focus { position: relative; background: var(--tr-primaire); border-color: var(--tr-primaire); color: var(--tr-sur-primaire); font-weight: 700; }
+  .flatpickr-day.selected::after { content: ''; position: absolute; left: 50%; bottom: 4px; width: 14px; height: 3px; margin-left: -7px; border-radius: 2px; background: var(--tr-accent-sur-primaire); }
+  .flatpickr-time { border-top: 1px solid var(--tr-bordure-legere) !important; }
+  .flatpickr-time input, .flatpickr-time .flatpickr-am-pm, .flatpickr-time .flatpickr-time-separator { color: var(--tr-texte); font-weight: 700; font-size: 18px; }
+  .flatpickr-time input:hover, .flatpickr-time input:focus { background: var(--tr-surface-2); }
+  .flatpickr-pied { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 10px 10px; border-top: 1px solid var(--tr-bordure-legere); }
+  .flatpickr-fuseau { font-size: 12px; color: var(--tr-texte-2); }
+
   /* ---------------------------------------------------------------- vote : cartes de candidates */
   .grille-candidates { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 16px; }
   .carte-candidate { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 10px; padding: 22px 16px 18px; background: var(--tr-surface); border: 1.5px solid var(--tr-bordure); border-radius: var(--tr-rayon-carte); cursor: pointer; transition: border-color .12s, box-shadow .12s; }
@@ -499,6 +532,69 @@
   .carte-candidate__coche svg { width: 14px; height: 14px; }
   .carte-candidate:has(input:checked) { border-color: var(--tr-primaire); box-shadow: 0 0 0 4px var(--tr-primaire-doux); }
   .carte-candidate:has(input:checked) .carte-candidate__coche { background: var(--tr-primaire); border-color: var(--tr-primaire); color: var(--tr-sur-primaire); }
+
+  /* Carte portrait d'une candidate : photo plein cadre (ou initiales), nom et structure sur un voile en bas.
+     Sert au bulletin et à l'aperçu du recadrage ; la photo est enregistrée à ce format (4 × 4,6). */
+  .carte-photo { position: relative; aspect-ratio: 4 / 4.6; overflow: hidden; background: var(--tr-primaire-doux); }
+  .carte-photo__image { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 20%; }
+  .carte-photo__initiales { position: absolute; inset: 0; display: grid; place-items: center; padding-bottom: 72px; font-size: 64px; font-weight: 700; color: var(--tr-primaire-texte); }
+  .carte-photo__initiales svg { width: 56px; height: 56px; }
+  .carte-photo__legende { position: absolute; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; gap: 2px; padding: 48px 16px 14px; text-align: left; color: var(--tr-sur-photo); background: linear-gradient(to top, var(--tr-voile-photo), var(--tr-voile-photo-leger) 60%, transparent); }
+  .carte-photo__legende .carte-candidate__nom { font-size: 15px; }
+  .carte-photo__legende .carte-candidate__structure { color: var(--tr-sur-photo-2); }
+  .grille-candidates--photos { grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); }
+  .carte-candidate--photo { padding: 0; gap: 0; overflow: hidden; align-items: stretch; }
+  .carte-candidate--photo .carte-candidate__coche { z-index: 1; }
+  .carte-candidate--photo:has(input:checked) { border-width: 2px; }
+  .carte-candidate--photo:has(input:focus-visible) { outline: 3px solid var(--tr-primaire); outline-offset: 2px; }
+  @media (max-width: 640px) {
+    .grille-candidates--photos { grid-template-columns: 1fr; gap: 12px; }
+    .carte-candidate--photo .carte-photo { aspect-ratio: 4 / 3.6; }
+    .carte-candidate--photo .carte-photo__image { object-position: center 25%; }
+    .carte-candidate--photo .carte-photo__initiales { padding-bottom: 56px; }
+  }
+
+  /* Avatar dessiné d'une candidate sans photo (components/avatar-femme) : variantes de tenue (t), teint (p), cheveux (h). */
+  .avatar-femme { display: block; width: 100%; height: 100%; }
+  .avatar-femme__fond { fill: var(--af-fond); }
+  .avatar-femme__tenue { fill: var(--af-tenue); }
+  .avatar-femme__peau { fill: var(--af-peau); }
+  .avatar-femme__cheveux { fill: var(--af-cheveux); }
+  .avatar-femme--t1 { --af-fond: var(--tr-avatar-fond-1); --af-tenue: var(--tr-avatar-tenue-1); }
+  .avatar-femme--t2 { --af-fond: var(--tr-avatar-fond-2); --af-tenue: var(--tr-avatar-tenue-2); }
+  .avatar-femme--t3 { --af-fond: var(--tr-avatar-fond-3); --af-tenue: var(--tr-avatar-tenue-3); }
+  .avatar-femme--t4 { --af-fond: var(--tr-avatar-fond-4); --af-tenue: var(--tr-avatar-tenue-4); }
+  .avatar-femme--t5 { --af-fond: var(--tr-avatar-fond-5); --af-tenue: var(--tr-avatar-tenue-5); }
+  .avatar-femme--p1 { --af-peau: var(--tr-avatar-peau-1); }
+  .avatar-femme--p2 { --af-peau: var(--tr-avatar-peau-2); }
+  .avatar-femme--p3 { --af-peau: var(--tr-avatar-peau-3); }
+  .avatar-femme--p4 { --af-peau: var(--tr-avatar-peau-4); }
+  .avatar-femme--h1 { --af-cheveux: var(--tr-avatar-cheveux-1); }
+  .avatar-femme--h2 { --af-cheveux: var(--tr-avatar-cheveux-2); }
+  .avatar-femme--h3 { --af-cheveux: var(--tr-avatar-cheveux-3); }
+  .carte-photo .avatar-femme { position: absolute; inset: 0; }
+  .vignette-photo .avatar-femme { border-radius: inherit; }
+  span.vignette-photo { overflow: hidden; }
+
+  /* Recadrage d'une photo de candidate : on fait glisser la photo dans la carte du bulletin. */
+  .modale--photo { width: min(640px, 100%); }
+  .modale__pied-gauche { margin-right: auto; }
+  .recadrage-photo { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
+  .recadrage-photo__carte { border-radius: var(--tr-rayon-carte); border: 1.5px solid var(--tr-bordure); touch-action: none; }
+  .recadrage-photo__carte.est-deplacable { cursor: grab; }
+  .recadrage-photo__carte.est-deplacable:active { cursor: grabbing; }
+  .recadrage-photo__carte .carte-photo__image--libre { position: absolute; top: 0; left: 0; max-width: none; transform-origin: 0 0; user-select: none; -webkit-user-drag: none; }
+  .recadrage-photo__outils { display: grid; gap: 12px; }
+  .recadrage-photo__zoom { display: flex; align-items: center; gap: 10px; color: var(--tr-texte-2); }
+  .recadrage-photo__zoom input { flex: 1; accent-color: var(--tr-primaire); }
+  .recadrage-photo__zoom svg { width: 18px; height: 18px; }
+  .recadrage-photo__depot { border: 2px dashed var(--tr-bordure); border-radius: var(--tr-rayon-carte); padding: 20px 16px; display: grid; gap: 8px; justify-items: center; text-align: center; color: var(--tr-texte-2); }
+  .recadrage-photo__depot.est-survole { border-color: var(--tr-primaire); background: var(--tr-primaire-doux); }
+  @media (max-width: 640px) { .recadrage-photo { grid-template-columns: 1fr; } .recadrage-photo__carte { max-width: 260px; justify-self: center; width: 100%; } }
+
+  /* Vignette portrait d'une candidate dans un tableau. */
+  .vignette-photo { width: 40px; height: 46px; flex: none; border-radius: 8px; object-fit: cover; object-position: center 20%; background: var(--tr-primaire-doux); color: var(--tr-primaire-texte); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+  .cellule-photo { display: flex; align-items: center; gap: 12px; }
   .carte-candidate:has(input:focus-visible) { box-shadow: 0 0 0 4px color-mix(in srgb, var(--tr-bleu-400) 55%, transparent); }
   .barre-vote { position: sticky; bottom: 0; z-index: 10; display: flex; align-items: center; gap: 16px; margin: 24px -28px -28px; padding: 16px 28px; background: var(--tr-surface); border-top: 1px solid var(--tr-bordure); box-shadow: 0 -8px 24px -12px rgba(10,13,18,.12); }
 
@@ -746,7 +842,8 @@
   .isoloir__contenu { width: 100%; max-width: 1040px; margin: 0 auto; padding: 28px; flex: 1; }
   .isoloir .barre-vote { margin: 0; border-radius: 0 0 var(--tr-rayon-carte) var(--tr-rayon-carte); }
   .isoloir .confirmation-vote, .isoloir .accuse-vote, .isoloir__centre { max-width: 640px; margin-inline: auto; }
-  .candidature { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+  .candidature { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 20px; }
+  .candidature__actions { display: flex; flex-wrap: wrap; gap: 8px; }
   @media print {
     .sidebar, .entete, .isoloir__entete, .portail__entete, .portail__onglets, .portail__pied, .bande-tricolore, .formulaire__actions, .alerte { display: none !important; }
     .app { display: block; }

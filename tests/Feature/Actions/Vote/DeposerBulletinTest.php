@@ -6,7 +6,6 @@ use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\DesactiverCandidate;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
-use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Vote\AccuseDeVote;
 use App\Actions\Vote\DeposerBulletin;
 use App\Actions\Vote\EmpreinteBulletin;
@@ -61,7 +60,7 @@ class DeposerBulletinTest extends TestCase
         $this->edition->phase(Phase::PRIMAIRES)->update(['statut' => StatutPhase::Ouverte]);
         $this->scrutin = Scrutin::where('code', 'STR-DIA')->firstOrFail();
         app(ArreterListes::class)->handle($this->scrutin->phase);
-        app(PlanifierScrutin::class)->handle($this->scrutin->fresh(), now()->subHour(), now()->addHours(8));
+        $this->scrutin->update(['date_heure_ouverture' => now()->subHour(), 'date_heure_fermeture' => now()->addHours(8)]);
         app(OuvrirScrutin::class)->handle($this->scrutin);
         $this->scrutin->refresh();
     }

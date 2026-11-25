@@ -9,7 +9,6 @@ use App\Actions\Editions\ParametrerPhase;
 use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
-use App\Actions\Scrutins\PlanifierScrutin;
 use App\Models\Edition;
 use App\Models\Phase;
 use Illuminate\Database\Seeder;
@@ -66,10 +65,14 @@ class DemonstrationSeeder extends Seeder
         app(GenererScrutins::class)->handle($primaires);
         app(LancerEdition::class)->handle($edition->fresh());
         app(ArreterListes::class)->handle($primaires);
+        // Démonstration : horaires posés directement, avec une ouverture déjà passée pour voter tout de suite
+        // (l'écran de planification refuse une ouverture passée). Ils précèdent l'ouverture de la phase (R19).
+        foreach ($primaires->scrutins()->get() as $scrutin) {
+            $scrutin->update(['date_heure_ouverture' => now()->subMinutes(5), 'date_heure_fermeture' => now()->addDays(7)->setTime(18, 0)]);
+        }
         app(OuvrirPhase::class)->handle($primaires->fresh());
 
         foreach ($primaires->scrutins()->get() as $scrutin) {
-            app(PlanifierScrutin::class)->handle($scrutin->fresh(), now()->subMinutes(5), now()->addDays(7)->setTime(18, 0));
             app(OuvrirScrutin::class)->handle($scrutin->fresh());
         }
 

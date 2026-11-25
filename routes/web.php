@@ -43,12 +43,12 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/espace', EspaceController::class)->name('espace');
 
-    Route::resource('agents', AgentController::class)->except(['destroy']);
+    Route::resource('agents', AgentController::class)->except(['destroy', 'store', 'update']);
     Route::post('/agents/{agent}/affecter', [AgentController::class, 'affecter'])->name('agents.affecter');
     Route::post('/agents/{agent}/terminer', [AgentController::class, 'terminer'])->name('agents.terminer');
 
     Route::get('/structures/organisation', [StructureController::class, 'organisation'])->name('structures.organisation');
-    Route::resource('structures', StructureController::class)->except(['destroy']);
+    Route::resource('structures', StructureController::class)->except(['destroy', 'store', 'update']);
     Route::post('/structures/{structure}/desactiver', [StructureController::class, 'desactiver'])->name('structures.desactiver');
     Route::post('/structures/{structure}/reactiver', [StructureController::class, 'reactiver'])->name('structures.reactiver');
 
@@ -60,6 +60,7 @@ Route::middleware('auth')->group(function () {
     });
     Route::post('/candidatures/{candidate}/desister', [CandidatureController::class, 'desister'])->name('candidatures.desister');
     Route::post('/candidatures/{candidate}/reactiver', [CandidatureController::class, 'reactiver'])->name('candidatures.reactiver');
+    Route::get('/candidates/{candidate}/photo', [CandidatureController::class, 'photo'])->name('candidates.photo');
 
     Route::get('/tableau-de-bord', TableauDeBordController::class)->name('tableau-de-bord');
     Route::get('/scrutins/{scrutin}', [ScrutinController::class, 'show'])->name('scrutins.show');
@@ -70,19 +71,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/scrutins/{scrutin}/resultats', [ExportController::class, 'resultats'])->name('exports.resultats');
 
     Route::middleware('can:piloter')->group(function () {
-        Route::resource('editions', EditionController::class)->except(['destroy']);
+        Route::resource('editions', EditionController::class)->except(['destroy', 'store', 'update']);
         Route::post('/editions/{edition}/lancer', [EditionController::class, 'lancer'])->name('editions.lancer');
         Route::put('/phases/{phase}', [PhaseController::class, 'update'])->name('phases.update');
         Route::post('/phases/{phase}/ouvrir', [PhaseController::class, 'ouvrir'])->name('phases.ouvrir');
         Route::post('/phases/{phase}/cloturer', [PhaseController::class, 'cloturer'])->name('phases.cloturer');
         Route::post('/phases/{phase}/arreter-listes', [PhaseController::class, 'arreterListes'])->name('phases.arreter-listes');
+        Route::post('/phases/{phase}/planifier-scrutins', [PhaseController::class, 'planifierScrutins'])->name('phases.planifier-scrutins');
         Route::post('/phases/{phase}/scrutins', [ScrutinController::class, 'generer'])->name('phases.scrutins.generer');
         Route::post('/scrutins/{scrutin}/planifier', [ScrutinController::class, 'planifier'])->name('scrutins.planifier');
-        Route::post('/scrutins/{scrutin}/actualiser', [ScrutinController::class, 'actualiser'])->name('scrutins.actualiser');
         Route::post('/scrutins/{scrutin}/rouvrir', [ScrutinController::class, 'rouvrir'])->name('scrutins.rouvrir');
         Route::get('/femmes-modeles', [FemmeModeleController::class, 'index'])->name('femmes-modeles.index');
         Route::get('/femmes-modeles/ajouter', [FemmeModeleController::class, 'create'])->name('femmes-modeles.create');
-        Route::post('/femmes-modeles', [FemmeModeleController::class, 'store'])->name('femmes-modeles.store');
         Route::post('/femmes-modeles/{femmeModele}/supprimer', [FemmeModeleController::class, 'destroy'])->name('femmes-modeles.destroy');
         Route::post('/scrutins/{scrutin}/nominations', [NominationController::class, 'store'])->name('nominations.store');
         Route::post('/candidates/{candidate}/retirer-nomination', [NominationController::class, 'destroy'])->name('nominations.destroy');
@@ -97,7 +97,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('can:administrer')->group(function () {
         Route::resource('utilisateurs', UtilisateurController::class)
-            ->only(['index', 'create', 'store', 'edit', 'update'])
+            ->only(['index', 'create', 'edit'])
             ->parameters(['utilisateurs' => 'utilisateur']);
         Route::post('/utilisateurs/{utilisateur}/lier-agent', [UtilisateurController::class, 'lierAgent'])->name('utilisateurs.lier-agent');
 

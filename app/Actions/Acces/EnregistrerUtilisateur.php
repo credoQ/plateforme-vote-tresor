@@ -5,7 +5,6 @@ namespace App\Actions\Acces;
 use App\Actions\Audit\Journaliser;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Audit\ActionAuditee;
-use App\Models\Agent;
 use App\Models\Role;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
@@ -30,12 +29,12 @@ class EnregistrerUtilisateur
      */
     public function handle(array $donnees, ?User $utilisateur = null): User
     {
-        $emailAgent = isset($donnees['agent_id']) ? Agent::whereKey($donnees['agent_id'])->value('email') : null;
 
         $donnees = Validator::make($donnees, [
             'name' => ['required', 'string', 'max:255'],
             'login' => ['required', 'string', 'max:60', Rule::unique('users', 'login')->ignore($utilisateur?->id)],
-            'email' => [Rule::requiredIf(fn (): bool => $utilisateur === null || blank($emailAgent)), 'nullable', 'email', 'max:255', Rule::unique('users', 'email')->ignore($utilisateur?->id)],
+            // R42 : l'adresse de connexion est obligatoire, à la création comme en modification.
+            'email' => ['required', 'email', 'max:255', Rule::unique('users', 'email')->ignore($utilisateur?->id)],
             'actif' => ['sometimes', 'boolean'],
             'agent_id' => ['nullable', 'integer', 'exists:agents,id', Rule::unique('users', 'agent_id')->ignore($utilisateur?->id)],
             'structure_id' => ['nullable', 'integer', 'exists:structures,id', Rule::requiredIf(fn (): bool => in_array(CodeRole::PointFocal->value, (array) ($donnees['roles'] ?? []), true))],

@@ -6,7 +6,6 @@ use App\Actions\Documents\LienVerification;
 use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
-use App\Actions\Scrutins\PlanifierScrutin;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutCandidate;
@@ -22,7 +21,9 @@ use App\Notifications\AccuseDeVoteEnregistre;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\AnonymousNotifiable;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class EcransDuVoteTest extends TestCase
@@ -60,6 +61,27 @@ class EcransDuVoteTest extends TestCase
         app(GenererScrutins::class)->handle($this->edition->phase(Phase::PRIMAIRES));
         $this->edition->phase(Phase::PRIMAIRES)->update(['statut' => StatutPhase::Ouverte]);
         $this->scrutin = Scrutin::where('code', 'STR-DIA')->firstOrFail();
+    }
+
+    /**
+     * Bulletin : la photo d'une candidate qui en a une, servie aux seuls utilisateurs connectés ; les initiales sinon.
+     */
+    public function test_le_bulletin_montre_la_photo_ou_les_initiales_de_chaque_candidate(): void
+    {
+        Storage::fake('local');
+        Storage::disk('local')->put('photos-candidates/clarisse.jpg', 'photo');
+        $clarisse = $this->candidate($this->clarisse);
+        $clarisse->update(['photo' => 'photos-candidates/clarisse.jpg']);
+        $this->ouvrir();
+
+        $this->actingAs($this->electeur)->get(route('vote'))->assertOk()
+            ->assertSee('src="'.$clarisse->urlPhoto().'"', false)
+            ->assertSee('class="avatar-femme', false);
+        $this->get($clarisse->urlPhoto())->assertOk()->assertHeader('Cache-Control', 'immutable, max-age=31536000, private');
+        $this->get(route('candidates.photo', $this->candidate($this->ines)))->assertNotFound();
+
+        Auth::logout();
+        $this->get($clarisse->urlPhoto())->assertRedirect(route('login'));
     }
 
     public function test_avant_l_ouverture_le_bulletin_n_est_pas_accessible(): void
@@ -228,7 +250,7 @@ class EcransDuVoteTest extends TestCase
     private function ouvrir(): void
     {
         app(ArreterListes::class)->handle($this->scrutin->phase);
-        app(PlanifierScrutin::class)->handle($this->scrutin->fresh(), now()->subMinutes(10), now()->addHours(6));
+        $this->scrutin->update(['date_heure_ouverture' => now()->subMinutes(10), 'date_heure_fermeture' => now()->addHours(6)]);
         app(OuvrirScrutin::class)->handle($this->scrutin);
     }
 

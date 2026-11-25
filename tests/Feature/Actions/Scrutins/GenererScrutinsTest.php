@@ -145,7 +145,7 @@ class GenererScrutinsTest extends TestCase
     }
 
     /**
-     * R35 : en phase 2, les candidates sont les lauréates de la phase 1 de leur pôle, avec le lien vers leur candidature d'origine.
+     * R35 : en phase 2, les candidates sont les lauréates de la phase 1 de leur pôle, avec le lien vers leur candidature d'origine et sa photo.
      */
     public function test_r35_reprend_les_laureates_qualifiees_de_la_phase_precedente(): void
     {
@@ -153,7 +153,7 @@ class GenererScrutinsTest extends TestCase
         $this->generer(Phase::DEMI_FINALES);
 
         $laureateAtl = $this->scrutin('DEP-ATL')->candidates->sole();
-        $laureateAtl->update(['est_laureate' => true, 'rang' => 1, 'nb_voix' => 1]);
+        $laureateAtl->update(['est_laureate' => true, 'rang' => 1, 'nb_voix' => 1, 'photo' => 'photos-candidates/atl.jpg']);
         $laureateDia = $this->scrutin('STR-DIA')->candidates->firstWhere('agent_id', $this->agents['femme_dia']->id);
         $laureateDia->update(['est_laureate' => true, 'rang' => 1, 'nb_voix' => 2]);
         $this->edition->phase(Phase::PRIMAIRES)->scrutins()->update(['statut' => StatutScrutin::ResultatsPublies]);
@@ -165,6 +165,7 @@ class GenererScrutinsTest extends TestCase
         $candidate = $demiDep->candidates()->sole();
         $this->assertSame(OrigineCandidate::Qualification, $candidate->origine);
         $this->assertTrue($candidate->candidateSource->is($laureateAtl));
+        $this->assertSame('photos-candidates/atl.jpg', $candidate->photo, 'La qualifiée garde sa photo.');
         $this->assertSame([$this->agents['femme_dia']->id], $this->scrutin('POLE-STRUCTURES')->candidates->pluck('agent_id')->all());
     }
 

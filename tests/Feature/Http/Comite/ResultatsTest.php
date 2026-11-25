@@ -5,7 +5,6 @@ namespace Tests\Feature\Http\Comite;
 use App\Actions\Scrutins\ArreterListes;
 use App\Actions\Scrutins\GenererScrutins;
 use App\Actions\Scrutins\OuvrirScrutin;
-use App\Actions\Scrutins\PlanifierScrutin;
 use App\Actions\Vote\DeposerBulletin;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutPhase;
@@ -58,7 +57,7 @@ class ResultatsTest extends TestCase
         $edition->phase(Phase::PRIMAIRES)->update(['statut' => StatutPhase::Ouverte]);
         $this->scrutin = Scrutin::where('code', 'STR-DIA')->firstOrFail();
         app(ArreterListes::class)->handle($this->scrutin->phase);
-        app(PlanifierScrutin::class)->handle($this->scrutin->fresh(), now()->subMinutes(5), now()->addHours(2));
+        $this->scrutin->update(['date_heure_ouverture' => now()->subMinutes(5), 'date_heure_fermeture' => now()->addHours(2)]);
         app(OuvrirScrutin::class)->handle($this->scrutin);
     }
 

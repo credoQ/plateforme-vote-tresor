@@ -45,11 +45,7 @@
                     <div class="carte__entete"><span class="frise-phases__numero">Étape 1 sur 5</span><h2>Arrêter les listes électorales</h2></div>
                     <div class="etape-courante__corps">
                         <span class="pastille-icone"><i data-lucide="lock"></i></span>
-                        <div class="etape-courante__texte"><strong>Les listes sont encore modifiables.</strong><p>Actualisez-les après la correction d’un agent. Elles s’arrêtent pour toute la phase, depuis la fiche de l’édition.</p></div>
-                        <div class="etape-courante__actions">
-                            <form method="POST" action="{{ route('scrutins.actualiser', $scrutin) }}">@csrf<button type="submit" class="btn btn-secondaire"><i data-lucide="refresh-cw"></i>Actualiser les listes</button></form>
-                            <a wire:navigate href="{{ route('editions.show', [$scrutin->phase->edition, 'phase' => $scrutin->phase->numero]) }}" class="btn btn-primaire"><i data-lucide="lock"></i>Arrêter les listes de la phase</a>
-                        </div>
+                        <div class="etape-courante__texte"><strong>Les listes sont encore modifiables.</strong><p>Elles se mettent à jour automatiquement après chaque correction d’un agent, d’une affectation ou d’une structure, jusqu’à leur arrêt. Elles s’arrêtent pour toute la phase, depuis la fiche de l’édition.</p></div>
                     </div>
                     @break
                 @case('horaires')
@@ -57,7 +53,9 @@
                     <div class="etape-courante__corps">
                         <span class="pastille-icone"><i data-lucide="calendar-clock"></i></span>
                         <div class="etape-courante__texte"><strong>Quand le vote s’ouvre-t-il et se ferme-t-il ?</strong><p>Le scrutin s’ouvrira et se fermera seul à ces heures, une fois la phase ouverte. {{ $consignePlanification }}</p></div>
-                        <div class="etape-courante__actions"><button type="button" class="btn btn-primaire" x-data x-on:click="$dispatch('ouvrir-modale', 'planifier')"><i data-lucide="calendar-clock"></i>Planifier le scrutin</button></div>
+                        @if ($scrutin->horairesModifiables())
+                            <div class="etape-courante__actions"><button type="button" class="btn btn-primaire" x-data x-on:click="$dispatch('ouvrir-modale', 'planifier')"><i data-lucide="calendar-clock"></i>Planifier le scrutin</button></div>
+                        @endif
                     </div>
                     @break
                 @case('vote')
@@ -77,7 +75,11 @@
                                 <strong>Le scrutin s’ouvrira seul le {{ $scrutin->date_heure_ouverture->timezone($fuseau)->format('d/m/Y à H:i') }}.</strong>
                                 <p>Il se fermera le {{ $scrutin->date_heure_fermeture->timezone($fuseau)->format('d/m/Y à H:i') }}, une fois la phase ouverte depuis la fiche de l’édition.</p>
                             </div>
-                            <div class="etape-courante__actions"><button type="button" class="btn btn-secondaire" x-data x-on:click="$dispatch('ouvrir-modale', 'planifier')"><i data-lucide="pencil"></i>Modifier les horaires</button></div>
+                            @if ($scrutin->horairesModifiables())
+                                <div class="etape-courante__actions"><button type="button" class="btn btn-secondaire" x-data x-on:click="$dispatch('ouvrir-modale', 'planifier')"><i data-lucide="pencil"></i>Modifier les horaires</button></div>
+                            @else
+                                <span class="etiquette"><i data-lucide="lock"></i>Horaires figés à l’ouverture de la phase</span>
+                            @endif
                         @endif
                     </div>
                     @break
@@ -157,7 +159,8 @@
     </section>
 
     <x-slot:modales>
-        @if ($pilote && $scrutin->accepteLesDesistements())
+        <livewire:scrutins.photo-candidate />
+        @if ($pilote && $scrutin->horairesModifiables())
             <div class="voile" x-data="{ ouvert: @js($errors->hasAny(['ouverture', 'fermeture']) || ($errors->has('scrutin') && old('ouverture') !== null)) }" x-show="ouvert" x-cloak
                  x-on:ouvrir-modale.window="ouvert = $event.detail === 'planifier'" x-on:keydown.escape.window="ouvert = false" x-on:click.self="ouvert = false">
                 <form method="POST" action="{{ route('scrutins.planifier', $scrutin) }}" class="modale" role="dialog" aria-modal="true" aria-labelledby="titre-planifier">

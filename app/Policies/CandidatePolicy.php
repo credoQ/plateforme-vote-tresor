@@ -8,8 +8,8 @@ use App\Models\Inscription;
 use App\Models\User;
 
 /**
- * Désactivation et réactivation d'une candidate (R32, R34) : par elle-même, par le comité, par l'administrateur,
- * ou par le point focal de la structure où elle est inscrite (R4).
+ * Désactivation, réactivation et photo d'une candidate (R32, R34) : par elle-même, par le comité, par
+ * l'administrateur, ou par le point focal de la structure où elle est inscrite (R4).
  */
 class CandidatePolicy
 {
@@ -36,6 +36,14 @@ class CandidatePolicy
     }
 
     public function reactiver(User $user, Candidate $candidate): bool
+    {
+        return $this->desactiver($user, $candidate);
+    }
+
+    /**
+     * Ajout, remplacement ou retrait de la photo du bulletin : les mêmes personnes que pour la désactivation.
+     */
+    public function changerPhoto(User $user, Candidate $candidate): bool
     {
         return $this->desactiver($user, $candidate);
     }

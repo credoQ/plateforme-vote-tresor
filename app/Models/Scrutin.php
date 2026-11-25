@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
 use App\Models\Concerns\IdentifieParUuid;
 use Database\Factories\ScrutinFactory;
@@ -23,6 +24,11 @@ class Scrutin extends Model
 {
     /** @use HasFactory<ScrutinFactory> */
     use HasFactory, IdentifieParUuid;
+
+    /**
+     * Fuseau des horaires saisis et affichés (heure du Bénin) ; ils sont enregistrés en UTC.
+     */
+    public const FUSEAU = 'Africa/Porto-Novo';
 
     /**
      * @var array<string, mixed>
@@ -164,6 +170,15 @@ class Scrutin extends Model
     public function accepteLesDesistements(): bool
     {
         return in_array($this->statut, [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], true);
+    }
+
+    /**
+     * Horaires encore modifiables (R19) : le scrutin n'est pas ouvert et sa phase non plus. À l'ouverture de la
+     * phase, les horaires de tous ses scrutins sont figés ; seule la prolongation reste possible ensuite.
+     */
+    public function horairesModifiables(): bool
+    {
+        return $this->accepteLesDesistements() && $this->phase?->statut === StatutPhase::Planifiee;
     }
 
     /**

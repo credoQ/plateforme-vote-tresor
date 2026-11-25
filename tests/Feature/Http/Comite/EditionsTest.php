@@ -5,10 +5,13 @@ namespace Tests\Feature\Http\Comite;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
+use App\Livewire\Editions\FormulaireEdition;
 use App\Models\Edition;
 use App\Models\Scrutin;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class EditionsTest extends TestCase
@@ -48,10 +51,11 @@ class EditionsTest extends TestCase
     public function test_r17_cree_planifie_et_lance_une_edition(): void
     {
         $this->actingAs($this->comite)->get(route('editions.create'))->assertOk();
-        $this->post(route('editions.store'), [
-            'annee' => 2027, 'libelle' => 'Femme modèle du Trésor 2027', 'date_debut' => '2027-03-01', 'date_fin' => '2027-04-30',
-            'date_gel' => '2027-02-15', 'vote_blanc_autorise' => '1', 'quorum' => '30',
-        ])->assertSessionHasNoErrors();
+        Livewire::test(FormulaireEdition::class)
+            ->set(['form.libelle' => 'Femme modèle du Trésor 2027', 'form.annee' => '2027', 'form.date_debut' => '2027-03-01', 'form.date_fin' => '2027-04-30',
+                'form.vote_blanc_autorise' => true, 'form.quorum' => '30', 'nombrePhases' => 3])
+            ->call('enregistrer')
+            ->assertHasNoErrors()->assertRedirect();
 
         $edition = Edition::where('annee', 2027)->firstOrFail();
         $this->assertTrue($edition->vote_blanc_autorise);
@@ -80,28 +84,47 @@ class EditionsTest extends TestCase
     {
         $college = fn (string $decoupage, string $origine = 'NOMINATION', int $elues = 1): array => ['decoupage' => $decoupage, 'origine' => $origine, 'nb_elues' => $elues];
 
-        $this->actingAs($this->comite)->get(route('editions.create'))->assertOk()->assertSee('Phases et périmètres')->assertSee('Phase 3 · finale', false)
-            ->assertSee('Ajouter une phase')->assertViewHas('phasesAffichees', 1);
-        $this->post(route('editions.store'), [
-            'annee' => 2027, 'libelle' => 'Femme modèle du Trésor 2027', 'date_debut' => '2027-03-01', 'date_fin' => '2027-04-30', 'date_gel' => '2027-02-15',
-            'phases' => [
-                1 => ['libelle' => 'Élections départementales', 'colleges' => ['DEPARTEMENTAL' => $college('PAR_CIRCONSCRIPTION'), 'STRUCTURES' => $college('AUCUN'), 'DGTCP' => $college('AUCUN')]],
-                2 => ['active' => '1', 'libelle' => 'Élections finales', 'colleges' => ['DEPARTEMENTAL' => $college('ENSEMBLE', 'QUALIFICATION'), 'STRUCTURES' => $college('ENSEMBLE', 'NOMINATION', 3), 'DGTCP' => $college('AUCUN')]],
-                3 => ['libelle' => 'Phase 3', 'colleges' => ['DGTCP' => $college('ENSEMBLE', 'QUALIFICATION')]],
-            ],
-        ])->assertSessionHasNoErrors();
+        $this->actingAs($this->comite)->get(route('editions.create'))->assertOk()->assertSee('Phases et périmètres')
+            ->assertSee('Ajouter une phase');
+        Livewire::test(FormulaireEdition::class)
+            ->assertSet('nombrePhases', 1)->assertSet('form.phases.3.libelle', 'Phase 3 · finale')
+            ->set(['form.annee' => '2027', 'form.libelle' => 'Femme modèle du Trésor 2027', 'form.date_debut' => '2027-03-01', 'form.date_fin' => '2027-04-30',
+                'form.phases.1.libelle' => 'Élections départementales', 'form.phases.1.colleges.DEPARTEMENTAL' => $college('PAR_CIRCONSCRIPTION'),
+                'form.phases.1.colleges.STRUCTURES' => $college('AUCUN'), 'form.phases.1.colleges.DGTCP' => $college('AUCUN'),
+                'form.phases.2.libelle' => 'Élections finales', 'form.phases.2.colleges.DEPARTEMENTAL' => $college('ENSEMBLE', 'QUALIFICATION'),
+                'form.phases.2.colleges.STRUCTURES' => $college('ENSEMBLE', 'NOMINATION', 3), 'form.phases.2.colleges.DGTCP' => $college('AUCUN'),
+                'nombrePhases' => 2])
+            ->call('enregistrer')
+            ->assertHasNoErrors();
 
         $edition = Edition::where('annee', 2027)->firstOrFail();
         $this->assertSame([1, 2], $edition->phases->pluck('numero')->all());
-        $this->get(route('editions.edit', $edition))->assertOk()->assertViewHas('phasesAffichees', 2);
+        $this->get(route('editions.edit', $edition))->assertOk();
+        Livewire::test(FormulaireEdition::class, ['edition' => $edition])->assertSet('nombrePhases', 2);
         $this->get(route('editions.show', $edition))->assertOk()->assertSee('Élections finales');
         $this->get(route('editions.show', [$edition, 'phase' => 2, 'onglet' => 'colleges']))->assertOk()
             ->assertSee('Pôle structures · Un seul scrutin pour tout le périmètre · Nomination par le comité · 3 élue(s) par scrutin');
 
-        $this->put(route('editions.update', $edition), [
-            'annee' => 2027, 'libelle' => 'Femme modèle du Trésor 2027', 'date_debut' => '2027-03-01', 'date_fin' => '2027-04-30', 'date_gel' => '2027-02-15',
-            'phases' => [1 => ['libelle' => 'Phase 1', 'colleges' => ['DGTCP' => $college('ENSEMBLE', 'QUALIFICATION')]]],
-        ])->assertSessionHasErrors('phases');
+        Livewire::test(FormulaireEdition::class, ['edition' => $edition])
+            ->set(['form.phases.1.colleges' => ['DEPARTEMENTAL' => $college('AUCUN'), 'STRUCTURES' => $college('AUCUN'), 'DGTCP' => $college('ENSEMBLE', 'QUALIFICATION')], 'nombrePhases' => 1])
+            ->call('enregistrer')
+            ->assertHasErrors('phases')->assertDispatched('formulaire-erreurs')->assertNoRedirect()
+            ->set('form.date_fin', '')
+            ->call('enregistrer')
+            ->assertHasErrors('date_fin')->assertNotDispatched('erreur');
+    }
+
+    /**
+     * R16 : tant que l'édition n'est pas lancée, la tâche « Ouvrir la phase » le dit et propose de la lancer.
+     */
+    public function test_r16_la_tache_d_ouverture_propose_de_lancer_l_edition(): void
+    {
+        $edition = Edition::factory()->avecPhases()->create();
+        Scrutin::factory()->for($edition->phase(1))->create(['date_heure_ouverture' => '2030-03-02 07:00:00', 'date_heure_fermeture' => '2030-03-02 17:00:00']);
+
+        $this->actingAs($this->comite)->get(route('editions.show', $edition))->assertOk()
+            ->assertSee('Avant d’ouvrir : lancez d’abord l’édition.', false)
+            ->assertSee('<button type="button" class="btn btn-secondaire" data-ouvrir="modale-lancer">', false);
     }
 
     public function test_les_adresses_portent_un_uuid_et_jamais_le_numero_de_la_ligne(): void
@@ -126,16 +149,46 @@ class EditionsTest extends TestCase
     }
 
     /**
-     * R18 : ouverture puis clôture d'une phase depuis l'écran de l'édition.
+     * R18, R19 : la phase ne s'ouvre qu'avec tous ses scrutins planifiés ; ils se planifient d'un coup, puis la phase
+     * s'ouvre (leurs horaires sont alors figés) et se clôture depuis l'écran de l'édition.
      */
     public function test_r18_ouvre_et_cloture_une_phase(): void
     {
-        $edition = Edition::factory()->avecPhases()->enCours()->create();
+        $this->travelTo(Carbon::parse('2026-11-20 09:00:00'));
+        $edition = Edition::factory()->avecPhases()->enCours()->create(['date_debut' => '2026-11-01', 'date_fin' => '2026-12-31']);
         $phase = $edition->phase(1);
-        $scrutin = Scrutin::factory()->for($phase)->create();
+        $phase->update(['date_debut' => '2026-12-01', 'date_fin' => '2026-12-10']);
+        $scrutin = Scrutin::factory()->for($phase)->create(['date_heure_ouverture' => null, 'date_heure_fermeture' => null]);
 
-        $this->actingAs($this->comite)->post(route('phases.ouvrir', $phase))->assertSessionHasNoErrors();
+        $this->actingAs($this->comite)->get(route('editions.show', $edition))->assertOk()
+            ->assertSee('0 scrutin(s) planifié(s) sur 1')->assertSee('Planifier tous les scrutins')
+            ->assertSee('Avant d’ouvrir : 1 scrutin(s) ne sont pas planifiés.', false)
+            ->assertSee('data-ouvrir="modale-ouvrir-'.$phase->id.'" disabled', false);
+        $this->post(route('phases.ouvrir', $phase))->assertSessionHasErrors(['phase' => '1 scrutin(s) de la phase ne sont pas planifiés : planifiez-les avant d’ouvrir la phase.']);
+
+        $this->post(route('phases.planifier-scrutins', $phase), ['ouverture' => '2026-12-11T08:00', 'fermeture' => '2026-12-11T18:00'])->assertSessionHasErrors('scrutin');
+        $this->post(route('phases.planifier-scrutins', $phase), ['ouverture' => now()->subDay()->format('Y-m-d\TH:i'), 'fermeture' => '2026-12-02T18:00'])
+            ->assertSessionHasErrors(['scrutin' => 'L’ouverture est déjà passée : choisissez une date et une heure à venir.']);
+        $this->post(route('phases.planifier-scrutins', $phase), ['ouverture' => '2026-12-02T08:00', 'fermeture' => '2026-12-02T18:00'])
+            ->assertSessionHasNoErrors()->assertSessionHas('succes', '1 scrutin(s) planifié(s) : chacun reste modifiable depuis sa fiche.');
+        $this->assertSame('2026-12-02 07:00:00', $scrutin->fresh()->date_heure_ouverture->utc()->format('Y-m-d H:i:s'), 'Heure du Bénin convertie en UTC.');
+
+        // Les dates de la phase ne peuvent plus exclure un scrutin déjà planifié.
+        $this->put(route('phases.update', $phase), ['date_debut' => '2026-12-03', 'date_fin' => '2026-12-10'])
+            ->assertSessionHasErrors(['phase' => "Les horaires de 1 scrutin(s) sortiraient de ces dates ({$scrutin->code}) : replanifiez-les d’abord, ou choisissez des dates qui les contiennent."]);
+        $this->assertSame('2026-12-01', $phase->fresh()->date_debut->toDateString());
+        $this->put(route('phases.update', $phase), ['date_debut' => '2026-12-02', 'date_fin' => '2026-12-09'])->assertSessionHasNoErrors();
+
+        $this->post(route('phases.ouvrir', $phase))->assertSessionHasNoErrors();
         $this->assertSame(StatutPhase::Ouverte, $phase->fresh()->statut);
+
+        // Phase ouverte : les horaires de ses scrutins sont figés.
+        $this->get(route('editions.show', $edition))->assertSee('Horaires figés depuis l’ouverture de la phase.', false)->assertDontSee('Replanifier tous les scrutins');
+        $this->get(route('scrutins.show', $scrutin))->assertOk()->assertDontSee('Modifier les horaires')->assertDontSee('Planifier le scrutin');
+        $this->post(route('phases.planifier-scrutins', $phase), ['ouverture' => '2026-12-03T08:00', 'fermeture' => '2026-12-03T18:00'])
+            ->assertSessionHasErrors(['scrutin' => 'La phase est ouverte : les horaires de ses scrutins sont figés.']);
+        $this->post(route('scrutins.planifier', $scrutin), ['ouverture' => '2026-12-03T08:00', 'fermeture' => '2026-12-03T18:00'])->assertSessionHasErrors('scrutin');
+        $this->assertSame('2026-12-02 07:00:00', $scrutin->fresh()->date_heure_ouverture->utc()->format('Y-m-d H:i:s'));
 
         $this->post(route('phases.cloturer', $phase))->assertSessionHasErrors('phase');
         $this->get(route('editions.show', $edition))->assertOk()

@@ -5,8 +5,10 @@ namespace App\Models;
 use App\Enums\Referentiel\CodePoleElectoral;
 use App\Enums\Referentiel\CodeTypeStructure;
 use App\Models\Concerns\IdentifieParUuid;
+use App\Observers\ActualiserListesSurChangement;
 use Database\Factories\StructureFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\ObservedBy;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Builder;
@@ -20,6 +22,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  */
 #[Table('structures')]
 #[Fillable(['code', 'sigle', 'libelle', 'niveau', 'actif', 'type_structure_id', 'departement_id', 'structure_parente_id'])]
+#[ObservedBy([ActualiserListesSurChangement::class])]
 class Structure extends Model
 {
     /** @use HasFactory<StructureFactory> */

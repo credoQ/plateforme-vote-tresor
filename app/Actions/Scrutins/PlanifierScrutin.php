@@ -2,7 +2,9 @@
 
 namespace App\Actions\Scrutins;
 
+use App\Enums\Editions\StatutPhase;
 use App\Enums\Scrutins\StatutScrutin;
+use App\Models\Phase;
 use App\Models\Scrutin;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\DB;
@@ -21,6 +23,10 @@ class PlanifierScrutin
     {
         if (! in_array($scrutin->statut, [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], true)) {
             $this->echouer('scrutin', 'Un scrutin ouvert, clos ou annulé ne peut plus être replanifié.');
+        }
+
+        if (! $scrutin->horairesModifiables()) {
+            $this->echouer('scrutin', 'La phase est ouverte : les horaires de ses scrutins sont figés.');
         }
 
         if ($ouverture->greaterThanOrEqualTo($fermeture)) {
@@ -47,6 +53,11 @@ class PlanifierScrutin
             $verrouille = Scrutin::lockForUpdate()->findOrFail($scrutin->id);
             if (! in_array($verrouille->statut, [StatutScrutin::EnPreparation, StatutScrutin::ListesArretees], true)) {
                 $this->echouer('scrutin', 'Un scrutin ouvert, clos ou annulé ne peut plus être replanifié.');
+            }
+
+            // La phase verrouillée : son ouverture attend la fin de la planification, et inversement.
+            if (Phase::lockForUpdate()->findOrFail($verrouille->phase_id)->statut !== StatutPhase::Planifiee) {
+                $this->echouer('scrutin', 'La phase est ouverte : les horaires de ses scrutins sont figés.');
             }
 
             $verrouille->update(['date_heure_ouverture' => $ouverture, 'date_heure_fermeture' => $fermeture]);

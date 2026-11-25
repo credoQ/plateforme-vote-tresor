@@ -93,7 +93,7 @@ class ScrutinController extends Controller
         if ($scrutin->date_heure_ouverture !== null && ! in_array($courante, ['horaires', 'vote'], true)) {
             $rappels[] = [
                 'texte' => 'Vote du '.$scrutin->date_heure_ouverture->timezone(self::FUSEAU)->format('d/m/Y à H:i').' au '.$scrutin->date_heure_fermeture->timezone(self::FUSEAU)->format('d/m/Y à H:i'),
-                'action' => $scrutin->accepteLesDesistements() ? 'planifier' : null,
+                'action' => $scrutin->horairesModifiables() ? 'planifier' : null,
             ];
         }
 

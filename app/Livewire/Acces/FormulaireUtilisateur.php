@@ -56,7 +56,8 @@ class FormulaireUtilisateur extends Component
         if ($this->utilisateur !== null) {
             $this->name = $this->utilisateur->name;
             $this->login = $this->utilisateur->login;
-            $this->email = (string) $this->utilisateur->email;
+            // Compte sans adresse : celle de la fiche de l'agent lié est proposée.
+            $this->email = (string) ($this->utilisateur->email ?? $this->utilisateur->agent?->email);
             $this->actif = $this->utilisateur->actif;
             $this->roles = $this->utilisateur->roles->map(fn ($role): string => $role->code->value)->values()->all();
             $this->structureId = (string) $this->utilisateur->structure_id;

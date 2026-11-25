@@ -97,6 +97,22 @@ class UtilisateursTest extends TestCase
         $this->assertFalse($compte->fresh()->actif);
     }
 
+    /**
+     * R42 : l'adresse de connexion est obligatoire aussi en modification ; un compte sans adresse se voit proposer
+     * celle de la fiche de son agent.
+     */
+    public function test_r42_l_email_de_connexion_est_obligatoire_en_modification(): void
+    {
+        $agent = Agent::factory()->create(['email' => 'agent.fiche@example.test']);
+        $compte = User::factory()->pourAgent($agent)->avecRoles(CodeRole::Electeur)->create(['email' => null]);
+
+        $this->formulaire($compte)->assertSet('email', 'agent.fiche@example.test')
+            ->set('email', '')->call('enregistrer')->assertHasErrors(['email' => 'Une adresse e-mail est nécessaire pour recevoir le code de connexion.'])
+            ->set('email', 'agent.fiche@example.test')->call('enregistrer')->assertHasNoErrors();
+
+        $this->assertSame('agent.fiche@example.test', $compte->fresh()->email);
+    }
+
     public function test_l_administrateur_ne_peut_pas_desactiver_son_propre_compte(): void
     {
         $this->formulaire($this->admin)->set('actif', false)->call('enregistrer')->assertHasErrors('actif');

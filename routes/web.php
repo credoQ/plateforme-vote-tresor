@@ -70,7 +70,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/scrutins/{scrutin}/resultats', [ExportController::class, 'resultats'])->name('exports.resultats');
 
     Route::middleware('can:piloter')->group(function () {
-        Route::resource('editions', EditionController::class)->except(['destroy']);
+        Route::resource('editions', EditionController::class)->except(['destroy', 'store', 'update']);
         Route::post('/editions/{edition}/lancer', [EditionController::class, 'lancer'])->name('editions.lancer');
         Route::put('/phases/{phase}', [PhaseController::class, 'update'])->name('phases.update');
         Route::post('/phases/{phase}/ouvrir', [PhaseController::class, 'ouvrir'])->name('phases.ouvrir');

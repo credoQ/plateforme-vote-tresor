@@ -5,10 +5,12 @@ namespace Tests\Feature\Http\Comite;
 use App\Enums\Acces\CodeRole;
 use App\Enums\Editions\StatutEdition;
 use App\Enums\Editions\StatutPhase;
+use App\Livewire\Editions\FormulaireEdition;
 use App\Models\Edition;
 use App\Models\Scrutin;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class EditionsTest extends TestCase
@@ -48,10 +50,11 @@ class EditionsTest extends TestCase
     public function test_r17_cree_planifie_et_lance_une_edition(): void
     {
         $this->actingAs($this->comite)->get(route('editions.create'))->assertOk();
-        $this->post(route('editions.store'), [
-            'annee' => 2027, 'libelle' => 'Femme modèle du Trésor 2027', 'date_debut' => '2027-03-01', 'date_fin' => '2027-04-30',
-            'date_gel' => '2027-02-15', 'vote_blanc_autorise' => '1', 'quorum' => '30',
-        ])->assertSessionHasNoErrors();
+        Livewire::test(FormulaireEdition::class)
+            ->set(['form.libelle' => 'Femme modèle du Trésor 2027', 'form.annee' => '2027', 'form.date_debut' => '2027-03-01', 'form.date_fin' => '2027-04-30',
+                'form.vote_blanc_autorise' => true, 'form.quorum' => '30', 'nombrePhases' => 3])
+            ->call('enregistrer')
+            ->assertHasNoErrors()->assertRedirect();
 
         $edition = Edition::where('annee', 2027)->firstOrFail();
         $this->assertTrue($edition->vote_blanc_autorise);
@@ -80,28 +83,34 @@ class EditionsTest extends TestCase
     {
         $college = fn (string $decoupage, string $origine = 'NOMINATION', int $elues = 1): array => ['decoupage' => $decoupage, 'origine' => $origine, 'nb_elues' => $elues];
 
-        $this->actingAs($this->comite)->get(route('editions.create'))->assertOk()->assertSee('Phases et périmètres')->assertSee('Phase 3 · finale', false)
-            ->assertSee('Ajouter une phase')->assertViewHas('phasesAffichees', 1);
-        $this->post(route('editions.store'), [
-            'annee' => 2027, 'libelle' => 'Femme modèle du Trésor 2027', 'date_debut' => '2027-03-01', 'date_fin' => '2027-04-30', 'date_gel' => '2027-02-15',
-            'phases' => [
-                1 => ['libelle' => 'Élections départementales', 'colleges' => ['DEPARTEMENTAL' => $college('PAR_CIRCONSCRIPTION'), 'STRUCTURES' => $college('AUCUN'), 'DGTCP' => $college('AUCUN')]],
-                2 => ['active' => '1', 'libelle' => 'Élections finales', 'colleges' => ['DEPARTEMENTAL' => $college('ENSEMBLE', 'QUALIFICATION'), 'STRUCTURES' => $college('ENSEMBLE', 'NOMINATION', 3), 'DGTCP' => $college('AUCUN')]],
-                3 => ['libelle' => 'Phase 3', 'colleges' => ['DGTCP' => $college('ENSEMBLE', 'QUALIFICATION')]],
-            ],
-        ])->assertSessionHasNoErrors();
+        $this->actingAs($this->comite)->get(route('editions.create'))->assertOk()->assertSee('Phases et périmètres')
+            ->assertSee('Ajouter une phase');
+        Livewire::test(FormulaireEdition::class)
+            ->assertSet('nombrePhases', 1)->assertSet('form.phases.3.libelle', 'Phase 3 · finale')
+            ->set(['form.annee' => '2027', 'form.libelle' => 'Femme modèle du Trésor 2027', 'form.date_debut' => '2027-03-01', 'form.date_fin' => '2027-04-30',
+                'form.phases.1.libelle' => 'Élections départementales', 'form.phases.1.colleges.DEPARTEMENTAL' => $college('PAR_CIRCONSCRIPTION'),
+                'form.phases.1.colleges.STRUCTURES' => $college('AUCUN'), 'form.phases.1.colleges.DGTCP' => $college('AUCUN'),
+                'form.phases.2.libelle' => 'Élections finales', 'form.phases.2.colleges.DEPARTEMENTAL' => $college('ENSEMBLE', 'QUALIFICATION'),
+                'form.phases.2.colleges.STRUCTURES' => $college('ENSEMBLE', 'NOMINATION', 3), 'form.phases.2.colleges.DGTCP' => $college('AUCUN'),
+                'nombrePhases' => 2])
+            ->call('enregistrer')
+            ->assertHasNoErrors();
 
         $edition = Edition::where('annee', 2027)->firstOrFail();
         $this->assertSame([1, 2], $edition->phases->pluck('numero')->all());
-        $this->get(route('editions.edit', $edition))->assertOk()->assertViewHas('phasesAffichees', 2);
+        $this->get(route('editions.edit', $edition))->assertOk();
+        Livewire::test(FormulaireEdition::class, ['edition' => $edition])->assertSet('nombrePhases', 2);
         $this->get(route('editions.show', $edition))->assertOk()->assertSee('Élections finales');
         $this->get(route('editions.show', [$edition, 'phase' => 2, 'onglet' => 'colleges']))->assertOk()
             ->assertSee('Pôle structures · Un seul scrutin pour tout le périmètre · Nomination par le comité · 3 élue(s) par scrutin');
 
-        $this->put(route('editions.update', $edition), [
-            'annee' => 2027, 'libelle' => 'Femme modèle du Trésor 2027', 'date_debut' => '2027-03-01', 'date_fin' => '2027-04-30', 'date_gel' => '2027-02-15',
-            'phases' => [1 => ['libelle' => 'Phase 1', 'colleges' => ['DGTCP' => $college('ENSEMBLE', 'QUALIFICATION')]]],
-        ])->assertSessionHasErrors('phases');
+        Livewire::test(FormulaireEdition::class, ['edition' => $edition])
+            ->set(['form.phases.1.colleges' => ['DEPARTEMENTAL' => $college('AUCUN'), 'STRUCTURES' => $college('AUCUN'), 'DGTCP' => $college('ENSEMBLE', 'QUALIFICATION')], 'nombrePhases' => 1])
+            ->call('enregistrer')
+            ->assertHasErrors('phases')->assertDispatched('formulaire-erreurs')->assertNoRedirect()
+            ->set('form.date_fin', '')
+            ->call('enregistrer')
+            ->assertHasErrors('date_fin')->assertNotDispatched('erreur');
     }
 
     public function test_les_adresses_portent_un_uuid_et_jamais_le_numero_de_la_ligne(): void

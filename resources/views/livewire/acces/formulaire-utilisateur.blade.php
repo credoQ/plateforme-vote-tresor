@@ -3,7 +3,7 @@
 <div class="carte">
     <div class="carte__corps">
         <form wire:submit="enregistrer" class="formulaire" novalidate>
-            @foreach ([['name', 'Nom et prénoms', true], ['login', 'Identifiant (matricule pour un agent)', true], ['email', 'E-mail de connexion', $utilisateur === null]] as [$champ, $libelle, $requis])
+            @foreach ([['name', 'Nom et prénoms', true], ['login', 'Identifiant (matricule pour un agent)', true], ['email', 'E-mail de connexion', true]] as [$champ, $libelle, $requis])
                 <div class="formulaire__groupe">
                     <label class="libelle" for="{{ $champ }}">{{ $libelle }} @if ($requis)<span class="requis">*</span>@endif</label>
                     <input id="{{ $champ }}" class="champ" wire:model="{{ $champ }}" @if ($champ === 'email') type="email" @endif>
@@ -15,8 +15,8 @@
                                 Si un agent porte ce matricule, le compte lui est lié.
                             @endif
                         </p>
-                    @elseif ($champ === 'email' && $utilisateur !== null)
-                        <p class="aide">Facultatif si la fiche de l’agent lié porte une adresse.</p>
+                    @elseif ($champ === 'email')
+                        <p class="aide">Le code de connexion est envoyé à cette adresse.</p>
                     @endif
                     @error($champ)<p class="erreur-champ">{{ $message }}</p>@enderror
                     @if ($champ === 'login')

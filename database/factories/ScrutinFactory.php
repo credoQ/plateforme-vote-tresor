@@ -34,4 +34,15 @@ class ScrutinFactory extends Factory
     {
         return $this->state(fn (): array => ['statut' => $statut]);
     }
+
+    /**
+     * Scrutin planifié (R19) : il s'ouvre demain pour une journée.
+     */
+    public function planifie(): static
+    {
+        return $this->state(fn (): array => [
+            'date_heure_ouverture' => now()->addDay()->startOfHour(),
+            'date_heure_fermeture' => now()->addDays(2)->startOfHour(),
+        ]);
+    }
 }

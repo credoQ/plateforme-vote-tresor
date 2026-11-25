@@ -47,6 +47,12 @@ class OuvrirPhase
                 $this->echouer('La phase ne compte aucun scrutin : générez les scrutins avant de l’ouvrir.');
             }
 
+            // R19 : un scrutin sans date-heure d'ouverture ne s'ouvrirait jamais.
+            $nonPlanifies = $phase->scrutins()->whereIn('statut', [StatutScrutin::EnPreparation->value, StatutScrutin::ListesArretees->value])->whereNull('date_heure_ouverture')->count();
+            if ($nonPlanifies > 0) {
+                $this->echouer("{$nonPlanifies} scrutin(s) de la phase ne sont pas planifiés : planifiez-les avant d’ouvrir la phase.");
+            }
+
             $phase->update(['statut' => StatutPhase::Ouverte, 'date_ouverture' => now()]);
             $this->journal->handle(ActionAuditee::PhaseOuverte, $phase, ['phase' => $phase->libelle]);
 

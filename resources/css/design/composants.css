@@ -434,6 +434,13 @@
   .barre-horizontale__piste { height: 10px; border-radius: 0 4px 4px 0; background: var(--tr-gris-100); overflow: hidden; }
   .barre-horizontale__piste span { display: block; height: 100%; border-radius: 0 4px 4px 0; background: var(--tr-primaire); }
   .barre-horizontale b { text-align: right; font-variant-numeric: tabular-nums; }
+  /* Participation par zone de vote (tableau de bord) : deux groupes, hauteur limitée avec défilement. */
+  .zones-participation { display: grid; gap: 14px; max-height: 360px; overflow: auto; padding-right: 4px; }
+  .zones-participation__groupe { display: grid; gap: 2px; }
+  .zones-participation__titre { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 4px; padding-bottom: 6px; border-bottom: 1px solid var(--tr-bordure-legere); font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--tr-texte-2); }
+  .zones-participation__titre span { display: inline-flex; align-items: center; gap: 6px; }
+  .zones-participation__titre svg { width: 14px; height: 14px; }
+  .zones-participation__titre b { font-size: 13px; letter-spacing: 0; color: var(--tr-texte); font-variant-numeric: tabular-nums; }
   .progression--heros { background: rgba(255,255,255,.18); }
   .progression--heros > span { background: var(--tr-accent-sur-primaire); }
   .carte__aide { margin: 0 0 0 auto; }

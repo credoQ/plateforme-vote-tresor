@@ -3,8 +3,10 @@
 namespace App\Actions\Suivi;
 
 use App\Enums\Scrutins\StatutCandidate;
+use App\Models\Departement;
 use App\Models\Phase;
 use App\Models\Scrutin;
+use App\Models\Structure;
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
@@ -31,7 +33,7 @@ class MesurerParticipation
 
     /**
      * @param  list<int>|null  $perimetre
-     * @return array{global: array{inscrits: int, votants: int, taux: float}, scrutins: Collection<int, array<string, mixed>>, departements: Collection<int, array<string, mixed>>, structures: Collection<int, array<string, mixed>>}
+     * @return array{global: array{inscrits: int, votants: int, taux: float}, scrutins: Collection<int, array<string, mixed>>, zones: array{departements: array<string, mixed>, structures: array<string, mixed>}, structures: Collection<int, array<string, mixed>>}
      */
     public function handle(Phase $phase, ?array $perimetre = null): array
     {
@@ -56,9 +58,49 @@ class MesurerParticipation
         return [
             'global' => $this->taux($comptages['total']['inscrits'], $comptages['total']['votants']),
             'scrutins' => $scrutins,
-            'departements' => collect($comptages['departements'])->map(fn (array $l): array => ['libelle' => $l['libelle'], ...$this->taux($l['inscrits'], $l['votants'])]),
+            'zones' => $this->zones($comptages['structures']),
             'structures' => collect($comptages['structures'])->map(fn (array $l): array => ['code' => $l['code'], 'libelle' => $l['libelle'], ...$this->taux($l['inscrits'], $l['votants'])]),
         ];
+    }
+
+    /**
+     * Participation par zone de vote (R24, R25) : chaque électeur compte dans le département de sa structure s'il en
+     * a un (Trésoreries départementales et communales, antennes), sinon dans sa structure électorale (un service avec
+     * sa structure de rattachement). Deux groupes, l'un par pôle, triés par taux décroissant.
+     *
+     * @param  list<array{id: int, code: string, libelle: string, departement_id: int|null, niveau: int, structure_parente_id: int|null, inscrits: int, votants: int}>  $parStructure
+     * @return array{departements: array{taux: float, inscrits: int, votants: int, lignes: Collection<int, array<string, mixed>>}, structures: array{taux: float, inscrits: int, votants: int, lignes: Collection<int, array<string, mixed>>}}
+     */
+    private function zones(array $parStructure): array
+    {
+        $departements = Departement::whereKey(array_filter(array_column($parStructure, 'departement_id')))->pluck('libelle', 'id');
+        $parentes = Structure::whereKey(array_filter(array_column($parStructure, 'structure_parente_id')))->get(['id', 'code', 'libelle'])->keyBy('id');
+
+        $zones = ['departements' => [], 'structures' => []];
+        foreach ($parStructure as $ligne) {
+            if ($ligne['departement_id'] !== null) {
+                $groupe = 'departements';
+                $cle = $ligne['departement_id'];
+                $zone = ['code' => $departements[$cle] ?? '', 'libelle' => $departements[$cle] ?? ''];
+            } else {
+                $electorale = $ligne['niveau'] === Structure::NIVEAU_STRUCTURE_ELECTORALE ? null : $parentes[$ligne['structure_parente_id']] ?? null;
+                $groupe = 'structures';
+                $cle = $electorale?->id ?? $ligne['id'];
+                $zone = ['code' => $electorale?->code ?? $ligne['code'], 'libelle' => $electorale?->libelle ?? $ligne['libelle']];
+            }
+
+            $zones[$groupe][$cle] ??= [...$zone, 'inscrits' => 0, 'votants' => 0];
+            $zones[$groupe][$cle]['inscrits'] += $ligne['inscrits'];
+            $zones[$groupe][$cle]['votants'] += $ligne['votants'];
+        }
+
+        return array_map(fn (array $lignes): array => [
+            ...$this->taux(array_sum(array_column($lignes, 'inscrits')), array_sum(array_column($lignes, 'votants'))),
+            'lignes' => collect($lignes)
+                ->map(fn (array $l): array => ['code' => $l['code'], 'libelle' => $l['libelle'], ...$this->taux($l['inscrits'], $l['votants'])])
+                ->sortBy([['taux', 'desc'], ['code', 'asc']])
+                ->values(),
+        ], $zones);
     }
 
     /**
@@ -101,10 +143,10 @@ class MesurerParticipation
     }
 
     /**
-     * Inscrits et votants de la phase, par scrutin, par département, par structure et au total.
+     * Inscrits et votants de la phase, par scrutin, par structure et au total.
      *
      * @param  list<int>|null  $perimetre
-     * @return array{scrutins: array<int, array{inscrits: int, votants: int}>, departements: list<array{libelle: string, inscrits: int, votants: int}>, structures: list<array{code: string, libelle: string, inscrits: int, votants: int}>, total: array{inscrits: int, votants: int}}
+     * @return array{scrutins: array<int, array{inscrits: int, votants: int}>, structures: list<array{id: int, code: string, libelle: string, departement_id: int|null, niveau: int, structure_parente_id: int|null, inscrits: int, votants: int}>, total: array{inscrits: int, votants: int}}
      */
     private function comptages(Phase $phase, ?array $perimetre): array
     {
@@ -120,21 +162,21 @@ class MesurerParticipation
             return [
                 'scrutins' => $inscriptions()->groupBy('scrutin_id')->selectRaw("scrutin_id, {$compter}")->get()
                     ->mapWithKeys(fn ($ligne): array => [(int) $ligne->scrutin_id => $nombres($ligne)])->all(),
-                'departements' => $inscriptions()
-                    ->join('structures', 'structures.id', '=', 'inscriptions.structure_id')
-                    ->join('departements', 'departements.id', '=', 'structures.departement_id')
-                    ->groupBy('departements.id', 'departements.libelle')
-                    ->orderBy('departements.libelle')
-                    ->selectRaw("departements.libelle, {$compter}")
-                    ->get()
-                    ->map(fn ($ligne): array => ['libelle' => $ligne->libelle, ...$nombres($ligne)])->all(),
                 'structures' => $inscriptions()
                     ->join('structures', 'structures.id', '=', 'inscriptions.structure_id')
-                    ->groupBy('structures.id', 'structures.code', 'structures.libelle')
+                    ->groupBy('structures.id', 'structures.code', 'structures.libelle', 'structures.departement_id', 'structures.niveau', 'structures.structure_parente_id')
                     ->orderBy('structures.code')
-                    ->selectRaw("structures.code, structures.libelle, {$compter}")
+                    ->selectRaw("structures.id, structures.code, structures.libelle, structures.departement_id, structures.niveau, structures.structure_parente_id, {$compter}")
                     ->get()
-                    ->map(fn ($ligne): array => ['code' => $ligne->code, 'libelle' => $ligne->libelle, ...$nombres($ligne)])->all(),
+                    ->map(fn ($ligne): array => [
+                        'id' => (int) $ligne->id,
+                        'code' => $ligne->code,
+                        'libelle' => $ligne->libelle,
+                        'departement_id' => $ligne->departement_id !== null ? (int) $ligne->departement_id : null,
+                        'niveau' => (int) $ligne->niveau,
+                        'structure_parente_id' => $ligne->structure_parente_id !== null ? (int) $ligne->structure_parente_id : null,
+                        ...$nombres($ligne),
+                    ])->all(),
                 'total' => $nombres($total),
             ];
         });

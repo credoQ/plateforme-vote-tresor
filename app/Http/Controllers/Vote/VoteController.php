@@ -124,7 +124,7 @@ class VoteController extends Controller
     /**
      * Candidates actives du scrutin, avec leur structure d'inscription (R33).
      *
-     * @return Collection<int, array{id: int, nom: string, initiales: string, photo: string|null, structure: string, structure_id: int|null}>
+     * @return Collection<int, array{id: int, nom: string, initiales: string, photo: string|null, avatar: array{tenue: int, peau: int, cheveux: int, coiffure: int}, structure: string, structure_id: int|null}>
      */
     private function candidates(Scrutin $scrutin): Collection
     {
@@ -139,6 +139,7 @@ class VoteController extends Controller
                     'nom' => $candidate->agent->nomComplet(),
                     'initiales' => mb_substr($candidate->agent->nom, 0, 1).mb_substr($candidate->agent->prenoms, 0, 1),
                     'photo' => $candidate->urlPhoto(),
+                    'avatar' => $candidate->agent->avatar(),
                     'structure' => $structure?->libelle ?? '',
                     'structure_id' => $structure?->id,
                 ];
@@ -150,7 +151,7 @@ class VoteController extends Controller
     /**
      * Choix transmis par le bulletin : une candidate active du scrutin, ou null pour un vote blanc.
      *
-     * @return array{id: int, nom: string, initiales: string, photo: string|null, structure: string, structure_id: int|null}|null
+     * @return array{id: int, nom: string, initiales: string, photo: string|null, avatar: array{tenue: int, peau: int, cheveux: int, coiffure: int}, structure: string, structure_id: int|null}|null
      *
      * @throws ValidationException
      */

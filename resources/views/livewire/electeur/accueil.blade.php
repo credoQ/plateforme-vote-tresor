@@ -60,12 +60,12 @@
                         @if ($candidature->photo)
                             <img class="vignette-photo" src="{{ $candidature->urlPhoto() }}" alt="Ma photo sur le bulletin">
                         @else
-                            <span class="vignette-photo" aria-hidden="true">{{ $initiales }}</span>
+                            <span class="vignette-photo"><x-avatar-femme :variante="$avatar" /></span>
                         @endif
                         <div>
                             <p><strong>{{ $candidature->scrutin->libelle }}</strong> · {{ $candidature->scrutin->phase->libelle }}</p>
                             @if ($candidature->estActive())
-                                <p class="aide">{{ $candidature->origine->libelle() }} · {{ $candidature->photo ? 'votre photo apparaît sur le bulletin' : 'vos initiales apparaissent sur le bulletin' }}</p>
+                                <p class="aide">{{ $candidature->origine->libelle() }} · {{ $candidature->photo ? 'votre photo apparaît sur le bulletin' : 'un avatar apparaît sur le bulletin' }}</p>
                             @else
                                 <p class="aide">Candidature retirée le {{ $candidature->date_desistement->timezone('Africa/Porto-Novo')->format('d/m/Y à H:i') }}.</p>
                             @endif

@@ -84,7 +84,7 @@
                                     @if ($candidate->photo)
                                         <img class="vignette-photo" src="{{ $candidate->urlPhoto() }}" alt="" loading="lazy">
                                     @else
-                                        <span class="vignette-photo" aria-hidden="true">{{ $candidate->agent->initiales() }}</span>
+                                        <span class="vignette-photo"><x-avatar-femme :variante="$candidate->agent->avatar()" /></span>
                                     @endif
                                     <div>{{ $candidate->agent->nomComplet() }}<div class="aide">{{ $candidate->agent->matricule }}</div></div>
                                 </div>

@@ -77,7 +77,7 @@ class EcransDuVoteTest extends TestCase
 
         $this->actingAs($this->electeur)->get(route('vote'))->assertOk()
             ->assertSee('src="'.$clarisse->urlPhoto().'"', false)
-            ->assertSee('<span class="carte-photo__initiales" aria-hidden="true">KI</span>', false);
+            ->assertSee('class="avatar-femme', false);
         $this->get($clarisse->urlPhoto())->assertOk()->assertHeader('Cache-Control', 'immutable, max-age=31536000, private');
         $this->get(route('candidates.photo', $this->candidate($this->ines)))->assertNotFound();
 

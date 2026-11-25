@@ -521,6 +521,28 @@
     .carte-candidate--photo .carte-photo__initiales { padding-bottom: 56px; }
   }
 
+  /* Avatar dessiné d'une candidate sans photo (components/avatar-femme) : variantes de tenue (t), teint (p), cheveux (h). */
+  .avatar-femme { display: block; width: 100%; height: 100%; }
+  .avatar-femme__fond { fill: var(--af-fond); }
+  .avatar-femme__tenue { fill: var(--af-tenue); }
+  .avatar-femme__peau { fill: var(--af-peau); }
+  .avatar-femme__cheveux { fill: var(--af-cheveux); }
+  .avatar-femme--t1 { --af-fond: var(--tr-avatar-fond-1); --af-tenue: var(--tr-avatar-tenue-1); }
+  .avatar-femme--t2 { --af-fond: var(--tr-avatar-fond-2); --af-tenue: var(--tr-avatar-tenue-2); }
+  .avatar-femme--t3 { --af-fond: var(--tr-avatar-fond-3); --af-tenue: var(--tr-avatar-tenue-3); }
+  .avatar-femme--t4 { --af-fond: var(--tr-avatar-fond-4); --af-tenue: var(--tr-avatar-tenue-4); }
+  .avatar-femme--t5 { --af-fond: var(--tr-avatar-fond-5); --af-tenue: var(--tr-avatar-tenue-5); }
+  .avatar-femme--p1 { --af-peau: var(--tr-avatar-peau-1); }
+  .avatar-femme--p2 { --af-peau: var(--tr-avatar-peau-2); }
+  .avatar-femme--p3 { --af-peau: var(--tr-avatar-peau-3); }
+  .avatar-femme--p4 { --af-peau: var(--tr-avatar-peau-4); }
+  .avatar-femme--h1 { --af-cheveux: var(--tr-avatar-cheveux-1); }
+  .avatar-femme--h2 { --af-cheveux: var(--tr-avatar-cheveux-2); }
+  .avatar-femme--h3 { --af-cheveux: var(--tr-avatar-cheveux-3); }
+  .carte-photo .avatar-femme { position: absolute; inset: 0; }
+  .vignette-photo .avatar-femme { border-radius: inherit; }
+  span.vignette-photo { overflow: hidden; }
+
   /* Recadrage d'une photo de candidate : on fait glisser la photo dans la carte du bulletin. */
   .modale--photo { width: min(640px, 100%); }
   .modale__pied-gauche { margin-right: auto; }

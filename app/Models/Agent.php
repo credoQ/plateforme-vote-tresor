@@ -96,6 +96,24 @@ class Agent extends Model
     }
 
     /**
+     * Variante de l'avatar dessiné d'une candidate sans photo (components/avatar-femme) : tirée du matricule,
+     * elle reste la même pour l'agent d'un scrutin à l'autre.
+     *
+     * @return array{tenue: int, peau: int, cheveux: int, coiffure: int}
+     */
+    public function avatar(): array
+    {
+        $empreinte = crc32((string) ($this->matricule ?? $this->id));
+
+        return [
+            'tenue' => $empreinte % 5 + 1,
+            'peau' => ($empreinte >> 3) % 4 + 1,
+            'cheveux' => ($empreinte >> 6) % 3 + 1,
+            'coiffure' => ($empreinte >> 8) % 4 + 1,
+        ];
+    }
+
+    /**
      * Agents en service à la date donnée : une affectation en cours dans une structure active (R13).
      */
     #[Scope]

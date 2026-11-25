@@ -127,14 +127,14 @@
         </div>
 
         <section class="carte">
-            <div class="carte__entete"><h2>Bulletin · cartes portrait (.carte-candidate--photo, .carte-photo) et vignette (.vignette-photo)</h2></div>
+            <div class="carte__entete"><h2>Bulletin · cartes portrait (.carte-candidate--photo, .carte-photo), avatar dessiné (x-avatar-femme) et vignette (.vignette-photo)</h2></div>
             <div class="carte__corps">
                 <div class="grille-candidates grille-candidates--photos">
                     <label class="carte-candidate carte-candidate--photo">
                         <input type="radio" name="exemple-photo" checked>
                         <span class="carte-candidate__coche"><i data-lucide="check"></i></span>
                         <span class="carte-photo">
-                            <span class="carte-photo__initiales" aria-hidden="true">AC</span>
+                            <x-avatar-femme :variante="['tenue' => 2, 'peau' => 2, 'cheveux' => 1, 'coiffure' => 3]" />
                             <span class="carte-photo__legende"><span class="carte-candidate__nom">AGOSSOU Carine</span><span class="carte-candidate__structure">TD Atlantique</span></span>
                         </span>
                     </label>
@@ -147,7 +147,7 @@
                         </span>
                     </label>
                 </div>
-                <div class="cellule-photo" style="margin-top:16px"><span class="vignette-photo">AC</span><div>AGOSSOU Carine<div class="aide">118442</div></div></div>
+                <div class="cellule-photo" style="margin-top:16px"><span class="vignette-photo"><x-avatar-femme :variante="['tenue' => 2, 'peau' => 2, 'cheveux' => 1, 'coiffure' => 3]" /></span><div>AGOSSOU Carine<div class="aide">118442</div></div></div>
             </div>
         </section>
 

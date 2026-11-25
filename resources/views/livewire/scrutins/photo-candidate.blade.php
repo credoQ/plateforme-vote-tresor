@@ -24,7 +24,7 @@
                         @if ($this->candidate['candidate']->photo)
                             <img class="carte-photo__image" src="{{ $this->candidate['candidate']->urlPhoto() }}" alt="" x-show="! image">
                         @else
-                            <span class="carte-photo__initiales" aria-hidden="true" x-show="! image">{{ $this->candidate['initiales'] }}</span>
+                            <x-avatar-femme :variante="$this->candidate['avatar']" x-show="! image" />
                         @endif
                         <span class="carte-photo__legende">
                             <span class="carte-candidate__nom">{{ $this->candidate['candidate']->agent->nomComplet() }}</span>

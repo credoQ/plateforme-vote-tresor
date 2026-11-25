@@ -161,7 +161,7 @@ export default function recadragePhoto() {
         async retirer() {
             const confirme = await window.confirmer({
                 titre: 'Retirer la photo ?',
-                texte: 'Les initiales de la candidate apparaîtront sur le bulletin. Une autre photo pourra être ajoutée jusqu’à l’ouverture du scrutin.',
+                texte: 'Un avatar remplacera la photo sur le bulletin. Une autre photo pourra être ajoutée jusqu’à l’ouverture du scrutin.',
                 bouton: 'Retirer la photo',
                 danger: true,
             });

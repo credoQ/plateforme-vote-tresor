@@ -5,7 +5,7 @@
         ['KOUTON Edwige', 'TC Zè', 'KE'], ['SOGLO Bénédicte', 'TC Kpomassè', 'SB'],
     ];
 @endphp
-<x-layouts.vote titre="Voter" contexte="Phase 1 · élections primaires · Scrutin départemental · Atlantique" :etape="1">
+<x-layouts.vote titre="Voter" contexte="Phase 1 · élections primaires · Scrutin départemental · Atlantique">
     <div class="titre-page">
         <div>
             <h1>Choisissez votre candidate</h1>
@@ -43,7 +43,7 @@
         <div><div class="surtitre">Votre choix</div><b>AHOUANDJINOU Sandrine</b> · TC Ouidah</div>
         <div class="barre-vote__actions">
             <a href="#" class="btn btn-discret">Plus tard</a>
-            <button class="btn btn-primaire btn--lg" data-ouvrir="confirmation"><i data-lucide="vote"></i>Continuer vers la confirmation</button>
+            <button class="btn btn-primaire btn--lg" data-ouvrir="confirmation"><i data-lucide="vote"></i>Voter</button>
         </div>
     </div>
 

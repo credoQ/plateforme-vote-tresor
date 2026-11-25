@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\EnvoiSansRechargement;
 use App\Http\Middleware\PolitiqueSecuriteContenu;
 use App\Http\Middleware\ProtegerFormulaires;
 use Illuminate\Foundation\Application;
@@ -20,7 +21,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
         $middleware->redirectGuestsTo(fn () => route('login'));
         $middleware->redirectUsersTo(fn () => route('espace'));
-        $middleware->web(append: [PolitiqueSecuriteContenu::class], replace: [PreventRequestForgery::class => ProtegerFormulaires::class]);
+        $middleware->web(append: [PolitiqueSecuriteContenu::class, EnvoiSansRechargement::class], replace: [PreventRequestForgery::class => ProtegerFormulaires::class]);
         // Les navigateurs envoient les rapports de violation sans jeton CSRF.
         $middleware->preventRequestForgery(except: ['csp-rapport']);
     })

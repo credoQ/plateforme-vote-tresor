@@ -66,7 +66,7 @@
                             @endif
                             <button type="button" class="menu-profil__lien" role="menuitem" data-basculer-theme><i data-lucide="moon"></i>Thème sombre<span class="interrupteur" aria-hidden="true"></span></button>
                         </div>
-                        <form method="POST" action="{{ route('logout') }}" class="menu-profil__groupe">
+                        <form method="POST" action="{{ route('logout') }}" class="menu-profil__groupe" data-rechargement>
                             @csrf
                             <button type="submit" class="menu-profil__lien menu-profil__deconnexion" role="menuitem"><i data-lucide="log-out"></i>Se déconnecter</button>
                         </form>
@@ -74,7 +74,7 @@
                 </div>
             </div>
         </header>
-        <main @class(['contenu', 'contenu--centre' => $centre])>
+        <main @class(['contenu', 'contenu--centre' => $centre]) data-sans-rechargement>
             @if (session('succes'))
                 <x-notification :message="session('succes')" />
             @endif

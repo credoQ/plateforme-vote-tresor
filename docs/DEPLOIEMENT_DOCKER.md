@@ -51,6 +51,9 @@ Remplir le `.env` (`nano .env`) :
 - `DB_PASSWORD`, tiré au sort : `openssl rand -base64 32` ;
 - `MAIL_HOST`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM_ADDRESS` : le serveur d'envoi des e-mails. Sans lui,
   aucun code de connexion ne part et personne ne peut se connecter.
+- `CONNEXION_MODE` : `email` (par défaut, code envoyé par e-mail à chaque connexion) ou `code_imprime` (code
+  personnel imprimé sur un coupon par le comité depuis l'écran « Codes d'accès » ; la plateforme n'envoie alors
+  aucun e-mail). Après un changement : `docker compose up -d --force-recreate app worker worker-codes scheduler`.
 
 Le réseau commun `entree` est créé par la pile du Caddy principal : elle doit être déployée **avant** celle-ci,
 avec le domaine du site de vote déclaré (section suivante). Vérifier qu'il existe :

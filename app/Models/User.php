@@ -17,7 +17,7 @@ use Illuminate\Notifications\Notifiable;
  * Compte utilisateur (R1 à R4). Un agent a au plus un compte ; un compte peut n'être lié à aucun agent.
  */
 #[Fillable(['name', 'login', 'email', 'actif', 'derniere_connexion', 'agent_id', 'structure_id'])]
-#[Hidden(['password', 'remember_token'])]
+#[Hidden(['password', 'remember_token', 'code_acces'])]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
@@ -127,6 +127,9 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
+            // Code personnel du mode « code imprimé », chiffré avec la clé de l'application (ModeConnexion).
+            'code_acces' => 'encrypted',
+            'code_acces_genere_le' => 'datetime',
             'actif' => 'boolean',
             'derniere_connexion' => 'immutable_datetime',
         ];

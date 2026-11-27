@@ -55,6 +55,7 @@ class NavigationComposer
                 ['agents', 'id-card', $utilisateur->aLeRole(CodeRole::Administrateur, CodeRole::Comite, CodeRole::Observateur) ? 'Agents' : 'Agents de ma structure', route('agents.index'), $utilisateur->can('viewAny', Agent::class)],
                 ['structures', 'building-2', 'Structures', route('structures.index'), $utilisateur->can('viewAny', Structure::class)],
                 ['utilisateurs', 'users', 'Utilisateurs', route('utilisateurs.index'), $utilisateur->can('administrer')],
+                ['codes-acces', 'key-round', 'Codes d’accès', route('codes-acces.index'), $utilisateur->can('gerer-codes-acces')],
                 ['taches-echouees', 'rotate-ccw', 'Tâches en échec', route('taches-echouees.index'), $utilisateur->can('administrer')],
             ],
         ];

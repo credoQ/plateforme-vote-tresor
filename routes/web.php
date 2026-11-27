@@ -67,6 +67,7 @@ Route::middleware('auth')->group(function () {
     // Codes d'accès du mode « code imprimé » : comité et administrateur seulement.
     Route::middleware('can:gerer-codes-acces')->group(function () {
         Route::get('/codes-acces', [CodeAccesController::class, 'index'])->name('codes-acces.index');
+        Route::get('/codes-acces/archive', [CodeAccesController::class, 'archive'])->name('codes-acces.archive');
         Route::get('/codes-acces/pdf/{lot}', [CodeAccesController::class, 'lot'])->whereIn('lot', ['electeurs', 'autres'])->name('codes-acces.lot');
         Route::get('/codes-acces/{utilisateur}/coupon', [CodeAccesController::class, 'coupon'])->name('codes-acces.coupon');
     });

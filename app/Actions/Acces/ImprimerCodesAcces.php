@@ -12,12 +12,14 @@ use App\Models\User;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 /**
  * Coupons des codes d'accès (mode « code imprimé ») en PDF, à découper et remettre sous pli par le comité :
  * - « electeurs » : les comptes qui n'ont que le rôle d'électeur, une section par structure d'affectation ;
  * - « autres » : les comptes qui ont un autre rôle (comité, administration, observation, point focal), à part ;
- * - un seul compte, après une régénération.
+ * - un seul compte, après une régénération ;
+ * - un PDF par personne, rangé par structure, pour l'archive ZIP (ArchiverCouponsAcces).
  * Seuls les comptes actifs qui ont un code sont imprimés. Chaque impression est tracée (R56), sans les codes.
  */
 class ImprimerCodesAcces
@@ -68,6 +70,46 @@ class ImprimerCodesAcces
     }
 
     /**
+     * Plan de l'archive des coupons individuels (ArchiverCouponsAcces) : pour chaque compte actif qui a un code
+     * (tous, ou les seuls comptes choisis), son dossier (structure d'affectation) et son nom de fichier.
+     *
+     * @param  list<int>|null  $comptes
+     * @return list<array{compte: int, structure: string, chemin: string}>
+     */
+    public function planArchive(?array $comptes = null): array
+    {
+        $choisis = User::query()->where('actif', true)->whereNotNull('code_acces')
+            ->when($comptes !== null, fn (Builder $q) => $q->whereKey($comptes))
+            ->get(['id', 'name', 'login', 'agent_id']);
+
+        return $this->parStructure($choisis)->flatMap(fn (Collection $groupe, string $structure): array => $groupe->map(fn (User $compte): array => [
+            'compte' => $compte->id,
+            'structure' => $structure,
+            'chemin' => $this->nomDeFichier($structure).'/'.$this->nomDeFichier("{$compte->login} - {$compte->name}").'.pdf',
+        ])->all())->values()->all();
+    }
+
+    /**
+     * PDF d'un seul coupon pour l'archive, sans entrée au journal (l'archive entière est tracée une fois).
+     */
+    public function couponIndividuel(User $compte, string $structure, ?User $auteur = null): string
+    {
+        $compte->loadMissing('roles');
+
+        return $this->pdf(collect([$structure => collect([$compte])]), 'Code d’accès de '.$compte->name, $auteur);
+    }
+
+    /**
+     * Nom de dossier ou de fichier sûr sur tous les systèmes : sans accents ni caractères réservés, raccourci.
+     */
+    private function nomDeFichier(string $texte): string
+    {
+        $propre = preg_replace(['~[\\/:*?"<>|]+~', '~\s+~'], ' ', Str::ascii(str_replace('·', '-', $texte)));
+
+        return Str::limit(trim((string) $propre, ' .'), 80, '');
+    }
+
+    /**
      * @return Collection<int, User>
      */
     private function comptes(string $lot): Collection
@@ -111,7 +153,18 @@ class ImprimerCodesAcces
     private function rendre(Collection $sections, string $titre, string $nom, string $lot, ?User $auteur): array
     {
         $nombre = $sections->sum(fn (Collection $groupe): int => $groupe->count());
+        $pdf = $this->pdf($sections, $titre, $auteur);
 
+        $this->journal->handle(ActionAuditee::CodesAccesImprimes, null, ['lot' => $lot, 'nombre' => $nombre], $auteur);
+
+        return ['pdf' => $pdf, 'nom' => $nom, 'nombre' => $nombre];
+    }
+
+    /**
+     * @param  Collection<string, Collection<int, User>>  $sections
+     */
+    private function pdf(Collection $sections, string $titre, ?User $auteur): string
+    {
         $html = view('acces.codes-acces-pdf', [
             'titre' => $titre,
             // Deux coupons par ligne.
@@ -128,8 +181,6 @@ class ImprimerCodesAcces
             'auteur' => $auteur?->name,
         ])->render();
 
-        $this->journal->handle(ActionAuditee::CodesAccesImprimes, null, ['lot' => $lot, 'nombre' => $nombre], $auteur);
-
-        return ['pdf' => Pdf::loadHTML($html)->setPaper('a4')->output(), 'nom' => $nom, 'nombre' => $nombre];
+        return Pdf::loadHTML($html)->setPaper('a4')->setOption('isFontSubsettingEnabled', true)->output();
     }
 }

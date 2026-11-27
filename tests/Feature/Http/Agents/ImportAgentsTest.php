@@ -15,7 +15,7 @@ use Livewire\Livewire;
 use Tests\TestCase;
 
 /**
- * Import des agents depuis l'écran (administrateur), traité en file d'attente : agents, comptes électeurs (R3) et
+ * Import des agents depuis la fenêtre de la liste des agents (administrateur), traité en file d'attente : agents, comptes électeurs (R3) et
  * affectations (R12) créés ensemble ; lignes incomplètes rejetées avec leur motif (R11 à R13).
  */
 class ImportAgentsTest extends TestCase
@@ -37,10 +37,10 @@ class ImportAgentsTest extends TestCase
     {
         $fichier = UploadedFile::fake()->createWithContent('agents.csv', "Matricule;Nom;Prénom;Sexe;Structure\n100010;HOUNKPE;Bénédicte;F;DIA\n100011;AGBO;Paul;M;INCONNUE\n");
 
-        $this->actingAs($this->admin)->get(route('agents.importer'))->assertOk()->assertSee('Fichier des agents');
+        $this->actingAs($this->admin)->get(route('agents.index'))->assertOk()->assertSee('Importer un fichier')->assertSee('Colonnes attendues');
 
         Livewire::test(ImportAgents::class)->set('fichier', $fichier)->call('importer')
-            ->assertHasNoErrors()->assertDispatched('notifier')
+            ->assertHasNoErrors()->assertDispatched('agents-importes')
             ->assertSee('Agents créés')->assertSee('Structure « INCONNUE » inconnue du référentiel.');
 
         $agent = Agent::where('matricule', '100010')->sole();
@@ -49,7 +49,7 @@ class ImportAgentsTest extends TestCase
         $this->assertEquals(['fichier' => 'agents.csv', 'crees' => 1, 'mis_a_jour' => 0, 'affectations' => 1, 'rejets' => 1], JournalAudit::where('action', ActionAuditee::ImportAgents->value)->sole()->details);
         $this->assertSame([], Storage::disk('local')->allFiles('imports'), 'Le fichier déposé est supprimé après l’import.');
 
-        Livewire::test(ImportAgents::class)->call('fermerBilan')->assertDontSee('Agents créés');
+        Livewire::test(ImportAgents::class)->assertSet('ouvert', false)->call('nouvelImport')->assertDontSee('Agents créés')->assertSee('Déposez le fichier ici');
     }
 
     public function test_signale_un_fichier_sans_colonne_obligatoire(): void
@@ -68,6 +68,8 @@ class ImportAgentsTest extends TestCase
         Livewire::test(ImportAgents::class)->set('fichier', UploadedFile::fake()->create('agents.pdf', 10))->call('importer')
             ->assertHasErrors(['fichier' => 'Le fichier doit être un classeur Excel (.xlsx) ou un fichier CSV.']);
 
-        $this->actingAs(User::factory()->avecRoles(CodeRole::Comite)->create())->get(route('agents.importer'))->assertForbidden();
+        $this->actingAs(User::factory()->avecRoles(CodeRole::Comite)->create());
+        $this->get(route('agents.index'))->assertOk()->assertDontSee('Importer un fichier');
+        Livewire::test(ImportAgents::class)->assertForbidden();
     }
 }

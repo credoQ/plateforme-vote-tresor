@@ -61,7 +61,7 @@
                     <p class="aide espace-bloc">Fichier : <strong>{{ $this->import['fichier'] }}</strong></p>
 
                     @if ($this->import['etat'] === 'en_cours')
-                        <div class="alerte alerte--info" wire:poll.3s="suivre"><i data-lucide="loader-circle"></i><div><strong>Import en cours :</strong> <span class="chiffres">{{ $this->import['lues'] }}</span> ligne(s) lue(s). Vous pouvez fermer cette fenêtre : l’import continue.</div></div>
+                        <div class="alerte alerte--info" wire:poll.3s="suivre"><span class="roue alerte__roue" aria-hidden="true"></span><div><strong>Import en cours :</strong> <span class="chiffres">{{ $this->import['lues'] }}</span> ligne(s) lue(s). Vous pouvez fermer cette fenêtre : l’import continue.</div></div>
                     @elseif ($this->import['etat'] === 'echec')
                         <div class="alerte alerte--erreur"><i data-lucide="circle-alert"></i><div><strong>Import impossible.</strong> {{ $this->import['erreur'] }}</div></div>
                     @else

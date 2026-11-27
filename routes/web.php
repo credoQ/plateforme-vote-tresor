@@ -44,6 +44,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/espace', EspaceController::class)->name('espace');
 
+    Route::get('/agents/importer', [AgentController::class, 'importer'])->name('agents.importer');
     Route::resource('agents', AgentController::class)->except(['destroy', 'store', 'update']);
     Route::post('/agents/{agent}/affecter', [AgentController::class, 'affecter'])->name('agents.affecter');
     Route::post('/agents/{agent}/terminer', [AgentController::class, 'terminer'])->name('agents.terminer');

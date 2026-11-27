@@ -5,6 +5,7 @@
         </div>
         @can('create', \App\Models\Agent::class)
             <div class="titre-page__actions">
+                <a href="{{ route('agents.importer') }}" class="btn btn-secondaire" wire:navigate><i data-lucide="upload"></i>Importer un fichier</a>
                 <a href="{{ route('agents.create') }}" class="btn btn-primaire" wire:navigate><i data-lucide="user-plus"></i>Saisir un agent</a>
             </div>
         @endcan

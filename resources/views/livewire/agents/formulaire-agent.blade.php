@@ -26,7 +26,7 @@
         <section class="carte etape-panneau" data-etape="1" x-show="estAffichee(1)">
             <div class="carte__entete"><h2>Étape 1 sur {{ $agent !== null ? 2 : 3 }} · Identité</h2></div>
             <div class="carte__corps formulaire formulaire--deux-colonnes">
-                @foreach ([['matricule', 'Matricule', true, 'text'], ['npi', 'NPI', false, 'text'], ['nom', 'Nom', true, 'text'], ['prenoms', 'Prénoms', true, 'text'], ['email', 'E-mail', true, 'email'], ['date_naissance', 'Date de naissance', false, 'date']] as [$champ, $libelle, $requis, $type])
+                @foreach ([['matricule', 'Matricule', true, 'text'], ['npi', 'NPI', false, 'text'], ['nom', 'Nom', true, 'text'], ['prenoms', 'Prénoms', true, 'text'], ['email', 'E-mail', false, 'email'], ['date_naissance', 'Date de naissance', false, 'date']] as [$champ, $libelle, $requis, $type])
                     <div class="formulaire__groupe">
                         <label class="libelle" for="{{ $champ }}">{{ $libelle }} @if ($requis)<span class="requis">*</span>@endif</label>
                         <input id="{{ $champ }}" type="{{ $type }}" class="champ" wire:model="fiche.{{ $champ }}" @required($requis)>

@@ -14,6 +14,7 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -112,6 +113,15 @@ class ListeAgents extends Component
     public function paginationView(): string
     {
         return 'pagination.tresor-livewire';
+    }
+
+    /**
+     * Fin d'un import (fenêtre Agents\ImportAgents) : la liste relit les agents.
+     */
+    #[On('agents-importes')]
+    public function apresImport(): void
+    {
+        unset($this->agents);
     }
 
     public function render(): View

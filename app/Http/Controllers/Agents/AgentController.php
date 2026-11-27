@@ -29,16 +29,6 @@ class AgentController extends Controller
 {
     public function __construct(private Journaliser $journal) {}
 
-    /**
-     * Import des agents par fichier (composant Livewire Agents\ImportAgents).
-     */
-    public function importer(): View
-    {
-        Gate::authorize('create', Agent::class);
-
-        return view('agents.importer');
-    }
-
     public function index(Request $request): View
     {
         Gate::authorize('viewAny', Agent::class);

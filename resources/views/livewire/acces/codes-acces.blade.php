@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <section class="carte">
+    <section class="carte espace-bloc">
         <div class="carte__entete">
             <h2>Coupons à imprimer</h2>
         </div>
@@ -46,11 +46,13 @@
                 @endif
             </div>
         @endif
-        <p class="aide carte__corps">L’archive ZIP range un PDF par personne dans un dossier par structure. Elle se prépare en arrière-plan : comptez quelques minutes pour plusieurs centaines de comptes.</p>
-        <p class="aide carte__corps">Les coupons sont confidentiels : imprimez-les, découpez-les et remettez-les sous pli à chaque personne. Chaque impression est inscrite au journal d’audit.</p>
+        <div class="carte__corps pile-aide">
+            <p class="aide">L’archive ZIP range un PDF par personne dans un dossier par structure. Elle se prépare en arrière-plan : comptez quelques minutes pour plusieurs centaines de comptes.</p>
+            <p class="aide">Les coupons sont confidentiels : imprimez-les, découpez-les et remettez-les sous pli à chaque personne. Chaque impression est inscrite au journal d’audit.</p>
+        </div>
     </section>
 
-    <section class="carte espace-bloc">
+    <section class="carte">
         <div class="barre-filtres">
             <x-filtre libelle="Recherche" pour="filtre-recherche" large>
                 <div class="champ-icone"><i data-lucide="search"></i><input id="filtre-recherche" type="search" class="champ" wire:model.live.debounce.400ms="recherche" placeholder="Nom ou matricule"></div>

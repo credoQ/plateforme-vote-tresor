@@ -2,6 +2,7 @@
 
 namespace App\Actions\Vote;
 
+use App\Enums\Acces\ModeConnexion;
 use App\Models\Inscription;
 use App\Models\User;
 use App\Notifications\AccuseDeVoteEnregistre;
@@ -16,7 +17,8 @@ class EnvoyerAccuseDeVote
     public function handle(User $electeur, Inscription $inscription): bool
     {
         $email = $electeur->adresseDeConnexion();
-        if ($email === null) {
+        // Mode « code imprimé » : aucun e-mail ; l'électeur télécharge son accusé en PDF.
+        if ($email === null || ModeConnexion::codeImprime()) {
             return false;
         }
 

@@ -36,7 +36,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 
 ## Gestion des agents et des affectations
 
-- **R11** · Un agent est identifié par son matricule, unique ; il possède un NPI, un nom, des prénoms, un sexe, une date de naissance et une adresse e-mail, obligatoire, qui reçoit ses codes de connexion. La date de prise de service, le téléphone, la fonction et le statut peuvent figurer dans la fiche à titre informatif, mais ne sont pas gérés par la plateforme : aucune règle ne s’appuie sur eux.
+- **R11** · Un agent est identifié par son matricule, unique ; il possède un NPI, un nom, des prénoms, un sexe, une date de naissance et, facultativement, une adresse e-mail, qui reçoit ses codes de connexion en mode e-mail (sans adresse, l’agent se connecte avec le code imprimé de son coupon). La date de prise de service, le téléphone, la fonction et le statut peuvent figurer dans la fiche à titre informatif, mais ne sont pas gérés par la plateforme : aucune règle ne s’appuie sur eux.
 - **R12** · Un agent est affecté à une seule structure à une date donnée ; l’historique des affectations est conservé.
 - **R13** · Un agent est considéré en service lorsqu’il figure dans la liste des agents avec une affectation en cours dans une structure de la DGTCP ; la tenue à jour de cette liste relève de l’import des agents et des affectations.
 - **R14** · Est électeur tout agent en service à la date de gel des listes électorales (les catégories exactes d’agents admis à voter sont à confirmer par le métier). La date de gel n’est pas saisie : c’est le jour du premier arrêt des listes de l’édition ; jusque-là, les listes sont provisoires et se calculent à la date du jour.
@@ -87,6 +87,7 @@ Une règle qui dépend d'un point encore à valider doit rester paramétrable : 
 - **R40** · Un électeur ne vote qu’une seule fois par scrutin et uniquement dans le scrutin où il est inscrit ; le vote est définitif et ne peut être modifié.
 - **R41** · Le scrutin est uninominal à un tour : l’électeur choisit une seule candidate. Le vote blanc est paramétrable par édition.
 - **R42** · L’authentification se fait sans mot de passe : l’agent saisit son matricule et reçoit par e-mail un code à usage unique (OTP), valable 10 minutes, qu’il saisit pour se connecter. Le compte doit avoir une adresse e-mail (celle du compte ou de la fiche agent).
+  *Mode de secours, décidé par le métier quand le serveur de messagerie n'est pas disponible (`CONNEXION_MODE=code_imprime`) : chaque compte reçoit un code personnel imprimé sur un coupon, généré et remis sous pli par le comité, valable pour toute l'édition et régénérable en cas de perte ; la plateforme n'envoie alors aucun e-mail.*
 - **R43** · Le vote est secret : l’émargement (agent, scrutin, date-heure) et le bulletin (scrutin, candidate) sont enregistrés séparément, dans une même transaction, sans aucun lien entre eux ; l’horodatage du bulletin est volontairement imprécis afin d’empêcher tout rapprochement.
 - **R44** · Chaque bulletin porte une empreinte cryptographique chaînée permettant de détecter toute altération.
 - **R45** · Une candidate est électrice dans son scrutin au même titre que les autres agents (le vote pour soi-même est à confirmer par le métier).

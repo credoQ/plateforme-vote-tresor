@@ -50,13 +50,14 @@ class EnregistrerAgentTest extends TestCase
     }
 
     /**
-     * R11 : l'adresse e-mail est obligatoire et doit être valide : elle reçoit les codes de connexion.
+     * R11 : l'adresse e-mail est facultative (connexion par code imprimé), mais valide quand elle est saisie.
      */
-    public function test_r11_rejette_un_agent_sans_adresse_e_mail_valide(): void
+    public function test_r11_l_adresse_e_mail_est_facultative_mais_valide(): void
     {
-        $this->attendreErreur('email', fn () => $this->enregistrer(['matricule' => '102347', 'nom' => 'DOSSOU', 'prenoms' => 'Marc', 'sexe' => 'M']));
         $this->attendreErreur('email', fn () => $this->enregistrer(['matricule' => '102347', 'nom' => 'DOSSOU', 'prenoms' => 'Marc', 'sexe' => 'M', 'email' => 'marc.dossou']));
         $this->assertDatabaseMissing('agents', ['matricule' => '102347']);
+
+        $this->assertNull($this->enregistrer(['matricule' => '102347', 'nom' => 'DOSSOU', 'prenoms' => 'Marc', 'sexe' => 'M'])->email);
     }
 
     /**

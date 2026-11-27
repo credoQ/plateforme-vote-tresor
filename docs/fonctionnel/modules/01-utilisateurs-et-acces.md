@@ -21,6 +21,7 @@ Ce module assure la gestion des comptes, des profils et des niveaux d’accès �
 - [x] Droits : gates `administrer`, `piloter`, `controler-listes`, `observer`, `voter` ; policies `CandidatePolicy` (R32), `AgentPolicy` et `InscriptionPolicy` limitées au périmètre du point focal (R4)
 - [x] Écrans : connexion (matricule), code de connexion, accueil, administration des comptes
 - [x] Commandes `acces:creer-administrateur login nom email` et `acces:generer-comptes` (comptes électeurs des agents en service, liste des agents sans adresse e-mail)
+- [x] Mode de connexion « code imprimé » (`CONNEXION_MODE=code_imprime`, exception à R42) : un code personnel par compte, chiffré, valable pour l'édition ; écran « Codes d'accès » (comité, administrateur) pour générer les codes manquants, régénérer un code perdu et imprimer les coupons (électeurs par structure, comptes de gestion à part, coupon individuel, sélection par cases à cocher et filtre par structure) ou les télécharger en archive ZIP préparée en file d'attente (un dossier par structure, un PDF par personne), tracé au journal ; aucun e-mail envoyé dans ce mode
 - [x] Tests des règles R1 à R4, R32 et R42
 
 ## Acteurs

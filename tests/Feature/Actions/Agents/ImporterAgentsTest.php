@@ -4,6 +4,7 @@ namespace Tests\Feature\Actions\Agents;
 
 use App\Actions\Agents\ImporterAgents;
 use App\Actions\Agents\RapportImport;
+use App\Enums\Acces\CodeRole;
 use App\Models\Agent;
 use App\Models\Structure;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -52,14 +53,14 @@ class ImporterAgentsTest extends TestCase
             '100007;;HOUNSOU;Afi;F;;DR;;;',
         ]);
 
-        $this->assertSame(1, $rapport->agentsCrees);
-        $this->assertSame([3, 4, 5, 6, 7, 8], array_keys($rapport->rejets));
+        $this->assertSame(2, $rapport->agentsCrees, 'La ligne sans adresse e-mail est acceptée.');
+        $this->assertSame([3, 4, 5, 6, 7], array_keys($rapport->rejets));
         $this->assertStringContainsString('doublon', $rapport->rejets[3][0]);
         $this->assertStringContainsString('Sexe absent', $rapport->rejets[4][0]);
         $this->assertStringContainsString('absente', $rapport->rejets[5][0]);
         $this->assertStringContainsString('inconnue', $rapport->rejets[6][0]);
         $this->assertStringContainsString('NPI', $rapport->rejets[7][0]);
-        $this->assertStringContainsString('e-mail absente', $rapport->rejets[8][0]);
+        $this->assertNull(Agent::where('matricule', '100007')->sole()->email);
         $this->assertDatabaseMissing('agents', ['matricule' => '100006']);
     }
 
@@ -100,6 +101,23 @@ class ImporterAgentsTest extends TestCase
         $agent = Agent::where('matricule', '100001')->firstOrFail();
         $this->assertSame('1985-03-12', $agent->date_naissance->toDateString());
         $this->assertSame('2021-01-04', $agent->affectations()->first()->date_debut->toDateString());
+    }
+
+    /**
+     * R3, R11, R12 : fichier réduit (matricule, nom, prénom, sexe, structure), sans e-mail ; l'agent, son compte
+     * électeur et son affectation sont créés ensemble.
+     */
+    public function test_importe_un_fichier_reduit_sans_e_mail_avec_compte_et_affectation(): void
+    {
+        $rapport = $this->importer(['100010;HOUNKPE;Bénédicte;F;DIA'], 'Matricule;Nom;Prénom;Sexe;Structure');
+
+        $this->assertSame(1, $rapport->agentsCrees);
+        $agent = Agent::where('matricule', '100010')->sole();
+        $this->assertSame('Bénédicte', $agent->prenoms);
+        $this->assertNull($agent->email);
+        $this->assertSame('DIA', $agent->affectationLe()->structure->code);
+        $this->assertSame('100010', $agent->compte->login);
+        $this->assertTrue($agent->compte->aLeRole(CodeRole::Electeur));
     }
 
     public function test_refuse_un_fichier_sans_colonne_obligatoire(): void

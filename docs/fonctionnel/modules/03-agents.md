@@ -9,7 +9,7 @@ Ce module permet l’enregistrement des agents et la tenue de leurs affectations
 ## Fonctionnalités
 
 - [x] L’import des agents depuis le système d’information des ressources humaines ou par fichier (Excel/CSV), et la saisie manuelle.
-- [x] L’enregistrement des informations utiles de l’agent (matricule, NPI, nom, prénoms, sexe, adresse e-mail obligatoire) ; la date de prise de service, le téléphone, la fonction et le statut peuvent être importés à titre informatif mais ne sont pas gérés.
+- [x] L’enregistrement des informations utiles de l’agent (matricule, NPI, nom, prénoms, sexe, adresse e-mail facultative) ; la date de prise de service, le téléphone, la fonction et le statut peuvent être importés à titre informatif mais ne sont pas gérés.
 - [x] La gestion des affectations (structure, date de début, date de fin) et de leur historique.
 - [x] Le contrôle des doublons et des données incomplètes (sexe, affectation), le sexe déterminant la qualité de candidate.
 
@@ -24,7 +24,8 @@ Ce module permet l’enregistrement des agents et la tenue de leurs affectations
 - [x] Import des fichiers Excel (.xlsx, première feuille, OpenSpout) en plus du CSV : dates Excel et matricules numériques reconnus, numéros de ligne du classeur dans le rapport
 - [x] Écrans de gestion des agents : liste filtrable (structure, sexe, situation), fiche avec historique des affectations, saisie manuelle avec affectation initiale, modification, mutation et fin d'affectation par l'administrateur, tracées au journal ; le point focal contrôle en lecture seule les agents de sa structure et des structures rattachées (R4)
 - [x] Compte électeur ouvert à la création de l'agent, par la saisie comme par l'import (R3) : action `OuvrirCompteElecteur`, identifiant = matricule, rôle Électeur ; un compte existant sous ce matricule sans agent lui est rattaché
-- [x] Adresse e-mail obligatoire et valide pour tout agent, à la saisie comme à l'import (colonne `email` exigée, ligne sans adresse rejetée) ; obligatoire aussi à la création d'un compte utilisateur
+- [x] Adresse e-mail facultative pour l'agent (valide quand elle est saisie) : sans adresse, il se connecte par code imprimé ; toujours obligatoire à la création d'un compte utilisateur de gestion
+- [x] Écran d'import `/agents/importer` (administrateur) : dépôt d'un fichier Excel ou CSV (matricule, nom, prénom, sexe, code de la structure ; e-mail et autres colonnes facultatifs), import en file d'attente (agents, comptes électeurs, affectations), progression, bilan et lignes rejetées avec leur motif
 - [ ] Format exact de l'export du SI RH, à obtenir
 
 ## Acteurs
@@ -37,7 +38,7 @@ AGENT, AFFECTER (affectations)
 
 ## Écrans
 
-- `/agents` : liste, fiche, saisie, mutation et fin d'affectation (administrateur) ; lecture seule pour le comité, l'observateur et le point focal (sa structure)
+- `/agents` : liste, fiche, saisie, import par fichier (`/agents/importer`), mutation et fin d'affectation (administrateur) ; lecture seule pour le comité, l'observateur et le point focal (sa structure)
 
 ## Règles de gestion
 

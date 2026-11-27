@@ -5,6 +5,7 @@ namespace App\Providers;
 use App\Actions\Audit\Journaliser;
 use App\Actions\Documents\EnteteDocument;
 use App\Enums\Acces\CodeRole;
+use App\Enums\Acces\ModeConnexion;
 use App\Enums\Audit\ActionAuditee;
 use App\Models\Edition;
 use App\Models\User;
@@ -17,6 +18,7 @@ use Illuminate\Auth\Events\Logout;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Foundation\DevCommands;
 use Illuminate\Http\Request;
+use Illuminate\Notifications\Events\NotificationSending;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
@@ -51,6 +53,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('controler-listes', fn (User $user): bool => $user->aLeRole(CodeRole::Comite, CodeRole::PointFocal));
         Gate::define('observer', fn (User $user): bool => $user->aLeRole(CodeRole::Observateur, CodeRole::Comite, CodeRole::Administrateur));
         Gate::define('voter', fn (User $user): bool => $user->agent_id !== null && $user->aLeRole(CodeRole::Electeur));
+        // Codes d'accès imprimés : générés, régénérés et imprimés par le comité ou l'administrateur, jamais par le point focal.
+        Gate::define('gerer-codes-acces', fn (User $user): bool => $user->aLeRole(CodeRole::Comite, CodeRole::Administrateur));
 
         $this->journaliserLesConnexions();
 
@@ -72,6 +76,10 @@ class AppServiceProvider extends ServiceProvider
      */
     private function journaliserLesConnexions(): void
     {
+        // Mode « code imprimé » : la plateforme n'envoie aucun e-mail (serveur de messagerie indisponible) ; les annonces
+        // restent visibles dans l'espace électeur et l'accusé de vote se télécharge en PDF.
+        Event::listen(NotificationSending::class, fn (NotificationSending $envoi): ?bool => $envoi->channel === 'mail' && ModeConnexion::codeImprime() ? false : null);
+
         Event::listen(Login::class, function (Login $evenement): void {
             if (! $evenement->user instanceof User) {
                 return;

@@ -602,6 +602,13 @@
   /* Vignette portrait d'une candidate dans un tableau. */
   .vignette-photo { width: 40px; height: 46px; flex: none; border-radius: 8px; object-fit: cover; object-position: center 20%; background: var(--tr-primaire-doux); color: var(--tr-primaire-texte); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
   .cellule-photo { display: flex; align-items: center; gap: 12px; }
+
+  /* Sélection dans un tableau : case en première colonne, barre des actions sur les lignes cochées. */
+  .colonne-case { width: 44px; }
+  .case-tableau { width: 18px; height: 18px; accent-color: var(--tr-primaire); cursor: pointer; vertical-align: middle; }
+  .barre-selection { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 0 16px 12px; padding: 10px 14px; border-radius: var(--tr-rayon-carte); background: var(--tr-primaire-doux); color: var(--tr-texte); }
+  .barre-selection[hidden] { display: none; }
+  .barre-selection__actions { display: flex; flex-wrap: wrap; gap: 8px; margin-left: auto; }
   .carte-candidate:has(input:focus-visible) { box-shadow: 0 0 0 4px color-mix(in srgb, var(--tr-bleu-400) 55%, transparent); }
   .barre-vote { position: sticky; bottom: 0; z-index: 10; display: flex; align-items: center; gap: 16px; margin: 24px -28px -28px; padding: 16px 28px; background: var(--tr-surface); border-top: 1px solid var(--tr-bordure); box-shadow: 0 -8px 24px -12px rgba(10,13,18,.12); }
 

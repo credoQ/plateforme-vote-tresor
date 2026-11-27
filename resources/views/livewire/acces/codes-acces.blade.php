@@ -50,15 +50,45 @@
                     </select>
                 </x-select-recherche>
             </x-filtre>
-            <x-fin-filtres :total="$this->comptes->total()" libelle="compte(s)" :actifs="trim($recherche) !== '' || $etat !== ''" :reinitialiser="route('codes-acces.index')" />
+            <x-filtre libelle="Structure" pour="filtre-structure">
+                <x-select-recherche compact wire:ignore>
+                    <select id="filtre-structure" class="champ" wire:model.live="structure">
+                        <option value="">Toutes les structures</option>
+                        @foreach ($this->structures as $choix)
+                            <option value="{{ $choix->id }}" data-detail="{{ $choix->libelle }}" @selected($structure === (string) $choix->id)>{{ $choix->code }}</option>
+                        @endforeach
+                    </select>
+                </x-select-recherche>
+            </x-filtre>
+            <x-fin-filtres :total="$this->comptes->total()" libelle="compte(s)" :actifs="$filtresActifs" :reinitialiser="route('codes-acces.index')" />
+        </div>
+
+        {{-- Actions sur les comptes cochés (la sélection est conservée d'une page à l'autre). --}}
+        <div class="barre-selection" @if ($selection === []) hidden @endif>
+            <span><strong class="chiffres">{{ count($selection) }}</strong> compte(s) sélectionné(s)</span>
+            @if (count($selection) < $this->comptes->total())
+                <button type="button" class="lien lien--bouton" wire:click="selectionnerTout">Sélectionner les {{ $this->comptes->total() }} comptes filtrés</button>
+            @endif
+            <div class="barre-selection__actions">
+                <button type="button" class="btn btn-secondaire btn--sm" wire:loading.attr="disabled" wire:target="genererSelection"
+                        x-on:click="window.confirmer({ titre: 'Générer les codes des comptes sélectionnés ?', texte: 'Seuls les comptes sans code en reçoivent un ; les codes existants ne changent pas.', bouton: 'Générer les codes' }).then((ok) => ok && $wire.genererSelection())">
+                    <i data-lucide="wand-sparkles"></i>Générer leurs codes
+                </button>
+                <button type="button" class="btn btn-primaire btn--sm" wire:click="imprimerSelection" wire:loading.attr="disabled" wire:target="imprimerSelection"><i data-lucide="printer"></i>Imprimer leurs coupons</button>
+                <button type="button" class="btn btn-tertiaire btn--sm" wire:click="viderSelection"><i data-lucide="x"></i>Vider la sélection</button>
+            </div>
         </div>
 
         <div class="tableau-defilant" wire:loading.class="est-en-chargement">
             <table class="tableau tableau--fiches">
-                <thead><tr><th>Compte</th><th>Rôles</th><th>Code</th><th class="actions">Actions</th></tr></thead>
+                <thead><tr>
+                    <th class="colonne-case"><input type="checkbox" class="case-tableau" aria-label="Cocher les comptes de la page" @checked($pageCochee) wire:click="basculerPage"></th>
+                    <th>Compte</th><th>Rôles</th><th>Code</th><th class="actions">Actions</th>
+                </tr></thead>
                 <tbody>
                     @forelse ($this->comptes as $compte)
                         <tr wire:key="compte-{{ $compte->id }}">
+                            <td class="colonne-case"><input type="checkbox" class="case-tableau" value="{{ $compte->id }}" wire:model.live="selection" aria-label="Cocher {{ $compte->name }}"></td>
                             <td>{{ $compte->name }}<div class="aide">{{ $compte->login }}</div></td>
                             <td>{{ $compte->roles->map(fn ($role) => $role->code->libelle())->implode(', ') }}</td>
                             <td>
@@ -80,7 +110,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="4"><div class="etat-vide"><i data-lucide="users"></i><p>Aucun compte ne correspond.</p></div></td></tr>
+                        <tr><td colspan="5"><div class="etat-vide"><i data-lucide="users"></i><p>Aucun compte ne correspond.</p></div></td></tr>
                     @endforelse
                 </tbody>
             </table>

@@ -32,7 +32,21 @@
             </button>
             <a href="{{ route('codes-acces.lot', 'electeurs') }}" class="btn btn-secondaire"><i data-lucide="file-down"></i>Coupons des électeurs (par structure)</a>
             <a href="{{ route('codes-acces.lot', 'autres') }}" class="btn btn-secondaire"><i data-lucide="file-down"></i>Coupons des comptes de gestion</a>
+            <button type="button" class="btn btn-secondaire" wire:click="preparerArchive" wire:loading.attr="disabled" wire:target="preparerArchive" @disabled(($this->archive['etat'] ?? null) === 'en_cours')><i data-lucide="folder-archive"></i>Un fichier par personne (ZIP par structure)</button>
         </div>
+        @if ($this->archive)
+            <div class="carte__corps">
+                @if ($this->archive['etat'] === 'en_cours')
+                    <div class="alerte alerte--info" wire:poll.3s><i data-lucide="loader-circle"></i><div><strong>Préparation de l’archive{{ $this->archive['selection'] ? ' de la sélection' : '' }} :</strong> <span class="chiffres">{{ $this->archive['fait'] }} / {{ $this->archive['total'] }}</span> fichier(s). Vous pouvez quitter cette page et revenir plus tard.</div></div>
+                @elseif ($this->archive['etat'] === 'prete')
+                    <div class="alerte alerte--succes"><i data-lucide="circle-check"></i><div><strong>Archive prête :</strong> {{ $this->archive['total'] }} coupon(s), un dossier par structure. Elle est supprimée du serveur dès son téléchargement.
+                        <div class="mt-2"><a href="{{ route('codes-acces.archive') }}" class="btn btn-secondaire btn--sm" x-on:click="setTimeout(() => $wire.$refresh(), 2000)"><i data-lucide="download"></i>Télécharger l’archive</a></div></div></div>
+                @else
+                    <div class="alerte alerte--erreur"><i data-lucide="circle-alert"></i><div><strong>La préparation de l’archive a échoué.</strong> Relancez-la ; si l’échec se répète, consultez l’écran « Tâches en échec ».</div></div>
+                @endif
+            </div>
+        @endif
+        <p class="aide carte__corps">L’archive ZIP range un PDF par personne dans un dossier par structure. Elle se prépare en arrière-plan : comptez quelques minutes pour plusieurs centaines de comptes.</p>
         <p class="aide carte__corps">Les coupons sont confidentiels : imprimez-les, découpez-les et remettez-les sous pli à chaque personne. Chaque impression est inscrite au journal d’audit.</p>
     </section>
 
@@ -75,6 +89,7 @@
                     <i data-lucide="wand-sparkles"></i>Générer leurs codes
                 </button>
                 <button type="button" class="btn btn-primaire btn--sm" wire:click="imprimerSelection" wire:loading.attr="disabled" wire:target="imprimerSelection"><i data-lucide="printer"></i>Imprimer leurs coupons</button>
+                <button type="button" class="btn btn-secondaire btn--sm" wire:click="preparerArchive(true)" wire:loading.attr="disabled" wire:target="preparerArchive"><i data-lucide="folder-archive"></i>Un fichier par personne (ZIP)</button>
                 <button type="button" class="btn btn-tertiaire btn--sm" wire:click="viderSelection"><i data-lucide="x"></i>Vider la sélection</button>
             </div>
         </div>

@@ -16,6 +16,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -167,6 +168,60 @@ class CodesAccesTest extends TestCase
         $composant->call('viderSelection')->assertSet('selection', [])
             ->set('structure', '')->call('basculerPage');
         $this->assertCount(3, $composant->get('selection'), 'La page entière : comité, électeur, agent de la DR.');
+    }
+
+    /**
+     * Archive ZIP préparée en file d'attente : un dossier par structure d'affectation, un PDF par personne, pour
+     * tous ou pour la sélection ; réservée au comité, téléchargée une seule fois et tracée au journal (R56).
+     */
+    public function test_prepare_un_zip_avec_un_pdf_par_personne_et_un_dossier_par_structure(): void
+    {
+        Storage::fake('local');
+        $dr = Structure::where('code', 'DR')->firstOrFail();
+        $autreAgent = Agent::factory()->affecteA($dr, Carbon::parse('2020-01-01'))->create(['matricule' => '107777']);
+        $autre = User::factory()->pourAgent($autreAgent)->avecRoles(CodeRole::Electeur)->create(['login' => '107777', 'name' => 'Awa Dossou']);
+        app(GenererCodesAcces::class)->handle();
+        $this->actingAs($this->comite);
+
+        $this->get(route('codes-acces.archive'))->assertNotFound();
+        Livewire::test(CodesAcces::class)->call('preparerArchive')->assertDispatched('notifier')
+            ->assertSee('Archive prête')->assertSee('3 coupon(s)');
+
+        $reponse = $this->get(route('codes-acces.archive'))->assertOk()->assertDownload('coupons-par-structure.zip');
+        $fichiers = $this->contenuDuZip($reponse->baseResponse->getFile()->getPathname());
+        $this->assertCount(1, preg_grep('~^DIA - .+/104455 - .+\.pdf$~', $fichiers));
+        $this->assertCount(1, preg_grep('~^DR - .+/107777 - Awa Dossou\.pdf$~', $fichiers));
+        $this->assertCount(3, $fichiers, 'Un PDF par compte qui a un code : comité, électeur, agent de la DR.');
+        $this->get(route('codes-acces.archive'))->assertNotFound();
+
+        Livewire::test(CodesAcces::class)->set('selection', [(string) $autre->id])->call('preparerArchive', true);
+        $this->assertSame(['DR - Direction'], array_map(fn ($f) => substr($f, 0, 14), $this->contenuDuZip($this->get(route('codes-acces.archive'))->baseResponse->getFile()->getPathname())));
+        $this->assertSame(
+            [['lot' => 'archive', 'nombre' => 3], ['lot' => 'archive sélection', 'nombre' => 1]],
+            JournalAudit::where('action', ActionAuditee::CodesAccesImprimes->value)->orderBy('id')->get()->pluck('details')->all(),
+        );
+
+        $autre->forceFill(['code_acces' => null, 'code_acces_genere_le' => null])->save();
+        Livewire::test(CodesAcces::class)->set('selection', [(string) $autre->id])->call('preparerArchive', true)->assertDispatched('erreur');
+
+        $this->actingAs($this->electeur)->get(route('codes-acces.archive'))->assertForbidden();
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function contenuDuZip(string $chemin): array
+    {
+        $zip = new \ZipArchive;
+        $zip->open($chemin);
+        $fichiers = [];
+        for ($i = 0; $i < $zip->numFiles; $i++) {
+            $fichiers[] = $zip->getNameIndex($i);
+            $this->assertStringStartsWith('%PDF', $zip->getFromIndex($i));
+        }
+        $zip->close();
+
+        return $fichiers;
     }
 
     public function test_en_mode_code_imprime_aucun_e_mail_ne_part(): void

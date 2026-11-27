@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Acces;
 
+use App\Actions\Acces\ArchiverCouponsAcces;
 use App\Actions\Acces\ImprimerCodesAcces;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 /**
  * Codes d'accès du mode « code imprimé » (comité et administrateur) : l'écran (liste, génération, régénération dans
@@ -30,6 +32,21 @@ class CodeAccesController extends Controller
         abort_if($utilisateur->code_acces === null, 404);
 
         return $this->telecharger($imprimer->coupon($utilisateur, $request->user()));
+    }
+
+    /**
+     * Archive ZIP préparée en file d'attente (un dossier par structure, un PDF par personne) : téléchargée une
+     * seule fois, puis supprimée.
+     */
+    public function archive(Request $request, ArchiverCouponsAcces $archiver): BinaryFileResponse
+    {
+        $fichier = $archiver->fichier($request->user()->id);
+        abort_if($fichier === null, 404);
+
+        $archiver->oublier($request->user()->id);
+
+        return response()->download($fichier['chemin'], $fichier['nom'], ['Content-Type' => 'application/zip', 'Cache-Control' => 'no-store, private'])
+            ->deleteFileAfterSend();
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Acces;
 
+use App\Actions\Acces\ArchiverCouponsAcces;
 use App\Actions\Acces\GenererCodesAcces;
 use App\Actions\Acces\ImprimerCodesAcces;
 use App\Enums\Acces\ModeConnexion;
@@ -145,6 +146,35 @@ class CodesAcces extends Component
         return response()->streamDownload(function () use ($document): void {
             echo $document['pdf'];
         }, $document['nom'], ['Content-Type' => 'application/pdf']);
+    }
+
+    /**
+     * Archive ZIP des coupons individuels (un dossier par structure, un PDF par personne), préparée en file
+     * d'attente : pour tous les comptes qui ont un code, ou pour les seuls comptes cochés.
+     */
+    public function preparerArchive(ArchiverCouponsAcces $archiver, bool $selection = false): void
+    {
+        $nombre = $archiver->lancer(Auth::user(), $selection ? $this->identifiants() : null);
+        unset($this->archive);
+
+        if ($nombre === 0) {
+            $this->dispatch('erreur', message: $selection ? 'Aucun des comptes cochés n’a encore de code : générez d’abord leurs codes.' : 'Aucun compte n’a encore de code : générez d’abord les codes manquants.');
+
+            return;
+        }
+
+        $this->dispatch('notifier', message: "Préparation de l’archive : {$nombre} coupon(s). Le bouton de téléchargement apparaît ici dès qu’elle est prête.", ton: 'succes');
+    }
+
+    /**
+     * État de l'archive de la personne connectée (en cours, prête, en échec), ou null.
+     *
+     * @return array{jeton: string, etat: string, fait: int, total: int, selection: bool}|null
+     */
+    #[Computed]
+    public function archive(): ?array
+    {
+        return app(ArchiverCouponsAcces::class)->etat((int) Auth::id());
     }
 
     public function regenerer(int $compte, GenererCodesAcces $generer): void

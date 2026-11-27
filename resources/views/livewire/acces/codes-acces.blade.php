@@ -37,7 +37,7 @@
         @if ($this->archive)
             <div class="carte__corps">
                 @if ($this->archive['etat'] === 'en_cours')
-                    <div class="alerte alerte--info" wire:poll.3s><i data-lucide="loader-circle"></i><div><strong>Préparation de l’archive{{ $this->archive['selection'] ? ' de la sélection' : '' }} :</strong> <span class="chiffres">{{ $this->archive['fait'] }} / {{ $this->archive['total'] }}</span> fichier(s). Vous pouvez quitter cette page et revenir plus tard.</div></div>
+                    <div class="alerte alerte--info" wire:poll.3s><span class="roue alerte__roue" aria-hidden="true"></span><div><strong>Préparation de l’archive{{ $this->archive['selection'] ? ' de la sélection' : '' }} :</strong> <span class="chiffres">{{ $this->archive['fait'] }} / {{ $this->archive['total'] }}</span> fichier(s). Vous pouvez quitter cette page et revenir plus tard.</div></div>
                 @elseif ($this->archive['etat'] === 'prete')
                     <div class="alerte alerte--succes"><i data-lucide="circle-check"></i><div><strong>Archive prête :</strong> {{ $this->archive['total'] }} coupon(s), un dossier par structure. Elle est supprimée du serveur dès son téléchargement.
                         <div class="mt-2"><a href="{{ route('codes-acces.archive') }}" class="btn btn-secondaire btn--sm" x-on:click="setTimeout(() => $wire.$refresh(), 2000)"><i data-lucide="download"></i>Télécharger l’archive</a></div></div></div>

@@ -69,6 +69,21 @@ class CodesAccesTest extends TestCase
         $this->assertGuest();
     }
 
+    /**
+     * Le composant garde une seule racine dans les deux modes : un commentaire de Livewire hors de la racine fait
+     * perdre son état au composant à la première requête (« Snapshot missing »).
+     */
+    public function test_le_composant_de_connexion_garde_une_seule_racine_dans_les_deux_modes(): void
+    {
+        foreach (['code_imprime', 'email'] as $mode) {
+            config(['auth.mode_connexion' => $mode]);
+            $html = trim(Livewire::test(Connexion::class)->html());
+
+            $this->assertStringStartsWith('<div', $html, "Mode {$mode}");
+            $this->assertStringEndsWith('</div>', $html, "Mode {$mode}");
+        }
+    }
+
     public function test_en_mode_email_la_connexion_par_coupon_est_fermee(): void
     {
         config(['auth.mode_connexion' => 'email']);

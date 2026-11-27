@@ -1,3 +1,6 @@
+{{-- Une seule racine, toujours présente : Livewire encadre chaque @if de commentaires, qui ne doivent pas se trouver
+     hors de la racine du composant. --}}
+<div class="connexion-mode">
 @if ($codeImprime)
 {{-- Mode « code imprimé » : matricule et code personnel du coupon remis par le comité, en une étape, sans e-mail. --}}
 <div class="connexion-etapes" x-init="setTimeout(() => $refs.login?.focus(), 60)">
@@ -92,3 +95,4 @@
     </section>
 </div>
 @endif
+</div>

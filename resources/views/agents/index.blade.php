@@ -5,7 +5,7 @@
         </div>
         @can('create', \App\Models\Agent::class)
             <div class="titre-page__actions">
-                <a href="{{ route('agents.importer') }}" class="btn btn-secondaire" wire:navigate><i data-lucide="upload"></i>Importer un fichier</a>
+                <button type="button" class="btn btn-secondaire" x-data x-on:click="$dispatch('ouvrir-import-agents')"><i data-lucide="upload"></i>Importer un fichier</button>
                 <a href="{{ route('agents.create') }}" class="btn btn-primaire" wire:navigate><i data-lucide="user-plus"></i>Saisir un agent</a>
             </div>
         @endcan
@@ -14,4 +14,8 @@
     <div class="carte">
         <livewire:agents.liste-agents />
     </div>
+
+    @can('create', \App\Models\Agent::class)
+        <livewire:agents.import-agents />
+    @endcan
 </x-layouts.app>

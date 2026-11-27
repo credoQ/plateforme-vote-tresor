@@ -15,20 +15,35 @@ use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
 /**
- * Import des agents par fichier (administrateur) : dépôt d'un classeur Excel ou d'un CSV, import en file d'attente
- * (agents, comptes électeurs, affectations), puis bilan et lignes rejetées.
+ * Fenêtre d'import des agents par fichier (administrateur), ouverte depuis la liste des agents : dépôt d'un classeur
+ * Excel ou d'un CSV, import en file d'attente (agents, comptes électeurs, affectations), progression, puis bilan et
+ * lignes rejetées. La liste des agents se rafraîchit à la fin de l'import.
  */
 class ImportAgents extends Component
 {
     use SignaleLesErreurs, WithFileUploads;
 
+    public bool $ouvert = false;
+
     public ?TemporaryUploadedFile $fichier = null;
 
     public string $dateEffet = '';
 
+    /**
+     * État vu à la requête précédente : la fin d'un import (en cours → terminé) rafraîchit la liste des agents.
+     */
+    public ?string $etatConnu = null;
+
     public function boot(): void
     {
         Gate::authorize('create', Agent::class);
+    }
+
+    public function mount(): void
+    {
+        $this->etatConnu = $this->import['etat'] ?? null;
+        // Un import encore en cours rouvre la fenêtre pour suivre sa progression.
+        $this->ouvert = $this->etatConnu === SuivreImportAgents::EN_COURS;
     }
 
     /**
@@ -65,15 +80,32 @@ class ImportAgents extends Component
         }
 
         $suivi->lancer(Auth::user(), $this->fichier, $this->dateEffet !== '' ? $this->dateEffet : null);
-        $this->reset('fichier');
-        unset($this->import);
-
-        $this->dispatch('notifier', message: 'Import lancé : le bilan s’affiche ici dès qu’il est terminé.', ton: 'succes');
+        $this->reset('fichier', 'dateEffet');
+        $this->etatConnu = SuivreImportAgents::EN_COURS;
+        $this->suivre();
     }
 
-    public function fermerBilan(SuivreImportAgents $suivi): void
+    /**
+     * Relu toutes les trois secondes pendant l'import : à la fin, la liste des agents se rafraîchit.
+     */
+    public function suivre(): void
+    {
+        unset($this->import);
+        $etat = $this->import['etat'] ?? null;
+
+        if ($this->etatConnu === SuivreImportAgents::EN_COURS && $etat === SuivreImportAgents::TERMINE) {
+            $this->dispatch('agents-importes');
+        }
+        $this->etatConnu = $etat;
+    }
+
+    /**
+     * Efface le bilan pour déposer un autre fichier.
+     */
+    public function nouvelImport(SuivreImportAgents $suivi): void
     {
         $suivi->oublier((int) Auth::id());
+        $this->etatConnu = null;
         unset($this->import);
     }
 

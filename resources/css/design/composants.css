@@ -585,6 +585,14 @@
 
   /* Recadrage d'une photo de candidate : on fait glisser la photo dans la carte du bulletin. */
   .modale--photo { width: min(640px, 100%); }
+  /* Import par fichier : zone de dépôt, colonnes attendues (obligatoires pleines, facultatives en pointillé), bilan défilant. */
+  .pile-aide { display: grid; gap: 6px; }
+  .modale--import { width: min(640px, 100%); max-height: calc(100vh - 32px); overflow-y: auto; }
+  .depot-fichier svg { width: 28px; height: 28px; color: var(--tr-primaire); }
+  .colonnes-import { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; padding: 0; list-style: none; }
+  .colonnes-import li { padding: 3px 10px; border: 1px solid var(--tr-primaire); border-radius: 999px; font-size: 13px; color: var(--tr-primaire); background: var(--tr-primaire-doux); }
+  .colonnes-import li.est-facultative { border-style: dashed; border-color: var(--tr-bordure); color: var(--tr-texte-2); background: transparent; }
+  .modale__tableau { max-height: 260px; margin: 8px 24px 0; border: 1px solid var(--tr-bordure); border-radius: var(--tr-rayon-carte); }
   .modale__pied-gauche { margin-right: auto; }
   .recadrage-photo { display: grid; grid-template-columns: 240px 1fr; gap: 20px; align-items: start; }
   .recadrage-photo__carte { border-radius: var(--tr-rayon-carte); border: 1.5px solid var(--tr-bordure); touch-action: none; }
@@ -595,8 +603,8 @@
   .recadrage-photo__zoom { display: flex; align-items: center; gap: 10px; color: var(--tr-texte-2); }
   .recadrage-photo__zoom input { flex: 1; accent-color: var(--tr-primaire); }
   .recadrage-photo__zoom svg { width: 18px; height: 18px; }
-  .recadrage-photo__depot { border: 2px dashed var(--tr-bordure); border-radius: var(--tr-rayon-carte); padding: 20px 16px; display: grid; gap: 8px; justify-items: center; text-align: center; color: var(--tr-texte-2); }
-  .recadrage-photo__depot.est-survole { border-color: var(--tr-primaire); background: var(--tr-primaire-doux); }
+  .recadrage-photo__depot, .depot-fichier { border: 2px dashed var(--tr-bordure); border-radius: var(--tr-rayon-carte); padding: 20px 16px; display: grid; gap: 8px; justify-items: center; text-align: center; color: var(--tr-texte-2); }
+  .recadrage-photo__depot.est-survole, .depot-fichier.est-survole { border-color: var(--tr-primaire); background: var(--tr-primaire-doux); }
   @media (max-width: 640px) { .recadrage-photo { grid-template-columns: 1fr; } .recadrage-photo__carte { max-width: 260px; justify-self: center; width: 100%; } }
 
   /* Vignette portrait d'une candidate dans un tableau. */

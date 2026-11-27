@@ -25,7 +25,7 @@ Ce module permet l’enregistrement des agents et la tenue de leurs affectations
 - [x] Écrans de gestion des agents : liste filtrable (structure, sexe, situation), fiche avec historique des affectations, saisie manuelle avec affectation initiale, modification, mutation et fin d'affectation par l'administrateur, tracées au journal ; le point focal contrôle en lecture seule les agents de sa structure et des structures rattachées (R4)
 - [x] Compte électeur ouvert à la création de l'agent, par la saisie comme par l'import (R3) : action `OuvrirCompteElecteur`, identifiant = matricule, rôle Électeur ; un compte existant sous ce matricule sans agent lui est rattaché
 - [x] Adresse e-mail facultative pour l'agent (valide quand elle est saisie) : sans adresse, il se connecte par code imprimé ; toujours obligatoire à la création d'un compte utilisateur de gestion
-- [x] Écran d'import `/agents/importer` (administrateur) : dépôt d'un fichier Excel ou CSV (matricule, nom, prénom, sexe, code de la structure ; e-mail et autres colonnes facultatifs), import en file d'attente (agents, comptes électeurs, affectations), progression, bilan et lignes rejetées avec leur motif
+- [x] Fenêtre « Importer un fichier » sur la liste des agents (administrateur) : dépôt d'un fichier Excel ou CSV (matricule, nom, prénom, sexe, code de la structure ; e-mail et autres colonnes facultatifs), import en file d'attente (agents, comptes électeurs, affectations), progression, bilan et lignes rejetées avec leur motif
 - [ ] Format exact de l'export du SI RH, à obtenir
 
 ## Acteurs
@@ -38,7 +38,7 @@ AGENT, AFFECTER (affectations)
 
 ## Écrans
 
-- `/agents` : liste, fiche, saisie, import par fichier (`/agents/importer`), mutation et fin d'affectation (administrateur) ; lecture seule pour le comité, l'observateur et le point focal (sa structure)
+- `/agents` : liste, fiche, saisie, import par fichier (fenêtre), mutation et fin d'affectation (administrateur) ; lecture seule pour le comité, l'observateur et le point focal (sa structure)
 
 ## Règles de gestion
 

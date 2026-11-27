@@ -24,14 +24,23 @@ class LireTableau
     private array $obligatoires = [];
 
     /**
+     * Intitulés de colonne remplacés par leur nom attendu (après normalisation).
+     *
+     * @var array<string, string>
+     */
+    private array $synonymes = [];
+
+    /**
      * @param  list<string>  $colonnesObligatoires
+     * @param  array<string, string>  $synonymes
      * @return iterable<int, array<string, string>>
      *
      * @throws InvalidArgumentException si le fichier est illisible ou si une colonne obligatoire manque
      */
-    public function handle(string $chemin, array $colonnesObligatoires): iterable
+    public function handle(string $chemin, array $colonnesObligatoires, array $synonymes = []): iterable
     {
         $this->obligatoires = $colonnesObligatoires;
+        $this->synonymes = $synonymes;
 
         return $this->lignes($chemin);
     }
@@ -114,7 +123,11 @@ class LireTableau
      */
     private function entete(array $colonnes): array
     {
-        $entete = array_map(fn (string $colonne): string => Str::of($colonne)->trim()->ascii()->lower()->replace([' ', '-'], '_')->toString(), $colonnes);
+        $entete = array_map(function (string $colonne): string {
+            $nom = Str::of($colonne)->trim()->ascii()->lower()->replace([' ', '-'], '_')->toString();
+
+            return $this->synonymes[$nom] ?? $nom;
+        }, $colonnes);
 
         $manquantes = array_diff($this->obligatoires, $entete);
         if ($manquantes !== []) {

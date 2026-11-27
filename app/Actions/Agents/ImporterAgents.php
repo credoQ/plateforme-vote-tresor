@@ -8,6 +8,7 @@ use App\Enums\Agents\Sexe;
 use App\Enums\Audit\ActionAuditee;
 use App\Models\Agent;
 use App\Models\Structure;
+use App\Models\User;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -20,19 +21,26 @@ use Throwable;
  * (export du SI RH).
  *
  * Colonnes attendues (en-tête en première ligne, dans n'importe quel ordre ; en CSV, séparateur « ; » ou « , ») :
- * matricule, npi, nom, prenoms, sexe, date_naissance, structure (code), date_debut (de l'affectation), email
- * (obligatoire : il reçoit les codes de connexion), et, à titre informatif, date_prise_service, telephone, fonction, statut.
+ * matricule, nom, prenoms (ou prenom), sexe, structure (code) sont obligatoires ; npi, date_naissance, date_debut
+ * (de l'affectation), email (facultatif) et, à titre informatif, date_prise_service, telephone, fonction, statut.
  *
- * Un agent est repéré par son matricule : il est créé ou mis à jour. Une ligne incomplète (sexe, structure ou
- * adresse e-mail absents), en doublon dans le fichier ou en conflit de NPI est rejetée sans bloquer les autres
- * (R11 à R13). Les agents absents du fichier ne sont pas modifiés.
+ * Un agent est repéré par son matricule : il est créé ou mis à jour, avec son compte électeur (R3) et son affectation
+ * (R12). Une ligne incomplète (sexe ou structure absents), en doublon dans le fichier ou en conflit de NPI est
+ * rejetée sans bloquer les autres (R11 à R13). Les agents absents du fichier ne sont pas modifiés.
  */
 class ImporterAgents
 {
     /**
      * @var list<string>
      */
-    public const COLONNES_OBLIGATOIRES = ['matricule', 'nom', 'prenoms', 'sexe', 'structure', 'email'];
+    public const COLONNES_OBLIGATOIRES = ['matricule', 'nom', 'prenoms', 'sexe', 'structure'];
+
+    /**
+     * Autres intitulés de colonne acceptés (après normalisation : minuscules, sans accents).
+     *
+     * @var array<string, string>
+     */
+    public const SYNONYMES = ['prenom' => 'prenoms', 'genre' => 'sexe', 'code_structure' => 'structure', 'e_mail' => 'email', 'mail' => 'email'];
 
     public function __construct(
         private LireTableau $lecteur,
@@ -43,17 +51,22 @@ class ImporterAgents
 
     /**
      * @param  CarbonInterface|null  $dateEffet  date de début des affectations dont la ligne ne précise pas la date (aujourd'hui par défaut)
+     * @param  (callable(int): void)|null  $progression  appelé après chaque ligne lue, avec le nombre de lignes lues
      *
      * @throws InvalidArgumentException si le fichier est illisible ou si une colonne obligatoire manque
      */
-    public function handle(string $chemin, ?CarbonInterface $dateEffet = null): RapportImport
+    public function handle(string $chemin, ?CarbonInterface $dateEffet = null, ?User $auteur = null, ?string $nomFichier = null, ?callable $progression = null): RapportImport
     {
+        $lues = 0;
         $dateEffet ??= Carbon::today();
         $rapport = new RapportImport;
         $structures = Structure::query()->pluck('id', 'code')->mapWithKeys(fn (int $id, string $code) => [mb_strtoupper($code) => $id]);
         $matriculesVus = [];
 
-        foreach ($this->lecteur->handle($chemin, self::COLONNES_OBLIGATOIRES) as $numero => $ligne) {
+        foreach ($this->lecteur->handle($chemin, self::COLONNES_OBLIGATOIRES, self::SYNONYMES) as $numero => $ligne) {
+            if ($progression !== null && ++$lues % 25 === 0) {
+                $progression($lues);
+            }
             $motifs = [];
             $matricule = $ligne['matricule'];
 
@@ -74,10 +87,6 @@ class ImporterAgents
                 $motifs[] = 'Structure d’affectation absente.';
             } elseif ($structureId === null) {
                 $motifs[] = "Structure « {$ligne['structure']} » inconnue du référentiel.";
-            }
-
-            if ($ligne['email'] === '') {
-                $motifs[] = 'Adresse e-mail absente.';
             }
 
             $dateDebut = $this->date($ligne['date_debut'] ?? '', $motifs, 'date de début d’affectation') ?? $dateEffet;
@@ -123,7 +132,7 @@ class ImporterAgents
             }
         }
 
-        $this->journal->handle(ActionAuditee::ImportAgents, null, ['fichier' => basename($chemin), 'crees' => $rapport->agentsCrees, 'mis_a_jour' => $rapport->agentsMisAJour, 'affectations' => $rapport->affectationsCreees, 'rejets' => count($rapport->rejets)]);
+        $this->journal->handle(ActionAuditee::ImportAgents, null, ['fichier' => $nomFichier ?? basename($chemin), 'crees' => $rapport->agentsCrees, 'mis_a_jour' => $rapport->agentsMisAJour, 'affectations' => $rapport->affectationsCreees, 'rejets' => count($rapport->rejets)], $auteur);
 
         return $rapport;
     }

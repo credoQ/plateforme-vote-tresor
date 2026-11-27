@@ -3,7 +3,9 @@
 namespace App\Livewire\Acces;
 
 use App\Actions\Acces\DemanderCodeConnexion;
+use App\Actions\Acces\VerifierCodeAcces;
 use App\Actions\Acces\VerifierCodeConnexion;
+use App\Enums\Acces\ModeConnexion;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -92,6 +94,34 @@ class Connexion extends Component
         $this->redirectIntended($utilisateur->pageDAccueil());
     }
 
+    /**
+     * Mode « code imprimé » (ModeConnexion::CodeImprime) : matricule et code personnel du coupon, en une étape.
+     */
+    public function seConnecter(VerifierCodeAcces $verifier): void
+    {
+        abort_unless(ModeConnexion::codeImprime(), 404);
+
+        $donnees = $this->validate(
+            ['login' => ['required', 'string', 'max:60'], 'code' => ['required', 'string', 'max:20']],
+            ['login.required' => 'Saisissez votre matricule.', 'code.required' => 'Saisissez le code de votre coupon.'],
+        );
+        $login = trim((string) $donnees['login']);
+
+        // R42 : essais limités par matricule et par poste, comme pour le code envoyé par e-mail.
+        $cle = 'saisie-code:'.Str::transliterate(Str::lower($login)).'|'.request()->ip();
+        if (RateLimiter::tooManyAttempts($cle, self::ESSAIS_CODE_PAR_MINUTE)) {
+            throw ValidationException::withMessages(['code' => 'Trop d’essais. Réessayez dans une minute.']);
+        }
+        RateLimiter::hit($cle, 60);
+
+        $utilisateur = $verifier->handle($login, (string) $donnees['code']);
+
+        Auth::login($utilisateur, $this->souvenir);
+        session()->regenerate();
+
+        $this->redirectIntended($utilisateur->pageDAccueil());
+    }
+
     public function renvoyer(DemanderCodeConnexion $demander): void
     {
         $login = session('connexion.login');
@@ -161,6 +191,6 @@ class Connexion extends Component
 
     public function render(): View
     {
-        return view('livewire.acces.connexion');
+        return view('livewire.acces.connexion', ['codeImprime' => ModeConnexion::codeImprime()]);
     }
 }

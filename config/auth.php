@@ -126,4 +126,17 @@ return [
 
     'code_libre' => (bool) env('CONNEXION_CODE_LIBRE', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Mode de connexion
+    |--------------------------------------------------------------------------
+    |
+    | « email » : code à usage unique envoyé par e-mail à chaque connexion.
+    | « code_imprime » : code personnel remis sur un coupon imprimé par le comité ;
+    | aucun e-mail n'est alors envoyé par la plateforme (App\Enums\Acces\ModeConnexion).
+    |
+    */
+
+    'mode_connexion' => env('CONNEXION_MODE', 'email'),
+
 ];

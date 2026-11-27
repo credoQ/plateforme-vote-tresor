@@ -32,6 +32,9 @@ enum ActionAuditee: string
     case CandidateNominee = 'CANDIDATE_NOMINEE';
     case NominationRetiree = 'NOMINATION_RETIREE';
     case PhotoCandidateModifiee = 'PHOTO_CANDIDATE_MODIFIEE';
+    case CodesAccesGeneres = 'CODES_ACCES_GENERES';
+    case CodeAccesRegenere = 'CODE_ACCES_REGENERE';
+    case CodesAccesImprimes = 'CODES_ACCES_IMPRIMES';
     // Opération retirée (saisie unitaire depuis), gardée pour les entrées déjà au journal.
     case ImportFemmesModeles = 'IMPORT_FEMMES_MODELES';
     case FemmeModeleAjoutee = 'FEMME_MODELE_AJOUTEE';
@@ -75,6 +78,9 @@ enum ActionAuditee: string
             self::CandidateNominee => 'Candidate nominée',
             self::NominationRetiree => 'Nomination retirée',
             self::PhotoCandidateModifiee => 'Photo de candidate modifiée',
+            self::CodesAccesGeneres => 'Codes d’accès générés',
+            self::CodeAccesRegenere => 'Code d’accès régénéré',
+            self::CodesAccesImprimes => 'Codes d’accès imprimés',
             self::ImportFemmesModeles => 'Import de l’historique des femmes modèles',
             self::FemmeModeleAjoutee => 'Femme modèle ajoutée à l’historique',
             self::FemmeModeleSupprimee => 'Femme modèle retirée de l’historique',

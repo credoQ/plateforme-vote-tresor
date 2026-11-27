@@ -1,3 +1,33 @@
+@if ($codeImprime)
+{{-- Mode « code imprimé » : matricule et code personnel du coupon remis par le comité, en une étape, sans e-mail. --}}
+<div class="connexion-etapes" x-init="setTimeout(() => $refs.login?.focus(), 60)">
+    <section>
+        <form wire:submit="seConnecter" novalidate>
+            <h2>Connexion</h2>
+            <p>Saisissez votre matricule et le code personnel inscrit sur le coupon que le comité vous a remis.</p>
+
+            <div class="formulaire__groupe espace-bloc">
+                <label class="libelle" for="login">Matricule <span class="requis">*</span></label>
+                <div class="champ-icone"><i data-lucide="id-card"></i><input id="login" x-ref="login" wire:model="login" class="champ champ--grand" placeholder="Ex. 123456" autocomplete="username" required autofocus></div>
+                @error('login')<p class="erreur-champ">{{ $message }}</p>@enderror
+            </div>
+
+            <div class="formulaire__groupe espace-bloc">
+                <label class="libelle" for="code-acces">Code personnel <span class="requis">*</span></label>
+                <div class="champ-icone"><i data-lucide="key-round"></i><input id="code-acces" wire:model="code" class="champ champ--grand champ--majuscules" placeholder="Ex. K7RM-4XQP" autocomplete="off" autocapitalize="characters" spellcheck="false" maxlength="20" required></div>
+                @error('code')<p class="erreur-champ">{{ $message }}</p>@enderror
+            </div>
+
+            <div class="connexion__options">
+                <label class="case"><input type="checkbox" wire:model="souvenir"> Se souvenir de ce poste</label>
+            </div>
+            <button type="submit" class="btn btn-primaire btn--lg connexion__bouton" wire:loading.attr="disabled" wire:target="seConnecter"><i data-lucide="log-in"></i>Se connecter</button>
+
+            <div class="connexion__aide"><i data-lucide="info"></i><span>Coupon perdu ou code refusé ? Adressez-vous au comité d’organisation : il vous remettra un nouveau code.</span></div>
+        </form>
+    </section>
+</div>
+@else
 <div class="connexion-etapes"
      x-effect="const etape = $wire.etape; setTimeout(() => (etape === 'code' ? $root.querySelector('.saisie-code__case') : $refs.login)?.focus(), 60)">
     {{-- Étape 1 : le matricule. Elle sort vers la gauche et revient par la gauche. --}}
@@ -61,3 +91,4 @@
         <div class="connexion__aide"><i data-lucide="mail"></i><span>Rien reçu ? Vérifiez vos courriers indésirables, ou faites enregistrer votre adresse par votre point focal.</span></div>
     </section>
 </div>
+@endif

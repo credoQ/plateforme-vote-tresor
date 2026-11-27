@@ -42,6 +42,19 @@ class ImprimerCodesAcces
     }
 
     /**
+     * Coupons des comptes choisis à l'écran (identifiants), quel que soit leur rôle, par structure d'affectation.
+     *
+     * @param  list<int>  $comptes
+     * @return array{pdf: string, nom: string, nombre: int}
+     */
+    public function selection(array $comptes, ?User $auteur = null): array
+    {
+        $choisis = User::query()->where('actif', true)->whereNotNull('code_acces')->whereKey($comptes)->with(['roles', 'agent'])->get();
+
+        return $this->rendre($this->parStructure($choisis), 'Codes d’accès', 'codes-acces-selection.pdf', 'sélection', $auteur);
+    }
+
+    /**
      * Coupon d'un seul compte (code perdu, puis régénéré).
      *
      * @return array{pdf: string, nom: string, nombre: int}

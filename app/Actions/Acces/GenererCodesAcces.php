@@ -50,12 +50,17 @@ class GenererCodesAcces
     }
 
     /**
+     * Codes manquants de tous les comptes actifs, ou des seuls comptes choisis ($comptes, identifiants).
+     *
+     * @param  list<int>|null  $comptes
      * @return int Nombre de codes créés.
      */
-    public function handle(?User $auteur = null): int
+    public function handle(?User $auteur = null, ?array $comptes = null): int
     {
-        return DB::transaction(function () use ($auteur): int {
-            $comptes = User::where('actif', true)->whereNull('code_acces')->lockForUpdate()->get();
+        return DB::transaction(function () use ($auteur, $comptes): int {
+            $comptes = User::where('actif', true)->whereNull('code_acces')
+                ->when($comptes !== null, fn ($q) => $q->whereKey($comptes))
+                ->lockForUpdate()->get();
 
             foreach ($comptes as $compte) {
                 $compte->forceFill(['code_acces' => self::nouveauCode(), 'code_acces_genere_le' => now()])->save();

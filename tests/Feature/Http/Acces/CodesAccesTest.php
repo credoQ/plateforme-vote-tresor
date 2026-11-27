@@ -142,6 +142,33 @@ class CodesAccesTest extends TestCase
         $this->get(route('codes-acces.lot', 'electeurs'))->assertForbidden();
     }
 
+    /**
+     * Filtre par structure d'affectation, sélection par cases à cocher : seuls les comptes cochés reçoivent un code
+     * et sortent sur les coupons.
+     */
+    public function test_genere_et_imprime_les_codes_des_comptes_selectionnes_par_structure(): void
+    {
+        $dr = Structure::where('code', 'DR')->firstOrFail();
+        $autreAgent = Agent::factory()->affecteA($dr, Carbon::parse('2020-01-01'))->create(['matricule' => '107777']);
+        $autre = User::factory()->pourAgent($autreAgent)->avecRoles(CodeRole::Electeur)->create(['login' => '107777']);
+        $this->actingAs($this->comite);
+
+        $composant = Livewire::test(CodesAcces::class)->set('structure', (string) $dr->id);
+        $this->assertSame([$autre->id], $composant->get('comptes')->pluck('id')->all(), 'Seuls les comptes de la DR.');
+
+        $composant->call('selectionnerTout')->assertSet('selection', [(string) $autre->id])
+            ->call('genererSelection')->assertDispatched('notifier');
+        $this->assertNotNull($autre->fresh()->code_acces);
+        $this->assertNull($this->electeur->fresh()->code_acces, 'Le compte non coché n’a pas de code.');
+
+        $composant->call('imprimerSelection')->assertFileDownloaded('codes-acces-selection.pdf');
+        $this->assertSame(['lot' => 'sélection', 'nombre' => 1], JournalAudit::where('action', ActionAuditee::CodesAccesImprimes->value)->sole()->details);
+
+        $composant->call('viderSelection')->assertSet('selection', [])
+            ->set('structure', '')->call('basculerPage');
+        $this->assertCount(3, $composant->get('selection'), 'La page entière : comité, électeur, agent de la DR.');
+    }
+
     public function test_en_mode_code_imprime_aucun_e_mail_ne_part(): void
     {
         config(['mail.default' => 'array']);

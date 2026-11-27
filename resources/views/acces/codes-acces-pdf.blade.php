@@ -1,9 +1,9 @@
 {{-- Coupons des codes d'accès (ImprimerCodesAcces) : deux coupons par ligne, à découper et remettre sous pli.
      Dompdf ne lit pas les variables CSS : couleurs de la charte recopiées. --}}
-<x-pdf.document :titre="$titre" type="Codes d’accès · confidentiel" :edite-le="now()" :edite-par="$auteur">
+<x-pdf.document :titre="$titre" type="Codes d’accès" :edite-le="now()" :edite-par="$auteur">
     <style>
-        .section { page-break-before: always; }
-        .section:first-of-type { page-break-before: auto; }
+        /* Dompdf ignore :first-of-type : le saut de page est marqué à partir de la deuxième section. */
+        .section--suite { page-break-before: always; }
         .section h2 { font-size: 11pt; margin: 4px 0 8px; color: #0054A0; }
         table.coupons { width: 100%; border-collapse: separate; border-spacing: 8px; }
         table.coupons td { width: 50%; vertical-align: top; }
@@ -16,10 +16,10 @@
     </style>
 
     <h1>{{ $titre }}</h1>
-    <p class="sous-titre">À découper et remettre sous pli à chaque personne. Un code est personnel : ne le communiquez à personne.</p>
+    <p class="sous-titre"><strong>Confidentiel.</strong> À découper et remettre sous pli à chaque personne. Un code est personnel : ne le communiquez à personne.</p>
 
     @forelse ($sections as $structure => $section)
-        <div class="section">
+        <div @class(['section', 'section--suite' => ! $loop->first])>
             <h2>{{ $structure }} · {{ $section['nombre'] }} code(s)</h2>
             <table class="coupons">
                 @foreach ($section['lignes'] as $ligne)

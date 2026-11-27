@@ -128,11 +128,14 @@ class CodesAccesTest extends TestCase
         $this->assertSame(1, $electeurs['nombre'], 'Seul l’électeur.');
         $this->assertSame(1, $autres['nombre'], 'Le membre du comité, à part.');
         $this->assertStringStartsWith('%PDF', $electeurs['pdf']);
+        $pages = fn (string $pdf): int => preg_match_all('#/Type\s*/Page[^s]#', $pdf);
+        $this->assertSame(1, $pages(app(ImprimerCodesAcces::class)->coupon($this->electeur->fresh())['pdf']), 'Un coupon seul tient sur une page.');
+        $this->assertSame(1, $pages($electeurs['pdf']), 'Pas de page vide avant la première structure.');
 
         $this->actingAs($this->comite)->get(route('codes-acces.index'))->assertOk()->assertSee('Coupons des électeurs');
         $this->get(route('codes-acces.lot', 'electeurs'))->assertOk()->assertHeader('Content-Type', 'application/pdf');
         $this->get(route('codes-acces.coupon', $this->electeur))->assertOk();
-        $this->assertSame(4, JournalAudit::where('action', ActionAuditee::CodesAccesImprimes->value)->count());
+        $this->assertSame(5, JournalAudit::where('action', ActionAuditee::CodesAccesImprimes->value)->count());
 
         $pointFocal = User::factory()->pointFocalDe(Structure::where('code', 'DIA')->firstOrFail())->create();
         $this->actingAs($pointFocal)->get(route('codes-acces.index'))->assertForbidden();
